@@ -28,12 +28,12 @@ const double four_pi = 4*pi;
 //CSS161010
 const double distance = 150*3.08*1.0E24;
 
-const std::string outputfileName = "radiation.dat";
+//const std::string outputfileName = "radiation.dat";
 //const std::string fileNameP = "../../tristan-mp-pitp/Pe";
 //const std::string fileNameF = "../../tristan-mp-pitp/Fe";
-const std::string fileNameP = "Ee";
-const std::string fileNameF = "Fs";
-const std::string logFileName = "log.dat";
+//const std::string fileNameP = "Ee";
+//const std::string fileNameF = "Fs";
+//const std::string logFileName = "log.dat";
 
 
 #endif

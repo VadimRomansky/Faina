@@ -24,6 +24,9 @@
     <ClCompile Include="electronDistribution.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="photonDistribution.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="constants.h">
@@ -32,7 +35,10 @@
     <ClInclude Include="util.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="electronDistributionFunction.h">
+    <ClInclude Include="electronDistribution.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="photonDistribution.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
