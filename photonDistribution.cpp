@@ -7,7 +7,7 @@
 #include "photonDistribution.h"
 
 PhotonPlankDistribution* PhotonPlankDistribution::my_CMBradiation = 0;
-PhotonMultiPlankDistribution* PhotonMultiPlankDistribution::myGalacticField = 0;
+PhotonMultiPlankDistribution* PhotonMultiPlankDistribution::my_GalacticField = 0;
 
 PhotonPowerLawDistribution::PhotonPowerLawDistribution(const double& index, const double& E0, const double& concentration)
 {
@@ -115,13 +115,13 @@ double PhotonMultiPlankDistribution::distribution(const double& energy, const do
 
 PhotonMultiPlankDistribution* PhotonMultiPlankDistribution::getGalacticField()
 {
-	if (!myGalacticField) {
+	if (!my_GalacticField) {
 		double temperatures[5] = { 2.7, 20, 3000, 4000, 7500 };
 		double amplitudes[5] = { 1.0, 4E-4, 4E-13, 1.65E-13, 1E-14 };
-		myGalacticField = new PhotonMultiPlankDistribution(5, temperatures, amplitudes);
+		my_GalacticField = new PhotonMultiPlankDistribution(5, temperatures, amplitudes);
 	}
 
-	return myGalacticField;
+	return my_GalacticField;
 }
 
 CompoundPhotonDistribution::CompoundPhotonDistribution(int N, PhotonDistribution** distributions)

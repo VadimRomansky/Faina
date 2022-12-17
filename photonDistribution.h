@@ -47,7 +47,7 @@ private:
 	double* my_concentrations;
 	double* my_A;
 
-	static PhotonMultiPlankDistribution* myGalacticField;
+	static PhotonMultiPlankDistribution* my_GalacticField;
 public:
 	PhotonMultiPlankDistribution(int Nplank, const double* const temperatures, const double* const amplitudes);
 	~PhotonMultiPlankDistribution();
