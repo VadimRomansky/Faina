@@ -1,4 +1,4 @@
-#ifndef partcle_distribution_h
+#ifndef particle_distribution_h
 #define particle_distribution_h
 
 class ParticleDistribution {

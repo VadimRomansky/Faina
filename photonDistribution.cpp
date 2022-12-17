@@ -6,6 +6,9 @@
 
 #include "photonDistribution.h"
 
+PhotonPlankDistribution* PhotonPlankDistribution::my_CMBradiation = 0;
+PhotonMultiPlankDistribution* PhotonMultiPlankDistribution::myGalacticField = 0;
+
 PhotonPowerLawDistribution::PhotonPowerLawDistribution(const double& index, const double& E0, const double& concentration)
 {
 	if (index <= 1.0) {
@@ -65,7 +68,15 @@ double PhotonPlankDistribution::getTemperature() {
 	return my_temperature;
 }
 
-PhotonMultiPlankDistribution::PhotonMultiPlankDistribution(int Nplank, double* temperatures, double* amplitudes)
+PhotonPlankDistribution* PhotonPlankDistribution::getCMBradiation()
+{
+	if (!my_CMBradiation) {
+		my_CMBradiation = new PhotonPlankDistribution(2.7, 1.0);
+	}
+	return my_CMBradiation;
+}
+
+PhotonMultiPlankDistribution::PhotonMultiPlankDistribution(int Nplank, const double* const temperatures, const double* const amplitudes)
 {
 	my_Nplank = Nplank;
 	my_temperatures = new double[my_Nplank];
@@ -99,5 +110,61 @@ double PhotonMultiPlankDistribution::distribution(const double& energy, const do
 		result += my_A[i] * (2 * energy * energy / cube(hplank * speed_of_light)) / (exp(theta) - 1.0);
 	}
 
+	return result;
+}
+
+PhotonMultiPlankDistribution* PhotonMultiPlankDistribution::getGalacticField()
+{
+	if (!myGalacticField) {
+		double temperatures[5] = { 2.7, 20, 3000, 4000, 7500 };
+		double amplitudes[5] = { 1.0, 4E-4, 4E-13, 1.65E-13, 1E-14 };
+		myGalacticField = new PhotonMultiPlankDistribution(5, temperatures, amplitudes);
+	}
+
+	return myGalacticField;
+}
+
+CompoundPhotonDistribution::CompoundPhotonDistribution(int N, PhotonDistribution** distributions)
+{
+	my_Ndistr = N;
+
+	my_distributions = new PhotonDistribution * [my_Ndistr];
+	my_concentration = 0;
+	for (int i = 0; i < my_Ndistr; ++i) {
+		my_distributions[i] = distributions[i];
+		my_concentration += my_distributions[i]->getConcentration();
+	}
+}
+
+CompoundPhotonDistribution::CompoundPhotonDistribution(PhotonDistribution* dist1, PhotonDistribution* dist2)
+{
+	my_Ndistr = 2;
+	my_distributions = new PhotonDistribution * [my_Ndistr];
+	my_concentration = dist1->getConcentration() + dist2->getConcentration();
+	my_distributions[0] = dist1;
+	my_distributions[1] = dist2;
+}
+
+CompoundPhotonDistribution::CompoundPhotonDistribution(PhotonDistribution* dist1, PhotonDistribution* dist2, PhotonDistribution* dist3)
+{
+	my_Ndistr = 3;
+	my_distributions = new PhotonDistribution * [my_Ndistr];
+	my_concentration = dist1->getConcentration() + dist2->getConcentration() + dist3->getConcentration();
+	my_distributions[0] = dist1;
+	my_distributions[1] = dist2;
+	my_distributions[2] = dist3;
+}
+
+CompoundPhotonDistribution::~CompoundPhotonDistribution()
+{
+	delete[] my_distributions;
+}
+
+double CompoundPhotonDistribution::distribution(const double& energy, const double& mu, const double& phi)
+{
+	double result = 0;
+	for (int i = 0; i < my_Ndistr; ++i) {
+		result += my_distributions[i]->distribution(energy, mu, phi);
+	}
 	return result;
 }

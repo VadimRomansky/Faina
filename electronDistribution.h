@@ -5,6 +5,7 @@
 enum ElectronInputType {ENERGY_FE, GAMMA_FGAMMA, MOMENTUM_FP};
 
 class ElectronDistribution : public ParticleDistribution{
+public:
 	virtual double distribution(const double& energy, const double& mu, const double& phi) = 0;
 };
 
@@ -20,7 +21,7 @@ protected:
 	double my_A;
 public:
 	ElectronPowerLawDistribution(const double& index, const double& E0, const double& concentration);
-	double distribution(const double& energy);
+	virtual double distribution(const double& energy);
 	double getIndex();
 	double getE0();
 };
@@ -31,7 +32,7 @@ protected:
 	double my_A;
 public:
 	ElectronMaxwellDistribution(const double& temperature, const double& concentration);
-	double distribution(const double& energy);
+	virtual double distribution(const double& energy);
 	double getTemperature();
 };
 
@@ -41,7 +42,7 @@ protected:
 	double my_A;
 public:
 	ElectronMaxwellJuttnerDistribution(const double& temperature, const double& concentration);
-	double distribution(const double& energy);
+	virtual double distribution(const double& energy);
 	double getTemperature();
 };
 
@@ -59,7 +60,7 @@ public:
 	ElectronTabulatedIsotropicDistribution(const char* energyFileName, const char* distributionFileName, const int N, const double& concentration, ElectronInputType inputType);
 	ElectronTabulatedIsotropicDistribution(const double* energy, const double* distribution, const int N, const double& concentration, ElectronInputType inputType);
 	~ElectronTabulatedIsotropicDistribution();
-	double distribution(const double& energy);
+	virtual double distribution(const double& energy);
 	int getN();
 };
 
@@ -80,7 +81,7 @@ public:
 	ElectronTabulatedAzimutalDistribution(const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const double& concentration, ElectronInputType inputType);
 	ElectronTabulatedAzimutalDistribution(const double* energy, const double* mu, const double** distribution, const int Ne, const int Nmu, const double& concentration, ElectronInputType inputType);
 	~ElectronTabulatedAzimutalDistribution();
-	double distribution(const double& energy, const double& mu, const double& phi);
+	virtual double distribution(const double& energy, const double& mu, const double& phi);
 	int getNe();
 	int getNmu();
 };
@@ -105,7 +106,7 @@ public:
 	ElectronTabulatedAnisotropicDistribution(const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const int Nphi, const double& concentration, ElectronInputType inputType);
 	ElectronTabulatedAnisotropicDistribution(const double* energy, const double* mu, const double*** distribution, const int Ne, const int Nmu, const int Nphi, const double& concentration, ElectronInputType inputType);
 	~ElectronTabulatedAnisotropicDistribution();
-	double distribution(const double& energy, const double& mu, const double& phi);
+	virtual double distribution(const double& energy, const double& mu, const double& phi);
 	int getNe();
 	int getNmu();
 	int getNphi();
