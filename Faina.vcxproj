@@ -136,6 +136,7 @@
   <ItemGroup>
     <ClInclude Include="constants.h" />
     <ClInclude Include="electronDistribution.h" />
+    <ClInclude Include="particleDistribution.h" />
     <ClInclude Include="photonDistribution.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>

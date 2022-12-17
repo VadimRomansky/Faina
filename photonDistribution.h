@@ -1,16 +1,13 @@
 #ifndef photon_distribution
 #define photon_distribution
+#include "particleDistribution.h"
 
 /** abstract class, containing photon energy distribution function, normalized to the concentration
 * number of particles dN = f(E, mu, phi) dE dmu dphi dV where mu = cos theta
 */
 
-class PhotonDistribution {
-protected:
-	double my_concentration;
-public:
+class PhotonDistribution : public ParticleDistribution{
 	virtual double distribution(const double& energy, const double& mu, const double& phi) = 0;
-	double getConcentration();
 };
 
 class PhotonPowerLawDistribution : public PhotonDistribution {
@@ -29,8 +26,9 @@ public:
 class PhotonPlankDistribution : public PhotonDistribution {
 private:
 	double my_temperature;
+	double my_A;
 public:
-	PhotonPlankDistribution(const double& temperature, const double& concentration);
+	PhotonPlankDistribution(const double& temperature, const double& amplitude);
 	double distribution(const double& energy, const double& mu, const double& phi);
 
 	double getTemperature();
@@ -43,7 +41,8 @@ private:
 	double* my_concentrations;
 	double* my_A;
 public:
-	PhotonMultiPlankDistribution(int Nplank, double* temperatures, double* concentrations);
+	PhotonMultiPlankDistribution(int Nplank, double* temperatures, double* amplitudes);
+	~PhotonMultiPlankDistribution();
 	double distribution(const double& energy, const double& mu, const double& phi);
 };
 

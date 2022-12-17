@@ -41,5 +41,8 @@
     <ClInclude Include="photonDistribution.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="particleDistribution.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

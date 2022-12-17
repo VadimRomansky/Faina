@@ -6,11 +6,6 @@
 
 #include "photonDistribution.h"
 
-double PhotonDistribution::getConcentration()
-{
-    return my_concentration;
-}
-
 PhotonPowerLawDistribution::PhotonPowerLawDistribution(const double& index, const double& E0, const double& concentration)
 {
 	if (index <= 1.0) {
@@ -50,6 +45,59 @@ double PhotonPowerLawDistribution::getE0()
     return my_E0;
 }
 
-PhotonPlankDistribution::PhotonPlankDistribution(const double& temperature, const double& concentration)
+PhotonPlankDistribution::PhotonPlankDistribution(const double& temperature, const double& amplitude)
 {
+	my_temperature = temperature;
+	my_A = amplitude;
+
+	double dzeta3 = 1.202056903;
+	double intPlank2 = 2 * dzeta3;
+
+	my_concentration = my_A*intPlank2*(8 * pi / cube(hplank * speed_of_light)) * cube(kBoltzman * my_temperature);
+}
+
+double PhotonPlankDistribution::distribution(const double& energy, const double& mu, const double& phi) {
+	double theta = energy / (kBoltzman * my_temperature);
+	return my_A*(2 * energy * energy / cube(hplank * speed_of_light)) / (exp(theta) - 1.0);
+}
+
+double PhotonPlankDistribution::getTemperature() {
+	return my_temperature;
+}
+
+PhotonMultiPlankDistribution::PhotonMultiPlankDistribution(int Nplank, double* temperatures, double* amplitudes)
+{
+	my_Nplank = Nplank;
+	my_temperatures = new double[my_Nplank];
+	my_A = new double[my_Nplank];
+	my_concentrations = new double[my_Nplank];
+
+	my_concentration = 0;
+	double dzeta3 = 1.202056903;
+	double intPlank2 = 2 * dzeta3;
+
+	for (int i = 0; i < my_Nplank; ++i) {
+		my_temperatures[i] = temperatures[i];
+		my_A[i] = amplitudes[i];
+		my_concentrations[i] = my_A[i] * intPlank2 * (8 * pi / cube(hplank * speed_of_light)) * cube(kBoltzman * my_temperatures[i]);
+		my_concentration += my_concentrations[i];
+	}
+}
+
+PhotonMultiPlankDistribution::~PhotonMultiPlankDistribution()
+{
+	delete[] my_concentrations;
+	delete[] my_A;
+	delete[] my_temperatures;
+}
+
+double PhotonMultiPlankDistribution::distribution(const double& energy, const double& mu, const double& phi)
+{
+	double result = 0;
+	for (int i = 0; i < my_Nplank; ++i) {
+		double theta = energy / (kBoltzman * my_temperatures[i]);
+		result += my_A[i] * (2 * energy * energy / cube(hplank * speed_of_light)) / (exp(theta) - 1.0);
+	}
+
+	return result;
 }
