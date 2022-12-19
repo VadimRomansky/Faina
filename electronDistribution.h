@@ -112,4 +112,31 @@ public:
 	int getNphi();
 };
 
+class CompoundElectronDistribution : public ElectronDistribution {
+private:
+	int my_Ndistr;
+	ElectronDistribution** my_distributions;
+public:
+	CompoundElectronDistribution(int N, ElectronDistribution** distributions);
+	CompoundElectronDistribution(ElectronDistribution* dist1, ElectronDistribution* dist2);
+	CompoundElectronDistribution(ElectronDistribution* dist1, ElectronDistribution* dist2, ElectronDistribution* dist3);
+	~CompoundElectronDistribution();
+
+	virtual double distribution(const double& energy, const double& mu, const double& phi);
+};
+
+class CompoundWeightedElectronDistribution : public ElectronDistribution {
+private:
+	int my_Ndistr;
+	double* my_weights;
+	ElectronDistribution** my_distributions;
+public:
+	CompoundWeightedElectronDistribution(int N, const double* weights, ElectronDistribution** distributions);
+	CompoundWeightedElectronDistribution(ElectronDistribution* dist1, const double& w1, ElectronDistribution* dist2, const double& w2);
+	CompoundWeightedElectronDistribution(ElectronDistribution* dist1, const double& w1, ElectronDistribution* dist2, const double& w2, ElectronDistribution* dist3, const double& w3);
+	~CompoundWeightedElectronDistribution();
+
+	virtual double distribution(const double& energy, const double& mu, const double& phi);
+};
+
 #endif

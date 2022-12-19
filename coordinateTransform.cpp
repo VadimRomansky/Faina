@@ -8,15 +8,9 @@
 
 void LorentzTransformationPhotonZ(const double& beta, const double& Einit, const double& cosThetaInit, double& Eprime, double& cosThetaPrime) {
 	double gamma = 1.0 / sqrt(1.0 - beta * beta);
-	double p = Einit / speed_of_light;
-	double pz = p * cosThetaInit;
-	double pnorm = sqrt(p * p - pz * pz);
 
-	Eprime = gamma * Einit - beta * gamma * pz * speed_of_light;
-	double pzprime = -beta * gamma * Einit / speed_of_light + gamma * pz;
-	double pprime = sqrt(pnorm * pnorm + pzprime * pzprime);
-
-	cosThetaPrime = pzprime / pprime;
+	Eprime = gamma*(1 - beta*cosThetaInit)*Einit;
+	cosThetaPrime = (cosThetaInit - beta)/(1 - cosThetaInit*beta);
 }
 
 //transform from one spherical system to rotated. Rotation on phir around z, and then on mur around x' 
