@@ -2,6 +2,10 @@
 #define electron_distribution_h
 #include "particleDistribution.h"
 
+/** abstract class, containing electron energy distribution function, normalized to the concentration
+* number of particles dN = f(E, mu, phi) dE dmu dphi dV where mu = cos theta
+*/
+
 enum ElectronInputType {ENERGY_FE, GAMMA_FGAMMA, MOMENTUM_FP};
 
 class ElectronDistribution : public ParticleDistribution{

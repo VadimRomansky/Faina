@@ -4,6 +4,24 @@
 #include "electronDistribution.h"
 #include "photonDistribution.h"
 
+class InverseComptonEvaluator {
+protected:
+	int my_Ne;
+	int my_Nmu;
+	int my_Nphi;
+	double my_Emin;
+	double my_Emax;
+
+	double* my_cosTheta;
+	double* my_cosThetaLeft;
+	double* my_dcosTheta;
+	double* my_Ee;
+public:
+	InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax);
+	~InverseComptonEvaluator();
+	double evaluateComptonLuminocity(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, ElectronDistribution* electronDistribution, const double& volume, const double& distance);
+};
+
 //correct name?
 double evaluateComptonLuminocity(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, ElectronDistribution* electronDistribution, const double& volume, const double& distance, const double& Emin, const double& Emax, const int Ne, const int Nmu, const int Nphi);
 
