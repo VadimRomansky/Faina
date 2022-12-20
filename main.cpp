@@ -39,6 +39,7 @@ int main() {
 
 	printLog("evaluating\n");
 	for (int i = 0; i < Nnu; ++i) {
+		printf("%d\n", i);
 		I[i] = evaluateComptonLuminocity(E[i], 0, 0, CMBradiation, electrons, volume, distance, me_c2, 10000 * me_c2, 200, 20, 20);
 	}
 

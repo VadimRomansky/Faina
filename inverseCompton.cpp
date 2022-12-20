@@ -15,7 +15,7 @@ double evaluateComptonLuminocity(const double& photonFinalEnergy, const double& 
 	double* cosThetaLeft = new double[Nmu];
 	double* dcosTheta = new double[Nmu];
 
-	double thetamin = 0.001 / (Emax/me_c2);
+	double thetamin = 0.1 / (Emax/me_c2);
 	double dlogtheta = log(pi / thetamin) / (Nmu - 1);
 
 	cosThetaLeft[0] = 1.0;
