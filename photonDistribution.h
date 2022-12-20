@@ -11,20 +11,26 @@ public:
 	virtual double distribution(const double& energy, const double& mu, const double& phi) = 0;
 };
 
-class PhotonPowerLawDistribution : public PhotonDistribution {
+class PhotonIsotropicDistribution : public PhotonDistribution {
+public:
+	double distribution(const double& energy, const double& mu, const double& phi);
+	virtual double distribution(const double& energy) = 0;
+};
+
+class PhotonPowerLawDistribution : public PhotonIsotropicDistribution {
 private:
 	double my_index;
 	double my_E0;
 	double my_A;
 public:
 	PhotonPowerLawDistribution(const double& index, const double& E0, const double& concentration);
-	virtual double distribution(const double& energy, const double& mu, const double& phi);
+	virtual double distribution(const double& energy);
 
 	double getIndex();
 	double getE0();
 };
 
-class PhotonPlankDistribution : public PhotonDistribution {
+class PhotonPlankDistribution : public PhotonIsotropicDistribution {
 private:
 	double my_temperature;
 	double my_A;
@@ -33,14 +39,14 @@ private:
 public:
 
 	PhotonPlankDistribution(const double& temperature, const double& amplitude);
-	virtual double distribution(const double& energy, const double& mu, const double& phi);
+	virtual double distribution(const double& energy);
 
 	double getTemperature();
 
 	static PhotonPlankDistribution* getCMBradiation();
 };
 
-class PhotonMultiPlankDistribution : public PhotonDistribution {
+class PhotonMultiPlankDistribution : public PhotonIsotropicDistribution {
 private:
 	double my_Nplank;
 	double* my_temperatures;
@@ -51,7 +57,7 @@ private:
 public:
 	PhotonMultiPlankDistribution(int Nplank, const double* const temperatures, const double* const amplitudes);
 	~PhotonMultiPlankDistribution();
-	virtual double distribution(const double& energy, const double& mu, const double& phi);
+	virtual double distribution(const double& energy);
 
 	//Mathis 1983?
 	static PhotonMultiPlankDistribution* getGalacticField();

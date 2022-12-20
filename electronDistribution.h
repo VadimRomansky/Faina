@@ -14,6 +14,7 @@ public:
 };
 
 class ElectronIsotropicDistribution : public ElectronDistribution {
+public:
 	double distribution(const double& energy, const double& mu, const double& phi);
 	virtual double distribution(const double& energy) = 0;
 };

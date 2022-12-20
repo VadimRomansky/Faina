@@ -20,6 +20,7 @@ public:
 	InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax);
 	~InverseComptonEvaluator();
 	double evaluateComptonLuminocity(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, ElectronDistribution* electronDistribution, const double& volume, const double& distance);
+	double evaluateComptonLuminocityIsotropicFunction(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, ElectronIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
 };
 
 //correct name?

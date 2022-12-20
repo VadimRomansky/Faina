@@ -9,6 +9,11 @@
 PhotonPlankDistribution* PhotonPlankDistribution::my_CMBradiation = 0;
 PhotonMultiPlankDistribution* PhotonMultiPlankDistribution::my_GalacticField = 0;
 
+double PhotonIsotropicDistribution::distribution(const double& energy, const double& mu, const double& phi)
+{
+	return distribution(energy);
+}
+
 PhotonPowerLawDistribution::PhotonPowerLawDistribution(const double& index, const double& E0, const double& concentration)
 {
 	if (index <= 1.0) {
@@ -28,7 +33,7 @@ PhotonPowerLawDistribution::PhotonPowerLawDistribution(const double& index, cons
 	my_A = my_concentration * (my_index - 1) / (my_E0 * 4 * pi);
 }
 
-double PhotonPowerLawDistribution::distribution(const double& energy, const double& mu, const double& phi)
+double PhotonPowerLawDistribution::distribution(const double& energy)
 {
 	if (energy < 0) {
 		printf("photon energy < 0\n");
@@ -59,7 +64,7 @@ PhotonPlankDistribution::PhotonPlankDistribution(const double& temperature, cons
 	my_concentration = my_A*intPlank2*(8 * pi / cube(hplank * speed_of_light)) * cube(kBoltzman * my_temperature);
 }
 
-double PhotonPlankDistribution::distribution(const double& energy, const double& mu, const double& phi) {
+double PhotonPlankDistribution::distribution(const double& energy) {
 	double theta = energy / (kBoltzman * my_temperature);
 	return my_A*(2 * energy * energy / cube(hplank * speed_of_light)) / (exp(theta) - 1.0);
 }
@@ -102,7 +107,7 @@ PhotonMultiPlankDistribution::~PhotonMultiPlankDistribution()
 	delete[] my_temperatures;
 }
 
-double PhotonMultiPlankDistribution::distribution(const double& energy, const double& mu, const double& phi)
+double PhotonMultiPlankDistribution::distribution(const double& energy)
 {
 	double result = 0;
 	for (int i = 0; i < my_Nplank; ++i) {

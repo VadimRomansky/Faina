@@ -11,7 +11,7 @@
 int main() {
 	PhotonPlankDistribution* CMBradiation = PhotonPlankDistribution::getCMBradiation();
 	PhotonMultiPlankDistribution* galacticRadiation = PhotonMultiPlankDistribution::getGalacticField();
-	ElectronDistribution* electrons = new ElectronPowerLawDistribution(3.5, me_c2, 150);
+	ElectronPowerLawDistribution* electrons = new ElectronPowerLawDistribution(3.5, me_c2, 150);
 
 	InverseComptonEvaluator evaluator = InverseComptonEvaluator(200, 20, 20, me_c2, 10000 * me_c2);
 
@@ -43,7 +43,8 @@ int main() {
 	for (int i = 0; i < Nnu; ++i) {
 		printf("%d\n", i);
 		//I[i] = evaluateComptonLuminocity(E[i], 0, 0, CMBradiation, electrons, volume, distance, me_c2, 10000 * me_c2, 200, 20, 20);
-		I[i] = evaluator.evaluateComptonLuminocity(E[i], 0, 0, CMBradiation, electrons, volume, distance);
+		//I[i] = evaluator.evaluateComptonLuminocity(E[i], 0, 0, CMBradiation, electrons, volume, distance);
+		I[i] = evaluator.evaluateComptonLuminocityIsotropicFunction(E[i], CMBradiation, electrons, volume, distance);
 	}
 
 	printLog("output\n");
