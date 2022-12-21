@@ -191,12 +191,13 @@ double evaluateFluxFromSource(RadiationSource* source, const double& photonFinal
 				double I;
 				evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, B, sinhi, source->getElectronDistribution(irho, iz, iphi), Emin, Emax, Nphi, I, A);
 				double length = source->getLength(irho, iz, iphi);
-				if (length[k] > 0) {
-					double Q = Inu[l][rhoindex][j][k] * s;
-					double tau = Anu[l][rhoindex][j][k] * length[k];
+				if (length > 0) {
+					double I0 = localI;
+					double Q = I * area;
+					double tau = A * length;
 					double S = 0;
 					if (Q > 0) {
-						S = Q / Anu[l][rhoindex][j][k];
+						S = Q / A;
 					}
 					if (fabs(tau) < 1E-15) {
 						localI = I0 * (1.0 - tau) + S * tau;
