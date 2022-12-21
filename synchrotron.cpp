@@ -104,7 +104,7 @@ double criticalNu(const double& E, const double& sinhi, const double& H) {
 	return criticalNuCoef * H * sinhi * E * E;
 }
 
-double evaluateSynchrotron(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, ElectronDistribution* electronDistribution, const double& volume, const double& distance, const double& Emin, const double& Emax, const int Ne, const int Nmu, const int Nphi) {
+void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, ElectronIsotropicDistribution* electronDistribution, const double& Emin, const double& Emax, const int Ne, double& I, double& A) {
 	double factor = pow(Emax / Emin, 1.0 / (Ne - 1));
 
 	double* Ee = new double[Ne];
@@ -134,31 +134,27 @@ double evaluateSynchrotron(const double& photonFinalFrequency, const double& pho
 			double dFe = electronDist * delectronEnergy;
 			double nuc = criticalNu(Ee[j], sinhi, B);
 			double gamma = Ee[j] / (massElectron * speed_of_light2);
-			double gamma4 = gamma * gamma * gamma * gamma;
-			double sigmaCoef = dFe / (B * gamma4);
 
-			Inu = Inu + emissivityCoef * dFe * B * sinhi * evaluateMcDonaldIntegral(photonFinalFrequency / nuc);
+			double mcDonaldIntegral = evaluateMcDonaldIntegral(photonFinalFrequency / nuc);
+
+			Inu = Inu + emissivityCoef * dFe * B * sinhi * mcDonaldIntegral;
 			if (Inu < 0) {
 				printf("Inu < 0\n");
 				printf("dFe[j] = %g\n", dFe);
 				exit(0);
 			}
 			////todo! F(g +dg)
-			double tempP = gamma * gamma * emissivityCoef * B * dFe * sinhi * evaluateMcDonaldIntegral(photonFinalFrequency / nuc);
-			double dg = 0.1 * (Ee[j] - Ee[j - 1]) / (massElectron * speed_of_light2);
+			double tempP = gamma * gamma * emissivityCoef * B * sinhi * mcDonaldIntegral;
+			double dg = 0.1 * (Ee[j] - Ee[j - 1]) / (me_c2);
 
 			double tempGamma = gamma + dg;
 			double tempnuc = criticalNu(massElectron * speed_of_light2 * tempGamma, sinhi, B);
-			double nextdFe = evaluateNextdFe(Ee, dFe, dg, j, Np);
-			if (nextdFe < 0) {
-				printf("nextdFe < 0\n");
-			}
-			double tempP2 = tempGamma * tempGamma * emissivityCoef * B * nextdFe * sinhi * evaluateMcDonaldIntegral(nu / tempnuc);
+			double tempP2 = tempGamma * tempGamma * emissivityCoef * B * sinhi * evaluateMcDonaldIntegral(photonFinalFrequency / tempnuc);
 			double Pder = (tempP2 - tempP) / dg;
 
 
 
-			Anu = Anu + (1.0 / (2 * massElectron * nu * nu)) * Pder / (gamma * gamma);
+			Anu = Anu + (1.0 / (2 * massElectron * photonFinalFrequency * photonFinalFrequency)) * electronDist * Pder / (gamma * gamma);
 
 			if (Inu != Inu) {
 				printf("Inu NaN\n");
@@ -168,6 +164,49 @@ double evaluateSynchrotron(const double& photonFinalFrequency, const double& pho
 				printf("Anu Nan\n");
 				exit(0);
 			}
+		}
+	}
+}
+
+double evaluateFluxFromSource(RadiationSource* source, const double& photonFinalFrequency) {
+	int Nrho = source->getNrho();
+	double maxRho = source->getMaxRho();
+	int Nz = source->getNz();
+	double minZ = source->getMinZ();
+	double maxZ = source->getMaxZ();
+	int Nphi = source->getNphi();
+
+	double drho = maxRho / Nrho;
+	double dz = (maxZ - minZ) / Nz;
+	double dphi = 2 * pi / Nphi;
+
+	double result = 0;
+
+	for (int irho = 0; irho < Nrho; ++irho) {
+		double area = source->getArea(irho);
+		for (int iphi = 0; iphi < Nphi; ++iphi) {
+			double localI = 0;
+			for (int iz = 0; iz < Nz; ++iz) {
+				double A;
+				double I;
+				evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, B, sinhi, source->getElectronDistribution(irho, iz, iphi), Emin, Emax, Nphi, I, A);
+				double length = source->getLength(irho, iz, iphi);
+				if (length[k] > 0) {
+					double Q = Inu[l][rhoindex][j][k] * s;
+					double tau = Anu[l][rhoindex][j][k] * length[k];
+					double S = 0;
+					if (Q > 0) {
+						S = Q / Anu[l][rhoindex][j][k];
+					}
+					if (fabs(tau) < 1E-15) {
+						localI = I0 * (1.0 - tau) + S * tau;
+					}
+					else {
+						localI = S + (I0 - S) * exp(-tau);
+					}
+				}
+			}
+			result += localI;
 		}
 	}
 }

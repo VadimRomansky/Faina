@@ -2,6 +2,7 @@
 #define synchrotron_h
 
 #include "electronDistribution.h"
+#include "radiationSource.h"
 
 const int Napprox = 55;
 
@@ -46,6 +47,7 @@ const double UvarovValue[Napprox] = { 0.0021495, 0.00367, 0.00463, 0.00792, 0.00
 	8.9564E-11, 6.58079E-13, 3.42988E-17, 1.73478E-21
 };
 
-double evaluateSynchrotron(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, ElectronDistribution* electronDistribution, const double& volume, const double& distance, const double& Emin, const double& Emax, const int Ne, const int Nmu, const int Nphi);
+void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, ElectronIsotropicDistribution* electronDistribution, const double& Emin, const double& Emax, const int Ne, double& I, double& A);
+double evaluateFluxFromSource(RadiationSource* source, const double& photonFinalFrequency);
 
 #endif
