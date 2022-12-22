@@ -154,7 +154,7 @@ void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& 
 
 
 
-			A = A + (1.0 / (2 * massElectron * photonFinalFrequency * photonFinalFrequency)) * electronDist * Pder / (gamma * gamma);
+			A = A + (1.0 / (2 * massElectron * photonFinalFrequency * photonFinalFrequency)) * dFe * Pder / (gamma * gamma);
 
 			if (I != I) {
 				printf("I NaN\n");
