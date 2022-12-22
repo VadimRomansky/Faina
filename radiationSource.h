@@ -22,6 +22,7 @@ public:
 	double getNphi();
 	double getDistance();
 	virtual double getArea(int irho);
+	virtual double getVolume(int irho, int iz, int iphi);
 
 	virtual double getB(int irho, int iz, int iphi) = 0;
 	virtual double getSinTheta(int irho, int iz, int iphi) = 0;
@@ -41,7 +42,7 @@ public:
 	double getMaxZ();
 	double getTotalVolume();
 
-	virtual double getLength(int irho, int iz, int iphi) = 0;;
+	virtual double getLength(int irho, int iz, int iphi) = 0;
 	virtual double getB(int irho, int iz, int iphi) = 0;
 	virtual double getSinTheta(int irho, int iz, int iphi) = 0;
 	virtual ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi) = 0;
@@ -49,8 +50,6 @@ public:
 
 class SimpleFlatSource : public DiskSource {
 protected:
-	double my_rho;
-	double my_z;
 	double my_B;
 	double my_sinTheta;
 	ElectronIsotropicDistribution* my_distribution;
@@ -64,14 +63,47 @@ public:
 
 class TabulatedDiskSource : public DiskSource {
 protected:
-	double my_rho;
-	double my_z;
 	double*** my_B;
 	double*** my_sinTheta;
 	ElectronIsotropicDistribution* my_distribution;
 public:
 	TabulatedDiskSource(int Nrho, int Nz, int Nphi, ElectronIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta , const double& rho, const double& z, const double& distance);
+	TabulatedDiskSource(int Nrho, int Nz, int Nphi, ElectronIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta , const double& rho, const double& z, const double& distance);
 	~TabulatedDiskSource();
+	double getLength(int irho, int iz, int iphi);
+	double getB(int irho, int iz, int iphi);
+	double getSinTheta(int irho, int iz, int iphi);
+	ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi);
+};
+
+class SphericalLayerSource : public RadiationSource {
+protected:
+	double my_rho;
+	double my_rhoin;
+public:
+	SphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& distance);
+	double getMaxRho();
+	double getMinZ();
+	double getMaxZ();
+	double getTotalVolume();
+	double getInnerRho();
+
+	virtual double getLength(int irho, int iz, int iphi) = 0;
+	virtual double getB(int irho, int iz, int iphi) = 0;
+	virtual double getSinTheta(int irho, int iz, int iphi) = 0;
+	virtual ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi) = 0;
+};
+
+class TabulatedSphericalLayerSource : public SphericalLayerSource {
+protected:
+	double*** my_B;
+	double*** my_sinTheta;
+	ElectronIsotropicDistribution* my_distribution;
+public:
+	TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, ElectronIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta, const double& rho, const double& rhoin, const double& distance);
+	TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, ElectronIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& rho, const double& rhoin, const double& distance);
+	~TabulatedSphericalLayerSource();
+
 	double getLength(int irho, int iz, int iphi);
 	double getB(int irho, int iz, int iphi);
 	double getSinTheta(int irho, int iz, int iphi);

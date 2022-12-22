@@ -114,8 +114,8 @@ void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& 
 	}
 	
 	//Anu from ghiselini simple
-	double Inu = 0;
-	double Anu = 0;
+	I = 0;
+	A = 0;
 
 	if (sinhi == 0.0) {
 		return;
@@ -129,7 +129,7 @@ void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& 
 	double oldA = 0;
 	for (int j = 1; j < Ne; ++j) {
 		double delectronEnergy = Ee[j] - Ee[j - 1];
-		double electronDist = electronDistribution->distribution(Ee[j], cos(photonFinalTheta), photonFinalPhi);
+		double electronDist = electronDistribution->distribution(Ee[j]);
 		if (electronDist > 0) {
 			double dFe = electronDist * delectronEnergy;
 			double nuc = criticalNu(Ee[j], sinhi, B);
@@ -137,9 +137,9 @@ void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& 
 
 			double mcDonaldIntegral = evaluateMcDonaldIntegral(photonFinalFrequency / nuc);
 
-			Inu = Inu + emissivityCoef * dFe * B * sinhi * mcDonaldIntegral;
-			if (Inu < 0) {
-				printf("Inu < 0\n");
+			I = I + emissivityCoef * dFe * B * sinhi * mcDonaldIntegral;
+			if (I < 0) {
+				printf("I < 0\n");
 				printf("dFe[j] = %g\n", dFe);
 				exit(0);
 			}
@@ -154,21 +154,21 @@ void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& 
 
 
 
-			Anu = Anu + (1.0 / (2 * massElectron * photonFinalFrequency * photonFinalFrequency)) * electronDist * Pder / (gamma * gamma);
+			A = A + (1.0 / (2 * massElectron * photonFinalFrequency * photonFinalFrequency)) * electronDist * Pder / (gamma * gamma);
 
-			if (Inu != Inu) {
-				printf("Inu NaN\n");
+			if (I != I) {
+				printf("I NaN\n");
 				exit(0);
 			}
-			if (Anu != Anu) {
-				printf("Anu Nan\n");
+			if (A != A) {
+				printf("A Nan\n");
 				exit(0);
 			}
 		}
 	}
 }
 
-double evaluateFluxFromSource(RadiationSource* source, const double& photonFinalFrequency, const double& Emin, const double& Emax) {
+double evaluateSynchrotronFluxFromSource(RadiationSource* source, const double& photonFinalFrequency, const double& Emin, const double& Emax, const int Ne) {
 	int Nrho = source->getNrho();
 	double maxRho = source->getMaxRho();
 	int Nz = source->getNz();
@@ -187,9 +187,9 @@ double evaluateFluxFromSource(RadiationSource* source, const double& photonFinal
 		for (int iphi = 0; iphi < Nphi; ++iphi) {
 			double localI = 0;
 			for (int iz = 0; iz < Nz; ++iz) {
-				double A;
-				double I;
-				evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getElectronDistribution(irho, iz, iphi), Emin, Emax, Nphi, I, A);
+				double A = 0;
+				double I = 0;
+				evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getElectronDistribution(irho, iz, iphi), Emin, Emax, Ne, I, A);
 				double length = source->getLength(irho, iz, iphi);
 				if (length > 0) {
 					double I0 = localI;
@@ -211,5 +211,5 @@ double evaluateFluxFromSource(RadiationSource* source, const double& photonFinal
 		}
 	}
 
-	return result;
+	return result/sqr(source->getDistance());
 }

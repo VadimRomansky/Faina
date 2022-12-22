@@ -3,6 +3,7 @@
 
 #include "electronDistribution.h"
 #include "photonDistribution.h"
+#include "radiationSource.h"
 
 class InverseComptonEvaluator {
 protected:
@@ -21,6 +22,7 @@ public:
 	~InverseComptonEvaluator();
 	double evaluateComptonLuminocity(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, ElectronDistribution* electronDistribution, const double& volume, const double& distance);
 	double evaluateComptonLuminocityIsotropicFunction(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, ElectronIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
+	double evaluateComptonIsotropicFluxFromSource(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, RadiationSource* source);
 };
 
 //correct name?

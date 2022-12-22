@@ -204,6 +204,24 @@ double InverseComptonEvaluator::evaluateComptonLuminocityIsotropicFunction(const
 	return I;
 }
 
+double InverseComptonEvaluator::evaluateComptonIsotropicFluxFromSource(const double& photonFinalEnergy, PhotonIsotropicDistribution * photonDistribution, RadiationSource * source) {
+	int Nrho = source->getNrho();
+	int Nz = source->getNz();
+	int Nphi = source->getNphi();
+
+	double result = 0;
+
+	for (int irho = 0; irho < Nrho; ++irho) {
+		for (int iz = 0; iz < Nz; ++iz) {
+			for (int iphi = 0; iphi < Nphi; ++iphi) {
+				result += evaluateComptonLuminocityIsotropicFunction(photonFinalEnergy, photonDistribution, source->getElectronDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
+			}
+		}
+	}
+
+	return result;
+}
+
 double evaluateComptonLuminocity(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, ElectronDistribution* electronDistribution, const double& volume, const double& distance, const double& Emin, const double& Emax, const int Ne, const int Nmu, const int Nphi)
 {
 	double* cosTheta = new double[Nmu];
