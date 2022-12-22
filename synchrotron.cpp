@@ -168,7 +168,7 @@ void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& 
 	}
 }
 
-double evaluateFluxFromSource(RadiationSource* source, const double& photonFinalFrequency) {
+double evaluateFluxFromSource(RadiationSource* source, const double& photonFinalFrequency, const double& Emin, const double& Emax) {
 	int Nrho = source->getNrho();
 	double maxRho = source->getMaxRho();
 	int Nz = source->getNz();
@@ -189,7 +189,7 @@ double evaluateFluxFromSource(RadiationSource* source, const double& photonFinal
 			for (int iz = 0; iz < Nz; ++iz) {
 				double A;
 				double I;
-				evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, B, sinhi, source->getElectronDistribution(irho, iz, iphi), Emin, Emax, Nphi, I, A);
+				evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getElectronDistribution(irho, iz, iphi), Emin, Emax, Nphi, I, A);
 				double length = source->getLength(irho, iz, iphi);
 				if (length > 0) {
 					double I0 = localI;
@@ -210,4 +210,6 @@ double evaluateFluxFromSource(RadiationSource* source, const double& photonFinal
 			result += localI;
 		}
 	}
+
+	return result;
 }

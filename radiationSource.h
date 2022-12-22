@@ -21,40 +21,60 @@ public:
 	double getNz();
 	double getNphi();
 	double getDistance();
+	virtual double getArea(int irho);
 
+	virtual double getB(int irho, int iz, int iphi) = 0;
+	virtual double getSinTheta(int irho, int iz, int iphi) = 0;
 	virtual double getTotalVolume()=0;
 	virtual double getLength(int irho, int iz, int iphi) = 0;
-	virtual double getArea(int irho);
 	virtual ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi)=0;
 };
 
-class SimpleFlatSource : public RadiationSource {
+class DiskSource : public RadiationSource {
 protected:
 	double my_rho;
 	double my_z;
-	ElectronIsotropicDistribution* my_distribution;
 public:
-	SimpleFlatSource(ElectronIsotropicDistribution* electronDistribution, const double& rho, const double& z, const double& distance);
+	DiskSource(int Nrho, int Nz, int Nphi, const double& rho, const double& z, const double& distance);
 	double getMaxRho();
 	double getMinZ();
 	double getMaxZ();
 	double getTotalVolume();
+
+	virtual double getLength(int irho, int iz, int iphi) = 0;;
+	virtual double getB(int irho, int iz, int iphi) = 0;
+	virtual double getSinTheta(int irho, int iz, int iphi) = 0;
+	virtual ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi) = 0;
+};
+
+class SimpleFlatSource : public DiskSource {
+protected:
+	double my_rho;
+	double my_z;
+	double my_B;
+	double my_sinTheta;
+	ElectronIsotropicDistribution* my_distribution;
+public:
+	SimpleFlatSource(ElectronIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& rho, const double& z, const double& distance);
 	double getLength(int irho, int iz, int iphi);
+	double getB(int irho, int iz, int iphi);
+	double getSinTheta(int irho, int iz, int iphi);
 	ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi);
 };
 
-class FlatDiskSource : public RadiationSource {
+class TabulatedDiskSource : public DiskSource {
 protected:
 	double my_rho;
 	double my_z;
+	double*** my_B;
+	double*** my_sinTheta;
 	ElectronIsotropicDistribution* my_distribution;
 public:
-	FlatDiskSource(int Nrho, int Nz, int Nphi, ElectronIsotropicDistribution* electronDistribution, const double& rho, const double& z, const double& distance);
-	double getMaxRho();
-	double getMinZ();
-	double getMaxZ();
-	double getTotalVolume();
+	TabulatedDiskSource(int Nrho, int Nz, int Nphi, ElectronIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta , const double& rho, const double& z, const double& distance);
+	~TabulatedDiskSource();
 	double getLength(int irho, int iz, int iphi);
+	double getB(int irho, int iz, int iphi);
+	double getSinTheta(int irho, int iz, int iphi);
 	ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi);
 };
 

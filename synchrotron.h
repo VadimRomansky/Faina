@@ -48,6 +48,6 @@ const double UvarovValue[Napprox] = { 0.0021495, 0.00367, 0.00463, 0.00792, 0.00
 };
 
 void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, ElectronIsotropicDistribution* electronDistribution, const double& Emin, const double& Emax, const int Ne, double& I, double& A);
-double evaluateFluxFromSource(RadiationSource* source, const double& photonFinalFrequency);
+double evaluateFluxFromSource(RadiationSource* source, const double& photonFinalFrequency, const double& Emin, const double& Emax);
 
 #endif

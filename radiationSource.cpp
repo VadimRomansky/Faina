@@ -32,52 +32,90 @@ double RadiationSource::getArea(int irho) {
 	return 2 * pi * (rho0 * rho0 - rho1 * rho1) / my_Nphi;
 }
 
-SimpleFlatSource::SimpleFlatSource(ElectronIsotropicDistribution* electronDistribution, const double& rho, const double& z, const double& distance) : RadiationSource(1,1,1,distance) {
-	my_distribution = electronDistribution;
+DiskSource::DiskSource(int Nrho, int Nz, int Nphi, const double& rho, const double& z, const double& distance) : RadiationSource(Nrho, Nz, Nphi, distance)
+{
 	my_rho = rho;
 	my_z = z;
 }
 
-double SimpleFlatSource::getMaxRho() {
+double DiskSource::getTotalVolume()
+{
+	return 2 * pi * my_z * my_rho * my_rho;;
+}
+double DiskSource::getMaxRho() {
 	return my_rho;
 }
-double SimpleFlatSource::getMinZ() {
+double DiskSource::getMinZ() {
 	return 0;
 }
-double SimpleFlatSource::getMaxZ() {
+double DiskSource::getMaxZ() {
 	return my_z;
+}
+
+SimpleFlatSource::SimpleFlatSource(ElectronIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& rho, const double& z, const double& distance) : DiskSource(1,1,1, rho, z,distance) {
+	my_distribution = electronDistribution;
+	my_B = B;
+	my_sinTheta = sinTheta;
+}
+double SimpleFlatSource::getB(int irho, int iz, int iphi)
+{
+	return my_B;
+}
+double SimpleFlatSource::getSinTheta(int irho, int iz, int iphi)
+{
+	return my_sinTheta;
 }
 double SimpleFlatSource::getLength(int irho, int iz, int iphi) {
 	return my_z;
-}
-double SimpleFlatSource::getTotalVolume() {
-	return 2 * pi * my_z * my_rho * my_rho;
 }
 ElectronIsotropicDistribution* SimpleFlatSource::getElectronDistribution(int irho, int iz, int iphi) {
 	return my_distribution;
 }
 
-FlatDiskSource::FlatDiskSource(int Nrho, int Nz, int Nphi, ElectronIsotropicDistribution* electronDistribution, const double& rho, const double& z, const double& distance) : RadiationSource(Nrho, Nz, Nphi, distance) {
+TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, ElectronIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta, const double& rho, const double& z, const double& distance) : DiskSource(Nrho, Nz, Nphi, rho, z, distance) {
 	my_distribution = electronDistribution;
 	my_rho = rho;
 	my_z = z;
-}
 
-double FlatDiskSource::getMaxRho() {
-	return my_rho;
+	my_B = new double** [my_Nrho];
+	my_sinTheta = new double** [my_Nrho];
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		my_B[irho] = new double* [my_Nz];
+		my_sinTheta[irho] = new double* [my_Nz];
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			my_B[irho][iz] = new double[my_Nphi];
+			my_sinTheta[irho][iz] = new double[my_Nphi];
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				my_B[irho][iz][iphi] = B[irho][iz][iphi];
+				my_sinTheta[irho][iz][iphi] = my_sinTheta[irho][iz][iphi];
+			}
+		}
+	}
 }
-double FlatDiskSource::getMinZ() {
-	return 0;
+TabulatedDiskSource::~TabulatedDiskSource()
+{
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			delete[] my_B[irho][iz];
+			delete[] my_sinTheta[irho][iz];
+		}
+		delete[] my_B[irho];
+		delete[] my_sinTheta[irho];
+	}
+	delete[] my_B;
+	delete[] my_sinTheta;
 }
-double FlatDiskSource::getMaxZ() {
-	return my_z;
+double TabulatedDiskSource::getB(int irho, int iz, int iphi)
+{
+	return my_B[irho][iz][iphi];
 }
-double FlatDiskSource::getLength(int irho, int iz, int iphi) {
+double TabulatedDiskSource::getSinTheta(int irho, int iz, int iphi)
+{
+	return my_sinTheta[irho][iz][iphi];
+}
+double TabulatedDiskSource::getLength(int irho, int iz, int iphi) {
 	return my_z/my_Nz;
 }
-double FlatDiskSource::getTotalVolume() {
-	return 2 * pi * my_z * my_rho * my_rho;
-}
-ElectronIsotropicDistribution* FlatDiskSource::getElectronDistribution(int irho, int iz, int iphi) {
+ElectronIsotropicDistribution* TabulatedDiskSource::getElectronDistribution(int irho, int iz, int iphi) {
 	return my_distribution;
 }
