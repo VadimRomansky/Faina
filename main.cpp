@@ -36,6 +36,10 @@ int main() {
 	InverseComptonEvaluator comptonEvaluator = InverseComptonEvaluator(200, 20, 20, Emin, Emax);
 	SynchrotronEvaluator synchrotronEvaluator = SynchrotronEvaluator(200, Emin, Emax);
 
+	int Ndistributions = 10;
+	ElectronIsotropicDistribution** angleDependentDistributions = ElectronDistributionFactory::readTabulatedIsotropicDistributions("./input/Ee", "./input/Fs",".dat",10, ElectronInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
+	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, 1.0, 0, rmax, 0.5 * rmax, distance);
+
 
 	int Nnu = 200;
 	double* E = new double[Nnu];
@@ -73,7 +77,8 @@ int main() {
 	for (int i = 0; i < Nnu; ++i) {
 		printf("%d\n", i);
 		//Is[i] = evaluateSynchrotronFluxFromSource(source, Nu[i], Emin, Emax, 200);
-		Is[i] = synchrotronEvaluator.evaluateSynchrotronFluxFromSource(sphericalSource, Nu[i]);
+		//Is[i] = synchrotronEvaluator.evaluateSynchrotronFluxFromSource(sphericalSource, Nu[i]);
+		Is[i] = synchrotronEvaluator.evaluateSynchrotronFluxFromSource(angleDependentSource, Nu[i]);
 	}
 
 	printLog("output\n");

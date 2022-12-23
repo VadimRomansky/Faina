@@ -144,4 +144,10 @@ public:
 	virtual double distribution(const double& energy, const double& mu, const double& phi);
 };
 
+class ElectronDistributionFactory {
+public:
+	static ElectronIsotropicDistribution** readTabulatedIsotropicDistributions(const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, ElectronInputType inputType, const double& electronConcentrations, int Ne);
+	static ElectronIsotropicDistribution** readTabulatedIsotropicDistributions(const char* fileName, const char* fileExtension, int Nfiles, ElectronInputType inputType, const double& electronConcentrations, int Ne);
+};
+
 #endif

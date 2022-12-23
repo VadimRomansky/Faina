@@ -273,7 +273,7 @@ ElectronIsotropicDistribution* TabulatedSphericalLayerSource::getElectronDistrib
 	return my_distribution;
 }
 
-AngleDependedElectronsSphericalSource::AngleDependedElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, ElectronIsotropicDistribution** electronDistributions, double*** B, double*** sinTheta, double*** phi, const double& rho, const double& rhoin, const double& distance) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, rho, rhoin, distance)
+AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, ElectronIsotropicDistribution** electronDistributions, double*** B, double*** sinTheta, double*** phi, const double& rho, const double& rhoin, const double& distance) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, rho, rhoin, distance)
 {
 	my_Ntheta = Ntheta;
 	my_distributions = new ElectronIsotropicDistribution*[my_Ntheta];
@@ -319,7 +319,7 @@ AngleDependedElectronsSphericalSource::AngleDependedElectronsSphericalSource(int
 	}
 }
 
-AngleDependedElectronsSphericalSource::AngleDependedElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, ElectronIsotropicDistribution** electronDistributions, const double& B, const double& sinTheta, const double& phi, const double& rho, const double& rhoin, const double& distance) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, rho, rhoin, distance)
+AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, ElectronIsotropicDistribution** electronDistributions, const double& B, const double& sinTheta, const double& phi, const double& rho, const double& rhoin, const double& distance) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, rho, rhoin, distance)
 {
 	my_Ntheta = Ntheta;
 	my_distributions = new ElectronIsotropicDistribution * [my_Ntheta];
@@ -365,7 +365,7 @@ AngleDependedElectronsSphericalSource::AngleDependedElectronsSphericalSource(int
 	}
 }
 
-AngleDependedElectronsSphericalSource::~AngleDependedElectronsSphericalSource()
+AngleDependentElectronsSphericalSource::~AngleDependentElectronsSphericalSource()
 {
 	delete[] my_distributions;
 
@@ -381,7 +381,7 @@ AngleDependedElectronsSphericalSource::~AngleDependedElectronsSphericalSource()
 	delete[] my_shockWaveAngle;
 }
 
-ElectronIsotropicDistribution* AngleDependedElectronsSphericalSource::getElectronDistribution(int irho, int iz, int iphi)
+ElectronIsotropicDistribution* AngleDependentElectronsSphericalSource::getElectronDistribution(int irho, int iz, int iphi)
 {
 	double dtheta = pi / my_Ntheta;
 	double theta = my_shockWaveAngle[irho][iz][iphi];

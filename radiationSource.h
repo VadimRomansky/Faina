@@ -110,16 +110,16 @@ public:
 	virtual ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi);
 };
 
-class AngleDependedElectronsSphericalSource : public TabulatedSphericalLayerSource {
+class AngleDependentElectronsSphericalSource : public TabulatedSphericalLayerSource {
 protected:
 	int my_Ntheta;
 	ElectronIsotropicDistribution** my_distributions;
 	double*** my_phi;
 	double*** my_shockWaveAngle;
 public:
-	AngleDependedElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, ElectronIsotropicDistribution** electronDistributions, double*** B, double*** sinTheta, double*** phi, const double& rho, const double& rhoin, const double& distance);
-	AngleDependedElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, ElectronIsotropicDistribution** electronDistributions, const double& B, const double& sinTheta, const double& phi, const double& rho, const double& rhoin, const double& distance);
-	~AngleDependedElectronsSphericalSource();
+	AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, ElectronIsotropicDistribution** electronDistributions, double*** B, double*** sinTheta, double*** phi, const double& rho, const double& rhoin, const double& distance);
+	AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, ElectronIsotropicDistribution** electronDistributions, const double& B, const double& sinTheta, const double& phi, const double& rho, const double& rhoin, const double& distance);
+	~AngleDependentElectronsSphericalSource();
 
 	virtual ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi);
 };

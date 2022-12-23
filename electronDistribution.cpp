@@ -284,14 +284,13 @@ ElectronTabulatedIsotropicDistribution::~ElectronTabulatedIsotropicDistribution(
 
 double ElectronTabulatedIsotropicDistribution::distribution(const double& energy) {
 	if (energy <= my_energy[0]) {
-		printf("warning: energy is less than minimum energy\n");
-		printLog("warning: energy is less than minimum energy\n");
-		//exit(0);
+		//printf("warning: energy is less than minimum energy\n");
+		//printLog("warning: energy is less than minimum energy\n");
 		return 0;
 	}
 	else if (energy >= my_energy[my_N-1]) {
-		printf("warning: energy is greater than maximum energy\n");
-		printLog("warning: energy isgreater than maximum energy\n");
+		//printf("warning: energy is greater than maximum energy\n");
+		//printLog("warning: energy is greater than maximum energy\n");
 		return 0;
 	}
 	else {
@@ -536,14 +535,13 @@ double ElectronTabulatedAzimutalDistribution::distribution(const double& energy,
 		exit(0);
 	}
 	if (energy <= my_energy[0]) {
-		printf("warning: energy is less than minimum energy\n");
-		printLog("warning: energy is less than minimum energy\n");
-		//exit(0);
+		//printf("warning: energy is less than minimum energy\n");
+		//printLog("warning: energy is less than minimum energy\n");
 		return 0;
 	}
 	else if (energy >= my_energy[my_Ne - 1]) {
-		printf("warning: energy is greater than maximum energy\n");
-		printLog("warning: energy isgreater than maximum energy\n");
+		//printf("warning: energy is greater than maximum energy\n");
+		//printLog("warning: energy is greater than maximum energy\n");
 		return 0;
 	}
 	else {
@@ -876,14 +874,13 @@ double ElectronTabulatedAnisotropicDistribution::distribution(const double& ener
 		exit(0);
 	}
 	if (energy <= my_energy[0]) {
-		printf("warning: energy is less than minimum energy\n");
-		printLog("warning: energy is less than minimum energy\n");
-		//exit(0);
+		//printf("warning: energy is less than minimum energy\n");
+		//printLog("warning: energy is less than minimum energy\n");
 		return 0;
 	}
 	else if (energy >= my_energy[my_Ne - 1]) {
-		printf("warning: energy is greater than maximum energy\n");
-		printLog("warning: energy isgreater than maximum energy\n");
+		//printf("warning: energy is greater than maximum energy\n");
+		//printLog("warning: energy is greater than maximum energy\n");
 		return 0;
 	}
 	double tempPhi = phi;
@@ -1142,3 +1139,30 @@ double CompoundWeightedElectronDistribution::distribution(const double& energy, 
 	return result;
 }
 
+ElectronIsotropicDistribution** ElectronDistributionFactory::readTabulatedIsotropicDistributions(const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, ElectronInputType inputType, const double& electronConcentration, int Ne)
+{
+	ElectronIsotropicDistribution** distributions = new ElectronIsotropicDistribution * [Nfiles];
+	for (int i = 0; i < Nfiles; ++i) {
+		std::string fileNumber = convertIntToString(i);
+		const std::string fileNameE = energyFileName;
+		const std::string fileNameF = distributionFileName;
+		std::string a = fileNameE + fileNumber + fileExtension;
+		std::string b = fileNameF + fileNumber + fileExtension;
+		const char* energyFileName = a.c_str();
+		const char* distributionFileName = b.c_str();
+		distributions[i] = new ElectronTabulatedIsotropicDistribution(energyFileName, distributionFileName, Ne, electronConcentration, inputType);
+	}
+	return distributions;
+}
+
+ElectronIsotropicDistribution** ElectronDistributionFactory::readTabulatedIsotropicDistributions(const char* fileName, const char* fileExtension, int Nfiles, ElectronInputType inputType, const double& electronConcentration, int Ne)
+{
+	ElectronIsotropicDistribution** distributions = new ElectronIsotropicDistribution * [Nfiles];
+	for (int i = 0; i < Nfiles; ++i) {
+		std::string fileNumber = convertIntToString(i);
+		const std::string fileName = fileName;
+		std::string a = fileName + fileNumber + fileExtension;
+		distributions[i] = new ElectronTabulatedIsotropicDistribution(a.c_str(), Ne, electronConcentration, inputType);
+	}
+	return distributions;
+}
