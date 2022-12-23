@@ -6,7 +6,7 @@
 * number of particles dN = f(E, mu, phi) dE dmu dphi dV where mu = cos theta
 */
 
-enum ElectronInputType {ENERGY_FE, GAMMA_FGAMMA, MOMENTUM_FP};
+enum ElectronInputType {ENERGY_FE, ENERGY_KIN_FE, GAMMA_KIN_FGAMMA, GAMMA_FGAMMA, MOMENTUM_FP};
 
 class ElectronDistribution : public ParticleDistribution{
 public:

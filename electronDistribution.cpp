@@ -128,9 +128,16 @@ void ElectronTabulatedIsotropicDistribution::setDistributionAtPoint(int i, const
 	if (my_inputType == ElectronInputType::ENERGY_FE) {
 		my_energy[i] = energy;
 		my_distribution[i] = distribution;
+	} else if (my_inputType == ElectronInputType::ENERGY_KIN_FE) {
+		my_energy[i] = energy + me_c2;
+		my_distribution[i] = distribution;
 	}
 	else if (my_inputType == ElectronInputType::GAMMA_FGAMMA) {
 		my_energy[i] = energy * me_c2;
+		my_distribution[i] = distribution / me_c2;
+	}
+	else if (my_inputType == ElectronInputType::GAMMA_KIN_FGAMMA) {
+		my_energy[i] = (energy + 1) * me_c2;
 		my_distribution[i] = distribution / me_c2;
 	}
 	else if (my_inputType == ElectronInputType::MOMENTUM_FP) {
@@ -341,8 +348,16 @@ void ElectronTabulatedAzimutalDistribution::setDistributionAtPoint(int i, int j,
 		my_energy[i] = energy;
 		my_distribution[i][j] = distribution;
 	}
+	else if (my_inputType == ElectronInputType::ENERGY_KIN_FE) {
+		my_energy[i] = energy + me_c2;
+		my_distribution[i][j] = distribution;
+	}
 	else if (my_inputType == ElectronInputType::GAMMA_FGAMMA) {
 		my_energy[i] = energy * me_c2;
+		my_distribution[i][j] = distribution / me_c2;
+	}
+	else if (my_inputType == ElectronInputType::GAMMA_KIN_FGAMMA) {
+		my_energy[i] = (energy + 1) * me_c2;
 		my_distribution[i][j] = distribution / me_c2;
 	}
 	else if (my_inputType == ElectronInputType::MOMENTUM_FP) {
@@ -633,9 +648,16 @@ void ElectronTabulatedAnisotropicDistribution::setDistributionAtPoint(int i, int
 	if (my_inputType == ElectronInputType::ENERGY_FE) {
 		my_energy[i] = energy;
 		my_distribution[i][j][k] = distribution;
+	} else if (my_inputType == ElectronInputType::ENERGY_KIN_FE) {
+		my_energy[i] = energy + me_c2;
+		my_distribution[i][j][k] = distribution;
 	}
 	else if (my_inputType == ElectronInputType::GAMMA_FGAMMA) {
 		my_energy[i] = energy * me_c2;
+		my_distribution[i][j][k] = distribution / me_c2;
+	}
+	else if (my_inputType == ElectronInputType::GAMMA_KIN_FGAMMA) {
+		my_energy[i] = (energy + 1) * me_c2;
 		my_distribution[i][j][k] = distribution / me_c2;
 	}
 	else if (my_inputType == ElectronInputType::MOMENTUM_FP) {

@@ -30,9 +30,11 @@ int main() {
 	PhotonMultiPlankDistribution* galacticRadiation = PhotonMultiPlankDistribution::getGalacticField();
 	ElectronPowerLawDistribution* electrons = new ElectronPowerLawDistribution(3.5, Emin, electronConcentration);
 	RadiationSource* source = new SimpleFlatSource(electrons, B, sinTheta, rmax, rmax, distance);
+	RadiationSource* sphericalSource = new TabulatedSphericalLayerSource(20, 20, 4, electrons, B, 1.0, rmax, 0.5 * rmax, distance);
 	double volume = source->getTotalVolume();
 
 	InverseComptonEvaluator comptonEvaluator = InverseComptonEvaluator(200, 20, 20, Emin, Emax);
+	SynchrotronEvaluator synchrotronEvaluator = SynchrotronEvaluator(200, Emin, Emax);
 
 
 	int Nnu = 200;
@@ -70,7 +72,8 @@ int main() {
 
 	for (int i = 0; i < Nnu; ++i) {
 		printf("%d\n", i);
-		Is[i] = evaluateSynchrotronFluxFromSource(source, Nu[i], Emin, Emax, 200);
+		//Is[i] = evaluateSynchrotronFluxFromSource(source, Nu[i], Emin, Emax, 200);
+		Is[i] = synchrotronEvaluator.evaluateSynchrotronFluxFromSource(sphericalSource, Nu[i]);
 	}
 
 	printLog("output\n");

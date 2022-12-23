@@ -104,10 +104,24 @@ public:
 	TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, ElectronIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& rho, const double& rhoin, const double& distance);
 	~TabulatedSphericalLayerSource();
 
-	double getLength(int irho, int iz, int iphi);
-	double getB(int irho, int iz, int iphi);
-	double getSinTheta(int irho, int iz, int iphi);
-	ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi);
+	virtual double getLength(int irho, int iz, int iphi);
+	virtual double getB(int irho, int iz, int iphi);
+	virtual double getSinTheta(int irho, int iz, int iphi);
+	virtual ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi);
+};
+
+class AngleDependedElectronsSphericalSource : public TabulatedSphericalLayerSource {
+protected:
+	int my_Ntheta;
+	ElectronIsotropicDistribution** my_distributions;
+	double*** my_phi;
+	double*** my_shockWaveAngle;
+public:
+	AngleDependedElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, ElectronIsotropicDistribution** electronDistributions, double*** B, double*** sinTheta, double*** phi, const double& rho, const double& rhoin, const double& distance);
+	AngleDependedElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, ElectronIsotropicDistribution** electronDistributions, const double& B, const double& sinTheta, const double& phi, const double& rho, const double& rhoin, const double& distance);
+	~AngleDependedElectronsSphericalSource();
+
+	virtual ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi);
 };
 
 
