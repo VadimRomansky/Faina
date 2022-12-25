@@ -57,11 +57,11 @@ protected:
 public:
 	SynchrotronEvaluator(int Ne, double Emin, double Emax);
 	~SynchrotronEvaluator();
-	void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, ElectronIsotropicDistribution* electronDistribution, double& I, double& A);
+	void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, const double& concentration, ElectronIsotropicDistribution* electronDistribution, double& I, double& A);
 	double evaluateSynchrotronFluxFromSource(RadiationSource* source, const double& photonFinalFrequency);
 };
 
-void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, ElectronIsotropicDistribution* electronDistribution, const double& Emin, const double& Emax, const int Ne, double& I, double& A);
+void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, const double& concentration, ElectronIsotropicDistribution* electronDistribution, const double& Emin, const double& Emax, const int Ne, double& I, double& A);
 double evaluateSynchrotronFluxFromSource(RadiationSource* source, const double& photonFinalFrequency, const double& Emin, const double& Emax, const int Ne);
 
 #endif

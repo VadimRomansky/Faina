@@ -104,7 +104,7 @@ double criticalNu(const double& E, const double& sinhi, const double& H) {
 	return criticalNuCoef * H * sinhi * E * E;
 }
 
-void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, ElectronIsotropicDistribution* electronDistribution, const double& Emin, const double& Emax, const int Ne, double& I, double& A) {
+void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, const double& concentration, ElectronIsotropicDistribution* electronDistribution, const double& Emin, const double& Emax, const int Ne, double& I, double& A) {
 	double factor = pow(Emax / Emin, 1.0 / (Ne - 1));
 
 	double* Ee = new double[Ne];
@@ -129,7 +129,7 @@ void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& 
 	double oldA = 0;
 	for (int j = 1; j < Ne; ++j) {
 		double delectronEnergy = Ee[j] - Ee[j - 1];
-		double electronDist = electronDistribution->distribution(Ee[j]);
+		double electronDist = concentration*electronDistribution->distributionNormalized(Ee[j]);
 		if (electronDist > 0) {
 			double dFe = electronDist * delectronEnergy;
 			double nuc = criticalNu(Ee[j], sinhi, B);
@@ -191,7 +191,7 @@ double evaluateSynchrotronFluxFromSource(RadiationSource* source, const double& 
 			for (int iz = 0; iz < Nz; ++iz) {
 				double A = 0;
 				double I = 0;
-				evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getElectronDistribution(irho, iz, iphi), Emin, Emax, Ne, I, A);
+				evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), source->getElectronDistribution(irho, iz, iphi), Emin, Emax, Ne, I, A);
 				double length = source->getLength(irho, iz, iphi);
 				if (length > 0) {
 					double I0 = localI;
@@ -235,7 +235,7 @@ SynchrotronEvaluator::~SynchrotronEvaluator()
 	delete[] my_Ee;
 }
 
-void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, ElectronIsotropicDistribution* electronDistribution, double& I, double& A)
+void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, const double& concentration, ElectronIsotropicDistribution* electronDistribution, double& I, double& A)
 {
 	//Anu from ghiselini simple
 	I = 0;
@@ -259,7 +259,7 @@ void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFre
 		else {
 			delectronEnergy = my_Ee[j] - my_Ee[j - 1];
 		}
-		double electronDist = electronDistribution->distribution(my_Ee[j]);
+		double electronDist = concentration*electronDistribution->distributionNormalized(my_Ee[j]);
 		if (electronDist > 0) {
 			double dFe = electronDist * delectronEnergy;
 			double nuc = criticalNu(my_Ee[j], sinhi, B);
@@ -314,7 +314,7 @@ double SynchrotronEvaluator::evaluateSynchrotronFluxFromSource(RadiationSource* 
 			for (int iz = 0; iz < Nz; ++iz) {
 				double A = 0;
 				double I = 0;
-				evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getElectronDistribution(irho, iz, iphi), I, A);
+				evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), source->getElectronDistribution(irho, iz, iphi), I, A);
 				double length = source->getLength(irho, iz, iphi);
 				if (length > 0) {
 					double I0 = localI;

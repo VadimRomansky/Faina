@@ -6,9 +6,9 @@
 
 #include "electronDistribution.h"
 
-double ElectronIsotropicDistribution::distribution(const double& energy, const double& mu, const double& phi)
+double ElectronIsotropicDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
 {
-	return distribution(energy);
+	return distributionNormalized(energy);
 }
 
 ElectronPowerLawDistribution::ElectronPowerLawDistribution(const double& index, const double& E0, const double& concentration) {
@@ -31,10 +31,10 @@ ElectronPowerLawDistribution::ElectronPowerLawDistribution(const double& index, 
 	}
 	my_concentration = concentration;
 
-	my_A = my_concentration * (my_index - 1) / (my_E0*4*pi);
+	my_A = (my_index - 1) / (my_E0*4*pi);
 }
 
-double ElectronPowerLawDistribution::distribution(const double& energy) {
+double ElectronPowerLawDistribution::distributionNormalized(const double& energy) {
 	if (energy < 0) {
 		printf("electron energy < 0\n");
 		printLog("electron energy < 0\n");
@@ -47,6 +47,11 @@ double ElectronPowerLawDistribution::distribution(const double& energy) {
 		return 0;
 	}
 	return my_A / pow(energy / my_E0, my_index);
+}
+
+void ElectronPowerLawDistribution::resetConcentration(const double& concentration)
+{
+	my_concentration = concentration;
 }
 
 double ElectronPowerLawDistribution::getIndex()
@@ -75,12 +80,17 @@ ElectronMaxwellDistribution::ElectronMaxwellDistribution(const double& temperatu
 	}
 	my_concentration = concentration;
 
-	my_A = my_concentration / (2 * sqrt(cube(pi * kBoltzman * my_temperature)));
+	my_A = 1.0 / (2 * sqrt(cube(pi * kBoltzman * my_temperature)));
 }
 
-double ElectronMaxwellDistribution::distribution(const double& energy)
+double ElectronMaxwellDistribution::distributionNormalized(const double& energy)
 {
 	return my_A*sqrt(energy)*exp(-energy/(kBoltzman*my_temperature));
+}
+
+void ElectronMaxwellDistribution::resetConcentration(const double& concentration)
+{
+	my_concentration = concentration;
 }
 
 double ElectronMaxwellDistribution::getTemperature()
@@ -105,10 +115,10 @@ ElectronMaxwellJuttnerDistribution::ElectronMaxwellJuttnerDistribution(const dou
 	my_concentration = concentration;
 
 	double theta = kBoltzman * my_temperature / me_c2;
-	my_A = my_concentration / (4*pi*cube(me_c2)*theta*McDonaldFunction(2, 1/theta));
+	my_A = 1.0 / (4*pi*cube(me_c2)*theta*McDonaldFunction(2, 1/theta));
 }
 
-double ElectronMaxwellJuttnerDistribution::distribution(const double& energy)
+double ElectronMaxwellJuttnerDistribution::distributionNormalized(const double& energy)
 {
 	if (energy < me_c2) {
 		printf("electron energy is less than m c^2 in maxwell-juttner distribution\n");
@@ -116,6 +126,11 @@ double ElectronMaxwellJuttnerDistribution::distribution(const double& energy)
 		exit(0);
 	}
 	return my_A * sqrt(energy) * sqrt(energy*energy - me_c2*me_c2)*energy*exp(-energy / (kBoltzman * my_temperature));
+}
+
+void ElectronMaxwellJuttnerDistribution::resetConcentration(const double& concentration)
+{
+	my_concentration = concentration;
 }
 
 double ElectronMaxwellJuttnerDistribution::getTemperature()
@@ -159,7 +174,7 @@ void ElectronTabulatedIsotropicDistribution::normalizeDistribution()
 	}
 	norm *= 4 * pi;
 	for (int i = 0; i < my_N; ++i) {
-		my_distribution[i] *= my_concentration / norm;
+		my_distribution[i] *= 1.0 / norm;
 	}
 }
 
@@ -282,7 +297,7 @@ ElectronTabulatedIsotropicDistribution::~ElectronTabulatedIsotropicDistribution(
 	delete[] my_energy;
 }
 
-double ElectronTabulatedIsotropicDistribution::distribution(const double& energy) {
+double ElectronTabulatedIsotropicDistribution::distributionNormalized(const double& energy) {
 	if (energy <= my_energy[0]) {
 		//printf("warning: energy is less than minimum energy\n");
 		//printLog("warning: energy is less than minimum energy\n");
@@ -335,6 +350,12 @@ double ElectronTabulatedIsotropicDistribution::distribution(const double& energy
 		}
 		return result;
 	}
+}
+
+void ElectronTabulatedIsotropicDistribution::resetConcentration(const double& concentration)
+{
+	my_concentration = concentration;
+	//normalizeDistribution();
 }
 
 int ElectronTabulatedIsotropicDistribution::getN() {
@@ -392,7 +413,7 @@ void ElectronTabulatedAzimutalDistribution::normalizeDistribution()
 
 	for (int imu = 0; imu < my_Nmu; ++imu) {
 		for (int i = 0; i < my_Ne; ++i) {
-			my_distribution[i][imu] *= my_concentration / norm;
+			my_distribution[i][imu] *= 1.0 / norm;
 		}
 	}
 }
@@ -522,7 +543,7 @@ ElectronTabulatedAzimutalDistribution::~ElectronTabulatedAzimutalDistribution()
 	delete[] my_distribution;
 }
 
-double ElectronTabulatedAzimutalDistribution::distribution(const double& energy, const double& mu, const double& phi)
+double ElectronTabulatedAzimutalDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
 {
 	if (mu > 1.0) {
 		printf("mu = %lf > 1.0 in azimutal distribution\n", mu);
@@ -631,6 +652,12 @@ double ElectronTabulatedAzimutalDistribution::distribution(const double& energy,
 	}
 }
 
+void ElectronTabulatedAzimutalDistribution::resetConcentration(const double& concentration)
+{
+	my_concentration = concentration;
+	//normalizeDistribution();
+}
+
 int ElectronTabulatedAzimutalDistribution::getNe()
 {
 	return my_Ne;
@@ -695,7 +722,7 @@ void ElectronTabulatedAnisotropicDistribution::normalizeDistribution()
 	for (int imu = 0; imu < my_Nmu; ++imu) {
 		for (int i = 0; i < my_Ne; ++i) {
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
-				my_distribution[i][imu][iphi] *= my_concentration / norm;
+				my_distribution[i][imu][iphi] *= 1.0 / norm;
 			}
 		}
 	}
@@ -861,7 +888,7 @@ ElectronTabulatedAnisotropicDistribution::~ElectronTabulatedAnisotropicDistribut
 	delete[] my_phi;
 }
 
-double ElectronTabulatedAnisotropicDistribution::distribution(const double& energy, const double& mu, const double& phi)
+double ElectronTabulatedAnisotropicDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
 {
 	if (mu > 1.0) {
 		printf("mu = %lf > 1.0 in azimutal distribution\n", mu);
@@ -1024,6 +1051,12 @@ double ElectronTabulatedAnisotropicDistribution::distribution(const double& ener
 	}
 }
 
+void ElectronTabulatedAnisotropicDistribution::resetConcentration(const double& concentration)
+{
+	my_concentration = concentration;
+	//normalizeDistribution();
+}
+
 int ElectronTabulatedAnisotropicDistribution::getNe()
 {
 	return my_Ne;
@@ -1075,13 +1108,24 @@ CompoundElectronDistribution::~CompoundElectronDistribution()
 	delete[] my_distributions;
 }
 
-double CompoundElectronDistribution::distribution(const double& energy, const double& mu, const double& phi)
+
+
+double CompoundElectronDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
 {
 	double result = 0;
 	for (int i = 0; i < my_Ndistr; ++i) {
 		result += my_distributions[i]->distribution(energy, mu, phi);
 	}
-	return result;
+	return result/my_concentration;
+}
+
+void CompoundElectronDistribution::resetConcentration(const double& concentration)
+{
+	double ratio = concentration / my_concentration;
+	for (int i = 0; i < my_Ndistr; ++i) {
+		my_distributions[i]->resetConcentration(my_distributions[i]->getConcentration() * ratio);
+	}
+	my_concentration = concentration;
 }
 
 CompoundWeightedElectronDistribution::CompoundWeightedElectronDistribution(int N, const double* weights, ElectronDistribution** distributions)
@@ -1130,13 +1174,22 @@ CompoundWeightedElectronDistribution::~CompoundWeightedElectronDistribution()
 	delete[] my_distributions;
 }
 
-double CompoundWeightedElectronDistribution::distribution(const double& energy, const double& mu, const double& phi)
+double CompoundWeightedElectronDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
 {
 	double result = 0;
 	for (int i = 0; i < my_Ndistr; ++i) {
-		result += my_weights[i]*my_distributions[i]->distribution(energy, mu, phi);
+		result += my_weights[i]*my_distributions[i]->distributionNormalized(energy, mu, phi);
 	}
 	return result;
+}
+
+void CompoundWeightedElectronDistribution::resetConcentration(const double& concentration)
+{
+	//double ratio = concentration / my_concentration;
+	for (int i = 0; i < my_Ndistr; ++i) {
+		my_distributions[i]->resetConcentration(concentration);
+	}
+	my_concentration = concentration;
 }
 
 ElectronIsotropicDistribution** ElectronDistributionFactory::readTabulatedIsotropicDistributions(const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, ElectronInputType inputType, const double& electronConcentration, int Ne)

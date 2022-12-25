@@ -132,6 +132,7 @@
     <ClCompile Include="electronDistribution.cpp" />
     <ClCompile Include="inverseCompton.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="optimization.cpp" />
     <ClCompile Include="photonDistribution.cpp" />
     <ClCompile Include="radiationSource.cpp" />
     <ClCompile Include="synchrotron.cpp" />
@@ -142,6 +143,7 @@
     <ClInclude Include="coordinateTransform.h" />
     <ClInclude Include="electronDistribution.h" />
     <ClInclude Include="inverseCompton.h" />
+    <ClInclude Include="optimization.h" />
     <ClInclude Include="particleDistribution.h" />
     <ClInclude Include="photonDistribution.h" />
     <ClInclude Include="radiationSource.h" />

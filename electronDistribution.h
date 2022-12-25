@@ -10,13 +10,17 @@ enum ElectronInputType {ENERGY_FE, ENERGY_KIN_FE, GAMMA_KIN_FGAMMA, GAMMA_FGAMMA
 
 class ElectronDistribution : public ParticleDistribution{
 public:
-	virtual double distribution(const double& energy, const double& mu, const double& phi) = 0;
+	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi) = 0;
+	virtual void resetConcentration(const double& concentration) = 0;
 };
 
 class ElectronIsotropicDistribution : public ElectronDistribution {
 public:
-	double distribution(const double& energy, const double& mu, const double& phi);
-	virtual double distribution(const double& energy) = 0;
+	double distributionNormalized(const double& energy, const double& mu, const double& phi);
+	virtual double distribution(const double& energy) {
+		return my_concentration * distributionNormalized(energy);
+	}
+	virtual double distributionNormalized(const double& energy) = 0;
 };
 
 class ElectronPowerLawDistribution : public ElectronIsotropicDistribution {
@@ -26,7 +30,8 @@ protected:
 	double my_A;
 public:
 	ElectronPowerLawDistribution(const double& index, const double& E0, const double& concentration);
-	virtual double distribution(const double& energy);
+	virtual double distributionNormalized(const double& energy);
+	virtual void resetConcentration(const double& concentration);
 	double getIndex();
 	double getE0();
 };
@@ -37,7 +42,8 @@ protected:
 	double my_A;
 public:
 	ElectronMaxwellDistribution(const double& temperature, const double& concentration);
-	virtual double distribution(const double& energy);
+	virtual double distributionNormalized(const double& energy);
+	virtual void resetConcentration(const double& concentration);
 	double getTemperature();
 };
 
@@ -47,7 +53,8 @@ protected:
 	double my_A;
 public:
 	ElectronMaxwellJuttnerDistribution(const double& temperature, const double& concentration);
-	virtual double distribution(const double& energy);
+	virtual double distributionNormalized(const double& energy);
+	virtual void resetConcentration(const double& concentration);
 	double getTemperature();
 };
 
@@ -65,7 +72,8 @@ public:
 	ElectronTabulatedIsotropicDistribution(const char* energyFileName, const char* distributionFileName, const int N, const double& concentration, ElectronInputType inputType);
 	ElectronTabulatedIsotropicDistribution(const double* energy, const double* distribution, const int N, const double& concentration, ElectronInputType inputType);
 	~ElectronTabulatedIsotropicDistribution();
-	virtual double distribution(const double& energy);
+	virtual double distributionNormalized(const double& energy);
+	virtual void resetConcentration(const double& concentration);
 	int getN();
 };
 
@@ -86,7 +94,8 @@ public:
 	ElectronTabulatedAzimutalDistribution(const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const double& concentration, ElectronInputType inputType);
 	ElectronTabulatedAzimutalDistribution(const double* energy, const double* mu, const double** distribution, const int Ne, const int Nmu, const double& concentration, ElectronInputType inputType);
 	~ElectronTabulatedAzimutalDistribution();
-	virtual double distribution(const double& energy, const double& mu, const double& phi);
+	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi);
+	virtual void resetConcentration(const double& concentration);
 	int getNe();
 	int getNmu();
 };
@@ -111,7 +120,8 @@ public:
 	ElectronTabulatedAnisotropicDistribution(const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const int Nphi, const double& concentration, ElectronInputType inputType);
 	ElectronTabulatedAnisotropicDistribution(const double* energy, const double* mu, const double*** distribution, const int Ne, const int Nmu, const int Nphi, const double& concentration, ElectronInputType inputType);
 	~ElectronTabulatedAnisotropicDistribution();
-	virtual double distribution(const double& energy, const double& mu, const double& phi);
+	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi);
+	virtual void resetConcentration(const double& concentration);
 	int getNe();
 	int getNmu();
 	int getNphi();
@@ -127,7 +137,8 @@ public:
 	CompoundElectronDistribution(ElectronDistribution* dist1, ElectronDistribution* dist2, ElectronDistribution* dist3);
 	~CompoundElectronDistribution();
 
-	virtual double distribution(const double& energy, const double& mu, const double& phi);
+	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi);
+	virtual void resetConcentration(const double& concentration);
 };
 
 class CompoundWeightedElectronDistribution : public ElectronDistribution {
@@ -141,7 +152,8 @@ public:
 	CompoundWeightedElectronDistribution(ElectronDistribution* dist1, const double& w1, ElectronDistribution* dist2, const double& w2, ElectronDistribution* dist3, const double& w3);
 	~CompoundWeightedElectronDistribution();
 
-	virtual double distribution(const double& energy, const double& mu, const double& phi);
+	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi);
+	virtual void resetConcentration(const double& concentration);
 };
 
 class ElectronDistributionFactory {

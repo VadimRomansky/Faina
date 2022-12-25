@@ -8,13 +8,16 @@
 
 class PhotonDistribution : public ParticleDistribution{
 public:
-	virtual double distribution(const double& energy, const double& mu, const double& phi) = 0;
+	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi) = 0;
 };
 
 class PhotonIsotropicDistribution : public PhotonDistribution {
 public:
-	double distribution(const double& energy, const double& mu, const double& phi);
-	virtual double distribution(const double& energy) = 0;
+	double distributionNormalized(const double& energy, const double& mu, const double& phi);
+	virtual double distribution(const double& energy) {
+		return my_concentration * distributionNormalized(energy);
+	};
+	virtual double distributionNormalized(const double& energy) = 0;
 };
 
 class PhotonPowerLawDistribution : public PhotonIsotropicDistribution {
@@ -24,7 +27,7 @@ private:
 	double my_A;
 public:
 	PhotonPowerLawDistribution(const double& index, const double& E0, const double& concentration);
-	virtual double distribution(const double& energy);
+	virtual double distributionNormalized(const double& energy);
 
 	double getIndex();
 	double getE0();
@@ -39,7 +42,7 @@ private:
 public:
 
 	PhotonPlankDistribution(const double& temperature, const double& amplitude);
-	virtual double distribution(const double& energy);
+	virtual double distributionNormalized(const double& energy);
 
 	double getTemperature();
 
@@ -57,7 +60,7 @@ private:
 public:
 	PhotonMultiPlankDistribution(int Nplank, const double* const temperatures, const double* const amplitudes);
 	~PhotonMultiPlankDistribution();
-	virtual double distribution(const double& energy);
+	virtual double distributionNormalized(const double& energy);
 
 	//Mathis 1983?
 	static PhotonMultiPlankDistribution* getGalacticField();
@@ -73,7 +76,7 @@ public:
 	CompoundPhotonDistribution(PhotonDistribution* dist1, PhotonDistribution* dist2, PhotonDistribution* dist3);
 	~CompoundPhotonDistribution();
 
-	virtual double distribution(const double& energy, const double& mu, const double& phi);
+	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi);
 };
 
 #endif
