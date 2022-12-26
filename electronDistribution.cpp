@@ -169,11 +169,11 @@ void ElectronTabulatedIsotropicDistribution::setDistributionAtPoint(int i, const
 void ElectronTabulatedIsotropicDistribution::normalizeDistribution()
 {
 	double norm = my_distribution[0] * (my_energy[1] - my_energy[0]);
-	for (int i = 1; i < my_N; ++i) {
+	for (int i = 1; i < my_Ne; ++i) {
 		norm += my_distribution[i] * (my_energy[i] - my_energy[i - 1]);
 	}
 	norm *= 4 * pi;
-	for (int i = 0; i < my_N; ++i) {
+	for (int i = 0; i < my_Ne; ++i) {
 		my_distribution[i] *= 1.0 / norm;
 	}
 }
@@ -184,7 +184,7 @@ ElectronTabulatedIsotropicDistribution::ElectronTabulatedIsotropicDistribution(c
 		printLog("grid number <= 0 in tabulated spherical distribution\n");
 		exit(0);
 	}
-	my_N = N;
+	my_Ne = N;
 
 	if (concentration <= 0) {
 		printf("electrons concentration <= 0\n");
@@ -195,11 +195,11 @@ ElectronTabulatedIsotropicDistribution::ElectronTabulatedIsotropicDistribution(c
 
 	my_inputType = inputType;
 
-	my_energy = new double[my_N];
-	my_distribution = new double[my_N];
+	my_energy = new double[my_Ne];
+	my_distribution = new double[my_Ne];
 
 	FILE* file = fopen(fileName, "r");
-	for (int i = 0; i < my_N; ++i) {
+	for (int i = 0; i < my_Ne; ++i) {
 		double x;
 		double y;
 		fscanf(file, "%lf", &x);
@@ -223,7 +223,7 @@ ElectronTabulatedIsotropicDistribution::ElectronTabulatedIsotropicDistribution(c
 		printLog("grid number <= 0 in tabulated spherical distribution\n");
 		exit(0);
 	}
-	my_N = N;
+	my_Ne = N;
 
 	if (concentration <= 0) {
 		printf("electrons concentration <= 0\n");
@@ -234,12 +234,12 @@ ElectronTabulatedIsotropicDistribution::ElectronTabulatedIsotropicDistribution(c
 
 	my_inputType = inputType;
 
-	my_energy = new double[my_N];
-	my_distribution = new double[my_N];
+	my_energy = new double[my_Ne];
+	my_distribution = new double[my_Ne];
 
 	FILE* energyFile = fopen(energyFileName, "r");
 	FILE* distributionFile = fopen(distributionFileName, "r");
-	for (int i = 0; i < my_N; ++i) {
+	for (int i = 0; i < my_Ne; ++i) {
 		double x;
 		double y;
 		fscanf(energyFile, "%lf", &x);
@@ -264,7 +264,7 @@ ElectronTabulatedIsotropicDistribution::ElectronTabulatedIsotropicDistribution(c
 		printLog("grid number <= 0 in tabulated spherical distribution\n");
 		exit(0);
 	}
-	my_N = N;
+	my_Ne = N;
 
 	if (concentration <= 0) {
 		printf("electrons concentration <= 0\n");
@@ -275,10 +275,10 @@ ElectronTabulatedIsotropicDistribution::ElectronTabulatedIsotropicDistribution(c
 
 	my_inputType = inputType;
 
-	my_energy = new double[my_N];
-	my_distribution = new double[my_N];
+	my_energy = new double[my_Ne];
+	my_distribution = new double[my_Ne];
 
-	for (int i = 0; i < my_N; ++i) {
+	for (int i = 0; i < my_Ne; ++i) {
 		double x = energy[i];
 		double y = distribution[i];
 		if (y < 0) {
@@ -303,7 +303,7 @@ double ElectronTabulatedIsotropicDistribution::distributionNormalized(const doub
 		//printLog("warning: energy is less than minimum energy\n");
 		return 0;
 	}
-	else if (energy >= my_energy[my_N-1]) {
+	else if (energy >= my_energy[my_Ne-1]) {
 		//printf("warning: energy is greater than maximum energy\n");
 		//printLog("warning: energy is greater than maximum energy\n");
 		return 0;
@@ -322,7 +322,7 @@ double ElectronTabulatedIsotropicDistribution::distributionNormalized(const doub
 
 		//log
 		int minI = 0;
-		int maxI = my_N-1;
+		int maxI = my_Ne-1;
 		while (maxI - minI > 1) {
 			int tempI = (minI + maxI) / 2;
 			if (my_energy[tempI] > energy) {
@@ -359,7 +359,15 @@ void ElectronTabulatedIsotropicDistribution::resetConcentration(const double& co
 }
 
 int ElectronTabulatedIsotropicDistribution::getN() {
-	return my_N;
+	return my_Ne;
+}
+
+void ElectronTabulatedIsotropicDistribution::rescaleDistribution(const double& k)
+{
+	for (int i = 0; i < my_Ne; ++i) {
+		my_energy[i] = me_c2 + (my_energy[i] - me_c2) * k;
+	}
+	normalizeDistribution();
 }
 
 void ElectronTabulatedAzimutalDistribution::setDistributionAtPoint(int i, int j, const double& energy, const double& distribution)
@@ -666,6 +674,14 @@ int ElectronTabulatedAzimutalDistribution::getNe()
 int ElectronTabulatedAzimutalDistribution::getNmu()
 {
 	return my_Nmu;
+}
+
+void ElectronTabulatedAzimutalDistribution::rescaleDistribution(const double& k)
+{
+	for (int i = 0; i < my_Ne; ++i) {
+		my_energy[i] = me_c2 + (my_energy[i] - me_c2);
+	}
+	normalizeDistribution();
 }
 
 void ElectronTabulatedAnisotropicDistribution::setDistributionAtPoint(int i, int j, int k, const double& energy, const double& distribution)
@@ -1070,6 +1086,14 @@ int ElectronTabulatedAnisotropicDistribution::getNmu()
 int ElectronTabulatedAnisotropicDistribution::getNphi()
 {
 	return my_Nphi;
+}
+
+void ElectronTabulatedAnisotropicDistribution::rescaleDistribution(const double& k)
+{
+	for (int i = 0; i < my_Ne; ++i) {
+		my_energy[i] = me_c2 + (my_energy[i] - me_c2) * k;
+	}
+	normalizeDistribution();
 }
 
 CompoundElectronDistribution::CompoundElectronDistribution(int N, ElectronDistribution** distributions)

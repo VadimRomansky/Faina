@@ -27,6 +27,8 @@ int main() {
 	double Emin = me_c2;
 	double Emax = 10000 * me_c2;
 
+	srand(10);
+
 	PhotonPlankDistribution* CMBradiation = PhotonPlankDistribution::getCMBradiation();
 	PhotonMultiPlankDistribution* galacticRadiation = PhotonMultiPlankDistribution::getGalacticField();
 	ElectronPowerLawDistribution* electrons = new ElectronPowerLawDistribution(3.5, Emin, electronConcentration);
@@ -39,6 +41,9 @@ int main() {
 
 	int Ndistributions = 10;
 	ElectronIsotropicDistribution** angleDependentDistributions = ElectronDistributionFactory::readTabulatedIsotropicDistributions("./input/Ee", "./input/Fs",".dat",10, ElectronInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
+	for (int i = 0; i < Ndistributions; ++i) {
+		(dynamic_cast<ElectronTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
+	}
 	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, 1.0, 0, electronConcentration, rmax, 0.5 * rmax, distance);
 
 	const int Nparams = 4;

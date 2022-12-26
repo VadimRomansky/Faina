@@ -12,7 +12,6 @@ enum ErrorScale{LINEAR, LOG};
 class SynchrotronOptimizer {
 protected:
 	int my_Nparams;
-	int my_Niterations;
 	ErrorScale my_errorScale;
 	SynchrotronEvaluator* my_evaluator;
 	double* my_minParameters;
@@ -20,7 +19,7 @@ protected:
 
 	double* my_minVector;
 public:
-	SynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, ErrorScale errorScale);
+	SynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale);
 	~SynchrotronOptimizer();
 	double evaluateOptimizationFunction(const double* vector, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source);
 	virtual void optimize(double* vector, bool* optPar, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source) = 0;
@@ -29,6 +28,8 @@ public:
 
 class GradientDescentSynchrotronOptimizer:public SynchrotronOptimizer{
 protected:
+	int my_Niterations;
+
 	double* tempVector;
 	double* tempVector1;
 	double* tempVector2;
@@ -41,6 +42,16 @@ protected:
 public:
 	GradientDescentSynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, ErrorScale errorScale);
 	~GradientDescentSynchrotronOptimizer();
+	virtual void optimize(double* vector, bool* optPar, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source);
+};
+
+class EnumSynchrotronOptimizer : public SynchrotronOptimizer {
+protected:
+	int* my_Npoints;
+	double** my_points;
+public:
+	EnumSynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale, const double** points, const int* Npoints);
+	~EnumSynchrotronOptimizer();
 	virtual void optimize(double* vector, bool* optPar, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source);
 };
 

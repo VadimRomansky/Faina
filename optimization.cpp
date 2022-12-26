@@ -12,10 +12,9 @@
 #include "optimization.h"
 
 
-SynchrotronOptimizer::SynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, ErrorScale errorScale) {
+SynchrotronOptimizer::SynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale) {
 	my_evaluator = evaluator;
 	my_Nparams = Nparams;
-	my_Niterations = Niterations;
 	my_errorScale = errorScale;
 	my_minParameters = new double[my_Nparams];
 	my_maxParameters = new double[my_Nparams];
@@ -70,7 +69,9 @@ void SynchrotronOptimizer::optimize(double* vector, bool* optPar, double* nu, do
 	delete[] observedError;
 }
 
-GradientDescentSynchrotronOptimizer::GradientDescentSynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, ErrorScale errorScale) :SynchrotronOptimizer(evaluator, minParameters, maxParameters, Nparams, Niterations, errorScale) {
+GradientDescentSynchrotronOptimizer::GradientDescentSynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, ErrorScale errorScale) :SynchrotronOptimizer(evaluator, minParameters, maxParameters, Nparams, errorScale) {
+	my_Niterations = Niterations;
+
 	tempVector = new double[my_Nparams];
 	tempVector1 = new double[my_Nparams];
 	tempVector2 = new double[my_Nparams];
@@ -300,30 +301,31 @@ void GradientDescentSynchrotronOptimizer::optimize(double* vector, bool* optPar,
 	
 	for (int k = 0; k < my_Niterations; ++k) {
 		///randomization;
-		/*for(int j = 0; j < 5; ++j){
-			for(int i = 0; i < Ngrad; ++i) {
+		for(int j = 0; j < 5; ++j){
+			for(int i = 0; i < my_Nparams; ++i) {
 				if(optPar[i]){
 					//tempVector[i] = minVector[i] + (1.0 - minVector[i])*uniformDistribution();
-					tempVector[i] = tempVector[i] + 0.2*minVector[i]*(0,5 - uniformDistribution());
+					tempVector[i] = vector[i] + 0.2*my_minVector[i]*(0.5 - uniformDistribution());
 					if(tempVector[i] > 1.0) {
 						tempVector[i] = 1.0;
 					}
-					if(tempVector[i] < minVector[i]) {
-						tempVector[i] = minVector[i];
+					if(tempVector[i] < my_minVector[i]) {
+						tempVector[i] = my_minVector[i];
 					}
 				}
 			}
 
-			double tempF = evaluateOptimizationFunction5(tempVector, nu, observedInu, Ee, dFe, Np, Nnu, Nd, Bn, sintheta, thetaIndex, concentrations, Inu, Anu, area, length, fraction, epsilonB);
+			double tempF = evaluateOptimizationFunction(tempVector, nu, observedInu, observedError, Nnu, source);
 			if(tempF < currentF){
 				currentF = tempF;
-				for(int i = 0; i < Ngrad; ++i) {
+				for(int i = 0; i < my_Nparams; ++i) {
 					vector[i] = tempVector[i];
 				}
-				printf("random search\n");
-				fprintf(logFile, "random search\n");
+				printf("optimization function = %g\n", currentF);
+				printf("random search succeed\n");
+				printLog("random search succeed\n");
 			}
-		}*/
+		}
 		double prevF = currentF;
 		//
 		//valley first step
@@ -502,4 +504,48 @@ void GradientDescentSynchrotronOptimizer::optimize(double* vector, bool* optPar,
 		}
 	}
 	printf("finish optimization\n");
+}
+
+EnumSynchrotronOptimizer::EnumSynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale, const double** points, const int* Npoints) : SynchrotronOptimizer(evaluator, minParameters, maxParameters, Nparams, errorScale)
+{
+	my_Npoints = new int[my_Nparams];
+	for (int i = 0; i < my_Nparams; ++i) {
+		my_Npoints[i] = Npoints[i];
+	}
+
+	my_points = new double* [my_Nparams];
+	for (int i = 0; i < my_Nparams; ++i) {
+		my_points[i] = new double[my_Npoints[i]];
+		my_points[i][0] = my_minParameters[i];
+		my_points[i][my_Npoints[i] - 1] = my_maxParameters[i];
+		if (my_Npoints[i] > 1) {
+			double delta = (my_points[i][my_Npoints[i] - 1] - my_points[i][0]) / (my_Npoints[i] - 1);
+			for (int j = 1; j < my_Npoints[i] - 1; ++j) {
+				my_points[i][j] = my_points[i][j - 1] + delta;
+			}
+		}
+	}
+}
+
+EnumSynchrotronOptimizer::~EnumSynchrotronOptimizer()
+{
+	for (int i = 0; i < my_Nparams; ++i) {
+		delete[] my_points[i];
+	}
+	delete[] my_points;
+	delete[] my_Npoints;
+}
+
+void EnumSynchrotronOptimizer::optimize(double* vector, bool* optPar, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source)
+{
+	double* tempVector = new double[my_Nparams];
+
+	for (int i = 0; i < my_Nparams; ++i) {
+		tempVector[i] = my_points[i][0];
+	}
+	double currentF = evaluateOptimizationFunction(vector, nu, observedInu, observedError, Nnu, source);
+
+
+
+	delete[] tempVector;
 }

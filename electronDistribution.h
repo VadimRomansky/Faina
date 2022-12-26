@@ -60,7 +60,7 @@ public:
 
 class ElectronTabulatedIsotropicDistribution : public ElectronIsotropicDistribution {
 protected:
-	int my_N;
+	int my_Ne;
 	double* my_energy;
 	double* my_distribution;
 	ElectronInputType my_inputType;
@@ -75,6 +75,7 @@ public:
 	virtual double distributionNormalized(const double& energy);
 	virtual void resetConcentration(const double& concentration);
 	int getN();
+	void rescaleDistribution(const double& k);
 };
 
 class ElectronTabulatedAzimutalDistribution : public ElectronDistribution {
@@ -98,6 +99,7 @@ public:
 	virtual void resetConcentration(const double& concentration);
 	int getNe();
 	int getNmu();
+	void rescaleDistribution(const double& k);
 };
 
 class ElectronTabulatedAnisotropicDistribution : public ElectronDistribution {
@@ -125,6 +127,7 @@ public:
 	int getNe();
 	int getNmu();
 	int getNphi();
+	void rescaleDistribution(const double& k);
 };
 
 class CompoundElectronDistribution : public ElectronDistribution {
