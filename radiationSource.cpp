@@ -515,3 +515,34 @@ ElectronIsotropicDistribution* AngleDependentElectronsSphericalSource::getElectr
 
 	return my_distributions[angleIndex];
 }
+
+ExpandingRemnantSource::ExpandingRemnantSource(const double& R0, const double& B0, const double& concentration0, const double& v, const double& widthFraction, RadiationSource* source) : RadiationTimeDependentSource(source) {
+	my_R0 = R0;
+	my_B0 = B0;
+	my_concentration0 = concentration0;
+	my_widthFraction = widthFraction;
+	my_v = v;
+}
+
+void ExpandingRemnantSource::resetParameters(const double* parameters, const double* normalizationUnits) {
+	my_R0 = parameters[0] * normalizationUnits[0];
+	my_B0 = parameters[1] * normalizationUnits[1];
+	my_concentration0 = parameters[2] * normalizationUnits[2];
+	my_widthFraction = parameters[3] * normalizationUnits[3];
+	my_v = parameters[4] * normalizationUnits[4];
+}
+
+//just one possible example
+RadiationSource* ExpandingRemnantSource::getRadiationSource(double& time, const double* normalizationUnits) {
+	double R = my_R0 + my_v * time;
+	double B = my_B0 * my_R0 / R;
+	double n = my_concentration0 * sqr(my_R0 / R);
+	double fracton = my_widthFraction;
+
+	double parameters[4];
+	parameters[0] = R / normalizationUnits[0];
+	parameters[1] = B / normalizationUnits[1];
+	parameters[2] = n / normalizationUnits[2];
+	parameters[3] = fracton / normalizationUnits[3];
+	my_radiationSource->resetParameters(parameters, normalizationUnits);
+}

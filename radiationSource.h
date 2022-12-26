@@ -140,5 +140,30 @@ public:
 	virtual ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi);
 };
 
+class RadiationTimeDependentSource {
+protected:
+	RadiationSource* my_radiationSource;
+public:
+	RadiationTimeDependentSource(RadiationSource* source) {
+		my_radiationSource = source;
+	}
+	//note that number of parameters and they sence are on your responsibility
+	virtual void resetParameters(const double* parameters, const double* normalizationUnits) = 0;
+	virtual RadiationSource* getRadiationSource(double& time) = 0;
+};
+
+class ExpandingRemnantSource : public RadiationTimeDependentSource {
+protected:
+	double my_R0;
+	double my_B0;
+	double my_concentration0;
+	double my_v;
+	double my_widthFraction;
+public:
+	ExpandingRemnantSource(const double& R0, const double& B0, const double& concentration0, const double& v, const double& widthFraction, RadiationSource* source);
+	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
+	virtual RadiationSource* getRadiationSource(double& time, const double* normalizationUnits);
+};
+
 
 #endif

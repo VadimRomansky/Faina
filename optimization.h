@@ -52,7 +52,7 @@ protected:
 public:
 	EnumSynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale, const int* Npoints);
 	~EnumSynchrotronOptimizer();
-	virtual void optimize(double* vector, bool* optPar, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source);
+	virtual void optimize(double* vector, bool* optPar, double** nu, double** observedInu, double* observedError, int* Nnu, RadiationSource* source);
 };
 
 class SynchrotronTimeOptimizer {
@@ -69,9 +69,9 @@ protected:
 public:
 	SynchrotronTimeOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale);
 	~SynchrotronTimeOptimizer();
-	double evaluateOptimizationFunction(const double* vector, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source);
-	virtual void optimize(double* vector, bool* optPar, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source) = 0;
-	void optimize(double* vector, bool* optPar, double* nu, double* observedInu, int Nnu, RadiationSource* source);
+	double evaluateOptimizationFunction(const double* vector, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, RadiationTimeDependentSource* source);
+	virtual void optimize(double* vector, bool* optPar, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, RadiationTimeDependentSource* source) = 0;
+	void optimize(double* vector, bool* optPar, double** nu, double** observedInu, int Nnu, RadiationTimeDependentSource* source);
 };
 
 #endif
