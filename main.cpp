@@ -98,8 +98,11 @@ int main() {
 	//observedInu[2] = 32.705;
 	//Time = 7.7*24*3600;
 	SynchrotronOptimizer* synchrotronOptimizer = new GradientDescentSynchrotronOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 20, ErrorScale::LINEAR);
-	//synchrotronOptimizer->optimize(vector, optPar, nu1, observedFlux, observedError, Nnu1, angleDependentSource);
-	synchrotronOptimizer->optimize(vector, optPar, nu1, observedFlux, observedError, Nnu1, source);
+	int Npoints[Nparams] = { 5,5,5,5 };
+	SynchrotronOptimizer* enumOptimizer = new EnumSynchrotronOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, ErrorScale::LINEAR, Npoints);
+	enumOptimizer->optimize(vector, optPar, nu1, observedFlux, observedError, Nnu1, angleDependentSource);
+	synchrotronOptimizer->optimize(vector, optPar, nu1, observedFlux, observedError, Nnu1, angleDependentSource);
+	//synchrotronOptimizer->optimize(vector, optPar, nu1, observedFlux, observedError, Nnu1, source);
 	//angleDependentSource->resetParameters(vector, maxParameters);
 	source->resetParameters(vector, maxParameters);
 

@@ -50,9 +50,28 @@ protected:
 	int* my_Npoints;
 	double** my_points;
 public:
-	EnumSynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale, const double** points, const int* Npoints);
+	EnumSynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale, const int* Npoints);
 	~EnumSynchrotronOptimizer();
 	virtual void optimize(double* vector, bool* optPar, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source);
+};
+
+class SynchrotronTimeOptimizer {
+protected:
+	int my_Nt;
+	int my_Nparams;
+	ErrorScale my_errorScale;
+	SynchrotronEvaluator* my_evaluator;
+	double* my_minParameters;
+	double* my_maxParameters;
+	double* my_timeMoments;
+
+	double* my_minVector;
+public:
+	SynchrotronTimeOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale);
+	~SynchrotronTimeOptimizer();
+	double evaluateOptimizationFunction(const double* vector, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source);
+	virtual void optimize(double* vector, bool* optPar, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source) = 0;
+	void optimize(double* vector, bool* optPar, double* nu, double* observedInu, int Nnu, RadiationSource* source);
 };
 
 #endif

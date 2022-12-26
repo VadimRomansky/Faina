@@ -506,7 +506,7 @@ void GradientDescentSynchrotronOptimizer::optimize(double* vector, bool* optPar,
 	printf("finish optimization\n");
 }
 
-EnumSynchrotronOptimizer::EnumSynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale, const double** points, const int* Npoints) : SynchrotronOptimizer(evaluator, minParameters, maxParameters, Nparams, errorScale)
+EnumSynchrotronOptimizer::EnumSynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale, const int* Npoints) : SynchrotronOptimizer(evaluator, minParameters, maxParameters, Nparams, errorScale)
 {
 	my_Npoints = new int[my_Nparams];
 	for (int i = 0; i < my_Nparams; ++i) {
@@ -516,8 +516,8 @@ EnumSynchrotronOptimizer::EnumSynchrotronOptimizer(SynchrotronEvaluator* evaluat
 	my_points = new double* [my_Nparams];
 	for (int i = 0; i < my_Nparams; ++i) {
 		my_points[i] = new double[my_Npoints[i]];
-		my_points[i][0] = my_minParameters[i];
-		my_points[i][my_Npoints[i] - 1] = my_maxParameters[i];
+		my_points[i][0] = my_minVector[i];
+		my_points[i][my_Npoints[i] - 1] = 1.0;
 		if (my_Npoints[i] > 1) {
 			double delta = (my_points[i][my_Npoints[i] - 1] - my_points[i][0]) / (my_Npoints[i] - 1);
 			for (int j = 1; j < my_Npoints[i] - 1; ++j) {
@@ -541,11 +541,32 @@ void EnumSynchrotronOptimizer::optimize(double* vector, bool* optPar, double* nu
 	double* tempVector = new double[my_Nparams];
 
 	for (int i = 0; i < my_Nparams; ++i) {
-		tempVector[i] = my_points[i][0];
+		tempVector[i] = vector[i];
 	}
 	double currentF = evaluateOptimizationFunction(vector, nu, observedInu, observedError, Nnu, source);
+	int N = 1;
+	for (int i = 0; i < my_Nparams; ++i) {
+		N *= my_Npoints[i];
+	}
 
+	int* index = new int[my_Nparams];
+	for (int i = 0; i < N; ++i) {
+		int tempN = i;
+		for (int j = 0; j < my_Nparams; ++j) {
+			index[j] = tempN % my_Npoints[j];
+			tempN = tempN / my_Npoints[j];
+			tempVector[j] = my_points[j][index[j]];
+		}
+		double tempF = evaluateOptimizationFunction(tempVector, nu, observedInu, observedError, Nnu, source);
+		if (tempF < currentF) {
+			currentF = tempF;
+			for (int j = 0; j < my_Nparams; ++j) {
+				vector[j] = tempVector[j];
+			}
+		}
+		printf("optimization function = %g\n", tempF);
+	}
 
-
+	delete[] index;
 	delete[] tempVector;
 }
