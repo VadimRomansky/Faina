@@ -142,14 +142,16 @@ public:
 
 class RadiationTimeDependentSource {
 protected:
+	double my_t0;
 	RadiationSource* my_radiationSource;
 public:
-	RadiationTimeDependentSource(RadiationSource* source) {
+	RadiationTimeDependentSource(RadiationSource* source, const double& t0) {
 		my_radiationSource = source;
+		my_t0 = t0;
 	}
 	//note that number of parameters and they sence are on your responsibility
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits) = 0;
-	virtual RadiationSource* getRadiationSource(double& time) = 0;
+	virtual RadiationSource* getRadiationSource(double& time, const double* normalizationUnits) = 0;
 };
 
 class ExpandingRemnantSource : public RadiationTimeDependentSource {
@@ -160,7 +162,7 @@ protected:
 	double my_v;
 	double my_widthFraction;
 public:
-	ExpandingRemnantSource(const double& R0, const double& B0, const double& concentration0, const double& v, const double& widthFraction, RadiationSource* source);
+	ExpandingRemnantSource(const double& R0, const double& B0, const double& concentration0, const double& v, const double& widthFraction, RadiationSource* source, const double& t0);
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
 	virtual RadiationSource* getRadiationSource(double& time, const double* normalizationUnits);
 };
