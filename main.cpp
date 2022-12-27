@@ -371,7 +371,7 @@ void fitTimeDependentCSS161010() {
 
 int main() {
 	//evaluateComtonWithPowerLawDistribution();
-	fitCSS161010();
-	//fitTimeDependentCSS161010();
+	//fitCSS161010();
+	fitTimeDependentCSS161010();
 	return 0;
 }

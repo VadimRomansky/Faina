@@ -610,7 +610,6 @@ double SynchrotronTimeOptimizer::evaluateOptimizationFunction(const double* vect
 			//1E26 from Jansky
 			totalInu[i] = my_evaluator->evaluateSynchrotronFluxFromSource(source1, nu[k][i]) * 1E26;
 		}
-		double err = 0;
 		for (int j = 0; j < Nnu[k]; ++j) {
 			double err1 = 0;
 			if (my_errorScale == ErrorScale::LINEAR) {
