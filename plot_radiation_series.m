@@ -1,6 +1,6 @@
 clear;
 
-radiation = importdata('outputSynch.dat');
+radiation = importdata('css161010.dat');
 
 N = size(radiation,1);
 Nr = size(radiation,2);
@@ -171,47 +171,17 @@ xlabel ('{\nu} GHz');
 ylabel ('mJy');
 
 loglog(radiation(1:N,1),radiation(1:N,2),'red','LineWidth',2);
+loglog(radiation(1:N,1),radiation(1:N,2),'green','LineWidth',2);
+loglog(radiation(1:N,1),radiation(1:N,3),'blue','LineWidth',2);
 
-%loglog(radiation(1:N,1),radiation(1:N,5),'magenta','LineWidth',2);
-%plot(radiation(1:N,1),radiation(1:N,6),'Color',[1.0,0.6,0],'LineWidth',2);
-%plot(radiation(1:N,1),radiation(1:N,7),'black','LineWidth',2);
-
-%loglog(aprx(1:4),apry(1:4),'--o','Color','red','LineWidth',2);
-%loglog(mayx(1:3),mayy(1:3),'--o','Color','green','LineWidth',2);
-%loglog(junx(1:4),juny(1:4),'--o','Color','blue','LineWidth',2);
-%loglog(augx(1:5),augy(1:5),'--o','Color','magenta','LineWidth',2);
-%plot(octx(1:3),octy(1:3),'--o','Color',[1.0,0.6,0],'LineWidth',2);
-%plot(decx(1:3),decy(1:3),'--o','Color','black','LineWidth',2);
 
 errorbar(cssx1,cssy1,cssError1,'red','LineWidth',2);
-%errorbar(cssx2,cssy2,cssError2,'green','LineWidth',2);
-%errorbar(cssx3,cssy3,cssError3,'blue','LineWidth',2);
-
-%errorbar(aprx,apry,aprerr,'red','LineWidth',2);
-%errorbar(mayx,mayy,mayerr,'green','LineWidth',2);
-%errorbar(junx,juny,junerr,'blue','LineWidth',2);
-%errorbar(augx,augy,augerr,'magenta','LineWidth',2);
-
-%legend('theory', 'shevalier', 'observation');
+errorbar(cssx2,cssy2,cssError2,'green','LineWidth',2);
+errorbar(cssx3,cssy3,cssError3,'blue','LineWidth',2);
 
 %xlim([0.1 100]);
 %ylim([0.05 50]);
 
-%legend('april','may','june','august','Location','northwest');
-%legend('99 days','162 days ','357 days','Location','northwest');
-
 grid ;
 
 dlmwrite('radiation.dat',radiation,'delimiter',' ');
-
-
-gamma = - log(apry(3)/apry(4))/log(aprx(3)/aprx(4));
-
-testx(1:3) = 0;
-testx(1) = 8.46;
-testx(2) = 22.5;
-testx(3) = 1000*1.6*10^(-12)*10^(-9)/h;
-testy(1:3) = 0;
-testy(1) = apry(3);
-testy(2) = testy(1)*power(testx(2)/testx(1),-gamma);
-testy(3) = testy(1)*power(testx(3)/testx(1),-gamma);
