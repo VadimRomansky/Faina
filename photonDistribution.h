@@ -51,7 +51,7 @@ public:
 
 class PhotonMultiPlankDistribution : public PhotonIsotropicDistribution {
 private:
-	double my_Nplank;
+	int my_Nplank;
 	double* my_temperatures;
 	double* my_concentrations;
 	double* my_A;

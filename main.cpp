@@ -574,8 +574,8 @@ void fitTimeDependentCSS161010() {
 
 int main() {
 	//evaluateComtonWithPowerLawDistribution();
-	fitCSS161010withPowerLawDistribition();
+	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
-	//fitTimeDependentCSS161010();
+	fitTimeDependentCSS161010();
 	return 0;
 }
