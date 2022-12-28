@@ -508,7 +508,7 @@ ElectronIsotropicDistribution* AngleDependentElectronsSphericalSource::getElectr
 		theta = pi - theta;
 	}
 
-	int angleIndex = floor(pi / dtheta);
+	int angleIndex = floor(theta / dtheta);
 	if (angleIndex == my_Ntheta) {
 		angleIndex = my_Ntheta - 1;
 	}
@@ -536,6 +536,7 @@ void ExpandingRemnantSource::resetParameters(const double* parameters, const dou
 RadiationSource* ExpandingRemnantSource::getRadiationSource(double& time, const double* normalizationUnits) {
 	double R = my_R0 + my_v * (time - my_t0);
 	double B = my_B0 * my_R0 / R;
+	//double B = my_B0;
 	double n = my_concentration0 * sqr(my_R0 / R);
 	double fracton = my_widthFraction * my_R0/R;
 

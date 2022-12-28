@@ -480,12 +480,12 @@ void fitTimeDependentCSS161010() {
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax);
 	//creating time depedent grid enumeration optimizer, which will chose the best starting poin for gradien descent
 	SynchrotronTimeOptimizer* gridEnumOptimizer = new GridEnumSynchrotronTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, ErrorScale::LINEAR, Npoints);
-	//gridEnumOptimizer->optimize(vector, optPar, Nu, F, Error, Nnu, Ntimes, times, source);
-	vector[0] = 2E17 / maxParameters[0];
+	gridEnumOptimizer->optimize(vector, optPar, Nu, F, Error, Nnu, Ntimes, times, source);
+	/*vector[0] = 2E17 / maxParameters[0];
 	vector[1] = 10 / maxParameters[1];
 	vector[2] = 0.01 / maxParameters[2];
 	vector[3] = 0.325 / maxParameters[3];
-	vector[4] = 2.69813E10 / maxParameters[4];
+	vector[4] = 2.69813E10 / maxParameters[4];*/
 	//creating gradient descent optimizer and optimizing
 	SynchrotronTimeOptimizer* gradientOptimizer = new GradientDescentSynchrotronTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, ErrorScale::LINEAR);
 	gradientOptimizer->optimize(vector, optPar, Nu, F, Error, Nnu, Ntimes, times, source);
