@@ -370,6 +370,23 @@ void ElectronTabulatedIsotropicDistribution::rescaleDistribution(const double& k
 	normalizeDistribution();
 }
 
+void ElectronTabulatedIsotropicDistribution::addPowerLaw(const double& Epower, const double& index)
+{
+	int ie = my_Ne-1;
+	for (int i = 0; i < my_Ne; ++i) {
+		if (my_energy[i] > Epower) {
+			ie = i;
+			break;
+		}
+	}
+
+	for (int i = ie; i < my_Ne; ++i) {
+		my_distribution[i] = my_distribution[ie] * pow(my_energy[ie] / my_energy[i], index);
+	}
+
+	normalizeDistribution();
+}
+
 void ElectronTabulatedAzimutalDistribution::setDistributionAtPoint(int i, int j, const double& energy, const double& distribution)
 {
 	if (my_inputType == ElectronInputType::ENERGY_FE) {
@@ -1240,6 +1257,38 @@ ElectronIsotropicDistribution** ElectronDistributionFactory::readTabulatedIsotro
 		const std::string fileName = fileName;
 		std::string a = fileName + fileNumber + fileExtension;
 		distributions[i] = new ElectronTabulatedIsotropicDistribution(a.c_str(), Ne, electronConcentration, inputType);
+	}
+	return distributions;
+}
+
+ElectronIsotropicDistribution** ElectronDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(const char* fileName, const char* fileExtension, int Nfiles, ElectronInputType inputType, const double& electronConcentration, int Ne, const double& Epower, const double& index)
+{
+	ElectronIsotropicDistribution** distributions = new ElectronIsotropicDistribution * [Nfiles];
+	for (int i = 0; i < Nfiles; ++i) {
+		std::string fileNumber = convertIntToString(i);
+		const std::string fileName = fileName;
+		std::string a = fileName + fileNumber + fileExtension;
+		ElectronTabulatedIsotropicDistribution* distributionTabulated = new ElectronTabulatedIsotropicDistribution(a.c_str(), Ne, electronConcentration, inputType);
+		distributionTabulated->addPowerLaw(Epower, index);
+		distributions[i] = distributionTabulated;
+	}
+	return distributions;
+}
+
+ElectronIsotropicDistribution** ElectronDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, ElectronInputType inputType, const double& electronConcentration, int Ne, const double& Epower, const double& index)
+{
+	ElectronIsotropicDistribution** distributions = new ElectronIsotropicDistribution * [Nfiles];
+	for (int i = 0; i < Nfiles; ++i) {
+		std::string fileNumber = convertIntToString(i);
+		const std::string fileNameE = energyFileName;
+		const std::string fileNameF = distributionFileName;
+		std::string a = fileNameE + fileNumber + fileExtension;
+		std::string b = fileNameF + fileNumber + fileExtension;
+		const char* energyFileName = a.c_str();
+		const char* distributionFileName = b.c_str();
+		ElectronTabulatedIsotropicDistribution* distributionTabulated = new ElectronTabulatedIsotropicDistribution(energyFileName, distributionFileName, Ne, electronConcentration, inputType);
+		distributionTabulated->addPowerLaw(Epower, index);
+		distributions[i] = distributionTabulated;
 	}
 	return distributions;
 }

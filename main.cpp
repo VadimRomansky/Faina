@@ -466,7 +466,8 @@ void fitTimeDependentCSS161010() {
 	int Niterations = 20;
 
 	//reading electron distributions from files
-	ElectronIsotropicDistribution** angleDependentDistributions = ElectronDistributionFactory::readTabulatedIsotropicDistributions("./input/Ee", "./input/Fs", ".dat", 10, ElectronInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
+	//ElectronIsotropicDistribution** angleDependentDistributions = ElectronDistributionFactory::readTabulatedIsotropicDistributions("./input/Ee", "./input/Fs", ".dat", 10, ElectronInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
+	ElectronIsotropicDistribution** angleDependentDistributions = ElectronDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail("./input/Ee", "./input/Fs", ".dat", 10, ElectronInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200, 50*me_c2, 3.5);
 	for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
 		(dynamic_cast<ElectronTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
@@ -479,7 +480,12 @@ void fitTimeDependentCSS161010() {
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax);
 	//creating time depedent grid enumeration optimizer, which will chose the best starting poin for gradien descent
 	SynchrotronTimeOptimizer* gridEnumOptimizer = new GridEnumSynchrotronTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, ErrorScale::LINEAR, Npoints);
-	gridEnumOptimizer->optimize(vector, optPar, Nu, F, Error, Nnu, Ntimes, times, source);
+	//gridEnumOptimizer->optimize(vector, optPar, Nu, F, Error, Nnu, Ntimes, times, source);
+	vector[0] = 2E17 / maxParameters[0];
+	vector[1] = 10 / maxParameters[1];
+	vector[2] = 0.01 / maxParameters[2];
+	vector[3] = 0.325 / maxParameters[3];
+	vector[4] = 2.69813E10 / maxParameters[4];
 	//creating gradient descent optimizer and optimizing
 	SynchrotronTimeOptimizer* gradientOptimizer = new GradientDescentSynchrotronTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, ErrorScale::LINEAR);
 	gradientOptimizer->optimize(vector, optPar, Nu, F, Error, Nnu, Ntimes, times, source);
@@ -525,6 +531,7 @@ void fitTimeDependentCSS161010() {
 		for (int j = 0; j < Ntimes; ++j) {
 			fprintf(outFile, " %g", Fout[j][i]*1E26);
 		}
+		fprintf(outFile, "\n");
 	}
 	fclose(outFile);
 

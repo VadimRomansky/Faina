@@ -76,6 +76,7 @@ public:
 	virtual void resetConcentration(const double& concentration);
 	int getN();
 	void rescaleDistribution(const double& k);
+	void addPowerLaw(const double& Epower, const double& index);
 };
 
 class ElectronTabulatedAzimutalDistribution : public ElectronDistribution {
@@ -163,6 +164,8 @@ class ElectronDistributionFactory {
 public:
 	static ElectronIsotropicDistribution** readTabulatedIsotropicDistributions(const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, ElectronInputType inputType, const double& electronConcentrations, int Ne);
 	static ElectronIsotropicDistribution** readTabulatedIsotropicDistributions(const char* fileName, const char* fileExtension, int Nfiles, ElectronInputType inputType, const double& electronConcentrations, int Ne);
+	static ElectronIsotropicDistribution** readTabulatedIsotropicDistributionsAddPowerLawTail(const char* fileName, const char* fileExtension, int Nfiles, ElectronInputType inputType, const double& electronConcentration, int Ne, const double& Epower, const double& index);
+	static ElectronIsotropicDistribution** readTabulatedIsotropicDistributionsAddPowerLawTail(const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, ElectronInputType inputType, const double& electronConcentration, int Ne, const double& Epower, const double& index);
 };
 
 #endif

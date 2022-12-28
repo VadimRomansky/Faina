@@ -537,7 +537,7 @@ RadiationSource* ExpandingRemnantSource::getRadiationSource(double& time, const 
 	double R = my_R0 + my_v * (time - my_t0);
 	double B = my_B0 * my_R0 / R;
 	double n = my_concentration0 * sqr(my_R0 / R);
-	double fracton = my_widthFraction;
+	double fracton = my_widthFraction * my_R0/R;
 
 	double parameters[4];
 	parameters[0] = R / normalizationUnits[0];

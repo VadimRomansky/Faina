@@ -171,8 +171,8 @@ xlabel ('{\nu} GHz');
 ylabel ('mJy');
 
 loglog(radiation(1:N,1),radiation(1:N,2),'red','LineWidth',2);
-loglog(radiation(1:N,1),radiation(1:N,2),'green','LineWidth',2);
-loglog(radiation(1:N,1),radiation(1:N,3),'blue','LineWidth',2);
+loglog(radiation(1:N,1),radiation(1:N,3),'green','LineWidth',2);
+loglog(radiation(1:N,1),radiation(1:N,4),'blue','LineWidth',2);
 
 
 errorbar(cssx1,cssy1,cssError1,'red','LineWidth',2);
