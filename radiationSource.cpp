@@ -502,13 +502,13 @@ AngleDependentElectronsSphericalSource::~AngleDependentElectronsSphericalSource(
 
 ElectronIsotropicDistribution* AngleDependentElectronsSphericalSource::getElectronDistribution(int irho, int iz, int iphi)
 {
-	double dtheta = pi / my_Ntheta;
+	double dtheta = pi / (my_Ntheta-1);
 	double theta = my_shockWaveAngle[irho][iz][iphi];
 	if (theta > pi / 2) {
 		theta = pi - theta;
 	}
 
-	int angleIndex = floor(theta / dtheta);
+	int angleIndex = floor((theta + 0.5*dtheta) / dtheta);
 	if (angleIndex == my_Ntheta) {
 		angleIndex = my_Ntheta - 1;
 	}

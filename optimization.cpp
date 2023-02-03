@@ -921,10 +921,10 @@ void GradientDescentSynchrotronTimeOptimizer::optimize(double* vector, bool* opt
 				for (int j = 0; j < my_Nparams; ++j) {
 					tempVector[j] = vector[j];
 				}
-				double dx = fabs(vector[i]) / 100;
-				if (k > 0) {
+				double dx = fabs(my_minVector[i]) / 100;
+				/*if (k > 0) {
 					dx = min(max(0.000001, fabs(currentVector[i] - prevVector[i]) / 10), fabs(currentVector[i] - my_minVector[i]) / 2);
-				}
+				}*/
 				tempVector[i] = vector[i] + dx;
 				double f = evaluateOptimizationFunction(tempVector, nu, observedInu, observedError, Nnu, Ntimes, times, source);
 				tempVector[i] = vector[i] - dx;
@@ -980,10 +980,10 @@ void GradientDescentSynchrotronTimeOptimizer::optimize(double* vector, bool* opt
 				for (int j = 0; j < my_Nparams; ++j) {
 					tempVector[j] = vector[j];
 				}
-				double dx = fabs(vector[i]) / 100;
-				if (k > 0) {
+				double dx = fabs(my_minVector[i]) / 100;
+				/*if (k > 0) {
 					dx = min(max(0.000001, fabs(currentVector[i] - prevVector[i]) / 10), fabs(currentVector[i] - my_minVector[i]) / 2);
-				}
+				}*/
 				tempVector[i] = vector[i] + dx;
 				double f = evaluateOptimizationFunction(tempVector, nu, observedInu, observedError, Nnu, Ntimes, times, source);
 				tempVector[i] = vector[i] - dx;
