@@ -22,8 +22,6 @@ const double re2 = re*re;
 const double hplank = 6.626E-27;
 const double pi = 4*atan2(1.0,1.0);
 const double four_pi = 4*pi;
-const double criticalNuCoef = 3 * electron_charge / (4 * pi * massElectron * massElectron * massElectron * speed_of_light * speed_of_light4);
-const double emissivityCoef = sqrt(3.0) * electron_charge * electron_charge * electron_charge / (massElectron * speed_of_light2);
 
 //SN2009bb
 //const double distance = 40*3.08*1.0E24;

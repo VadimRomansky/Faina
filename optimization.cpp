@@ -4,7 +4,7 @@
 #include "util.h"
 #include "constants.h"
 #include "radiationSource.h"
-#include "electronDistribution.h"
+#include "massiveParticleDistribution.h"
 #include "photonDistribution.h"
 #include "synchrotron.h"
 #include "inverseCompton.h"

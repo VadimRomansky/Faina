@@ -21,7 +21,7 @@
     <ClCompile Include="util.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="electronDistribution.cpp">
+    <ClCompile Include="massiveParticleDistribution.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="photonDistribution.cpp">
@@ -50,7 +50,7 @@
     <ClInclude Include="util.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="electronDistribution.h">
+    <ClInclude Include="massiveParticleDistribution.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="photonDistribution.h">

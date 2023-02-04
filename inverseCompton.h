@@ -1,7 +1,7 @@
 #ifndef inverse_compton_h
 #define inverse_compton_h
 
-#include "electronDistribution.h"
+#include "massiveParticleDistribution.h"
 #include "photonDistribution.h"
 #include "radiationSource.h"
 
@@ -20,12 +20,12 @@ protected:
 public:
 	InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax);
 	~InverseComptonEvaluator();
-	double evaluateComptonLuminocity(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, ElectronDistribution* electronDistribution, const double& volume, const double& distance);
-	double evaluateComptonLuminocityIsotropicFunction(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, ElectronIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
+	double evaluateComptonLuminocity(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& volume, const double& distance);
+	double evaluateComptonLuminocityIsotropicFunction(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
 	double evaluateComptonIsotropicFluxFromSource(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, RadiationSource* source);
 };
 
 //correct name?
-double evaluateComptonLuminocity(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, ElectronDistribution* electronDistribution, const double& volume, const double& distance, const double& Emin, const double& Emax, const int Ne, const int Nmu, const int Nphi);
+double evaluateComptonLuminocity(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& volume, const double& distance, const double& Emin, const double& Emax, const int Ne, const int Nmu, const int Nphi);
 
 #endif

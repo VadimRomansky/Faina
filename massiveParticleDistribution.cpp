@@ -4,23 +4,24 @@
 #include "constants.h"
 #include "util.h"
 
-#include "electronDistribution.h"
+#include "massiveParticleDistribution.h"
 
-double ElectronIsotropicDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
+double MassiveParticleIsotropicDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
 {
 	return distributionNormalized(energy);
 }
 
-ElectronPowerLawDistribution::ElectronPowerLawDistribution(const double& index, const double& E0, const double& concentration) {
+MassiveParticlePowerLawDistribution::MassiveParticlePowerLawDistribution(const double& mass, const double& index, const double& E0, const double& concentration) {
+	my_mass = mass;
 	if (index <= 1.0) {
 		printf("electron spectrum index <= 1.0, contains infinit energy\n");
 		printLog("electron spectrum index <= 1.0, contains infinit energy\n");
 		exit(0);
 	}
 	my_index = index;
-	if (E0 < me_c2) {
-		printf("electrons minimum energy is less than m c^2\n");
-		printLog("electrons minimum energy is less than m c^2\n");
+	if (E0 < my_mass*speed_of_light2) {
+		printf("particle minimum energy is less than m c^2\n");
+		printLog("particle minimum energy is less than m c^2\n");
 		exit(0);
 	}
 	my_E0 = E0;
@@ -34,13 +35,13 @@ ElectronPowerLawDistribution::ElectronPowerLawDistribution(const double& index, 
 	my_A = (my_index - 1) / (my_E0*4*pi);
 }
 
-double ElectronPowerLawDistribution::distributionNormalized(const double& energy) {
+double MassiveParticlePowerLawDistribution::distributionNormalized(const double& energy) {
 	if (energy < 0) {
 		printf("electron energy < 0\n");
 		printLog("electron energy < 0\n");
 		exit(0);
 	}
-	if (energy < me_c2) {
+	if (energy < my_mass*speed_of_light2) {
 		printf("warning: energy is less than m c^2\n");
 		printLog("warning: energy is less than m c^2\n");
 		//exit(0);
@@ -49,23 +50,24 @@ double ElectronPowerLawDistribution::distributionNormalized(const double& energy
 	return my_A / pow(energy / my_E0, my_index);
 }
 
-void ElectronPowerLawDistribution::resetConcentration(const double& concentration)
+void MassiveParticlePowerLawDistribution::resetConcentration(const double& concentration)
 {
 	my_concentration = concentration;
 }
 
-double ElectronPowerLawDistribution::getIndex()
+double MassiveParticlePowerLawDistribution::getIndex()
 {
 	return my_index;
 }
 
-double ElectronPowerLawDistribution::getE0()
+double MassiveParticlePowerLawDistribution::getE0()
 {
 	return my_E0;
 }
 
-ElectronMaxwellDistribution::ElectronMaxwellDistribution(const double& temperature, const double& concentration)
+MassiveParticleMaxwellDistribution::MassiveParticleMaxwellDistribution(const double& mass, const double& temperature, const double& concentration)
 {
+	my_mass = mass;
 	if (temperature <= 0) {
 		printf("electrons temperature <= 0\n");
 		printLog("electrons temperature <= 0\n");
@@ -83,23 +85,24 @@ ElectronMaxwellDistribution::ElectronMaxwellDistribution(const double& temperatu
 	my_A = 1.0 / (2 * sqrt(cube(pi * kBoltzman * my_temperature)));
 }
 
-double ElectronMaxwellDistribution::distributionNormalized(const double& energy)
+double MassiveParticleMaxwellDistribution::distributionNormalized(const double& energy)
 {
 	return my_A*sqrt(energy)*exp(-energy/(kBoltzman*my_temperature));
 }
 
-void ElectronMaxwellDistribution::resetConcentration(const double& concentration)
+void MassiveParticleMaxwellDistribution::resetConcentration(const double& concentration)
 {
 	my_concentration = concentration;
 }
 
-double ElectronMaxwellDistribution::getTemperature()
+double MassiveParticleMaxwellDistribution::getTemperature()
 {
 	return my_temperature;
 }
 
-ElectronMaxwellJuttnerDistribution::ElectronMaxwellJuttnerDistribution(const double& temperature, const double& concentration)
+MassiveParticleMaxwellJuttnerDistribution::MassiveParticleMaxwellJuttnerDistribution(const double& mass, const double& temperature, const double& concentration)
 {
+	my_mass = mass;
 	if (temperature <= 0) {
 		printf("electrons temperature <= 0\n");
 		printLog("electrons temperature <= 0\n");
@@ -114,49 +117,53 @@ ElectronMaxwellJuttnerDistribution::ElectronMaxwellJuttnerDistribution(const dou
 	}
 	my_concentration = concentration;
 
-	double theta = kBoltzman * my_temperature / me_c2;
-	my_A = 1.0 / (4*pi*cube(me_c2)*theta*McDonaldFunction(2, 1/theta));
+	double m_c2 = my_mass * speed_of_light2;
+
+	double theta = kBoltzman * my_temperature / m_c2;
+	my_A = 1.0 / (4*pi*cube(m_c2)*theta*McDonaldFunction(2, 1/theta));
 }
 
-double ElectronMaxwellJuttnerDistribution::distributionNormalized(const double& energy)
+double MassiveParticleMaxwellJuttnerDistribution::distributionNormalized(const double& energy)
 {
-	if (energy < me_c2) {
-		printf("electron energy is less than m c^2 in maxwell-juttner distribution\n");
-		printLog("electron energy is less than m c^2 in maxwell-juttner distribution\n");
+	double m_c2 = my_mass * speed_of_light2;
+	if (energy < m_c2) {
+		printf("particle energy is less than m c ^ 2 in maxwell - juttner distribution\n");
+		printLog("particle energy is less than m c^2 in maxwell-juttner distribution\n");
 		exit(0);
 	}
-	return my_A * sqrt(energy) * sqrt(energy*energy - me_c2*me_c2)*energy*exp(-energy / (kBoltzman * my_temperature));
+	return my_A * sqrt(energy) * sqrt(energy*energy - m_c2*m_c2)*energy*exp(-energy / (kBoltzman * my_temperature));
 }
 
-void ElectronMaxwellJuttnerDistribution::resetConcentration(const double& concentration)
+void MassiveParticleMaxwellJuttnerDistribution::resetConcentration(const double& concentration)
 {
 	my_concentration = concentration;
 }
 
-double ElectronMaxwellJuttnerDistribution::getTemperature()
+double MassiveParticleMaxwellJuttnerDistribution::getTemperature()
 {
 	return my_temperature;
 }
 
-void ElectronTabulatedIsotropicDistribution::setDistributionAtPoint(int i, const double& energy, const double& distribution)
+void MassiveParticleTabulatedIsotropicDistribution::setDistributionAtPoint(int i, const double& energy, const double& distribution)
 {
-	if (my_inputType == ElectronInputType::ENERGY_FE) {
+	double m_c2 = my_mass * speed_of_light2;
+	if (my_inputType == DistributionInputType::ENERGY_FE) {
 		my_energy[i] = energy;
 		my_distribution[i] = distribution;
-	} else if (my_inputType == ElectronInputType::ENERGY_KIN_FE) {
-		my_energy[i] = energy + me_c2;
+	} else if (my_inputType == DistributionInputType::ENERGY_KIN_FE) {
+		my_energy[i] = energy + m_c2;
 		my_distribution[i] = distribution;
 	}
-	else if (my_inputType == ElectronInputType::GAMMA_FGAMMA) {
-		my_energy[i] = energy * me_c2;
-		my_distribution[i] = distribution / me_c2;
+	else if (my_inputType == DistributionInputType::GAMMA_FGAMMA) {
+		my_energy[i] = energy * m_c2;
+		my_distribution[i] = distribution / m_c2;
 	}
-	else if (my_inputType == ElectronInputType::GAMMA_KIN_FGAMMA) {
-		my_energy[i] = (energy + 1) * me_c2;
-		my_distribution[i] = distribution / me_c2;
+	else if (my_inputType == DistributionInputType::GAMMA_KIN_FGAMMA) {
+		my_energy[i] = (energy + 1) * m_c2;
+		my_distribution[i] = distribution / m_c2;
 	}
-	else if (my_inputType == ElectronInputType::MOMENTUM_FP) {
-		my_energy[i] = sqrt(energy * energy * speed_of_light2 + me_c2 * me_c2);
+	else if (my_inputType == DistributionInputType::MOMENTUM_FP) {
+		my_energy[i] = sqrt(energy * energy * speed_of_light2 + m_c2 * m_c2);
 		my_distribution[i] = distribution * energy * my_energy[i] / speed_of_light2;
 	}
 	else {
@@ -166,7 +173,7 @@ void ElectronTabulatedIsotropicDistribution::setDistributionAtPoint(int i, const
 	}
 }
 
-void ElectronTabulatedIsotropicDistribution::normalizeDistribution()
+void MassiveParticleTabulatedIsotropicDistribution::normalizeDistribution()
 {
 	double norm = my_distribution[0] * (my_energy[1] - my_energy[0]);
 	for (int i = 1; i < my_Ne; ++i) {
@@ -178,7 +185,9 @@ void ElectronTabulatedIsotropicDistribution::normalizeDistribution()
 	}
 }
 
-ElectronTabulatedIsotropicDistribution::ElectronTabulatedIsotropicDistribution(const char* fileName, const int N, const double& concentration, ElectronInputType inputType) {
+MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* fileName, const int N, const double& concentration, DistributionInputType inputType) {
+	my_mass = mass;
+	
 	if (N <= 0) {
 		printf("grid number <= 0 in tabulated spherical distribution\n");
 		printLog("grid number <= 0 in tabulated spherical distribution\n");
@@ -217,7 +226,8 @@ ElectronTabulatedIsotropicDistribution::ElectronTabulatedIsotropicDistribution(c
 	fclose(file);
 }
 
-ElectronTabulatedIsotropicDistribution::ElectronTabulatedIsotropicDistribution(const char* energyFileName, const char* distributionFileName, const int N, const double& concentration, ElectronInputType inputType) {
+MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* energyFileName, const char* distributionFileName, const int N, const double& concentration, DistributionInputType inputType) {
+	my_mass = mass;
 	if (N <= 0) {
 		printf("grid number <= 0 in tabulated spherical distribution\n");
 		printLog("grid number <= 0 in tabulated spherical distribution\n");
@@ -258,7 +268,8 @@ ElectronTabulatedIsotropicDistribution::ElectronTabulatedIsotropicDistribution(c
 	fclose(distributionFile);
 }
 
-ElectronTabulatedIsotropicDistribution::ElectronTabulatedIsotropicDistribution(const double* energy, const double* distribution, const int N, const double& concentration, ElectronInputType inputType) {
+MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropicDistribution(const double& mass, const double* energy, const double* distribution, const int N, const double& concentration, DistributionInputType inputType) {
+	my_mass = mass;
 	if (N <= 0) {
 		printf("grid number <= 0 in tabulated spherical distribution\n");
 		printLog("grid number <= 0 in tabulated spherical distribution\n");
@@ -292,12 +303,12 @@ ElectronTabulatedIsotropicDistribution::ElectronTabulatedIsotropicDistribution(c
 	normalizeDistribution();
 }
 
-ElectronTabulatedIsotropicDistribution::~ElectronTabulatedIsotropicDistribution() {
+MassiveParticleTabulatedIsotropicDistribution::~MassiveParticleTabulatedIsotropicDistribution() {
 	delete[] my_distribution;
 	delete[] my_energy;
 }
 
-double ElectronTabulatedIsotropicDistribution::distributionNormalized(const double& energy) {
+double MassiveParticleTabulatedIsotropicDistribution::distributionNormalized(const double& energy) {
 	if (energy <= my_energy[0]) {
 		//printf("warning: energy is less than minimum energy\n");
 		//printLog("warning: energy is less than minimum energy\n");
@@ -352,25 +363,26 @@ double ElectronTabulatedIsotropicDistribution::distributionNormalized(const doub
 	}
 }
 
-void ElectronTabulatedIsotropicDistribution::resetConcentration(const double& concentration)
+void MassiveParticleTabulatedIsotropicDistribution::resetConcentration(const double& concentration)
 {
 	my_concentration = concentration;
 	//normalizeDistribution();
 }
 
-int ElectronTabulatedIsotropicDistribution::getN() {
+int MassiveParticleTabulatedIsotropicDistribution::getN() {
 	return my_Ne;
 }
 
-void ElectronTabulatedIsotropicDistribution::rescaleDistribution(const double& k)
+void MassiveParticleTabulatedIsotropicDistribution::rescaleDistribution(const double& k)
 {
+	double m_c2 = my_mass * speed_of_light2;
 	for (int i = 0; i < my_Ne; ++i) {
-		my_energy[i] = me_c2 + (my_energy[i] - me_c2) * k;
+		my_energy[i] = m_c2 + (my_energy[i] - m_c2) * k;
 	}
 	normalizeDistribution();
 }
 
-void ElectronTabulatedIsotropicDistribution::addPowerLaw(const double& Epower, const double& index)
+void MassiveParticleTabulatedIsotropicDistribution::addPowerLaw(const double& Epower, const double& index)
 {
 	int ie = my_Ne-1;
 	for (int i = 0; i < my_Ne; ++i) {
@@ -387,26 +399,27 @@ void ElectronTabulatedIsotropicDistribution::addPowerLaw(const double& Epower, c
 	normalizeDistribution();
 }
 
-void ElectronTabulatedAzimutalDistribution::setDistributionAtPoint(int i, int j, const double& energy, const double& distribution)
+void MassiveParticleTabulatedAzimutalDistribution::setDistributionAtPoint(int i, int j, const double& energy, const double& distribution)
 {
-	if (my_inputType == ElectronInputType::ENERGY_FE) {
+	double m_c2 = my_mass * speed_of_light2;
+	if (my_inputType == DistributionInputType::ENERGY_FE) {
 		my_energy[i] = energy;
 		my_distribution[i][j] = distribution;
 	}
-	else if (my_inputType == ElectronInputType::ENERGY_KIN_FE) {
-		my_energy[i] = energy + me_c2;
+	else if (my_inputType == DistributionInputType::ENERGY_KIN_FE) {
+		my_energy[i] = energy + m_c2;
 		my_distribution[i][j] = distribution;
 	}
-	else if (my_inputType == ElectronInputType::GAMMA_FGAMMA) {
-		my_energy[i] = energy * me_c2;
-		my_distribution[i][j] = distribution / me_c2;
+	else if (my_inputType == DistributionInputType::GAMMA_FGAMMA) {
+		my_energy[i] = energy * m_c2;
+		my_distribution[i][j] = distribution / m_c2;
 	}
-	else if (my_inputType == ElectronInputType::GAMMA_KIN_FGAMMA) {
-		my_energy[i] = (energy + 1) * me_c2;
-		my_distribution[i][j] = distribution / me_c2;
+	else if (my_inputType == DistributionInputType::GAMMA_KIN_FGAMMA) {
+		my_energy[i] = (energy + 1) * m_c2;
+		my_distribution[i][j] = distribution / m_c2;
 	}
-	else if (my_inputType == ElectronInputType::MOMENTUM_FP) {
-		my_energy[i] = sqrt(energy * energy * speed_of_light2 + me_c2 * me_c2);
+	else if (my_inputType == DistributionInputType::MOMENTUM_FP) {
+		my_energy[i] = sqrt(energy * energy * speed_of_light2 + m_c2 * m_c2);
 		my_distribution[i][j] = distribution * energy * my_energy[i] / speed_of_light2;
 	}
 	else {
@@ -416,7 +429,7 @@ void ElectronTabulatedAzimutalDistribution::setDistributionAtPoint(int i, int j,
 	}
 }
 
-void ElectronTabulatedAzimutalDistribution::normalizeDistribution()
+void MassiveParticleTabulatedAzimutalDistribution::normalizeDistribution()
 {
 	double norm = 0;
 	for (int imu = 0; imu < my_Nmu; ++imu) {
@@ -443,8 +456,9 @@ void ElectronTabulatedAzimutalDistribution::normalizeDistribution()
 	}
 }
 
-ElectronTabulatedAzimutalDistribution::ElectronTabulatedAzimutalDistribution(const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const double& concentration, ElectronInputType inputType)
+MassiveParticleTabulatedAzimutalDistribution::MassiveParticleTabulatedAzimutalDistribution(const double& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const double& concentration, DistributionInputType inputType)
 {
+	my_mass = mass;
 	if (Ne <= 0) {
 		printf("energy grid number <= 0 in tabulated azimutal distribution\n");
 		printLog("energy grid number <= 0 in tabulated azimutal distribution\n");
@@ -504,8 +518,9 @@ ElectronTabulatedAzimutalDistribution::ElectronTabulatedAzimutalDistribution(con
 	fclose(distributionFile);
 }
 
-ElectronTabulatedAzimutalDistribution::ElectronTabulatedAzimutalDistribution(const double* energy, const double* mu, const double** distribution, const int Ne, const int Nmu, const double& concentration, ElectronInputType inputType)
+MassiveParticleTabulatedAzimutalDistribution::MassiveParticleTabulatedAzimutalDistribution(const double& mass, const double* energy, const double* mu, const double** distribution, const int Ne, const int Nmu, const double& concentration, DistributionInputType inputType)
 {
+	my_mass = mass;
 	if (Ne <= 0) {
 		printf("energy grid number <= 0 in tabulated azimutal distribution\n");
 		printLog("energy grid number <= 0 in tabulated azimutal distribution\n");
@@ -558,7 +573,7 @@ ElectronTabulatedAzimutalDistribution::ElectronTabulatedAzimutalDistribution(con
 	normalizeDistribution();
 }
 
-ElectronTabulatedAzimutalDistribution::~ElectronTabulatedAzimutalDistribution()
+MassiveParticleTabulatedAzimutalDistribution::~MassiveParticleTabulatedAzimutalDistribution()
 {
 	delete[] my_energy;
 	delete[] my_mu;
@@ -568,7 +583,7 @@ ElectronTabulatedAzimutalDistribution::~ElectronTabulatedAzimutalDistribution()
 	delete[] my_distribution;
 }
 
-double ElectronTabulatedAzimutalDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
+double MassiveParticleTabulatedAzimutalDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
 {
 	if (mu > 1.0) {
 		printf("mu = %lf > 1.0 in azimutal distribution\n", mu);
@@ -677,49 +692,51 @@ double ElectronTabulatedAzimutalDistribution::distributionNormalized(const doubl
 	}
 }
 
-void ElectronTabulatedAzimutalDistribution::resetConcentration(const double& concentration)
+void MassiveParticleTabulatedAzimutalDistribution::resetConcentration(const double& concentration)
 {
 	my_concentration = concentration;
 	//normalizeDistribution();
 }
 
-int ElectronTabulatedAzimutalDistribution::getNe()
+int MassiveParticleTabulatedAzimutalDistribution::getNe()
 {
 	return my_Ne;
 }
 
-int ElectronTabulatedAzimutalDistribution::getNmu()
+int MassiveParticleTabulatedAzimutalDistribution::getNmu()
 {
 	return my_Nmu;
 }
 
-void ElectronTabulatedAzimutalDistribution::rescaleDistribution(const double& k)
+void MassiveParticleTabulatedAzimutalDistribution::rescaleDistribution(const double& k)
 {
+	double m_c2 = my_mass * speed_of_light2;
 	for (int i = 0; i < my_Ne; ++i) {
-		my_energy[i] = me_c2 + (my_energy[i] - me_c2);
+		my_energy[i] = m_c2 + (my_energy[i] - m_c2);
 	}
 	normalizeDistribution();
 }
 
-void ElectronTabulatedAnisotropicDistribution::setDistributionAtPoint(int i, int j, int k, const double& energy, const double& distribution)
+void MassiveParticleTabulatedAnisotropicDistribution::setDistributionAtPoint(int i, int j, int k, const double& energy, const double& distribution)
 {
-	if (my_inputType == ElectronInputType::ENERGY_FE) {
+	double m_c2 = my_mass * speed_of_light2;
+	if (my_inputType == DistributionInputType::ENERGY_FE) {
 		my_energy[i] = energy;
 		my_distribution[i][j][k] = distribution;
-	} else if (my_inputType == ElectronInputType::ENERGY_KIN_FE) {
-		my_energy[i] = energy + me_c2;
+	} else if (my_inputType == DistributionInputType::ENERGY_KIN_FE) {
+		my_energy[i] = energy + m_c2;
 		my_distribution[i][j][k] = distribution;
 	}
-	else if (my_inputType == ElectronInputType::GAMMA_FGAMMA) {
-		my_energy[i] = energy * me_c2;
-		my_distribution[i][j][k] = distribution / me_c2;
+	else if (my_inputType == DistributionInputType::GAMMA_FGAMMA) {
+		my_energy[i] = energy * m_c2;
+		my_distribution[i][j][k] = distribution / m_c2;
 	}
-	else if (my_inputType == ElectronInputType::GAMMA_KIN_FGAMMA) {
-		my_energy[i] = (energy + 1) * me_c2;
-		my_distribution[i][j][k] = distribution / me_c2;
+	else if (my_inputType == DistributionInputType::GAMMA_KIN_FGAMMA) {
+		my_energy[i] = (energy + 1) * m_c2;
+		my_distribution[i][j][k] = distribution / m_c2;
 	}
-	else if (my_inputType == ElectronInputType::MOMENTUM_FP) {
-		my_energy[i] = sqrt(energy * energy * speed_of_light2 + me_c2 * me_c2);
+	else if (my_inputType == DistributionInputType::MOMENTUM_FP) {
+		my_energy[i] = sqrt(energy * energy * speed_of_light2 + m_c2 * m_c2);
 		my_distribution[i][j][k] = distribution * energy * my_energy[i] / speed_of_light2;
 	}
 	else {
@@ -729,7 +746,7 @@ void ElectronTabulatedAnisotropicDistribution::setDistributionAtPoint(int i, int
 	}
 }
 
-void ElectronTabulatedAnisotropicDistribution::normalizeDistribution()
+void MassiveParticleTabulatedAnisotropicDistribution::normalizeDistribution()
 {
 	double norm = 0;
 	double dphi = 2 * pi / my_Nphi;
@@ -761,7 +778,7 @@ void ElectronTabulatedAnisotropicDistribution::normalizeDistribution()
 	}
 }
 
-ElectronTabulatedAnisotropicDistribution::ElectronTabulatedAnisotropicDistribution(const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const int Nphi, const double& concentration, ElectronInputType inputType)
+MassiveParticleTabulatedAnisotropicDistribution::MassiveParticleTabulatedAnisotropicDistribution(const double& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const int Nphi, const double& concentration, DistributionInputType inputType)
 {
 	if (Ne <= 0) {
 		printf("energy grid number <= 0 in tabulated azimutal distribution\n");
@@ -838,8 +855,9 @@ ElectronTabulatedAnisotropicDistribution::ElectronTabulatedAnisotropicDistributi
 	fclose(distributionFile);
 }
 
-ElectronTabulatedAnisotropicDistribution::ElectronTabulatedAnisotropicDistribution(const double* energy, const double* mu, const double*** distribution, const int Ne, const int Nmu, const int Nphi, const double& concentration, ElectronInputType inputType)
+MassiveParticleTabulatedAnisotropicDistribution::MassiveParticleTabulatedAnisotropicDistribution(const double& mass, const double* energy, const double* mu, const double*** distribution, const int Ne, const int Nmu, const int Nphi, const double& concentration, DistributionInputType inputType)
 {
+	my_mass = mass;
 	if (Ne <= 0) {
 		printf("energy grid number <= 0 in tabulated azimutal distribution\n");
 		printLog("energy grid number <= 0 in tabulated azimutal distribution\n");
@@ -908,7 +926,7 @@ ElectronTabulatedAnisotropicDistribution::ElectronTabulatedAnisotropicDistributi
 	normalizeDistribution();
 }
 
-ElectronTabulatedAnisotropicDistribution::~ElectronTabulatedAnisotropicDistribution()
+MassiveParticleTabulatedAnisotropicDistribution::~MassiveParticleTabulatedAnisotropicDistribution()
 {
 	for (int i = 0; i < my_Ne; ++i) {
 		for (int j = 0; j < my_Nmu; ++j) {
@@ -921,7 +939,7 @@ ElectronTabulatedAnisotropicDistribution::~ElectronTabulatedAnisotropicDistribut
 	delete[] my_phi;
 }
 
-double ElectronTabulatedAnisotropicDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
+double MassiveParticleTabulatedAnisotropicDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
 {
 	if (mu > 1.0) {
 		printf("mu = %lf > 1.0 in azimutal distribution\n", mu);
@@ -1084,74 +1102,98 @@ double ElectronTabulatedAnisotropicDistribution::distributionNormalized(const do
 	}
 }
 
-void ElectronTabulatedAnisotropicDistribution::resetConcentration(const double& concentration)
+void MassiveParticleTabulatedAnisotropicDistribution::resetConcentration(const double& concentration)
 {
 	my_concentration = concentration;
 	//normalizeDistribution();
 }
 
-int ElectronTabulatedAnisotropicDistribution::getNe()
+int MassiveParticleTabulatedAnisotropicDistribution::getNe()
 {
 	return my_Ne;
 }
 
-int ElectronTabulatedAnisotropicDistribution::getNmu()
+int MassiveParticleTabulatedAnisotropicDistribution::getNmu()
 {
 	return my_Nmu;
 }
 
-int ElectronTabulatedAnisotropicDistribution::getNphi()
+int MassiveParticleTabulatedAnisotropicDistribution::getNphi()
 {
 	return my_Nphi;
 }
 
-void ElectronTabulatedAnisotropicDistribution::rescaleDistribution(const double& k)
+void MassiveParticleTabulatedAnisotropicDistribution::rescaleDistribution(const double& k)
 {
+	double m_c2 = my_mass * speed_of_light2;
 	for (int i = 0; i < my_Ne; ++i) {
-		my_energy[i] = me_c2 + (my_energy[i] - me_c2) * k;
+		my_energy[i] = m_c2 + (my_energy[i] - m_c2) * k;
 	}
 	normalizeDistribution();
 }
 
-CompoundElectronDistribution::CompoundElectronDistribution(int N, ElectronDistribution** distributions)
+CompoundMassiveParticleDistribution::CompoundMassiveParticleDistribution(int N, MassiveParticleDistribution** distributions)
 {
+	my_mass = distributions[0]->getMass();
 	my_Ndistr = N;
 
-	my_distributions = new ElectronDistribution * [my_Ndistr];
+	my_distributions = new MassiveParticleDistribution * [my_Ndistr];
 	my_concentration = 0;
 	for (int i = 0; i < my_Ndistr; ++i) {
+		if (distributions[0]->getMass() != my_mass) {
+			printf("masses in compound distribution are not equal\n");
+			printLog("masses in compound distribution are not equal\n");
+			exit(0);
+		}
 		my_distributions[i] = distributions[i];
 		my_concentration += my_distributions[i]->getConcentration();
 	}
 }
 
-CompoundElectronDistribution::CompoundElectronDistribution(ElectronDistribution* dist1, ElectronDistribution* dist2)
+CompoundMassiveParticleDistribution::CompoundMassiveParticleDistribution(MassiveParticleDistribution* dist1, MassiveParticleDistribution* dist2)
 {
+	my_mass = dist1->getMass();
+	if (my_mass != dist2->getMass()) {
+		printf("masses in compound distribution are not equal\n");
+		printLog("masses in compound distribution are not equal\n");
+		exit(0);
+	}
 	my_Ndistr = 2;
-	my_distributions = new ElectronDistribution * [my_Ndistr];
+	my_distributions = new MassiveParticleDistribution * [my_Ndistr];
 	my_concentration = dist1->getConcentration() + dist2->getConcentration();
 	my_distributions[0] = dist1;
 	my_distributions[1] = dist2;
 }
 
-CompoundElectronDistribution::CompoundElectronDistribution(ElectronDistribution* dist1, ElectronDistribution* dist2, ElectronDistribution* dist3)
+CompoundMassiveParticleDistribution::CompoundMassiveParticleDistribution(MassiveParticleDistribution* dist1, MassiveParticleDistribution* dist2, MassiveParticleDistribution* dist3)
 {
+	my_mass = dist1->getMass();
+	if (my_mass != dist2->getMass()) {
+		printf("masses in compound distribution are not equal\n");
+		printLog("masses in compound distribution are not equal\n");
+		exit(0);
+	}
+	if (my_mass != dist3->getMass()) {
+		printf("masses in compound distribution are not equal\n");
+		printLog("masses in compound distribution are not equal\n");
+		exit(0);
+	}
 	my_Ndistr = 3;
-	my_distributions = new ElectronDistribution * [my_Ndistr];
+	my_distributions = new MassiveParticleDistribution * [my_Ndistr];
 	my_concentration = dist1->getConcentration() + dist2->getConcentration() + dist3->getConcentration();
 	my_distributions[0] = dist1;
 	my_distributions[1] = dist2;
 	my_distributions[2] = dist3;
 }
 
-CompoundElectronDistribution::~CompoundElectronDistribution()
+CompoundMassiveParticleDistribution::~CompoundMassiveParticleDistribution()
 {
 	delete[] my_distributions;
 }
 
 
 
-double CompoundElectronDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
+double CompoundMassiveParticleDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
 {
 	double result = 0;
 	for (int i = 0; i < my_Ndistr; ++i) {
@@ -1160,7 +1202,7 @@ double CompoundElectronDistribution::distributionNormalized(const double& energy
 	return result/my_concentration;
 }
 
-void CompoundElectronDistribution::resetConcentration(const double& concentration)
+void CompoundMassiveParticleDistribution::resetConcentration(const double& concentration)
 {
 	double ratio = concentration / my_concentration;
 	for (int i = 0; i < my_Ndistr; ++i) {
@@ -1169,25 +1211,37 @@ void CompoundElectronDistribution::resetConcentration(const double& concentratio
 	my_concentration = concentration;
 }
 
-CompoundWeightedElectronDistribution::CompoundWeightedElectronDistribution(int N, const double* weights, ElectronDistribution** distributions)
+CompoundWeightedMassiveParticleDistribution::CompoundWeightedMassiveParticleDistribution(int N, const double* weights, MassiveParticleDistribution** distributions)
 {
+	my_mass = distributions[0]->getMass();
 	my_Ndistr = N;
 
 	my_weights = new double[my_Ndistr];
-	my_distributions = new ElectronDistribution * [my_Ndistr];
+	my_distributions = new MassiveParticleDistribution * [my_Ndistr];
 	my_concentration = 0;
 	for (int i = 0; i < my_Ndistr; ++i) {
+		if (distributions[0]->getMass() != my_mass) {
+			printf("masses in compound weighted distribution are not equal\n");
+			printLog("masses in compound weighted distribution are not equal\n");
+			exit(0);
+		}
 		my_weights[i] = weights[i];
 		my_distributions[i] = distributions[i];
 		my_concentration += my_weights[i]*my_distributions[i]->getConcentration();
 	}
 }
 
-CompoundWeightedElectronDistribution::CompoundWeightedElectronDistribution(ElectronDistribution* dist1, const double& w1, ElectronDistribution* dist2, const double& w2)
+CompoundWeightedMassiveParticleDistribution::CompoundWeightedMassiveParticleDistribution(MassiveParticleDistribution* dist1, const double& w1, MassiveParticleDistribution* dist2, const double& w2)
 {
+	my_mass = dist1->getMass();
+	if (my_mass != dist2->getMass()) {
+		printf("masses in compound weighted distribution are not equal\n");
+		printLog("masses in compound weighted distribution are not equal\n");
+		exit(0);
+	}
 	my_Ndistr = 2;
 	my_weights = new double[my_Ndistr];
-	my_distributions = new ElectronDistribution * [my_Ndistr];
+	my_distributions = new MassiveParticleDistribution * [my_Ndistr];
 	my_concentration = w1*dist1->getConcentration() + w2*dist2->getConcentration();
 	my_distributions[0] = dist1;
 	my_distributions[1] = dist2;
@@ -1195,11 +1249,22 @@ CompoundWeightedElectronDistribution::CompoundWeightedElectronDistribution(Elect
 	my_weights[1] = w2;
 }
 
-CompoundWeightedElectronDistribution::CompoundWeightedElectronDistribution(ElectronDistribution* dist1, const double& w1, ElectronDistribution* dist2, const double& w2, ElectronDistribution* dist3, const double& w3)
+CompoundWeightedMassiveParticleDistribution::CompoundWeightedMassiveParticleDistribution(MassiveParticleDistribution* dist1, const double& w1, MassiveParticleDistribution* dist2, const double& w2, MassiveParticleDistribution* dist3, const double& w3)
 {
+	my_mass = dist1->getMass();
+	if (my_mass != dist2->getMass()) {
+		printf("masses in compound weighted distribution are not equal\n");
+		printLog("masses in compound weighted distribution are not equal\n");
+		exit(0);
+	}
+	if (my_mass != dist3->getMass()) {
+		printf("masses in compound weighted distribution are not equal\n");
+		printLog("masses in compound weighted distribution are not equal\n");
+		exit(0);
+	}
 	my_Ndistr = 3;
 	my_weights = new double[my_Ndistr];
-	my_distributions = new ElectronDistribution * [my_Ndistr];
+	my_distributions = new MassiveParticleDistribution * [my_Ndistr];
 	my_concentration = dist1->getConcentration() + dist2->getConcentration() + dist3->getConcentration();
 	my_distributions[0] = dist1;
 	my_distributions[1] = dist2;
@@ -1209,13 +1274,13 @@ CompoundWeightedElectronDistribution::CompoundWeightedElectronDistribution(Elect
 	my_weights[2] = w3;
 }
 
-CompoundWeightedElectronDistribution::~CompoundWeightedElectronDistribution()
+CompoundWeightedMassiveParticleDistribution::~CompoundWeightedMassiveParticleDistribution()
 {
 	delete[] my_weights;
 	delete[] my_distributions;
 }
 
-double CompoundWeightedElectronDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
+double CompoundWeightedMassiveParticleDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
 {
 	double result = 0;
 	for (int i = 0; i < my_Ndistr; ++i) {
@@ -1224,7 +1289,7 @@ double CompoundWeightedElectronDistribution::distributionNormalized(const double
 	return result;
 }
 
-void CompoundWeightedElectronDistribution::resetConcentration(const double& concentration)
+void CompoundWeightedMassiveParticleDistribution::resetConcentration(const double& concentration)
 {
 	//double ratio = concentration / my_concentration;
 	for (int i = 0; i < my_Ndistr; ++i) {
@@ -1233,9 +1298,9 @@ void CompoundWeightedElectronDistribution::resetConcentration(const double& conc
 	my_concentration = concentration;
 }
 
-ElectronIsotropicDistribution** ElectronDistributionFactory::readTabulatedIsotropicDistributions(const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, ElectronInputType inputType, const double& electronConcentration, int Ne)
+MassiveParticleIsotropicDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(const double& mass, const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, const double& electronConcentration, int Ne)
 {
-	ElectronIsotropicDistribution** distributions = new ElectronIsotropicDistribution * [Nfiles];
+	MassiveParticleIsotropicDistribution** distributions = new MassiveParticleIsotropicDistribution * [Nfiles];
 	for (int i = 0; i < Nfiles; ++i) {
 		std::string fileNumber = convertIntToString(i);
 		const std::string fileNameE = energyFileName;
@@ -1244,40 +1309,40 @@ ElectronIsotropicDistribution** ElectronDistributionFactory::readTabulatedIsotro
 		std::string b = fileNameF + fileNumber + fileExtension;
 		const char* energyFileName = a.c_str();
 		const char* distributionFileName = b.c_str();
-		distributions[i] = new ElectronTabulatedIsotropicDistribution(energyFileName, distributionFileName, Ne, electronConcentration, inputType);
+		distributions[i] = new MassiveParticleTabulatedIsotropicDistribution(mass, energyFileName, distributionFileName, Ne, electronConcentration, inputType);
 	}
 	return distributions;
 }
 
-ElectronIsotropicDistribution** ElectronDistributionFactory::readTabulatedIsotropicDistributions(const char* fileName, const char* fileExtension, int Nfiles, ElectronInputType inputType, const double& electronConcentration, int Ne)
+MassiveParticleIsotropicDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(const double& mass, const char* fileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, const double& electronConcentration, int Ne)
 {
-	ElectronIsotropicDistribution** distributions = new ElectronIsotropicDistribution * [Nfiles];
+	MassiveParticleIsotropicDistribution** distributions = new MassiveParticleIsotropicDistribution * [Nfiles];
 	for (int i = 0; i < Nfiles; ++i) {
 		std::string fileNumber = convertIntToString(i);
 		const std::string fileName = fileName;
 		std::string a = fileName + fileNumber + fileExtension;
-		distributions[i] = new ElectronTabulatedIsotropicDistribution(a.c_str(), Ne, electronConcentration, inputType);
+		distributions[i] = new MassiveParticleTabulatedIsotropicDistribution(mass, a.c_str(), Ne, electronConcentration, inputType);
 	}
 	return distributions;
 }
 
-ElectronIsotropicDistribution** ElectronDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(const char* fileName, const char* fileExtension, int Nfiles, ElectronInputType inputType, const double& electronConcentration, int Ne, const double& Epower, const double& index)
+MassiveParticleIsotropicDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(const double& mass, const char* fileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, const double& electronConcentration, int Ne, const double& Epower, const double& index)
 {
-	ElectronIsotropicDistribution** distributions = new ElectronIsotropicDistribution * [Nfiles];
+	MassiveParticleIsotropicDistribution** distributions = new MassiveParticleIsotropicDistribution * [Nfiles];
 	for (int i = 0; i < Nfiles; ++i) {
 		std::string fileNumber = convertIntToString(i);
 		const std::string fileName = fileName;
 		std::string a = fileName + fileNumber + fileExtension;
-		ElectronTabulatedIsotropicDistribution* distributionTabulated = new ElectronTabulatedIsotropicDistribution(a.c_str(), Ne, electronConcentration, inputType);
+		MassiveParticleTabulatedIsotropicDistribution* distributionTabulated = new MassiveParticleTabulatedIsotropicDistribution(mass, a.c_str(), Ne, electronConcentration, inputType);
 		distributionTabulated->addPowerLaw(Epower, index);
 		distributions[i] = distributionTabulated;
 	}
 	return distributions;
 }
 
-ElectronIsotropicDistribution** ElectronDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, ElectronInputType inputType, const double& electronConcentration, int Ne, const double& Epower, const double& index)
+MassiveParticleIsotropicDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(const double& mass, const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, const double& electronConcentration, int Ne, const double& Epower, const double& index)
 {
-	ElectronIsotropicDistribution** distributions = new ElectronIsotropicDistribution * [Nfiles];
+	MassiveParticleIsotropicDistribution** distributions = new MassiveParticleIsotropicDistribution * [Nfiles];
 	for (int i = 0; i < Nfiles; ++i) {
 		std::string fileNumber = convertIntToString(i);
 		const std::string fileNameE = energyFileName;
@@ -1286,7 +1351,7 @@ ElectronIsotropicDistribution** ElectronDistributionFactory::readTabulatedIsotro
 		std::string b = fileNameF + fileNumber + fileExtension;
 		const char* energyFileName = a.c_str();
 		const char* distributionFileName = b.c_str();
-		ElectronTabulatedIsotropicDistribution* distributionTabulated = new ElectronTabulatedIsotropicDistribution(energyFileName, distributionFileName, Ne, electronConcentration, inputType);
+		MassiveParticleTabulatedIsotropicDistribution* distributionTabulated = new MassiveParticleTabulatedIsotropicDistribution(mass, energyFileName, distributionFileName, Ne, electronConcentration, inputType);
 		distributionTabulated->addPowerLaw(Epower, index);
 		distributions[i] = distributionTabulated;
 	}

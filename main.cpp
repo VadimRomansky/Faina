@@ -2,7 +2,7 @@
 #include "math.h"
 
 #include "constants.h"
-#include "electronDistribution.h"
+#include "massiveParticleDistribution.h"
 #include "photonDistribution.h"
 #include "util.h"
 #include "inverseCompton.h"
@@ -29,7 +29,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	double Emax = 10000 * me_c2;
 
 	PhotonPlankDistribution* CMBradiation = PhotonPlankDistribution::getCMBradiation();
-	ElectronPowerLawDistribution* electrons = new ElectronPowerLawDistribution(3.5, Emin, electronConcentration);
+	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, Emin, electronConcentration);
 	RadiationSource* source = new SimpleFlatSource(electrons, B, sinTheta, electronConcentration, rmax, rmax, distance);
 	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 20, 20, Emin, Emax);
 
@@ -92,7 +92,7 @@ void fitCSS161010withPowerLawDistribition() {
 	//number of different distributions depending on inclination angle, wich will be read from files
 	int Ndistributions = 10;
 	//creating electrons powerlaw distribution
-	ElectronPowerLawDistribution* electrons = new ElectronPowerLawDistribution(3.5, Emin, electronConcentration);
+	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, Emin, electronConcentration);
 	//creating radiation source
 	SimpleFlatSource* source = new SimpleFlatSource(electrons, B, 1.0, electronConcentration, rmax, rmax, distance);
 	//number of parameters of the source
@@ -243,10 +243,10 @@ void fitCSS161010withTabulatedDistributions() {
 	//number of different distributions depending on inclination angle, wich will be read from files
 	int Ndistributions = 10;
 	//reading electron distributions from files
-	ElectronIsotropicDistribution** angleDependentDistributions = ElectronDistributionFactory::readTabulatedIsotropicDistributions("./input/Ee", "./input/Fs", ".dat", 10, ElectronInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
+	MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./input/Ee", "./input/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
 	for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
-		(dynamic_cast<ElectronTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
+		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
 	}
 	//creating radiation source
 	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, 1.0, 0, electronConcentration, rmax, 0.5 * rmax, distance);
@@ -467,10 +467,10 @@ void fitTimeDependentCSS161010() {
 
 	//reading electron distributions from files
 	//ElectronIsotropicDistribution** angleDependentDistributions = ElectronDistributionFactory::readTabulatedIsotropicDistributions("./input/Ee", "./input/Fs", ".dat", 10, ElectronInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
-	ElectronIsotropicDistribution** angleDependentDistributions = ElectronDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail("./input/Ee", "./input/Fs", ".dat", 10, ElectronInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200, 50*me_c2, 3.5);
+	MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(massElectron, "./input/Ee", "./input/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200, 50*me_c2, 3.5);
 	for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
-		(dynamic_cast<ElectronTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
+		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
 	}
 	//creating radiation source, which does not depend on time
 	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, 1.0, 0, electronConcentration, rmax, 0.5 * rmax, distance);

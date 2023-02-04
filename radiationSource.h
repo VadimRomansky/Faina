@@ -1,7 +1,7 @@
 #ifndef radiation_source_h
 #define radiation_source_h
 
-#include "electronDistribution.h"
+#include "massiveParticleDistribution.h"
 
 //sources have different shapes in cylindrycal geometry. Z axis to observer
 
@@ -31,7 +31,7 @@ public:
 	virtual double getLength(int irho, int iz, int iphi) = 0;
 	//virtual void resetConcentration(const double& concentration) = 0;
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits)=0;
-	virtual ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi)=0;
+	virtual MassiveParticleIsotropicDistribution* getParticleDistribution(int irho, int iz, int iphi)=0;
 };
 
 class DiskSource : public RadiationSource {
@@ -48,7 +48,7 @@ public:
 	virtual double getLength(int irho, int iz, int iphi) = 0;
 	virtual double getB(int irho, int iz, int iphi) = 0;
 	virtual double getSinTheta(int irho, int iz, int iphi) = 0;
-	virtual ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi) = 0;
+	virtual MassiveParticleIsotropicDistribution* getParticleDistribution(int irho, int iz, int iphi) = 0;
 };
 
 class SimpleFlatSource : public DiskSource {
@@ -56,16 +56,16 @@ protected:
 	double my_B;
 	double my_sinTheta;
 	double my_concentration;
-	ElectronIsotropicDistribution* my_distribution;
+	MassiveParticleIsotropicDistribution* my_distribution;
 public:
-	SimpleFlatSource(ElectronIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& concentration, const double& rho, const double& z, const double& distance);
+	SimpleFlatSource(MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& concentration, const double& rho, const double& z, const double& distance);
 	double getLength(int irho, int iz, int iphi);
 	double getB(int irho, int iz, int iphi);
 	double getConcentration(int irho, int iz, int iphi);
 	double getSinTheta(int irho, int iz, int iphi);
 	//void resetConcentration(const double& concentration);
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
-	ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi);
+	MassiveParticleIsotropicDistribution* getParticleDistribution(int irho, int iz, int iphi);
 };
 
 class TabulatedDiskSource : public DiskSource {
@@ -73,10 +73,10 @@ protected:
 	double*** my_B;
 	double*** my_sinTheta;
 	double*** my_concentration;
-	ElectronIsotropicDistribution* my_distribution;
+	MassiveParticleIsotropicDistribution* my_distribution;
 public:
-	TabulatedDiskSource(int Nrho, int Nz, int Nphi, ElectronIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta, double*** concentration, const double& rho, const double& z, const double& distance);
-	TabulatedDiskSource(int Nrho, int Nz, int Nphi, ElectronIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& concentration , const double& rho, const double& z, const double& distance);
+	TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta, double*** concentration, const double& rho, const double& z, const double& distance);
+	TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& concentration , const double& rho, const double& z, const double& distance);
 	~TabulatedDiskSource();
 	double getLength(int irho, int iz, int iphi);
 	double getB(int irho, int iz, int iphi);
@@ -84,7 +84,7 @@ public:
 	double getSinTheta(int irho, int iz, int iphi);
 	//void resetConcentration(const double& concentration);
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
-	ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi);
+	MassiveParticleIsotropicDistribution* getParticleDistribution(int irho, int iz, int iphi);
 };
 
 class SphericalLayerSource : public RadiationSource {
@@ -102,7 +102,7 @@ public:
 	virtual double getLength(int irho, int iz, int iphi) = 0;
 	virtual double getB(int irho, int iz, int iphi) = 0;
 	virtual double getSinTheta(int irho, int iz, int iphi) = 0;
-	virtual ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi) = 0;
+	virtual MassiveParticleIsotropicDistribution* getParticleDistribution(int irho, int iz, int iphi) = 0;
 };
 
 class TabulatedSphericalLayerSource : public SphericalLayerSource {
@@ -110,10 +110,10 @@ protected:
 	double*** my_B;
 	double*** my_sinTheta;
 	double*** my_concentration;
-	ElectronIsotropicDistribution* my_distribution;
+	MassiveParticleIsotropicDistribution* my_distribution;
 public:
-	TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, ElectronIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta, double*** concentration, const double& rho, const double& rhoin, const double& distance);
-	TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, ElectronIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& sinTheta, const double& rho, const double& rhoin, const double& distance);
+	TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta, double*** concentration, const double& rho, const double& rhoin, const double& distance);
+	TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& sinTheta, const double& rho, const double& rhoin, const double& distance);
 	~TabulatedSphericalLayerSource();
 
 	virtual double getLength(int irho, int iz, int iphi);
@@ -122,22 +122,22 @@ public:
 	virtual double getSinTheta(int irho, int iz, int iphi);
 	//void resetConcentration(const double& concentration);
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
-	virtual ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi);
+	virtual MassiveParticleIsotropicDistribution* getParticleDistribution(int irho, int iz, int iphi);
 };
 
 class AngleDependentElectronsSphericalSource : public TabulatedSphericalLayerSource {
 protected:
 	int my_Ntheta;
-	ElectronIsotropicDistribution** my_distributions;
+	MassiveParticleIsotropicDistribution** my_distributions;
 	double*** my_phi;
 	double*** my_shockWaveAngle;
 public:
-	AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, ElectronIsotropicDistribution** electronDistributions, double*** B, double*** sinTheta, double*** phi, double*** concentration, const double& rho, const double& rhoin, const double& distance);
-	AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, ElectronIsotropicDistribution** electronDistributions, const double& B, const double& sinTheta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance);
+	AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, double*** B, double*** sinTheta, double*** phi, double*** concentration, const double& rho, const double& rhoin, const double& distance);
+	AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, const double& B, const double& sinTheta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance);
 	~AngleDependentElectronsSphericalSource();
 
 	//void resetConcentration(const double& concentration);
-	virtual ElectronIsotropicDistribution* getElectronDistribution(int irho, int iz, int iphi);
+	virtual MassiveParticleIsotropicDistribution* getParticleDistribution(int irho, int iz, int iphi);
 };
 
 class RadiationTimeDependentSource {

@@ -3,7 +3,7 @@
 
 #include "constants.h"
 #include "util.h"
-#include "electronDistribution.h"
+#include "massiveParticleDistribution.h"
 
 #include "synchrotron.h"
 
@@ -100,12 +100,17 @@ void evaluateMcDonaldFunctions(const double& nu, double& K1_3, double& K2_3, dou
 	K5_3 = (McDonaldValue5_3[rightIndex] * (nu - UvarovX[leftIndex]) + McDonaldValue5_3[leftIndex] * (UvarovX[rightIndex] - nu)) / (UvarovX[rightIndex] - UvarovX[leftIndex]);
 }
 
-double criticalNu(const double& E, const double& sinhi, const double& H) {
-	return criticalNuCoef * H * sinhi * E * E;
+double criticalNu(const double& E, const double& sinhi, const double& H, const double& coef) {
+	return coef * H * sinhi * E * E;
 }
 
-void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, const double& concentration, ElectronIsotropicDistribution* electronDistribution, const double& Emin, const double& Emax, const int Ne, double& I, double& A) {
+void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, const double& concentration, MassiveParticleIsotropicDistribution* electronDistribution, const double& Emin, const double& Emax, const int Ne, double& I, double& A) {
 	double factor = pow(Emax / Emin, 1.0 / (Ne - 1));
+
+	double m = electronDistribution->getMass();
+	double m_c2 = m * speed_of_light2;
+	double emissivityCoef = sqrt(3.0) * electron_charge * electron_charge * electron_charge / m_c2;
+	double criticalNuCoef = 3 * electron_charge / (4 * pi * m*m*m * speed_of_light * speed_of_light4);
 
 	double* Ee = new double[Ne];
 	Ee[0] = Emin;
@@ -128,12 +133,12 @@ void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& 
 
 	double oldA = 0;
 	for (int j = 1; j < Ne; ++j) {
-		double delectronEnergy = Ee[j] - Ee[j - 1];
-		double electronDist = concentration*electronDistribution->distributionNormalized(Ee[j]);
-		if (electronDist > 0) {
-			double dFe = electronDist * delectronEnergy;
-			double nuc = criticalNu(Ee[j], sinhi, B);
-			double gamma = Ee[j] / (massElectron * speed_of_light2);
+		double dparticleEnergy = Ee[j] - Ee[j - 1];
+		double particleDist = concentration*electronDistribution->distributionNormalized(Ee[j]);
+		if (particleDist > 0) {
+			double dFe = particleDist * dparticleEnergy;
+			double nuc = criticalNu(Ee[j], sinhi, B, criticalNuCoef);
+			double gamma = Ee[j] / (m_c2);
 
 			double mcDonaldIntegral = evaluateMcDonaldIntegral(photonFinalFrequency / nuc);
 
@@ -145,16 +150,16 @@ void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& 
 			}
 			////todo! F(g +dg)
 			double tempP = gamma * gamma * emissivityCoef * B * sinhi * mcDonaldIntegral;
-			double dg = 0.1 * (Ee[j] - Ee[j - 1]) / (me_c2);
+			double dg = 0.1 * (Ee[j] - Ee[j - 1]) / (m_c2);
 
 			double tempGamma = gamma + dg;
-			double tempnuc = criticalNu(massElectron * speed_of_light2 * tempGamma, sinhi, B);
+			double tempnuc = criticalNu(m_c2 * tempGamma, sinhi, B, criticalNuCoef);
 			double tempP2 = tempGamma * tempGamma * emissivityCoef * B * sinhi * evaluateMcDonaldIntegral(photonFinalFrequency / tempnuc);
 			double Pder = (tempP2 - tempP) / dg;
 
 
 
-			A = A + (1.0 / (2 * massElectron * photonFinalFrequency * photonFinalFrequency)) * dFe * Pder / (gamma * gamma);
+			A = A + (1.0 / (2 * m * photonFinalFrequency * photonFinalFrequency)) * dFe * Pder / (gamma * gamma);
 
 			if (I != I) {
 				printf("I NaN\n");
@@ -191,7 +196,7 @@ double evaluateSynchrotronFluxFromSource(RadiationSource* source, const double& 
 			for (int iz = 0; iz < Nz; ++iz) {
 				double A = 0;
 				double I = 0;
-				evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), source->getElectronDistribution(irho, iz, iphi), Emin, Emax, Ne, I, A);
+				evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), source->getParticleDistribution(irho, iz, iphi), Emin, Emax, Ne, I, A);
 				double length = source->getLength(irho, iz, iphi);
 				if (length > 0) {
 					double I0 = localI;
@@ -235,11 +240,17 @@ SynchrotronEvaluator::~SynchrotronEvaluator()
 	delete[] my_Ee;
 }
 
-void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, const double& concentration, ElectronIsotropicDistribution* electronDistribution, double& I, double& A)
+void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, const double& concentration, MassiveParticleIsotropicDistribution* electronDistribution, double& I, double& A)
 {
 	//Anu from ghiselini simple
 	I = 0;
 	A = 0;
+
+	double m = electronDistribution->getMass();
+	double m_c2 = m * speed_of_light2;
+	double emissivityCoef = sqrt(3.0) * electron_charge * electron_charge * electron_charge / m_c2;
+	double criticalNuCoef = 3 * electron_charge / (4 * pi * m * m * m * speed_of_light * speed_of_light4);
+
 
 	if (sinhi == 0.0) {
 		return;
@@ -262,8 +273,8 @@ void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFre
 		double electronDist = concentration*electronDistribution->distributionNormalized(my_Ee[j]);
 		if (electronDist > 0) {
 			double dFe = electronDist * delectronEnergy;
-			double nuc = criticalNu(my_Ee[j], sinhi, B);
-			double gamma = my_Ee[j] / (massElectron * speed_of_light2);
+			double nuc = criticalNu(my_Ee[j], sinhi, B, criticalNuCoef);
+			double gamma = my_Ee[j] / m_c2;
 
 			double mcDonaldIntegral = evaluateMcDonaldIntegral(photonFinalFrequency / nuc);
 
@@ -275,16 +286,16 @@ void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFre
 			}
 			////todo! F(g +dg)
 			double tempP = gamma * gamma * emissivityCoef * B * sinhi * mcDonaldIntegral;
-			double dg = 0.1 * delectronEnergy / (me_c2);
+			double dg = 0.1 * delectronEnergy / (m_c2);
 
 			double tempGamma = gamma + dg;
-			double tempnuc = criticalNu(massElectron * speed_of_light2 * tempGamma, sinhi, B);
+			double tempnuc = criticalNu(m_c2 * tempGamma, sinhi, B, criticalNuCoef);
 			double tempP2 = tempGamma * tempGamma * emissivityCoef * B * sinhi * evaluateMcDonaldIntegral(photonFinalFrequency / tempnuc);
 			double Pder = (tempP2 - tempP) / dg;
 
 
 
-			A = A + (1.0 / (2 * massElectron * photonFinalFrequency * photonFinalFrequency)) * dFe * Pder / (gamma * gamma);
+			A = A + (1.0 / (2 * m * photonFinalFrequency * photonFinalFrequency)) * dFe * Pder / (gamma * gamma);
 
 			if (I != I) {
 				printf("I NaN\n");
@@ -314,7 +325,7 @@ double SynchrotronEvaluator::evaluateSynchrotronFluxFromSource(RadiationSource* 
 			for (int iz = 0; iz < Nz; ++iz) {
 				double A = 0;
 				double I = 0;
-				evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), source->getElectronDistribution(irho, iz, iphi), I, A);
+				evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), source->getParticleDistribution(irho, iz, iphi), I, A);
 				double length = source->getLength(irho, iz, iphi);
 				if (length > 0) {
 					double I0 = localI;

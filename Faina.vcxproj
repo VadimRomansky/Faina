@@ -129,7 +129,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="coordinateTransform.cpp" />
-    <ClCompile Include="electronDistribution.cpp" />
+    <ClCompile Include="massiveParticleDistribution.cpp" />
     <ClCompile Include="inverseCompton.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="optimization.cpp" />
@@ -141,7 +141,7 @@
   <ItemGroup>
     <ClInclude Include="constants.h" />
     <ClInclude Include="coordinateTransform.h" />
-    <ClInclude Include="electronDistribution.h" />
+    <ClInclude Include="massiveParticleDistribution.h" />
     <ClInclude Include="inverseCompton.h" />
     <ClInclude Include="optimization.h" />
     <ClInclude Include="particleDistribution.h" />

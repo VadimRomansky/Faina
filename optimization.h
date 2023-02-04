@@ -1,7 +1,7 @@
 #ifndef optimization_h
 #define optimization_h
 
-#include "electronDistribution.h"
+#include "massiveParticleDistribution.h"
 #include "photonDistribution.h"
 #include "radiationSource.h"
 #include "synchrotron.h"

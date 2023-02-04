@@ -3,7 +3,7 @@
 
 #include "constants.h"
 #include "util.h"
-#include "electronDistribution.h"
+#include "massiveParticleDistribution.h"
 
 #include "radiationSource.h"
 
@@ -57,7 +57,7 @@ double DiskSource::getMaxZ() {
 	return my_z;
 }
 
-SimpleFlatSource::SimpleFlatSource(ElectronIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& concentration, const double& rho, const double& z, const double& distance) : DiskSource(1,1,1, rho, z,distance) {
+SimpleFlatSource::SimpleFlatSource(MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& concentration, const double& rho, const double& z, const double& distance) : DiskSource(1,1,1, rho, z,distance) {
 	my_distribution = electronDistribution;
 	my_B = B;
 	my_sinTheta = sinTheta;
@@ -95,11 +95,11 @@ void SimpleFlatSource::resetParameters(const double* parameters, const double* n
 double SimpleFlatSource::getLength(int irho, int iz, int iphi) {
 	return my_z;
 }
-ElectronIsotropicDistribution* SimpleFlatSource::getElectronDistribution(int irho, int iz, int iphi) {
+MassiveParticleIsotropicDistribution* SimpleFlatSource::getParticleDistribution(int irho, int iz, int iphi) {
 	return my_distribution;
 }
 
-TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, ElectronIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta, double*** concentration, const double& rho, const double& z, const double& distance) : DiskSource(Nrho, Nz, Nphi, rho, z, distance) {
+TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta, double*** concentration, const double& rho, const double& z, const double& distance) : DiskSource(Nrho, Nz, Nphi, rho, z, distance) {
 	my_distribution = electronDistribution;
 
 	my_B = new double** [my_Nrho];
@@ -122,7 +122,7 @@ TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, ElectronIso
 	}
 }
 
-TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, ElectronIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& concentration, const double& rho, const double& z, const double& distance) : DiskSource(Nrho, Nz, Nphi, rho, z, distance)
+TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& concentration, const double& rho, const double& z, const double& distance) : DiskSource(Nrho, Nz, Nphi, rho, z, distance)
 {
 	my_distribution = electronDistribution;
 
@@ -202,7 +202,7 @@ void TabulatedDiskSource::resetParameters(const double* parameters, const double
 double TabulatedDiskSource::getLength(int irho, int iz, int iphi) {
 	return my_z/my_Nz;
 }
-ElectronIsotropicDistribution* TabulatedDiskSource::getElectronDistribution(int irho, int iz, int iphi) {
+MassiveParticleIsotropicDistribution* TabulatedDiskSource::getParticleDistribution(int irho, int iz, int iphi) {
 	return my_distribution;
 }
 
@@ -240,7 +240,7 @@ double SphericalLayerSource::getInnerRho() {
 	return my_rhoin;
 }
 
-TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, ElectronIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta, double*** concentration, const double& rho, const double& rhoin, const double& distance) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance) {
+TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta, double*** concentration, const double& rho, const double& rhoin, const double& distance) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance) {
 	my_distribution = electronDistribution;
 	
 	my_B = new double** [my_Nrho];
@@ -262,7 +262,7 @@ TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, i
 		}
 	}
 }
-TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, ElectronIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& concentration, const double& rho, const double& rhoin, const double& distance) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance) {
+TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& concentration, const double& rho, const double& rhoin, const double& distance) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance) {
 	my_distribution = electronDistribution;
 
 	my_B = new double** [my_Nrho];
@@ -370,14 +370,14 @@ void TabulatedSphericalLayerSource::resetParameters(const double* parameters, co
 	}
 	my_rhoin = my_rho * (1.0 - parameters[3] * normalizationUnits[3]);
 }
-ElectronIsotropicDistribution* TabulatedSphericalLayerSource::getElectronDistribution(int irho, int iz, int iphi) {
+MassiveParticleIsotropicDistribution* TabulatedSphericalLayerSource::getParticleDistribution(int irho, int iz, int iphi) {
 	return my_distribution;
 }
 
-AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, ElectronIsotropicDistribution** electronDistributions, double*** B, double*** sinTheta, double*** concentration, double*** phi, const double& rho, const double& rhoin, const double& distance) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, concentration, rho, rhoin, distance)
+AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, double*** B, double*** sinTheta, double*** concentration, double*** phi, const double& rho, const double& rhoin, const double& distance) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, concentration, rho, rhoin, distance)
 {
 	my_Ntheta = Ntheta;
-	my_distributions = new ElectronIsotropicDistribution*[my_Ntheta];
+	my_distributions = new MassiveParticleIsotropicDistribution*[my_Ntheta];
 
 	for (int i = 0; i < my_Ntheta; ++i) {
 		my_distributions[i] = electronDistributions[i];
@@ -424,10 +424,10 @@ AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(i
 	}
 }
 
-AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, ElectronIsotropicDistribution** electronDistributions, const double& B, const double& sinTheta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, concentration, rho, rhoin, distance)
+AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, const double& B, const double& sinTheta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, concentration, rho, rhoin, distance)
 {
 	my_Ntheta = Ntheta;
-	my_distributions = new ElectronIsotropicDistribution * [my_Ntheta];
+	my_distributions = new MassiveParticleIsotropicDistribution * [my_Ntheta];
 
 	for (int i = 0; i < my_Ntheta; ++i) {
 		my_distributions[i] = electronDistributions[i];
@@ -500,7 +500,7 @@ AngleDependentElectronsSphericalSource::~AngleDependentElectronsSphericalSource(
 }
 }*/
 
-ElectronIsotropicDistribution* AngleDependentElectronsSphericalSource::getElectronDistribution(int irho, int iz, int iphi)
+MassiveParticleIsotropicDistribution* AngleDependentElectronsSphericalSource::getParticleDistribution(int irho, int iz, int iphi)
 {
 	double dtheta = pi / (my_Ntheta-1);
 	double theta = my_shockWaveAngle[irho][iz][iphi];
