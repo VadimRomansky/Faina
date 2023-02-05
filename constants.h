@@ -10,6 +10,8 @@ const double massDeuterium = 3.34449696893E-24;
 const double massHelium3 = 5.00823792874E-24;
 const double massOxygen = 26.5601801672E-24;
 const double massSilicon = 46.4567787264E-24;
+const double massPi0 = 2.403278057E-25;
+const double massPiPlus = 2.484699545E-25;
 
 const double kBoltzman = 1.3806488E-16;
 const double speed_of_light = 2.99792458E10;
