@@ -320,13 +320,20 @@ double PionDecayEvaluator::evaluatePionDecayLuminocityIsotropicFunction(const do
 	
 	for (int i = 0; i < my_Ne; ++i) {
 		double protonEnergy = my_Ee[i];
+		double dprotonEnergy;
+		if (i == 0) {
+			dprotonEnergy = my_Ee[1] - my_Ee[0];
+		}
+		else {
+			dprotonEnergy = my_Ee[i] - my_Ee[i - 1];
+		}
 		double protonGamma = protonEnergy / (massProton * speed_of_light2);
 		double protonBeta = sqrt(1.0 - 1.0 / (protonGamma * protonGamma));
 		double protonKineticEnergy = massProton * speed_of_light2 * (protonGamma - 1.0);
 
 		double sigma = sigmaGamma(photonFinalEnergy, protonKineticEnergy);
 
-		result += (speed_of_light * protonBeta/4*pi) * sigma * protonDistribution->distribution(protonEnergy) * ambientConcentration * volume / sqr(distance);
+		result += (speed_of_light * protonBeta/4*pi) * sigma * protonDistribution->distribution(protonEnergy) * ambientConcentration * volume * dprotonEnergy / sqr(distance);
 	}
 
 	return result;

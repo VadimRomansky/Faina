@@ -65,6 +65,88 @@ double MassiveParticlePowerLawDistribution::getE0()
 	return my_E0;
 }
 
+MassiveParticleBrokenPowerLawDistribution::MassiveParticleBrokenPowerLawDistribution(const double& mass, const double& index1, const double& index2, const double& E0, const double& Etran, const double& concentration) {
+	my_mass = mass;
+	if (index2 <= 1.0) {
+		printf("electron spectrum index2 <= 1.0, contains infinit energy\n");
+		printLog("electron spectrum index2 <= 1.0, contains infinit energy\n");
+		exit(0);
+	}
+	my_index1 = index1;
+	my_index2 = index2;
+	if (E0 < my_mass * speed_of_light2) {
+		printf("particle minimum energy is less than m c^2\n");
+		printLog("particle minimum energy is less than m c^2\n");
+		exit(0);
+	}
+	if (Etran <= E0) {
+		printf("Etran < E0\n");
+		printLog("Etran < E0\n");
+		exit(0);
+	}
+	my_E0 = E0;
+	my_Etran = Etran;
+	if (concentration <= 0) {
+		printf("electrons concentration <= 0\n");
+		printLog("electrons concentration <= 0\n");
+		exit(0);
+	}
+	my_concentration = concentration;
+
+	double normCoef;
+	if (my_index1 == 1.0) {
+		normCoef = log(my_Etran / my_E0) + 1.0 / (my_index2 - 1.0);
+	} else {
+		normCoef = ((1.0 - pow(my_E0 / my_Etran, my_index1 - 1)) / (my_index1 - 1.0)) + pow(my_E0 / my_Etran, my_index1 - 1) / (my_index2 - 1);
+	}
+	my_A = 1.0 / (my_E0 * 4 * pi * normCoef);
+	my_B = my_A * pow(my_E0 / my_Etran, my_index1 - my_index2);
+}
+
+double MassiveParticleBrokenPowerLawDistribution::distributionNormalized(const double& energy) {
+	if (energy < 0) {
+		printf("electron energy < 0\n");
+		printLog("electron energy < 0\n");
+		exit(0);
+	}
+	if (energy < my_mass * speed_of_light2) {
+		printf("warning: energy is less than m c^2\n");
+		printLog("warning: energy is less than m c^2\n");
+		//exit(0);
+		return 0;
+	}
+	if (energy < my_Etran) {
+		return my_A / pow(energy / my_E0, my_index1);
+	} else {
+		return my_B / pow(energy / my_E0, my_index2);
+	}
+}
+
+void MassiveParticleBrokenPowerLawDistribution::resetConcentration(const double& concentration)
+{
+	my_concentration = concentration;
+}
+
+double MassiveParticleBrokenPowerLawDistribution::getIndex1()
+{
+	return my_index1;
+}
+
+double MassiveParticleBrokenPowerLawDistribution::getIndex2()
+{
+	return my_index2;
+}
+
+double MassiveParticleBrokenPowerLawDistribution::getE0()
+{
+	return my_E0;
+}
+
+double MassiveParticleBrokenPowerLawDistribution::getEtran()
+{
+	return my_Etran;
+}
+
 MassiveParticleMaxwellDistribution::MassiveParticleMaxwellDistribution(const double& mass, const double& temperature, const double& concentration)
 {
 	my_mass = mass;

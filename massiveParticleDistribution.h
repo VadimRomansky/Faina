@@ -41,6 +41,24 @@ public:
 	double getE0();
 };
 
+class MassiveParticleBrokenPowerLawDistribution : public MassiveParticleIsotropicDistribution {
+protected:
+	double my_index1;
+	double my_index2;
+	double my_Etran;
+	double my_E0;
+	double my_A;
+	double my_B;
+public:
+	MassiveParticleBrokenPowerLawDistribution(const double& mass, const double& index1, const double& index2, const double& E0, const double& Etran, const double& concentration);
+	virtual double distributionNormalized(const double& energy);
+	virtual void resetConcentration(const double& concentration);
+	double getIndex1();
+	double getIndex2();
+	double getE0();
+	double getEtran();
+};
+
 class MassiveParticleMaxwellDistribution : public MassiveParticleIsotropicDistribution {
 protected:
 	double my_temperature;
