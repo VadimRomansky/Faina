@@ -203,6 +203,7 @@ double TabulatedDiskSource::getLength(int irho, int iz, int iphi) {
 	return my_z/my_Nz;
 }
 MassiveParticleIsotropicDistribution* TabulatedDiskSource::getParticleDistribution(int irho, int iz, int iphi) {
+	my_distribution->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_distribution;
 }
 
@@ -371,6 +372,7 @@ void TabulatedSphericalLayerSource::resetParameters(const double* parameters, co
 	my_rhoin = my_rho * (1.0 - parameters[3] * normalizationUnits[3]);
 }
 MassiveParticleIsotropicDistribution* TabulatedSphericalLayerSource::getParticleDistribution(int irho, int iz, int iphi) {
+	my_distribution->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_distribution;
 }
 
@@ -513,6 +515,7 @@ MassiveParticleIsotropicDistribution* AngleDependentElectronsSphericalSource::ge
 		angleIndex = my_Ntheta - 1;
 	}
 
+	my_distributions[angleIndex]->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_distributions[angleIndex];
 }
 
