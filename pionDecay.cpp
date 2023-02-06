@@ -153,6 +153,7 @@ double PionDecayEvaluator::sigmaInelastic(const double& energy)
 	double energyRatio = energy / thresholdEnergy;
 	double logEnergy = log(energyRatio);
 	double result = (30.7 - 0.9 * logEnergy + 0.18 * sqr(logEnergy)) * cube(1 - pow(energyRatio, -1.9)) * 1E-27;
+	return result;
 }
 
 double PionDecayEvaluator::sigmaPion(const double& energy)
@@ -263,6 +264,7 @@ double PionDecayEvaluator::sigma2Pion(const double& energy)
 	if (energy < (2E9) * 1.6E-12) {
 		return (5.7E-27) / (1 + exp(-9.3*((energy/(1.6E-3) - 1.4))));
 	}
+	return 0;
 }
 
 double PionDecayEvaluator::sigmaGamma(const double& photonEnergy, const double& protonEnergy)
@@ -281,6 +283,10 @@ double PionDecayEvaluator::sigmaGamma(const double& photonEnergy, const double& 
 	double gLab = EpiLabMax / (massPi0 * speed_of_light2);
 	double betaLab = sqrt(1 - 1.0 / (gLab * gLab));
 	double EphMax = 0.5 * massPi0 * speed_of_light2 * gLab * (1 + betaLab);
+
+	if (photonEnergy >= EphMax) {
+		return 0;
+	}
 
 	double Yph = photonEnergy + massPi0 * massPi0 * speed_of_light4 / (4 * photonEnergy);
 	double YphMax = EphMax + massPi0 * massPi0 * speed_of_light4 / (4 * EphMax);
@@ -318,22 +324,12 @@ double PionDecayEvaluator::evaluatePionDecayLuminocityIsotropicFunction(const do
 		double protonBeta = sqrt(1.0 - 1.0 / (protonGamma * protonGamma));
 		double protonKineticEnergy = massProton * speed_of_light2 * (protonGamma - 1.0);
 
-		double s = 2 * massProton * speed_of_light2 * (protonKineticEnergy + 2 * massProton * speed_of_light2);
-		double EpiCM = (s - 4 * massProton * massProton * speed_of_light4 + massPi0 * massPi0 * speed_of_light4) / (2 * sqrt(s));
-		double gCM = (protonKineticEnergy + 2 * massProton * speed_of_light2) / sqrt(s);
-		double betaCM = sqrt(1 - 1.0 / (gCM * gCM));
-		double PpiCM = sqrt(EpiCM * EpiCM - massPi0 * massPi0 * speed_of_light4);
-		double EpiLabMax = gCM * (EpiCM + PpiCM * betaCM);
-		double gLab = EpiLabMax / (massPi0 * speed_of_light2);
-		double betaLab = sqrt(1 - 1.0 / (gLab * gLab));
-		double EphMax = 0.5 * massPi0 * speed_of_light2 * gLab * (1 + betaLab);
+		double sigma = sigmaGamma(photonFinalEnergy, protonKineticEnergy);
 
-		
-		double YphMax = EphMax + massPi0 * massPi0 * speed_of_light4 / (4 * EphMax);
-		double Xph = (Yph - massPi0 * speed_of_light2) / (YphMax - massPi0 * speed_of_light2);
-
-
+		result += (speed_of_light * protonBeta/4*pi) * sigma * protonDistribution->distribution(protonEnergy) * ambientConcentration * volume / sqr(distance);
 	}
+
+	return result;
 }
 
 double PionDecayEvaluator::evaluatePionDecayIsotropicFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)

@@ -9,6 +9,7 @@
 #include "radiationSource.h"
 #include "synchrotron.h"
 #include "optimization.h"
+#include "pionDecay.h"
 
 
 
@@ -578,11 +579,68 @@ void fitTimeDependentCSS161010() {
 
 }
 
+// example 5. Evaluating pion decay gamma flux of powerlaw distributed protons
+void evaluatePionDecayWithPowerLawDistribution() {
+	double protonConcentration = 150;
+	double rmax = 1.3E17;
+
+	//SN2009bb
+	//const double distance = 40*3.08*1.0E24;
+	//AT2018
+	//const double distance = 60*3.08*1.0E24;
+	//CSS161010
+	const double distance = 150 * 3.08 * 1.0E24;
+	double Emin = massProton*speed_of_light2;
+	double Emax = 100000 * Emin;
+
+	PhotonPlankDistribution* CMBradiation = PhotonPlankDistribution::getCMBradiation();
+	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massProton, 3.5, Emin, protonConcentration);
+	RadiationSource* source = new SimpleFlatSource(electrons, 0, 0, protonConcentration, rmax, rmax, distance);
+	PionDecayEvaluator* comptonEvaluator = new PionDecayEvaluator(200, Emin, Emax);
+
+	int Nnu = 200;
+	double* E = new double[Nnu];
+	double* F = new double[Nnu];
+
+	double Ephmin = 0.1*Emin;
+	double Ephmax = Emax;
+	double factor = pow(Ephmax / Ephmin, 1.0 / (Nnu - 1));
+	E[0] = Ephmin;
+	F[0] = 0;
+	for (int i = 1; i < Nnu; ++i) {
+		E[i] = E[i - 1] * factor;
+		F[i] = 0;
+	}
+
+	printLog("evaluating\n");
+	for (int i = 0; i < Nnu; ++i) {
+		printf("%d\n", i);
+		F[i] = comptonEvaluator->evaluatePionDecayIsotropicFluxFromSource(E[i], source);
+	}
+
+	FILE* output_ev_EFE = fopen("outputPionE.dat", "w");
+	FILE* output_GHz_Jansky = fopen("outputPionNu.dat", "w");
+	for (int i = 0; i < Nnu; ++i) {
+		double nu = E[i] / hplank;
+		fprintf(output_ev_EFE, "%g %g\n", E[i] / (1.6E-12), E[i] * E[i] * F[i]);
+		fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * E[i] * F[i]);
+	}
+	fclose(output_ev_EFE);
+	fclose(output_GHz_Jansky);
+
+	delete[] E;
+	delete[] F;
+	delete electrons;
+	delete source;
+	delete comptonEvaluator;
+}
+
 
 int main() {
 	//evaluateComtonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
-	fitTimeDependentCSS161010();
+	//fitTimeDependentCSS161010();
+	evaluatePionDecayWithPowerLawDistribution();
 	return 0;
 }

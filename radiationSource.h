@@ -17,9 +17,9 @@ public:
 	virtual double getMaxRho()=0;
 	virtual double getMinZ()=0;
 	virtual double getMaxZ()=0;
-	double getNrho();
-	double getNz();
-	double getNphi();
+	int getNrho();
+	int getNz();
+	int getNphi();
 	double getDistance();
 	virtual double getArea(int irho);
 	virtual double getVolume(int irho, int iz, int iphi);

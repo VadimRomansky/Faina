@@ -14,13 +14,13 @@ RadiationSource::RadiationSource(int Nrho, int Nz, int Nphi, double distance) {
 	my_distance = distance;
 }
 
-double RadiationSource::getNrho() {
+int RadiationSource::getNrho() {
 	return my_Nrho;
 }
-double RadiationSource::getNz() {
+int RadiationSource::getNz() {
 	return my_Nz;
 }
-double RadiationSource::getNphi() {
+int RadiationSource::getNphi() {
 	return my_Nphi;
 }
 double RadiationSource::getDistance() {
