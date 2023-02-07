@@ -97,27 +97,27 @@ void PionDecayEvaluator::getBcoefs(double& b1, double& b2, double& b3, const dou
 	}
 	if (protonEnergy < 100E9 * 1.6E-12) {
 		//geant
-		/*b1 = 9.13;
+		b1 = 9.13;
 		b2 = 0.35;
-		b3 = 0.0097;*/
+		b3 = 0.0097;
 		//pythia
-		b1 = 9.06;
+		/*b1 = 9.06;
 		b2 = 0.3795;
-		b3 = 0.01105;
+		b3 = 0.01105;*/
 		return;
 	}
 	//geant
-	/*b1 = 9.13;
+	b1 = 9.13;
 	b2 = 0.35;
-	b3 = 0.0097;*/
+	b3 = 0.0097;
 	//pythia
 	/*b1 = 9.06;
 	b2 = 0.3795;
 	b3 = 0.01105;*/
 	//SIBYLL
-	b1 = 10.77;
+	/*b1 = 10.77;
 	b2 = 0.412;
-	b3 = 0.01264;
+	b3 = 0.01264;*/
 	//QGSJET
 	/*b1 = 13.16;
 	b2 = 0.4419;
@@ -152,7 +152,7 @@ double PionDecayEvaluator::sigmaInelastic(const double& energy)
 	}
 	double energyRatio = energy / thresholdEnergy;
 	double logEnergy = log(energyRatio);
-	double result = (30.7 - 0.9 * logEnergy + 0.18 * sqr(logEnergy)) * cube(1 - pow(energyRatio, -1.9)) * 1E-27;
+	double result = (30.7 - 0.96 * logEnergy + 0.18 * sqr(logEnergy)) * cube(1 - pow(energyRatio, -1.9)) * 1E-27;
 	return result;
 }
 
@@ -200,10 +200,10 @@ double PionDecayEvaluator::sigmaPion(const double& energy)
 		double Mres = 1.1883E9 * 1.6E-12;
 		double Gres = 0.2264E9 * 1.6E-12;
 		double sigma0 = 7.66E-30;
-		double s = 2 * massProton * speed_of_light2 * (energy + 2 * massProton * speed_of_light2);
-		double g = sqrt(Mres*Mres*(Mres*Mres + Gres*Gres));
-		double K = sqrt(8) * Mres * Gres * g / (pi * sqrt(Mres * Mres + g));
-		double fBW = massProton * K / (sqr(sqr(sqrt(s) - massProton * speed_of_light2) - Mres * Mres) + Mres * Mres * Gres * Gres);
+		double s = 2 * massProton * speed_of_light2 * (energy + 2 * massProton * speed_of_light2);//E2
+		double g = sqrt(Mres*Mres*(Mres*Mres + Gres*Gres)); //E2
+		double K = sqrt(8) * Mres * Gres * g / (pi * sqrt(Mres * Mres + g));//E3
+		double fBW = massProton * speed_of_light2 * K / (sqr(sqr(sqrt(s) - massProton * speed_of_light2) - Mres * Mres) + Mres * Mres * Gres * Gres);//dimensionless
 		double eta = sqrt(sqr((s / speed_of_light4) - massPi0 * massPi0 - 4 * massProton * massProton) - 16 * massPi0 * massPi0 * massProton * massProton) / (2 * massPi0 * sqrt(s / speed_of_light4));
 		double result = sigma0 * pow(eta, 1.95) * (1 + eta + eta * eta * eta * eta * eta) * pow(fBW, 1.86);
 		return result + sigma2Pion(energy);
@@ -214,7 +214,7 @@ double PionDecayEvaluator::sigmaPion(const double& energy)
 		return sigmaInelastic(energy) * nmean;
 	}
 	//from 5GeV to EtranGeant
-	if (energy < EtranPythia) {
+	//if (energy < EtranPythia) {
 		//geant
 		a1 = 0.728;
 		a2 = 0.596;
@@ -224,14 +224,14 @@ double PionDecayEvaluator::sigmaPion(const double& energy)
 		double dzeta = (energy - (3E9) * 1.6E-12) / (massProton * speed_of_light2);
 		double nmean = a1*pow(dzeta, a4)*(1+exp(-a2*pow(dzeta, a5)))*(1-exp(-a3*pow(dzeta, 0.25)));
 		return sigmaInelastic(energy) * nmean;
-	}
+	//}
 	if (energy < EtranSIBYLL) {
 		//pythia
 		a1 = 0.652;
 		a2 = 0.0016;
 		a3 = 0.488;
 		a4 = 0.1928;
-		a5 = 0.482;
+		a5 = 0.483;
 		double dzeta = (energy - (3E9) * 1.6E-12) / (massProton * speed_of_light2);
 		double nmean = a1 * pow(dzeta, a4) * (1 + exp(-a2 * pow(dzeta, a5))) * (1 - exp(-a3 * pow(dzeta, 0.25)));
 		return sigmaInelastic(energy) * nmean;
@@ -262,7 +262,7 @@ double PionDecayEvaluator::sigma2Pion(const double& energy)
 		return 0.0;
 	}
 	if (energy < (2E9) * 1.6E-12) {
-		return (5.7E-27) / (1 + exp(-9.3*((energy/(1.6E-3) - 1.4))));
+		return (5.7E-27) / (1 + exp(-9.3*((energy/(1.6E-3)) - 1.4)));
 	}
 	return 0;
 }
@@ -283,6 +283,8 @@ double PionDecayEvaluator::sigmaGamma(const double& photonEnergy, const double& 
 	double gLab = EpiLabMax / (massPi0 * speed_of_light2);
 	double betaLab = sqrt(1 - 1.0 / (gLab * gLab));
 	double EphMax = 0.5 * massPi0 * speed_of_light2 * gLab * (1 + betaLab);
+
+	double EphMin = 0.5 * massPi0 * speed_of_light2 * gLab * (1 - betaLab);
 
 	if (photonEnergy >= EphMax) {
 		return 0;

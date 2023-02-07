@@ -589,9 +589,9 @@ void evaluatePionDecayWithPowerLawDistribution() {
 	double Emin = massProton*speed_of_light2 + 0.01E9 * 1.6E-12;
 	double Emax = 1E15 * 1.6E-12;
 
-	MassiveParticleBrokenPowerLawDistribution* protons = new MassiveParticleBrokenPowerLawDistribution(massProton, 2.1, 2.64, Emin, 2.2E12 * 1.6E-12, protonConcentration);
+	//MassiveParticleBrokenPowerLawDistribution* protons = new MassiveParticleBrokenPowerLawDistribution(massProton, 2.1, 2.64, Emin, 2.2E12 * 1.6E-12, protonConcentration);
+	MassiveParticlePowerLawDistribution* protons = new MassiveParticlePowerLawDistribution(massProton, 2.0, Emin, protonConcentration);
 	protons->writeDistribution("outputProtons.dat", 200, Emin, Emax);
-	//MassiveParticlePowerLawDistribution* protons = new MassiveParticlePowerLawDistribution(massProton, 3.5, Emin, protonConcentration);
 	RadiationSource* source = new SimpleFlatSource(protons, 0, 0, protonConcentration, rmax, rmax, distance);
 	PionDecayEvaluator* pionDecayEvaluator = new PionDecayEvaluator(200, Emin, Emax);
 

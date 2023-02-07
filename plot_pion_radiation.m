@@ -38,8 +38,8 @@ for i = 1:N,
     fe2(i) = radiation(i,1)*radiation(i,1)*radiation(i,2)*1.6E-12/1E24;
 end;
 
-startPower = 110;
-endPower = 140;
+startPower = 100;
+endPower = 120;
 
 polyfitx(1:endPower-startPower + 1) = 0;
 polyfity(1:endPower-startPower + 1) = 0;
