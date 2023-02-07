@@ -11,6 +11,21 @@ double MassiveParticleIsotropicDistribution::distributionNormalized(const double
 	return distributionNormalized(energy);
 }
 
+void MassiveParticleIsotropicDistribution::writeDistribution(const char* fileName, int Ne, const double& Emin, const double& Emax) {
+	double* energy = new double[Ne];
+	double factor = pow(Emax / Emin, 1.0 / (Ne - 1));
+	energy[0] = Emin;
+	for (int i = 1; i < Ne; ++i) {
+		energy[i] = energy[i - 1] * factor;
+	}
+	FILE* outFile = fopen(fileName, "w");
+	for (int i = 0; i < Ne; ++i) {
+		fprintf(outFile, "%g %g\n", energy[i], distribution(energy[i]));
+	}
+	fclose(outFile);
+	delete[] energy;
+}
+
 MassiveParticlePowerLawDistribution::MassiveParticlePowerLawDistribution(const double& mass, const double& index, const double& E0, const double& concentration) {
 	my_mass = mass;
 	if (index <= 1.0) {

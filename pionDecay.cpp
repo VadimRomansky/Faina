@@ -288,6 +288,10 @@ double PionDecayEvaluator::sigmaGamma(const double& photonEnergy, const double& 
 		return 0;
 	}
 
+	//todo what if energy less?
+	if (photonEnergy <= 0.5 * massPi0 * speed_of_light2) {
+		return 0;
+	}
 	double Yph = photonEnergy + massPi0 * massPi0 * speed_of_light4 / (4 * photonEnergy);
 	double YphMax = EphMax + massPi0 * massPi0 * speed_of_light4 / (4 * EphMax);
 	double Xph = (Yph - massPi0 * speed_of_light2) / (YphMax - massPi0 * speed_of_light2);
@@ -316,7 +320,6 @@ double PionDecayEvaluator::sigmaGamma(const double& photonEnergy, const double& 
 double PionDecayEvaluator::evaluatePionDecayLuminocityIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& ambientConcentration, const double& volume, const double& distance)
 {
 	double result = 0;
-	double Yph = photonFinalEnergy + massPi0 * massPi0 * speed_of_light4 / (4 * photonFinalEnergy);
 	
 	for (int i = 0; i < my_Ne; ++i) {
 		double protonEnergy = my_Ee[i];
@@ -334,6 +337,12 @@ double PionDecayEvaluator::evaluatePionDecayLuminocityIsotropicFunction(const do
 		double sigma = sigmaGamma(photonFinalEnergy, protonKineticEnergy);
 
 		result += (speed_of_light * protonBeta/4*pi) * sigma * protonDistribution->distribution(protonEnergy) * ambientConcentration * volume * dprotonEnergy / sqr(distance);
+
+		if (result != result) {
+			printf("result = NaN in pion decay\n");
+			printLog("result = NaN in pion decay\n");
+			exit(0);
+		}
 	}
 
 	return result;

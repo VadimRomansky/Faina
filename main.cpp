@@ -590,15 +590,16 @@ void evaluatePionDecayWithPowerLawDistribution() {
 	double Emax = 1E15 * 1.6E-12;
 
 	MassiveParticleBrokenPowerLawDistribution* protons = new MassiveParticleBrokenPowerLawDistribution(massProton, 2.1, 2.64, Emin, 2.2E12 * 1.6E-12, protonConcentration);
+	protons->writeDistribution("outputProtons.dat", 200, Emin, Emax);
 	//MassiveParticlePowerLawDistribution* protons = new MassiveParticlePowerLawDistribution(massProton, 3.5, Emin, protonConcentration);
 	RadiationSource* source = new SimpleFlatSource(protons, 0, 0, protonConcentration, rmax, rmax, distance);
-	PionDecayEvaluator* comptonEvaluator = new PionDecayEvaluator(200, Emin, Emax);
+	PionDecayEvaluator* pionDecayEvaluator = new PionDecayEvaluator(200, Emin, Emax);
 
 	int Nnu = 200;
 	double* E = new double[Nnu];
 	double* F = new double[Nnu];
 
-	double Ephmin = 0.1*Emin;
+	double Ephmin = 0.01*Emin;
 	double Ephmax = 1E16*1.6E-12;
 	double factor = pow(Ephmax / Ephmin, 1.0 / (Nnu - 1));
 	E[0] = Ephmin;
@@ -608,27 +609,37 @@ void evaluatePionDecayWithPowerLawDistribution() {
 		F[i] = 0;
 	}
 
+	double* sigma = new double[Nnu];
+	double protonKineticEnergy = 100000E9 * 1.6E-12;
+	for (int i = 0; i < Nnu; ++i) {
+		sigma[i] = pionDecayEvaluator->sigmaGamma(E[i], protonKineticEnergy);
+	}
+
 	printLog("evaluating\n");
 	for (int i = 0; i < Nnu; ++i) {
 		printf("%d\n", i);
-		F[i] = comptonEvaluator->evaluatePionDecayIsotropicFluxFromSource(E[i], source);
+		F[i] = pionDecayEvaluator->evaluatePionDecayIsotropicFluxFromSource(E[i], source);
 	}
 
-	FILE* output_ev_EFE = fopen("outputPionE.dat", "w");
+	FILE* output_ev_dNdE = fopen("outputPionE.dat", "w");
 	FILE* output_GHz_Jansky = fopen("outputPionNu.dat", "w");
+	FILE* output_sigma = fopen("outputSigma.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		double nu = E[i] / hplank;
-		fprintf(output_ev_EFE, "%g %g\n", E[i] / (1.6E-12), E[i] * E[i] * F[i]);
+		fprintf(output_ev_dNdE, "%g %g\n", E[i] / (1.6E-12), F[i]);
 		fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * E[i] * F[i]);
+		fprintf(output_sigma, "%g %g\n", E[i] / (1.6E-12), sigma[i]);
 	}
-	fclose(output_ev_EFE);
+	fclose(output_ev_dNdE);
 	fclose(output_GHz_Jansky);
+	fclose(output_sigma);
 
 	delete[] E;
 	delete[] F;
+
 	delete protons;
 	delete source;
-	delete comptonEvaluator;
+	delete pionDecayEvaluator;
 }
 
 

@@ -26,6 +26,7 @@ public:
 		return my_concentration * distributionNormalized(energy);
 	}
 	virtual double distributionNormalized(const double& energy) = 0;
+	void writeDistribution(const char* fileName, int Ne, const double& Emin, const double& Emax);
 };
 
 class MassiveParticlePowerLawDistribution : public MassiveParticleIsotropicDistribution {
