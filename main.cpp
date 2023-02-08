@@ -609,11 +609,28 @@ void evaluatePionDecayWithPowerLawDistribution() {
 		F[i] = 0;
 	}
 
-	double* sigma = new double[Nnu];
+	double* sigmaGamma = new double[Nnu];
 	double protonKineticEnergy = 100000E9 * 1.6E-12;
 	for (int i = 0; i < Nnu; ++i) {
-		sigma[i] = pionDecayEvaluator->sigmaGamma(E[i], protonKineticEnergy);
+		sigmaGamma[i] = pionDecayEvaluator->sigmaGamma(E[i], protonKineticEnergy);
 	}
+
+	double* sigmaInel = new double[Nnu];
+	double* Ep = new double[Nnu];
+
+	double Epmin = 0.01 * Emin;
+	double Epmax = 1E17 * 1.6E-12;
+	factor = pow(Epmax / Epmin, 1.0 / (Nnu - 1));
+	Ep[0] = Epmin;
+	for (int i = 1; i < Nnu; ++i) {
+		Ep[i] = Ep[i - 1] * factor;
+	}
+	FILE* output_sigma_inel = fopen("outputSigmaInel.dat", "w");
+	for (int i = 0; i < Nnu; ++i) {
+		fprintf(output_sigma_inel, "%g %g\n", Ep[i], pionDecayEvaluator->sigmaInelastic(Ep[i]));
+	}
+	fclose(output_sigma_inel);
+	delete[] Ep;
 
 	printLog("evaluating\n");
 	for (int i = 0; i < Nnu; ++i) {
@@ -629,7 +646,7 @@ void evaluatePionDecayWithPowerLawDistribution() {
 		double nu = E[i] / hplank;
 		fprintf(output_ev_dNdE, "%g %g\n", E[i] / (1.6E-12), F[i]);
 		fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * E[i] * F[i]);
-		fprintf(output_sigma, "%g %g\n", E[i] / (1.6E-12), sigma[i]);
+		fprintf(output_sigma, "%g %g\n", E[i] / (1.6E-12), sigmaGamma[i]);
 	}
 	fclose(output_ev_dNdE);
 	fclose(output_GHz_Jansky);

@@ -296,6 +296,7 @@ double PionDecayEvaluator::sigmaGamma(const double& photonEnergy, const double& 
 	}*/
 	double Yph = photonEnergy + massPi0 * massPi0 * speed_of_light4 / (4 * photonEnergy);
 	double YphMax = EphMax + massPi0 * massPi0 * speed_of_light4 / (4 * EphMax);
+	double Yphmin = EphMin + massPi0 * massPi0 * speed_of_light4 / (4 * EphMin);
 	double Xph = (Yph - massPi0 * speed_of_light2) / (YphMax - massPi0 * speed_of_light2);
 	if (Xph >= 1.0 || Xph <= 0) {
 		return 0;
