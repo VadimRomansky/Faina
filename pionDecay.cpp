@@ -310,14 +310,14 @@ double PionDecayEvaluator::sigmaGamma(const double& photonEnergy, const double& 
 
 	double Amax;
 	double b0 = 5.9;
-	if (protonEnergy < 1E9 * 1.6E-12) {
+	if (protonEnergy < (1E9) * 1.6E-12) {
 		Amax = b0 * sigmaPion(protonEnergy) / EpiLabMax;
 	}
 	else {
 		double b1, b2, b3;
 		double theta = protonEnergy / (massProton * speed_of_light2);
 		getBcoefs(b1, b2, b3, protonEnergy);
-		Amax = b1 * pow(theta, -b2) * exp(b3 * sqr(log(theta)) * sigmaPion(protonEnergy) / (massProton * speed_of_light2));
+		Amax = b1 * pow(theta, -b2) * exp(b3 * sqr(log(theta))) * sigmaPion(protonEnergy) / (massProton * speed_of_light2);
 	}
 	return Amax * F;
 }
@@ -327,12 +327,12 @@ double PionDecayEvaluator::functionKelner(const double& x, const double& protonE
 	if (x >= 1.0) {
 		return 0;
 	}
-	double L = log(protonEnergy / (1E12 * 1.6E-12));
+	double L = log(protonEnergy / ((1E12) * 1.6E-12));
 	double B = 1.30 + 0.14 * L + 0.011 * L * L;
 	double beta = 1.0 / (1.79 + 0.11 * L + 0.008 * L * L);
 	double k = 1.0 / (0.801 + 0.049 * L + 0.014 * L * L);
 	double xbeta = pow(x, beta);
-	double F = B * (log(x) / x) * pow((1 - xbeta) / (1 + k * xbeta * (1 - xbeta)), 4) * (1 / log(x) - 4 * beta * xbeta / (1 - xbeta) - 4 * k * beta * xbeta * (1 - 2 * xbeta) / (1 + k * xbeta * (1 - xbeta)));
+	double F = B * (log(x) / x) * pow((1 - xbeta) / (1 + k * xbeta * (1 - xbeta)), 4) * ((1 / log(x)) - 4 * beta * xbeta / (1 - xbeta) - 4 * k * beta * xbeta * (1 - 2 * xbeta) / (1 + k * xbeta * (1 - xbeta)));
 	return F;
 }
 
@@ -355,7 +355,7 @@ double PionDecayEvaluator::evaluatePionDecayLuminocityIsotropicFunction(const do
 
 		double sigma = sigmaGamma(photonFinalEnergy, protonKineticEnergy);
 
-		result += (speed_of_light * protonBeta/4*pi) * sigma * protonDistribution->distribution(protonEnergy) * ambientConcentration * volume * dprotonEnergy / sqr(distance);
+		result += (speed_of_light * protonBeta/(4*pi)) * sigma * protonDistribution->distribution(protonEnergy) * ambientConcentration * volume * dprotonEnergy / sqr(distance);
 
 		if (result != result) {
 			printf("result = NaN in pion decay\n");
