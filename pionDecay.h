@@ -20,8 +20,11 @@ public:
 	double sigmaPion(const double& energy);
 	double sigma2Pion(const double& energy);
 	double sigmaGamma(const double& photonEnergy, const double& protonEnergy);
+	double functionKelner(const double& x, const double& protonEnergy);
 	double evaluatePionDecayLuminocityIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& ambientConcentration, const double& volume, const double& distance);
+	double evaluatePionDecayKelnerLuminocityIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& ambientConcentration, const double& volume, const double& distance);
 	double evaluatePionDecayIsotropicFluxFromSource(const double& photonFinalEnergy, RadiationSource* source);
+	double evaluatePionDecayKelnerIsotropicFluxFromSource(const double& photonFinalEnergy, RadiationSource* source);
 };
 
 #endif

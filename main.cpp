@@ -587,7 +587,7 @@ void evaluatePionDecayWithPowerLawDistribution() {
 	//Cynus
 	const double distance = 1400 * 3.0856 * 1.0E18;
 	double Emin = massProton*speed_of_light2 + 0.01E9 * 1.6E-12;
-	double Emax = 1E15 * 1.6E-12;
+	double Emax = 1E17 * 1.6E-12;
 
 	//MassiveParticleBrokenPowerLawDistribution* protons = new MassiveParticleBrokenPowerLawDistribution(massProton, 2.1, 2.64, Emin, 2.2E12 * 1.6E-12, protonConcentration);
 	MassiveParticlePowerLawDistribution* protons = new MassiveParticlePowerLawDistribution(massProton, 2.0, Emin, protonConcentration);
@@ -619,6 +619,7 @@ void evaluatePionDecayWithPowerLawDistribution() {
 	for (int i = 0; i < Nnu; ++i) {
 		printf("%d\n", i);
 		F[i] = pionDecayEvaluator->evaluatePionDecayIsotropicFluxFromSource(E[i], source);
+		//F[i] = pionDecayEvaluator->evaluatePionDecayKelnerIsotropicFluxFromSource(E[i], source);
 	}
 
 	FILE* output_ev_dNdE = fopen("outputPionE.dat", "w");
