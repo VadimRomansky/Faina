@@ -29,6 +29,8 @@ figure(2);
 hold on;
 set(gca, 'YScale', 'log');
 set(gca, 'XScale', 'log');
+set(gca, 'xlim',[0.01,30000]);
+set(gca, 'ylim',[1E-14,1E-10]);
 title ('F_{E}');
 xlabel ('E GeV');
 %ylabel ('cm^{-2} erg^{-1} s^{-1}');

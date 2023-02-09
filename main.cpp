@@ -587,10 +587,11 @@ void evaluatePionDecayWithPowerLawDistribution() {
 	//Cynus
 	const double distance = 1400 * 3.0856 * 1.0E18;
 	double Emin = massProton*speed_of_light2 + 0.01E9 * 1.6E-12;
-	double Emax = 1E17 * 1.6E-12;
+	double Emax = 1E13 * 1.6E-12;
 
 	//MassiveParticleBrokenPowerLawDistribution* protons = new MassiveParticleBrokenPowerLawDistribution(massProton, 2.1, 2.64, Emin, 2.2E12 * 1.6E-12, protonConcentration);
-	MassiveParticlePowerLawDistribution* protons = new MassiveParticlePowerLawDistribution(massProton, 2.0, Emin, protonConcentration);
+	//MassiveParticlePowerLawDistribution* protons = new MassiveParticlePowerLawDistribution(massProton, 2.0, Emin, protonConcentration);
+	MassiveParticlePowerLawCutoffDistribution* protons = new MassiveParticlePowerLawCutoffDistribution(massProton, 2.0, Emin, 1.0, Emax, protonConcentration);
 	protons->writeDistribution("outputProtons.dat", 200, Emin, Emax);
 	RadiationSource* source = new SimpleFlatSource(protons, 0, 0, protonConcentration, rmax, rmax, distance);
 	PionDecayEvaluator* pionDecayEvaluator = new PionDecayEvaluator(200, Emin, Emax);

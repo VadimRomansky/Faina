@@ -42,6 +42,23 @@ public:
 	double getE0();
 };
 
+class MassiveParticlePowerLawCutoffDistribution : public MassiveParticleIsotropicDistribution {
+protected:
+	double my_index;
+	double my_beta;
+	double my_E0;
+	double my_Ecut;
+	double my_A;
+public:
+	MassiveParticlePowerLawCutoffDistribution(const double& mass, const double& index, const double& E0, const double& beta, const double& Ecut, const double& concentration);
+	virtual double distributionNormalized(const double& energy);
+	virtual void resetConcentration(const double& concentration);
+	double getIndex();
+	double getBeta();
+	double getE0();
+	double getEcutoff();
+};
+
 class MassiveParticleBrokenPowerLawDistribution : public MassiveParticleIsotropicDistribution {
 protected:
 	double my_index1;

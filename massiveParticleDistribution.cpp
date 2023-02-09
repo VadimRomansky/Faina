@@ -80,6 +80,91 @@ double MassiveParticlePowerLawDistribution::getE0()
 	return my_E0;
 }
 
+MassiveParticlePowerLawCutoffDistribution::MassiveParticlePowerLawCutoffDistribution(const double& mass, const double& index, const double& E0, const double& beta, const double& Ecut, const double& concentration) {
+	my_mass = mass;
+	if (index <= 1.0) {
+		printf("electron spectrum index <= 1.0, contains infinit energy\n");
+		printLog("electron spectrum index <= 1.0, contains infinit energy\n");
+		exit(0);
+	}
+	my_index = index;
+	if (E0 < my_mass * speed_of_light2) {
+		printf("particle minimum energy is less than m c^2\n");
+		printLog("particle minimum energy is less than m c^2\n");
+		exit(0);
+	}
+	my_E0 = E0;
+	if (concentration <= 0) {
+		printf("electrons concentration <= 0\n");
+		printLog("electrons concentration <= 0\n");
+		exit(0);
+	}
+	my_beta = beta;
+	my_Ecut = Ecut;
+	if (my_Ecut < my_E0) {
+		printf("Ecutoff < E0\n");
+		printLog("Ecutoff < E0\n");
+		exit(0);
+	}
+	my_concentration = concentration;
+
+	my_A = (my_index - 1) / (my_E0 * 4 * pi);
+
+	double Emin = my_E0;
+	double Emax = 10 * my_Ecut;
+	int N = 100000;
+	double factor = pow(Emax / Emin, 1.0 / (N - 1));
+	double norm = 0;
+	double E = Emin;
+	for (int i = 0; i < N; ++i) {
+		double dE = E * (factor - 1.0);
+		norm += 4 * pi * distributionNormalized(E) * dE;
+		E = E * factor;
+	}
+	my_A = my_A / norm;
+
+}
+
+double MassiveParticlePowerLawCutoffDistribution::distributionNormalized(const double& energy) {
+	if (energy < 0) {
+		printf("electron energy < 0\n");
+		printLog("electron energy < 0\n");
+		exit(0);
+	}
+	if (energy < my_mass * speed_of_light2) {
+		printf("warning: energy is less than m c^2\n");
+		printLog("warning: energy is less than m c^2\n");
+		//exit(0);
+		return 0;
+	}
+	return (my_A / pow(energy / my_E0, my_index))*exp(-pow(energy/my_Ecut, my_beta));
+}
+
+void MassiveParticlePowerLawCutoffDistribution::resetConcentration(const double& concentration)
+{
+	my_concentration = concentration;
+}
+
+double MassiveParticlePowerLawCutoffDistribution::getIndex()
+{
+	return my_index;
+}
+
+double MassiveParticlePowerLawCutoffDistribution::getBeta()
+{
+	return my_beta;
+}
+
+double MassiveParticlePowerLawCutoffDistribution::getE0()
+{
+	return my_E0;
+}
+
+double MassiveParticlePowerLawCutoffDistribution::getEcutoff()
+{
+	return my_Ecut;
+}
+
 MassiveParticleBrokenPowerLawDistribution::MassiveParticleBrokenPowerLawDistribution(const double& mass, const double& index1, const double& index2, const double& E0, const double& Etran, const double& concentration) {
 	my_mass = mass;
 	if (index2 <= 1.0) {
