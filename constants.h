@@ -24,6 +24,7 @@ const double re2 = re*re;
 const double hplank = 6.626E-27;
 const double pi = 4*atan2(1.0,1.0);
 const double four_pi = 4*pi;
+const double euler_mascheroni = 1.781072417990;
 
 //SN2009bb
 //const double distance = 40*3.08*1.0E24;

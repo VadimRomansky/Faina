@@ -59,7 +59,4 @@ public:
     double evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source);
 };
 
-void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, const double& concentration, MassiveParticleIsotropicDistribution* electronDistribution, const double& Emin, const double& Emax, const int Ne, double& I, double& A);
-double evaluateSynchrotronFluxFromSource(RadiationSource* source, const double& photonFinalFrequency, const double& Emin, const double& Emax, const int Ne);
-
 #endif

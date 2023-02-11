@@ -128,6 +128,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bremsstrahlung.cpp" />
     <ClCompile Include="coordinateTransform.cpp" />
     <ClCompile Include="massiveParticleDistribution.cpp" />
     <ClCompile Include="inverseCompton.cpp" />
@@ -140,6 +141,7 @@
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bremsstrahlung.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="coordinateTransform.h" />
     <ClInclude Include="massiveParticleDistribution.h" />
@@ -148,6 +150,7 @@
     <ClInclude Include="particleDistribution.h" />
     <ClInclude Include="photonDistribution.h" />
     <ClInclude Include="pionDecay.h" />
+    <ClInclude Include="radiation.h" />
     <ClInclude Include="radiationSource.h" />
     <ClInclude Include="synchrotron.h" />
     <ClInclude Include="util.h" />
