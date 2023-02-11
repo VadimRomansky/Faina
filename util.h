@@ -11,7 +11,7 @@ double min3(const double& a, const double& b, const double& c);
 double min4(const double& a, const double& b, const double& c, const double& d);
 double max(const double& a, const double& b);
 std::string convertIntToString(int a);
-void printLog(const char* s);
+void printLog (const char *fmt, ...);
 double McDonaldFunction(double index, double x);
 
 #endif
