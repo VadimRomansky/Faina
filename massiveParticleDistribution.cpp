@@ -1125,12 +1125,12 @@ double MassiveParticleTabulatedAnisotropicDistribution::distributionNormalized(c
 {
 	if (mu > 1.0) {
 		printf("mu = %lf > 1.0 in azimutal distribution\n", mu);
-		printLog("mu> 1.0 in azimutal distribution\n");
+        printLog("mu = %lf > 1.0 in azimutal distribution\n", mu);
 		exit(0);
 	}
 	if (mu < -1.0) {
 		printf("mu = %lf < -1.0 in azimutal distribution\n", mu);
-		printLog("mu < -1.0 in azimutal distribution\n");
+        printLog("mu = %lf < -1.0 in azimutal distribution\n", mu);
 		exit(0);
 	}
 	if (energy <= my_energy[0]) {
@@ -1146,14 +1146,14 @@ double MassiveParticleTabulatedAnisotropicDistribution::distributionNormalized(c
 	double tempPhi = phi;
 	if (phi < 0) {
 		printf("warning: phi = %lf < 0\n", phi);
-		printLog("warning: phi < 0\n");
+        printLog("warning: phi = %lf < 0\n", phi);
 		while (tempPhi < 0) {
 			tempPhi += 2 * pi;
 		}
 	}
 	if (phi >= 2 * pi) {
 		printf("warning: phi = %lf > 2 pi\n", phi);
-		printLog("warning: phi > 2 pi\n");
+        printLog("warning: phi = %lf > 2 pi\n", phi);
 		while (tempPhi >= 2*pi) {
 			tempPhi -= 2 * pi;
 		}

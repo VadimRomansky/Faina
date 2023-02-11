@@ -9,6 +9,28 @@
 
 #include "pionDecay.h"
 
+PionDecayEvaluatorBase::PionDecayEvaluatorBase(int Ne, double Emin, double Emax, const double& ambientConcentration) : RadiationEvaluator(Ne, Emin, Emax){
+    my_ambientConcentration = ambientConcentration;
+}
+
+PionDecayEvaluatorBase::~PionDecayEvaluatorBase(){
+
+}
+
+double PionDecayEvaluatorBase::sigmaInelastic(const double& energy)
+{
+    double thresholdEnergy = (2 * massPi0 + massPi0 * massPi0 / (2 * massProton)) * speed_of_light2;
+    if (energy <= thresholdEnergy) {
+        return 0;
+    }
+    double energyRatio = energy / thresholdEnergy;
+    double logEnergy = log(energyRatio);
+    double result = (30.7 - 0.96 * logEnergy + 0.18 * sqr(logEnergy)) * cube(1 - pow(energyRatio, -1.9)) * 1E-27;
+    return result;
+}
+
+
+
 void PionDecayEvaluator::getCoefs(double& alpha, double& beta, double& gamma, double& lambda, const double& protonEnergy)
 {
 	if (protonEnergy < 1E9 * 1.6E-12) {
@@ -124,25 +146,12 @@ void PionDecayEvaluator::getBcoefs(double& b1, double& b2, double& b3, const dou
 	b3 = 0.01439;*/
 }
 
-PionDecayEvaluator::PionDecayEvaluator(int Ne, double Emin, double Emax, const double& ambientConcentration) : RadiationEvaluator(Ne, Emin, Emax)
+PionDecayEvaluator::PionDecayEvaluator(int Ne, double Emin, double Emax, const double& ambientConcentration) : PionDecayEvaluatorBase(Ne, Emin, Emax, ambientConcentration)
 {
-    my_ambientConcentration = ambientConcentration;
 }
 
 PionDecayEvaluator::~PionDecayEvaluator()
 {
-}
-
-double PionDecayEvaluator::sigmaInelastic(const double& energy)
-{
-	double thresholdEnergy = (2 * massPi0 + massPi0 * massPi0 / (2 * massProton)) * speed_of_light2;
-	if (energy <= thresholdEnergy) {
-		return 0;
-	}
-	double energyRatio = energy / thresholdEnergy;
-	double logEnergy = log(energyRatio);
-	double result = (30.7 - 0.96 * logEnergy + 0.18 * sqr(logEnergy)) * cube(1 - pow(energyRatio, -1.9)) * 1E-27;
-	return result;
 }
 
 double PionDecayEvaluator::sigmaPion(const double& energy)
@@ -311,18 +320,8 @@ double PionDecayEvaluator::sigmaGamma(const double& photonEnergy, const double& 
 	return Amax * F;
 }
 
-double PionDecayEvaluator::functionKelner(const double& x, const double& protonEnergy)
-{
-	if (x >= 1.0) {
-		return 0;
-	}
-	double L = log(protonEnergy / ((1E12) * 1.6E-12));
-	double B = 1.30 + 0.14 * L + 0.011 * L * L;
-	double beta = 1.0 / (1.79 + 0.11 * L + 0.008 * L * L);
-	double k = 1.0 / (0.801 + 0.049 * L + 0.014 * L * L);
-	double xbeta = pow(x, beta);
-	double F = B * (log(x) / x) * pow((1 - xbeta) / (1 + k * xbeta * (1 - xbeta)), 4) * ((1 / log(x)) - 4 * beta * xbeta / (1 - xbeta) - 4 * k * beta * xbeta * (1 - 2 * xbeta) / (1 + k * xbeta * (1 - xbeta)));
-	return F;
+void PionDecayEvaluator::resetParameters(const double *parameters, const double *normalizationUnits){
+    //todo change ambient density?
 }
 
 double PionDecayEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& volume, const double& distance)
@@ -344,7 +343,7 @@ double PionDecayEvaluator::evaluateFluxFromIsotropicFunction(const double& photo
 
 		double sigma = sigmaGamma(photonFinalEnergy, protonKineticEnergy);
 
-        result += (speed_of_light * protonBeta/(4*pi)) * sigma * protonDistribution->distribution(protonEnergy) * my_ambientConcentration * volume * dprotonEnergy / sqr(distance);
+        result += photonFinalEnergy*(speed_of_light * protonBeta/(4*pi)) * sigma * protonDistribution->distribution(protonEnergy) * my_ambientConcentration * volume * dprotonEnergy / sqr(distance);
 
 		if (result != result) {
 			printf("result = NaN in pion decay\n");
@@ -375,7 +374,33 @@ double PionDecayEvaluator::evaluateFluxFromSource(const double& photonFinalEnerg
 	return result;
 }
 
-double PionDecayEvaluator::evaluatePionDecayKelnerLuminocityIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& volume, const double& distance)
+PionDecayEvaluatorKelner::PionDecayEvaluatorKelner(int Ne, double Emin, double Emax, const double& ambientConcentration) : PionDecayEvaluatorBase(Ne, Emin, Emax, ambientConcentration){
+
+}
+
+PionDecayEvaluatorKelner::~PionDecayEvaluatorKelner(){
+
+}
+
+void PionDecayEvaluatorKelner::resetParameters(const double *parameters, const double *normalizationUnits){
+    //todo reset ambient concentration
+}
+
+double PionDecayEvaluatorKelner::functionKelner(const double& x, const double& protonEnergy)
+{
+    if (x >= 1.0) {
+        return 0;
+    }
+    double L = log(protonEnergy / ((1E12) * 1.6E-12));
+    double B = 1.30 + 0.14 * L + 0.011 * L * L;
+    double beta = 1.0 / (1.79 + 0.11 * L + 0.008 * L * L);
+    double k = 1.0 / (0.801 + 0.049 * L + 0.014 * L * L);
+    double xbeta = pow(x, beta);
+    double F = B * (log(x) / x) * pow((1 - xbeta) / (1 + k * xbeta * (1 - xbeta)), 4) * ((1 / log(x)) - 4 * beta * xbeta / (1 - xbeta) - 4 * k * beta * xbeta * (1 - 2 * xbeta) / (1 + k * xbeta * (1 - xbeta)));
+    return F;
+}
+
+double PionDecayEvaluatorKelner::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& volume, const double& distance)
 {
 	double result = 0;
 
@@ -394,7 +419,7 @@ double PionDecayEvaluator::evaluatePionDecayKelnerLuminocityIsotropicFunction(co
 
 		double sigma = (sigmaInelastic(protonKineticEnergy)/protonEnergy)*functionKelner(photonFinalEnergy/protonEnergy, protonEnergy);
 
-        result += (speed_of_light * protonBeta / 4 * pi) * sigma * protonDistribution->distribution(protonEnergy) * my_ambientConcentration * volume * dprotonEnergy / sqr(distance);
+        result += photonFinalEnergy*(speed_of_light * protonBeta / 4 * pi) * sigma * protonDistribution->distribution(protonEnergy) * my_ambientConcentration * volume * dprotonEnergy / sqr(distance);
 
 		if (result != result) {
 			printf("result = NaN in pion decay\n");
@@ -406,7 +431,7 @@ double PionDecayEvaluator::evaluatePionDecayKelnerLuminocityIsotropicFunction(co
 	return result;
 }
 
-double PionDecayEvaluator::evaluatePionDecayKelnerIsotropicFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)
+double PionDecayEvaluatorKelner::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)
 {
 	int Nrho = source->getNrho();
 	int Nz = source->getNz();
@@ -417,7 +442,7 @@ double PionDecayEvaluator::evaluatePionDecayKelnerIsotropicFluxFromSource(const 
 	for (int irho = 0; irho < Nrho; ++irho) {
 		for (int iz = 0; iz < Nz; ++iz) {
 			for (int iphi = 0; iphi < Nphi; ++iphi) {
-                result += evaluatePionDecayKelnerLuminocityIsotropicFunction(photonFinalEnergy, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
+                result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
 			}
 		}
 	}

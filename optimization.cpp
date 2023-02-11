@@ -12,7 +12,7 @@
 #include "optimization.h"
 
 
-SynchrotronOptimizer::SynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale) {
+RadiationOptimizer::RadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale) {
 	my_evaluator = evaluator;
 	my_Nparams = Nparams;
 	my_errorScale = errorScale;
@@ -25,16 +25,17 @@ SynchrotronOptimizer::SynchrotronOptimizer(SynchrotronEvaluator* evaluator, cons
 		my_minVector[i] = my_minParameters[i] / my_maxParameters[i];
 	}
 }
-SynchrotronOptimizer::~SynchrotronOptimizer() {
+RadiationOptimizer::~RadiationOptimizer() {
 	delete[] my_minParameters;
 	delete[] my_maxParameters;
 	delete[] my_minVector;
 }
 
-double SynchrotronOptimizer::evaluateOptimizationFunction(const double* vector, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source) {
+double RadiationOptimizer::evaluateOptimizationFunction(const double* vector, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source) {
 	double* totalInu = new double[Nnu];
 	
 	source->resetParameters(vector, my_maxParameters);
+    my_evaluator->resetParameters(vector, my_maxParameters);
 
 	for (int i = 0; i < Nnu; ++i) {
 		//1E26 from Jansky
@@ -58,7 +59,7 @@ double SynchrotronOptimizer::evaluateOptimizationFunction(const double* vector, 
 	return err;
 }
 
-void SynchrotronOptimizer::optimize(double* vector, bool* optPar, double* nu, double* observedInu, int Nnu, RadiationSource* source) {
+void RadiationOptimizer::optimize(double* vector, bool* optPar, double* nu, double* observedInu, int Nnu, RadiationSource* source) {
 	double* observedError = new double[Nnu];
 	for (int i = 0; i < Nnu; ++i) {
 		observedError[i] = 1.0;
@@ -69,7 +70,7 @@ void SynchrotronOptimizer::optimize(double* vector, bool* optPar, double* nu, do
 	delete[] observedError;
 }
 
-GradientDescentSynchrotronOptimizer::GradientDescentSynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, ErrorScale errorScale) :SynchrotronOptimizer(evaluator, minParameters, maxParameters, Nparams, errorScale) {
+GradientDescentRadiationOptimizer::GradientDescentRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, ErrorScale errorScale) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, errorScale) {
 	my_Niterations = Niterations;
 
 	tempVector = new double[my_Nparams];
@@ -82,7 +83,7 @@ GradientDescentSynchrotronOptimizer::GradientDescentSynchrotronOptimizer(Synchro
 	grad = new double[my_Nparams];
 }
 
-GradientDescentSynchrotronOptimizer::~GradientDescentSynchrotronOptimizer() {
+GradientDescentRadiationOptimizer::~GradientDescentRadiationOptimizer() {
 	delete[] tempVector;
 	delete[] tempVector1;
 	delete[] tempVector2;
@@ -93,7 +94,7 @@ GradientDescentSynchrotronOptimizer::~GradientDescentSynchrotronOptimizer() {
 	delete[] grad;
 }
 
-void GradientDescentSynchrotronOptimizer::findMinParametersAtDirection(double* vector, bool* optPar, const double* grad, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source, const double& currentF) {
+void GradientDescentRadiationOptimizer::findMinParametersAtDirection(double* vector, bool* optPar, const double* grad, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source, const double& currentF) {
 	int Npar = 0;
 	for (int i = 0; i < my_Nparams; ++i) {
 		if (optPar[i]) {
@@ -281,7 +282,7 @@ void GradientDescentSynchrotronOptimizer::findMinParametersAtDirection(double* v
 	}
 }
 
-void GradientDescentSynchrotronOptimizer::optimize(double* vector, bool* optPar, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source) {
+void GradientDescentRadiationOptimizer::optimize(double* vector, bool* optPar, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source) {
 	int Npar = 0;
 	for (int i = 0; i < my_Nparams; ++i) {
 		if (optPar[i]) {
@@ -506,7 +507,7 @@ void GradientDescentSynchrotronOptimizer::optimize(double* vector, bool* optPar,
 	printf("finish optimization\n");
 }
 
-GridEnumSynchrotronOptimizer::GridEnumSynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale, const int* Npoints) : SynchrotronOptimizer(evaluator, minParameters, maxParameters, Nparams, errorScale)
+GridEnumRadiationOptimizer::GridEnumRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale, const int* Npoints) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, errorScale)
 {
 	my_Npoints = new int[my_Nparams];
 	for (int i = 0; i < my_Nparams; ++i) {
@@ -527,7 +528,7 @@ GridEnumSynchrotronOptimizer::GridEnumSynchrotronOptimizer(SynchrotronEvaluator*
 	}
 }
 
-GridEnumSynchrotronOptimizer::~GridEnumSynchrotronOptimizer()
+GridEnumRadiationOptimizer::~GridEnumRadiationOptimizer()
 {
 	for (int i = 0; i < my_Nparams; ++i) {
 		delete[] my_points[i];
@@ -536,7 +537,7 @@ GridEnumSynchrotronOptimizer::~GridEnumSynchrotronOptimizer()
 	delete[] my_Npoints;
 }
 
-void GridEnumSynchrotronOptimizer::optimize(double* vector, bool* optPar, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source)
+void GridEnumRadiationOptimizer::optimize(double* vector, bool* optPar, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source)
 {
 	double* tempVector = new double[my_Nparams];
 
@@ -575,7 +576,7 @@ void GridEnumSynchrotronOptimizer::optimize(double* vector, bool* optPar, double
 	delete[] tempVector;
 }
 
-SynchrotronTimeOptimizer::SynchrotronTimeOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale)
+RadiationTimeOptimizer::RadiationTimeOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale)
 {
 	my_Nparams = Nparams;
 	my_evaluator = evaluator;
@@ -590,16 +591,17 @@ SynchrotronTimeOptimizer::SynchrotronTimeOptimizer(SynchrotronEvaluator* evaluat
 	my_errorScale = errorScale;
 }
 
-SynchrotronTimeOptimizer::~SynchrotronTimeOptimizer()
+RadiationTimeOptimizer::~RadiationTimeOptimizer()
 {
 	delete[] my_minParameters;
 	delete[] my_maxParameters;
 	delete[] my_minVector;
 }
 
-double SynchrotronTimeOptimizer::evaluateOptimizationFunction(const double* vector, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source)
+double RadiationTimeOptimizer::evaluateOptimizationFunction(const double* vector, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source)
 {
 	source->resetParameters(vector, my_maxParameters);
+    my_evaluator->resetParameters(vector, my_maxParameters);
 	double err = 0;
 	for (int k = 0; k < Ntimes; ++k) {
 		double* totalInu = new double[Nnu[k]];
@@ -628,7 +630,7 @@ double SynchrotronTimeOptimizer::evaluateOptimizationFunction(const double* vect
 	return err;
 }
 
-void SynchrotronTimeOptimizer::optimize(double* vector, bool* optPar, double** nu, double** observedInu, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source)
+void RadiationTimeOptimizer::optimize(double* vector, bool* optPar, double** nu, double** observedInu, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source)
 {
 	double** observedError = new double*[Ntimes];
 	for (int i = 0; i < Ntimes; ++i) {
@@ -646,7 +648,7 @@ void SynchrotronTimeOptimizer::optimize(double* vector, bool* optPar, double** n
 	delete[] observedError;
 }
 
-GradientDescentSynchrotronTimeOptimizer::GradientDescentSynchrotronTimeOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, ErrorScale errorScale) : SynchrotronTimeOptimizer(evaluator, minParameters, maxParameters, Nparams, errorScale)
+GradientDescentRadiationTimeOptimizer::GradientDescentRadiationTimeOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, ErrorScale errorScale) : RadiationTimeOptimizer(evaluator, minParameters, maxParameters, Nparams, errorScale)
 {
 	my_Niterations = Niterations;
 
@@ -660,7 +662,7 @@ GradientDescentSynchrotronTimeOptimizer::GradientDescentSynchrotronTimeOptimizer
 	grad = new double[my_Nparams];
 }
 
-GradientDescentSynchrotronTimeOptimizer::~GradientDescentSynchrotronTimeOptimizer()
+GradientDescentRadiationTimeOptimizer::~GradientDescentRadiationTimeOptimizer()
 {
 	delete[] tempVector;
 	delete[] tempVector1;
@@ -672,7 +674,7 @@ GradientDescentSynchrotronTimeOptimizer::~GradientDescentSynchrotronTimeOptimize
 	delete[] grad;
 }
 
-void GradientDescentSynchrotronTimeOptimizer::findMinParametersAtDirection(double* vector, bool* optPar, const double* grad, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source, const double& currentF)
+void GradientDescentRadiationTimeOptimizer::findMinParametersAtDirection(double* vector, bool* optPar, const double* grad, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source, const double& currentF)
 {
 	int Npar = 0;
 	for (int i = 0; i < my_Nparams; ++i) {
@@ -861,7 +863,7 @@ void GradientDescentSynchrotronTimeOptimizer::findMinParametersAtDirection(doubl
 	}
 }
 
-void GradientDescentSynchrotronTimeOptimizer::optimize(double* vector, bool* optPar, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source)
+void GradientDescentRadiationTimeOptimizer::optimize(double* vector, bool* optPar, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source)
 {
 	int Npar = 0;
 	for (int i = 0; i < my_Nparams; ++i) {
@@ -1087,7 +1089,7 @@ void GradientDescentSynchrotronTimeOptimizer::optimize(double* vector, bool* opt
 	printf("finish optimization\n");
 }
 
-GridEnumSynchrotronTimeOptimizer::GridEnumSynchrotronTimeOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale, const int* Npoints) : SynchrotronTimeOptimizer(evaluator, minParameters, maxParameters, Nparams, errorScale)
+GridEnumRadiationTimeOptimizer::GridEnumRadiationTimeOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale, const int* Npoints) : RadiationTimeOptimizer(evaluator, minParameters, maxParameters, Nparams, errorScale)
 {
 	my_Npoints = new int[my_Nparams];
 	for (int i = 0; i < my_Nparams; ++i) {
@@ -1108,7 +1110,7 @@ GridEnumSynchrotronTimeOptimizer::GridEnumSynchrotronTimeOptimizer(SynchrotronEv
 	}
 }
 
-GridEnumSynchrotronTimeOptimizer::~GridEnumSynchrotronTimeOptimizer()
+GridEnumRadiationTimeOptimizer::~GridEnumRadiationTimeOptimizer()
 {
 	for (int i = 0; i < my_Nparams; ++i) {
 		delete[] my_points[i];
@@ -1117,7 +1119,7 @@ GridEnumSynchrotronTimeOptimizer::~GridEnumSynchrotronTimeOptimizer()
 	delete[] my_Npoints;
 }
 
-void GridEnumSynchrotronTimeOptimizer::optimize(double* vector, bool* optPar, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source)
+void GridEnumRadiationTimeOptimizer::optimize(double* vector, bool* optPar, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source)
 {
 	double* tempVector = new double[my_Nparams];
 

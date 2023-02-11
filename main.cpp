@@ -51,6 +51,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	printLog("evaluating\n");
 	for (int i = 0; i < Nnu; ++i) {
 		printf("%d\n", i);
+        printLog("%d\n", i);
         F[i] = comptonEvaluator->evaluateFluxFromSource(E[i], source);
 	}
 
@@ -58,8 +59,8 @@ void evaluateComtonWithPowerLawDistribution() {
 	FILE* output_GHz_Jansky = fopen("outputNu.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		double nu = E[i] / hplank;
-		fprintf(output_ev_EFE, "%g %g\n", E[i] / (1.6E-12), E[i] * E[i] * F[i]);
-		fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * E[i] * F[i]);
+        fprintf(output_ev_EFE, "%g %g\n", E[i] / (1.6E-12), E[i] * F[i]);
+        fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * F[i]);
 	}
 	fclose(output_ev_EFE);
 	fclose(output_GHz_Jansky);
@@ -152,11 +153,11 @@ void fitCSS161010withPowerLawDistribition() {
 	bool optPar[Nparams] = { true, true, true, true };
 
 	//creating gradient descent optimizer
-	SynchrotronOptimizer* synchrotronOptimizer = new GradientDescentSynchrotronOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 20, ErrorScale::LINEAR);
+    RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 20, ErrorScale::LINEAR);
 	//number of points per axis in gridEnumOptimizer
 	int Npoints[Nparams] = { 5,5,5,5 };
 	//creating grid enumeration optimizer
-	SynchrotronOptimizer* enumOptimizer = new GridEnumSynchrotronOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, ErrorScale::LINEAR, Npoints);
+    RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, ErrorScale::LINEAR, Npoints);
 	//grid enumeration optimization, finding best starting point for gradien descent
 	enumOptimizer->optimize(vector, optPar, nu1, observedFlux, observedError, Nnu1, source);
 	//gradient descent optimization
@@ -307,11 +308,11 @@ void fitCSS161010withTabulatedDistributions() {
 	bool optPar[Nparams] = { true, true, true, true };
 
 	//creating gradient descent optimizer
-	SynchrotronOptimizer* synchrotronOptimizer = new GradientDescentSynchrotronOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 20, ErrorScale::LINEAR);
+    RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 20, ErrorScale::LINEAR);
 	//number of points per axis in gridEnumOptimizer
 	int Npoints[Nparams] = { 5,5,5,5 };
 	//creating grid enumeration optimizer
-	SynchrotronOptimizer* enumOptimizer = new GridEnumSynchrotronOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, ErrorScale::LINEAR, Npoints);
+    RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, ErrorScale::LINEAR, Npoints);
 	//grid enumeration optimization, finding best starting point for gradien descent
 	enumOptimizer->optimize(vector, optPar, nu1, observedFlux, observedError, Nnu1, angleDependentSource);
 	//gradient descent optimization
@@ -343,11 +344,11 @@ void fitCSS161010withTabulatedDistributions() {
 	}
 
 	//outputing spectrum
-	FILE* output_synchr = fopen("outputSynch.dat", "w");
+    FILE* output_GZ_Jansky = fopen("outputSynch.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
-		fprintf(output_synchr, "%g %g\n", Nu[i] / 1E9, F[i] * 1E26);
+        fprintf(output_GZ_Jansky, "%g %g\n", Nu[i] / 1E9, hplank*F[i] * 1E26);
 	}
-	fclose(output_synchr);
+    fclose(output_GZ_Jansky);
 
 	//outputing parameters
 	FILE* paramFile = fopen("parametersCSS161010.dat", "w");
@@ -478,7 +479,7 @@ void fitTimeDependentCSS161010() {
 	//creating time dependent synchrotron evaluator
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax);
 	//creating time depedent grid enumeration optimizer, which will chose the best starting poin for gradien descent
-	SynchrotronTimeOptimizer* gridEnumOptimizer = new GridEnumSynchrotronTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, ErrorScale::LINEAR, Npoints);
+    RadiationTimeOptimizer* gridEnumOptimizer = new GridEnumRadiationTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, ErrorScale::LINEAR, Npoints);
 	gridEnumOptimizer->optimize(vector, optPar, Nu, F, Error, Nnu, Ntimes, times, source);
 	/*vector[0] = 2E17 / maxParameters[0];
 	vector[1] = 10 / maxParameters[1];
@@ -486,7 +487,7 @@ void fitTimeDependentCSS161010() {
 	vector[3] = 0.325 / maxParameters[3];
 	vector[4] = 2.69813E10 / maxParameters[4];*/
 	//creating gradient descent optimizer and optimizing
-	SynchrotronTimeOptimizer* gradientOptimizer = new GradientDescentSynchrotronTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, ErrorScale::LINEAR);
+    RadiationTimeOptimizer* gradientOptimizer = new GradientDescentRadiationTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, ErrorScale::LINEAR);
 	gradientOptimizer->optimize(vector, optPar, Nu, F, Error, Nnu, Ntimes, times, source);
 	//reset parameters of source to the found values
 	source->resetParameters(vector, maxParameters);
@@ -523,16 +524,16 @@ void fitTimeDependentCSS161010() {
 	}
 
 	//outputing spectrum
-	FILE* outFile = fopen("css161010.dat", "w");
+    FILE* output_GZ_Jansky = fopen("css161010.dat", "w");
 	for (int i = 0; i < Nout; ++i) {
 		//to GHz and mJansky
-		fprintf(outFile, "%g", Nuout[i]*1E-9);
+        fprintf(output_GZ_Jansky, "%g", Nuout[i]*1E-9);
 		for (int j = 0; j < Ntimes; ++j) {
-			fprintf(outFile, " %g", Fout[j][i]*1E26);
+            fprintf(output_GZ_Jansky, " %g", hplank*Fout[j][i]*1E26);
 		}
-		fprintf(outFile, "\n");
+        fprintf(output_GZ_Jansky, "\n");
 	}
-	fclose(outFile);
+    fclose(output_GZ_Jansky);
 
 	//outputing parameters
 	FILE* paramFile = fopen("parametersCSS161010.dat", "w");
@@ -635,6 +636,7 @@ void evaluatePionDecayWithPowerLawDistribution() {
 	printLog("evaluating\n");
 	for (int i = 0; i < Nnu; ++i) {
 		printf("%d\n", i);
+        printLog("%d\n", i);
         F[i] = pionDecayEvaluator->evaluateFluxFromSource(E[i], source);
 		//F[i] = pionDecayEvaluator->evaluatePionDecayKelnerIsotropicFluxFromSource(E[i], source);
 	}
@@ -644,8 +646,8 @@ void evaluatePionDecayWithPowerLawDistribution() {
 	FILE* output_sigma = fopen("outputSigma.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		double nu = E[i] / hplank;
-		fprintf(output_ev_dNdE, "%g %g\n", E[i] / (1.6E-12), F[i]);
-		fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * E[i] * F[i]);
+        fprintf(output_ev_dNdE, "%g %g\n", E[i] / (1.6E-12), F[i]/E[i]);
+        fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * F[i]);
 		fprintf(output_sigma, "%g %g\n", E[i] / (1.6E-12), sigmaGamma[i]);
 	}
 	fclose(output_ev_dNdE);

@@ -6,27 +6,28 @@
 #include "radiationSource.h"
 #include "synchrotron.h"
 #include "inverseCompton.h"
+#include "radiation.h"
 
 enum ErrorScale{LINEAR, LOG};
 
-class SynchrotronOptimizer {
+class RadiationOptimizer {
 protected:
 	int my_Nparams;
 	ErrorScale my_errorScale;
-	SynchrotronEvaluator* my_evaluator;
+    RadiationEvaluator* my_evaluator;
 	double* my_minParameters;
 	double* my_maxParameters;
 
 	double* my_minVector;
 public:
-	SynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale);
-    virtual ~SynchrotronOptimizer();
+    RadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale);
+    virtual ~RadiationOptimizer();
 	double evaluateOptimizationFunction(const double* vector, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source);
 	virtual void optimize(double* vector, bool* optPar, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source) = 0;
 	void optimize(double* vector, bool* optPar, double* nu, double* observedInu, int Nnu, RadiationSource* source);
 };
 
-class GradientDescentSynchrotronOptimizer:public SynchrotronOptimizer{
+class GradientDescentRadiationOptimizer:public RadiationOptimizer{
 protected:
 	int my_Niterations;
 
@@ -40,39 +41,39 @@ protected:
 	double* grad;
 	void findMinParametersAtDirection(double* vector, bool* optPar, const double* grad, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source, const double& currentF);
 public:
-	GradientDescentSynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, ErrorScale errorScale);
-    virtual ~GradientDescentSynchrotronOptimizer();
+    GradientDescentRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, ErrorScale errorScale);
+    virtual ~GradientDescentRadiationOptimizer();
 	virtual void optimize(double* vector, bool* optPar, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source);
 };
 
-class GridEnumSynchrotronOptimizer : public SynchrotronOptimizer {
+class GridEnumRadiationOptimizer : public RadiationOptimizer {
 protected:
 	int* my_Npoints;
 	double** my_points;
 public:
-	GridEnumSynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale, const int* Npoints);
-    virtual ~GridEnumSynchrotronOptimizer();
+    GridEnumRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale, const int* Npoints);
+    virtual ~GridEnumRadiationOptimizer();
 	virtual void optimize(double* vector, bool* optPar, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source);
 };
 
-class SynchrotronTimeOptimizer {
+class RadiationTimeOptimizer {
 protected:
 	int my_Nparams;
 	ErrorScale my_errorScale;
-	SynchrotronEvaluator* my_evaluator;
+    RadiationEvaluator* my_evaluator;
 	double* my_minParameters;
 	double* my_maxParameters;
 
 	double* my_minVector;
 public:
-	SynchrotronTimeOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale);
-    virtual ~SynchrotronTimeOptimizer();
+    RadiationTimeOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale);
+    virtual ~RadiationTimeOptimizer();
 	double evaluateOptimizationFunction(const double* vector, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source);
 	virtual void optimize(double* vector, bool* optPar, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source) = 0;
 	void optimize(double* vector, bool* optPar, double** nu, double** observedInu, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source);
 };
 
-class GradientDescentSynchrotronTimeOptimizer : public SynchrotronTimeOptimizer {
+class GradientDescentRadiationTimeOptimizer : public RadiationTimeOptimizer {
 protected:
 	int my_Niterations;
 
@@ -86,18 +87,18 @@ protected:
 	double* grad;
 	void findMinParametersAtDirection(double* vector, bool* optPar, const double* grad, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source, const double& currentF);
 public:
-	GradientDescentSynchrotronTimeOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, ErrorScale errorScale);
-    virtual ~GradientDescentSynchrotronTimeOptimizer();
+    GradientDescentRadiationTimeOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, ErrorScale errorScale);
+    virtual ~GradientDescentRadiationTimeOptimizer();
 	virtual void optimize(double* vector, bool* optPar, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source);
 };
 
-class GridEnumSynchrotronTimeOptimizer :public SynchrotronTimeOptimizer {
+class GridEnumRadiationTimeOptimizer :public RadiationTimeOptimizer {
 protected:
 	int* my_Npoints;
 	double** my_points;
 public:
-	GridEnumSynchrotronTimeOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale, const int* Npoints);
-    virtual ~GridEnumSynchrotronTimeOptimizer();
+    GridEnumRadiationTimeOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale, const int* Npoints);
+    virtual ~GridEnumRadiationTimeOptimizer();
 	virtual void optimize(double* vector, bool* optPar, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source);
 };
 

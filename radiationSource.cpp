@@ -416,7 +416,7 @@ AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(i
 
 				if (cosTheta > 1.0 || cosTheta < -1.0) {
 					printf("cos theta in angle depended distribution = %g > 1.0\n", cosTheta);
-					printLog("cos theta in angle depended distribution = > 1.0\n");
+                    printLog("cos theta in angle depended distribution = %g > 1.0\n", cosTheta);
 				exit(0);
 				}
 
@@ -466,7 +466,7 @@ AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(i
 
 				if (cosTheta > 1.0 || cosTheta < -1.0) {
 					printf("cos theta in angle depended distribution = %g > 1.0\n", cosTheta);
-					printLog("cos theta in angle depended distribution = > 1.0\n");
+                    printLog("cos theta in angle depended distribution = %g > 1.0\n", cosTheta);
 					exit(0);
 				}
 

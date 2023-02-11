@@ -229,6 +229,10 @@ SynchrotronEvaluator::~SynchrotronEvaluator()
 {
 }
 
+void SynchrotronEvaluator::resetParameters(const double *parameters, const double *normalizationUnits){
+    //do nothing?
+}
+
 void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, const double& concentration, MassiveParticleIsotropicDistribution* electronDistribution, double& I, double& A)
 {
 	//Anu from ghiselini simple
@@ -267,7 +271,8 @@ void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFre
 
 			double mcDonaldIntegral = evaluateMcDonaldIntegral(photonFinalFrequency / nuc);
 
-			I = I + emissivityCoef * dFe * B * sinhi * mcDonaldIntegral;
+            //todo h?
+            I = I + emissivityCoef * dFe * B * sinhi * mcDonaldIntegral/hplank;
 			if (I < 0) {
 				printf("I < 0\n");
 				printf("dFe[j] = %g\n", dFe);
