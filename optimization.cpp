@@ -38,7 +38,7 @@ double SynchrotronOptimizer::evaluateOptimizationFunction(const double* vector, 
 
 	for (int i = 0; i < Nnu; ++i) {
 		//1E26 from Jansky
-		totalInu[i] = my_evaluator->evaluateSynchrotronFluxFromSource(source, nu[i])*1E26;
+        totalInu[i] = my_evaluator->evaluateFluxFromSource(hplank*nu[i], source)*1E26;
 	}
 	double err = 0;
 	for (int j = 0; j < Nnu; ++j) {
@@ -608,7 +608,7 @@ double SynchrotronTimeOptimizer::evaluateOptimizationFunction(const double* vect
 		RadiationSource* source1 = source->getRadiationSource(times[k], my_maxParameters);
 		for (int i = 0; i < Nnu[k]; ++i) {
 			//1E26 from Jansky
-			totalInu[i] = my_evaluator->evaluateSynchrotronFluxFromSource(source1, nu[k][i]) * 1E26;
+            totalInu[i] = my_evaluator->evaluateFluxFromSource(hplank*nu[k][i], source1) * 1E26;
 		}
 		for (int j = 0; j < Nnu[k]; ++j) {
 			double err1 = 0;

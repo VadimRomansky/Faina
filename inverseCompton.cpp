@@ -9,12 +9,11 @@
 
 #include "inverseCompton.h"
 
-InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax) {
-	my_Ne = Ne;
+InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax, PhotonIsotropicDistribution* photonDistribution) : RadiationEvaluator(Ne, Emin, Emax){
 	my_Nmu = Nmu;
 	my_Nphi = Nphi;
-	my_Emin = Emin;
-	my_Emax = Emax;
+
+    my_photonDistribution = photonDistribution;
 
 	my_cosTheta = new double[my_Nmu];
 	my_cosThetaLeft = new double[my_Nmu];
@@ -34,21 +33,12 @@ InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, doub
 		my_dcosTheta[i] = -(my_cosThetaLeft[i + 1] - my_cosThetaLeft[i]);
 	}
 	my_dcosTheta[my_Nmu - 1] = 1.0 + my_cosThetaLeft[my_Nmu - 1];
-
-	double factor = pow(my_Emax / my_Emin, 1.0 / (my_Ne - 1));
-
-	my_Ee = new double[my_Ne];
-	my_Ee[0] = my_Emin;
-	for (int i = 1; i < my_Ne; ++i) {
-		my_Ee[i] = my_Ee[i - 1] * factor;
-	}
 }
 
 InverseComptonEvaluator::~InverseComptonEvaluator() {
 	delete[] my_cosTheta;
 	delete[] my_cosThetaLeft;
 	delete[] my_dcosTheta;
-	delete[] my_Ee;
 }
 
 double InverseComptonEvaluator::evaluateComptonLuminocity(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& volume, const double& distance) {
@@ -132,7 +122,7 @@ double InverseComptonEvaluator::evaluateComptonLuminocity(const double& photonFi
 	return I;
 }
 
-double InverseComptonEvaluator::evaluateComptonLuminocityIsotropicFunction(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+double InverseComptonEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
 	double m = electronDistribution->getMass();
 	double m_c2 = m * speed_of_light2;
 	double r2 = sqr(electron_charge * electron_charge / m_c2);
@@ -188,7 +178,7 @@ double InverseComptonEvaluator::evaluateComptonLuminocityIsotropicFunction(const
 						double dI = volume * 0.5 * r2 * speed_of_light * electronDist *
 							(sqr(1 - photonInitialCosThetaRotated * electronInitialBeta) / (1.0 - photonFinalCosThetaRotated * electronInitialBeta)) *
 							(1 + cosXiPrimed * cosXiPrimed + sqr(photonFinalEnergyPrimed / m_c2) * sqr(1 - cosXiPrimed) / (1 - (photonFinalEnergyPrimed / m_c2) * (1 - cosXiPrimed))) *
-							photonDistribution->distribution(photonInitialEnergy) *
+                            my_photonDistribution->distribution(photonInitialEnergy) *
 							2*pi * dphi_ph * my_dcosTheta[imue] * my_dcosTheta[imuph] * delectronEnergy;
 
 						if (dI < 0) {
@@ -212,7 +202,7 @@ double InverseComptonEvaluator::evaluateComptonLuminocityIsotropicFunction(const
 	return I;
 }
 
-double InverseComptonEvaluator::evaluateComptonIsotropicFluxFromSource(const double& photonFinalEnergy, PhotonIsotropicDistribution * photonDistribution, RadiationSource * source) {
+double InverseComptonEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource * source) {
 	int Nrho = source->getNrho();
 	int Nz = source->getNz();
 	int Nphi = source->getNphi();
@@ -222,7 +212,7 @@ double InverseComptonEvaluator::evaluateComptonIsotropicFluxFromSource(const dou
 	for (int irho = 0; irho < Nrho; ++irho) {
 		for (int iz = 0; iz < Nz; ++iz) {
 			for (int iphi = 0; iphi < Nphi; ++iphi) {
-				result += evaluateComptonLuminocityIsotropicFunction(photonFinalEnergy, photonDistribution, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
+                result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
 			}
 		}
 	}

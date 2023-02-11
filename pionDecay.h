@@ -3,27 +3,25 @@
 
 #include "massiveParticleDistribution.h"
 #include "radiationSource.h"
+#include "radiation.h"
 
-class PionDecayEvaluator {
+class PionDecayEvaluator : public RadiationEvaluator{
 protected:
-	int my_Ne;
-	double my_Emin;
-	double my_Emax;
+    double my_ambientConcentration;
 
-	double* my_Ee;
 	void getCoefs(double& alpha, double& beta, double& gamma, double& lambda, const double& protonEnergy);
 	void getBcoefs(double& b1, double& b2, double& b3, const double& protonEnergy);
 public:
-	PionDecayEvaluator(int Ne, double Emin, double Emax);
+    PionDecayEvaluator(int Ne, double Emin, double Emax, const double& ambientConcentration);
 	~PionDecayEvaluator();
 	double sigmaInelastic(const double& energy);
 	double sigmaPion(const double& energy);
 	double sigma2Pion(const double& energy);
 	double sigmaGamma(const double& photonEnergy, const double& protonEnergy);
 	double functionKelner(const double& x, const double& protonEnergy);
-	double evaluatePionDecayLuminocityIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& ambientConcentration, const double& volume, const double& distance);
-	double evaluatePionDecayKelnerLuminocityIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& ambientConcentration, const double& volume, const double& distance);
-	double evaluatePionDecayIsotropicFluxFromSource(const double& photonFinalEnergy, RadiationSource* source);
+    double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& volume, const double& distance);
+    double evaluatePionDecayKelnerLuminocityIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& volume, const double& distance);
+    double evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source);
 	double evaluatePionDecayKelnerIsotropicFluxFromSource(const double& photonFinalEnergy, RadiationSource* source);
 };
 

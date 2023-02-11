@@ -5,6 +5,9 @@ class ParticleDistribution {
 protected:
 	double my_concentration;
 public:
+    virtual ~ParticleDistribution(){
+
+    }
 	virtual double distribution(const double& energy, const double& mu, const double& phi) {
 		return my_concentration * distributionNormalized(energy, mu, phi);
 	};

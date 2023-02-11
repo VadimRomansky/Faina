@@ -32,7 +32,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	PhotonPlankDistribution* CMBradiation = PhotonPlankDistribution::getCMBradiation();
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, Emin, electronConcentration);
 	RadiationSource* source = new SimpleFlatSource(electrons, B, sinTheta, electronConcentration, rmax, rmax, distance);
-	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 20, 20, Emin, Emax);
+    InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 20, 20, Emin, Emax, CMBradiation);
 
 	int Nnu = 200;
 	double* E = new double[Nnu];
@@ -51,7 +51,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	printLog("evaluating\n");
 	for (int i = 0; i < Nnu; ++i) {
 		printf("%d\n", i);
-		F[i] = comptonEvaluator->evaluateComptonIsotropicFluxFromSource(E[i], CMBradiation, source);
+        F[i] = comptonEvaluator->evaluateFluxFromSource(E[i], source);
 	}
 
 	FILE* output_ev_EFE = fopen("outputE.dat", "w");
@@ -90,8 +90,6 @@ void fitCSS161010withPowerLawDistribition() {
 	double Emax = 10000 * me_c2;
 	//creating synchrotron evaluator
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax);
-	//number of different distributions depending on inclination angle, wich will be read from files
-	int Ndistributions = 10;
 	//creating electrons powerlaw distribution
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, Emin, electronConcentration);
 	//creating radiation source
@@ -186,7 +184,7 @@ void fitCSS161010withPowerLawDistribition() {
 	//evaluationg full spectrum of the source
 	for (int i = 0; i < Nnu; ++i) {
 		printf("%d\n", i);
-		F[i] = synchrotronEvaluator->evaluateSynchrotronFluxFromSource(source, Nu[i]);
+        F[i] = synchrotronEvaluator->evaluateFluxFromSource(hplank*Nu[i], source);
 	}
 
 	//outputing spectrum
@@ -341,7 +339,7 @@ void fitCSS161010withTabulatedDistributions() {
 	//evaluationg full spectrum of the source
 	for (int i = 0; i < Nnu; ++i) {
 		printf("%d\n", i);
-		F[i] = synchrotronEvaluator->evaluateSynchrotronFluxFromSource(angleDependentSource, Nu[i]);
+        F[i] = synchrotronEvaluator->evaluateFluxFromSource(hplank*Nu[i], angleDependentSource);
 	}
 
 	//outputing spectrum
@@ -520,7 +518,7 @@ void fitTimeDependentCSS161010() {
 	for (int j = 0; j < Ntimes; ++j) {
 		RadiationSource* source1 = source->getRadiationSource(times[j], maxParameters);
 		for (int i = 0; i < Nout; ++i) {
-			Fout[j][i] = synchrotronEvaluator->evaluateSynchrotronFluxFromSource(source1, Nuout[i]);
+            Fout[j][i] = synchrotronEvaluator->evaluateFluxFromSource(hplank*Nuout[i], source1);
 		}
 	}
 
@@ -594,7 +592,8 @@ void evaluatePionDecayWithPowerLawDistribution() {
 	MassiveParticlePowerLawCutoffDistribution* protons = new MassiveParticlePowerLawCutoffDistribution(massProton, 2.0, Emin, 1.0, Emax, protonConcentration);
 	protons->writeDistribution("outputProtons.dat", 200, Emin, Emax);
 	RadiationSource* source = new SimpleFlatSource(protons, 0, 0, protonConcentration, rmax, rmax, distance);
-	PionDecayEvaluator* pionDecayEvaluator = new PionDecayEvaluator(200, Emin, Emax);
+    double protonAmbientConcentration = 20;
+    PionDecayEvaluator* pionDecayEvaluator = new PionDecayEvaluator(200, Emin, Emax, protonAmbientConcentration);
 
 	int Nnu = 200;
 	double* E = new double[Nnu];
@@ -636,7 +635,7 @@ void evaluatePionDecayWithPowerLawDistribution() {
 	printLog("evaluating\n");
 	for (int i = 0; i < Nnu; ++i) {
 		printf("%d\n", i);
-		F[i] = pionDecayEvaluator->evaluatePionDecayIsotropicFluxFromSource(E[i], source);
+        F[i] = pionDecayEvaluator->evaluateFluxFromSource(E[i], source);
 		//F[i] = pionDecayEvaluator->evaluatePionDecayKelnerIsotropicFluxFromSource(E[i], source);
 	}
 

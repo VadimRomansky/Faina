@@ -221,23 +221,12 @@ double evaluateSynchrotronFluxFromSource(RadiationSource* source, const double& 
 	return result/sqr(source->getDistance());
 }
 
-SynchrotronEvaluator::SynchrotronEvaluator(int Ne, double Emin, double Emax)
+SynchrotronEvaluator::SynchrotronEvaluator(int Ne, double Emin, double Emax):RadiationEvaluator(Ne, Emin, Emax)
 {
-	double factor = pow(Emax / Emin, 1.0 / (Ne - 1));
-	my_Ne = Ne;
-	my_Emin = Emin;
-	my_Emax = Emax;
-
-	my_Ee = new double[my_Ne];
-	my_Ee[0] = Emin;
-	for (int i = 1; i < my_Ne; ++i) {
-		my_Ee[i] = my_Ee[i - 1] * factor;
-	}
 }
 
 SynchrotronEvaluator::~SynchrotronEvaluator()
 {
-	delete[] my_Ee;
 }
 
 void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, const double& concentration, MassiveParticleIsotropicDistribution* electronDistribution, double& I, double& A)
@@ -306,14 +295,24 @@ void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFre
 				exit(0);
 			}
 		}
-	}
+    }
 }
 
-double SynchrotronEvaluator::evaluateSynchrotronFluxFromSource(RadiationSource* source, const double& photonFinalFrequency)
+double SynchrotronEvaluator::evaluateFluxFromIsotropicFunction(const double &photonFinalEnergy, MassiveParticleIsotropicDistribution *electronDistribution, const double &volume, const double &distance)
+{
+    double A = 0;
+    double I = 0;
+    double photonFinalFrequency = photonFinalEnergy/hplank;
+    evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, 0, 0, 0, electronDistribution, I, A);
+    return I*volume/sqr(distance);
+}
+
+double SynchrotronEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)
 {
 	int Nrho = source->getNrho();
 	int Nz = source->getNz();
 	int Nphi = source->getNphi();
+    double photonFinalFrequency = photonFinalEnergy/hplank;
 
 
 	double result = 0;

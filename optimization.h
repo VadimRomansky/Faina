@@ -20,7 +20,7 @@ protected:
 	double* my_minVector;
 public:
 	SynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale);
-	~SynchrotronOptimizer();
+    virtual ~SynchrotronOptimizer();
 	double evaluateOptimizationFunction(const double* vector, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source);
 	virtual void optimize(double* vector, bool* optPar, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source) = 0;
 	void optimize(double* vector, bool* optPar, double* nu, double* observedInu, int Nnu, RadiationSource* source);
@@ -41,7 +41,7 @@ protected:
 	void findMinParametersAtDirection(double* vector, bool* optPar, const double* grad, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source, const double& currentF);
 public:
 	GradientDescentSynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, ErrorScale errorScale);
-	~GradientDescentSynchrotronOptimizer();
+    virtual ~GradientDescentSynchrotronOptimizer();
 	virtual void optimize(double* vector, bool* optPar, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source);
 };
 
@@ -51,7 +51,7 @@ protected:
 	double** my_points;
 public:
 	GridEnumSynchrotronOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale, const int* Npoints);
-	~GridEnumSynchrotronOptimizer();
+    virtual ~GridEnumSynchrotronOptimizer();
 	virtual void optimize(double* vector, bool* optPar, double* nu, double* observedInu, double* observedError, int Nnu, RadiationSource* source);
 };
 
@@ -66,7 +66,7 @@ protected:
 	double* my_minVector;
 public:
 	SynchrotronTimeOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale);
-	~SynchrotronTimeOptimizer();
+    virtual ~SynchrotronTimeOptimizer();
 	double evaluateOptimizationFunction(const double* vector, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source);
 	virtual void optimize(double* vector, bool* optPar, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source) = 0;
 	void optimize(double* vector, bool* optPar, double** nu, double** observedInu, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source);
@@ -87,7 +87,7 @@ protected:
 	void findMinParametersAtDirection(double* vector, bool* optPar, const double* grad, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source, const double& currentF);
 public:
 	GradientDescentSynchrotronTimeOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, ErrorScale errorScale);
-	~GradientDescentSynchrotronTimeOptimizer();
+    virtual ~GradientDescentSynchrotronTimeOptimizer();
 	virtual void optimize(double* vector, bool* optPar, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source);
 };
 
@@ -97,7 +97,7 @@ protected:
 	double** my_points;
 public:
 	GridEnumSynchrotronTimeOptimizer(SynchrotronEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale, const int* Npoints);
-	~GridEnumSynchrotronTimeOptimizer();
+    virtual ~GridEnumSynchrotronTimeOptimizer();
 	virtual void optimize(double* vector, bool* optPar, double** nu, double** observedInu, double** observedError, int* Nnu, int Ntimes, double* times, RadiationTimeDependentSource* source);
 };
 

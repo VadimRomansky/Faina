@@ -8,11 +8,17 @@
 
 class PhotonDistribution : public ParticleDistribution{
 public:
+    virtual ~PhotonDistribution(){
+
+    };
 	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi) = 0;
 };
 
 class PhotonIsotropicDistribution : public PhotonDistribution {
 public:
+    virtual ~PhotonIsotropicDistribution(){
+
+    };
 	double distributionNormalized(const double& energy, const double& mu, const double& phi);
 	virtual double distribution(const double& energy) {
 		return my_concentration * distributionNormalized(energy);
@@ -27,6 +33,9 @@ private:
 	double my_A;
 public:
 	PhotonPowerLawDistribution(const double& index, const double& E0, const double& concentration);
+    virtual ~PhotonPowerLawDistribution(){
+
+    };
 	virtual double distributionNormalized(const double& energy);
 
 	double getIndex();
@@ -42,6 +51,9 @@ private:
 public:
 
 	PhotonPlankDistribution(const double& temperature, const double& amplitude);
+    virtual ~PhotonPlankDistribution(){
+
+    }
 	virtual double distributionNormalized(const double& energy);
 
 	double getTemperature();
@@ -59,7 +71,7 @@ private:
 	static PhotonMultiPlankDistribution* my_GalacticField;
 public:
 	PhotonMultiPlankDistribution(int Nplank, const double* const temperatures, const double* const amplitudes);
-	~PhotonMultiPlankDistribution();
+    virtual ~PhotonMultiPlankDistribution();
 	virtual double distributionNormalized(const double& energy);
 
 	//Mathis 1983?
@@ -74,7 +86,7 @@ public:
 	CompoundPhotonDistribution(int N, PhotonDistribution** distributions);
 	CompoundPhotonDistribution(PhotonDistribution* dist1, PhotonDistribution* dist2);
 	CompoundPhotonDistribution(PhotonDistribution* dist1, PhotonDistribution* dist2, PhotonDistribution* dist3);
-	~CompoundPhotonDistribution();
+    virtual ~CompoundPhotonDistribution();
 
 	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi);
 };

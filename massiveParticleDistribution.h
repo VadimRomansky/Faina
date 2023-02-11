@@ -12,6 +12,9 @@ class MassiveParticleDistribution : public ParticleDistribution{
 protected:
 	double my_mass;
 public:
+    virtual ~MassiveParticleDistribution(){
+
+    };
 	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi) = 0;
 	virtual void resetConcentration(const double& concentration) = 0;
 	double getMass() {
@@ -21,6 +24,9 @@ public:
 
 class MassiveParticleIsotropicDistribution : public MassiveParticleDistribution {
 public:
+    virtual ~MassiveParticleIsotropicDistribution(){
+
+    };
 	double distributionNormalized(const double& energy, const double& mu, const double& phi);
 	virtual double distribution(const double& energy) {
 		return my_concentration * distributionNormalized(energy);
@@ -35,6 +41,9 @@ protected:
 	double my_E0;
 	double my_A;
 public:
+    virtual ~MassiveParticlePowerLawDistribution(){
+
+    };
 	MassiveParticlePowerLawDistribution(const double& mass, const double& index, const double& E0, const double& concentration);
 	virtual double distributionNormalized(const double& energy);
 	virtual void resetConcentration(const double& concentration);
@@ -50,6 +59,9 @@ protected:
 	double my_Ecut;
 	double my_A;
 public:
+    virtual ~MassiveParticlePowerLawCutoffDistribution(){
+
+    };
 	MassiveParticlePowerLawCutoffDistribution(const double& mass, const double& index, const double& E0, const double& beta, const double& Ecut, const double& concentration);
 	virtual double distributionNormalized(const double& energy);
 	virtual void resetConcentration(const double& concentration);
@@ -68,6 +80,9 @@ protected:
 	double my_A;
 	double my_B;
 public:
+    virtual ~MassiveParticleBrokenPowerLawDistribution(){
+
+    };
 	MassiveParticleBrokenPowerLawDistribution(const double& mass, const double& index1, const double& index2, const double& E0, const double& Etran, const double& concentration);
 	virtual double distributionNormalized(const double& energy);
 	virtual void resetConcentration(const double& concentration);
@@ -82,6 +97,9 @@ protected:
 	double my_temperature;
 	double my_A;
 public:
+    virtual ~MassiveParticleMaxwellDistribution(){
+
+    };
 	MassiveParticleMaxwellDistribution(const double& mass, const double& temperature, const double& concentration);
 	virtual double distributionNormalized(const double& energy);
 	virtual void resetConcentration(const double& concentration);
@@ -112,7 +130,7 @@ public:
 	MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* fileName, const int N, const double& concentration, DistributionInputType inputType);
 	MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* energyFileName, const char* distributionFileName, const int N, const double& concentration, DistributionInputType inputType);
 	MassiveParticleTabulatedIsotropicDistribution(const double& mass, const double* energy, const double* distribution, const int N, const double& concentration, DistributionInputType inputType);
-	~MassiveParticleTabulatedIsotropicDistribution();
+    virtual ~MassiveParticleTabulatedIsotropicDistribution();
 	virtual double distributionNormalized(const double& energy);
 	virtual void resetConcentration(const double& concentration);
 	int getN();
@@ -136,7 +154,7 @@ protected:
 public:
 	MassiveParticleTabulatedAzimutalDistribution(const double& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const double& concentration, DistributionInputType inputType);
 	MassiveParticleTabulatedAzimutalDistribution(const double& mass, const double* energy, const double* mu, const double** distribution, const int Ne, const int Nmu, const double& concentration, DistributionInputType inputType);
-	~MassiveParticleTabulatedAzimutalDistribution();
+    virtual ~MassiveParticleTabulatedAzimutalDistribution();
 	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi);
 	virtual void resetConcentration(const double& concentration);
 	int getNe();
@@ -163,7 +181,7 @@ protected:
 public:
 	MassiveParticleTabulatedAnisotropicDistribution(const double& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const int Nphi, const double& concentration, DistributionInputType inputType);
 	MassiveParticleTabulatedAnisotropicDistribution(const double& mass, const double* energy, const double* mu, const double*** distribution, const int Ne, const int Nmu, const int Nphi, const double& concentration, DistributionInputType inputType);
-	~MassiveParticleTabulatedAnisotropicDistribution();
+    virtual ~MassiveParticleTabulatedAnisotropicDistribution();
 	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi);
 	virtual void resetConcentration(const double& concentration);
 	int getNe();
@@ -181,7 +199,7 @@ public:
 	CompoundMassiveParticleDistribution(int N, MassiveParticleDistribution** distributions);
 	CompoundMassiveParticleDistribution(MassiveParticleDistribution* dist1, MassiveParticleDistribution* dist2);
 	CompoundMassiveParticleDistribution(MassiveParticleDistribution* dist1, MassiveParticleDistribution* dist2, MassiveParticleDistribution* dist3);
-	~CompoundMassiveParticleDistribution();
+    virtual ~CompoundMassiveParticleDistribution();
 
 	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi);
 	virtual void resetConcentration(const double& concentration);
@@ -196,7 +214,7 @@ public:
 	CompoundWeightedMassiveParticleDistribution(int N, const double* weights, MassiveParticleDistribution** distributions);
 	CompoundWeightedMassiveParticleDistribution(MassiveParticleDistribution* dist1, const double& w1, MassiveParticleDistribution* dist2, const double& w2);
 	CompoundWeightedMassiveParticleDistribution(MassiveParticleDistribution* dist1, const double& w1, MassiveParticleDistribution* dist2, const double& w2, MassiveParticleDistribution* dist3, const double& w3);
-	~CompoundWeightedMassiveParticleDistribution();
+    virtual ~CompoundWeightedMassiveParticleDistribution();
 
 	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi);
 	virtual void resetConcentration(const double& concentration);
