@@ -64,5 +64,3 @@ loglog(radiation(1:N,1),radiation(1:N,2),'red','LineWidth',2);
 %legend('99 days','162 days ','357 days','Location','northwest');
 
 grid ;
-
-testy(3) = testy(1)*power(testx(3)/testx(1),-gamma);

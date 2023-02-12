@@ -148,8 +148,8 @@ void fitCSS161010withPowerLawDistribition() {
 	//observed parameters of the source in units of GHz and mJansky
 	const int Nnu1 = 4;
 	double nu1[Nnu1] = { 1.5E9, 3.0E9, 6.1E9, 0.97E9 };
-	double observedFlux[Nnu1] = { 1.5, 4.3, 6.1, 4.2 };
-	double observedError[Nnu1] = { 0.1, 0.2, 0.3, 0.2 };
+	double observedFlux[Nnu1] = { 1.5/(hplank*1E26), 4.3 / (hplank * 1E26), 6.1 / (hplank * 1E26), 4.2 / (hplank * 1E26) };
+	double observedError[Nnu1] = { 0.1 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.3 / (hplank * 1E26), 0.2 / (hplank * 1E26) };
 	//picking parameters to be optimized
 	bool optPar[Nparams] = { true, true, true, true };
 
@@ -303,8 +303,8 @@ void fitCSS161010withTabulatedDistributions() {
 	//observed parameters of the source in units of GHz and mJansky
 	const int Nnu1 = 4;
 	double nu1[Nnu1] = { 1.5E9, 3.0E9, 6.1E9, 0.97E9 };
-	double observedFlux[Nnu1] = { 1.5, 4.3, 6.1, 4.2 };
-	double observedError[Nnu1] = { 0.1, 0.2, 0.3, 0.2 };
+	double observedFlux[Nnu1] = { 1.5 / (hplank * 1E26), 4.3 / (hplank * 1E26), 6.1 / (hplank * 1E26), 4.2 / (hplank * 1E26) };
+	double observedError[Nnu1] = { 0.1 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.3 / (hplank * 1E26), 0.2 / (hplank * 1E26) };
 	//picking parameters to be optimized
 	bool optPar[Nparams] = { true, true, true, true };
 
@@ -384,16 +384,16 @@ void fitCSS161010withTabulatedDistributions() {
 void fitTimeDependentCSS161010() {
 	//observed data at 99, 162 and 357 days after explosion in units GHz and mJansky
 	const double cssx1[4] = { 1.5, 3.0, 6.1, 9.87 };
-	const double cssy1[4] = { 1.5, 4.3, 6.1, 4.2 };
-	const double cssError1[4] = { 0.1, 0.2, 0.3, 0.2 };
+	const double cssy1[4] = { 1.5 / (hplank * 1E26), 4.3 / (hplank * 1E26), 6.1 / (hplank * 1E26), 4.2/(hplank*1E26) };
+	const double cssError1[4] = { 0.1 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.3 / (hplank * 1E26), 0.2 / (hplank * 1E26) };
 
 	const double cssx2[5] = { 1.5, 2.94, 6.1, 9.74, 22.0 };
-	const double cssy2[5] = { 4.7, 2.9, 2.3, 1.74, 0.56 };
-	const double cssError2[5] = { 0.6, 0.2, 0.1, 0.09, 0.03 };
+	const double cssy2[5] = { 4.7 / (hplank * 1E26), 2.9 / (hplank * 1E26), 2.3 / (hplank * 1E26), 1.74 / (hplank * 1E26), 0.56 / (hplank * 1E26) };
+	const double cssError2[5] = { 0.6 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.1 / (hplank * 1E26), 0.09 / (hplank * 1E26), 0.03 / (hplank * 1E26) };
 
 	const double cssx3[6] = { 0.33, 0.61, 1.5, 3.0, 6.05, 10.0 };
-	const double cssy3[6] = { 0.1, 0.79, 0.27, 0.17, 0.07, 0.032 };
-	const double cssError3[6] = { 0.375, 0.09, 0.07, 0.03, 0.01, 0.008 };
+	const double cssy3[6] = { 0.1 / (hplank * 1E26), 0.79 / (hplank * 1E26), 0.27 / (hplank * 1E26), 0.17 / (hplank * 1E26), 0.07 / (hplank * 1E26), 0.032 / (hplank * 1E26) };
+	const double cssError3[6] = { 0.375 / (hplank * 1E26), 0.09 / (hplank * 1E26), 0.07 / (hplank * 1E26), 0.03 / (hplank * 1E26), 0.01 / (hplank * 1E26), 0.008 / (hplank * 1E26) };
 
 	//initializing time moments
 	const int Ntimes = 3;
@@ -680,7 +680,7 @@ void evaluateBremsstrahlung() {
 
 	MassiveParticleMaxwellDistribution* electrons = new MassiveParticleMaxwellDistribution(massElectron, temperature, electronConcentration);
 	RadiationSource* source = new SimpleFlatSource(electrons, 0, 0, electronConcentration, rmax, rmax, distance);
-	BremsstrahlungPrimitiveEvaluator* bremsstrahlungEvaluator = new BremsstrahlungPrimitiveEvaluator(temperature);
+	BremsstrahlungThermalEvaluator* bremsstrahlungEvaluator = new BremsstrahlungThermalEvaluator();
 
 	int Nnu = 200;
 	double* E = new double[Nnu];

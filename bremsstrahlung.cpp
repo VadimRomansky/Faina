@@ -10,20 +10,19 @@
 #include "bremsstrahlung.h"
 
 
-BremsstrahlungPrimitiveEvaluator::BremsstrahlungPrimitiveEvaluator(const double& temperature) : RadiationEvaluator(2, massElectron*speed_of_light2, 2*massElectron*speed_of_light2)
-{
-    my_temperature = temperature;
-}
-
-BremsstrahlungPrimitiveEvaluator::~BremsstrahlungPrimitiveEvaluator()
+BremsstrahlungThermalEvaluator::BremsstrahlungThermalEvaluator() : RadiationEvaluator(2, massElectron*speed_of_light2, 2*massElectron*speed_of_light2)
 {
 }
 
-void BremsstrahlungPrimitiveEvaluator::resetParameters(const double* parameters, const double* normalizationUnits)
+BremsstrahlungThermalEvaluator::~BremsstrahlungThermalEvaluator()
 {
 }
 
-double BremsstrahlungPrimitiveEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance)
+void BremsstrahlungThermalEvaluator::resetParameters(const double* parameters, const double* normalizationUnits)
+{
+}
+
+double BremsstrahlungThermalEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance)
 {
 	MassiveParticleMaxwellDistribution* maxwellDistribution = dynamic_cast<MassiveParticleMaxwellDistribution*>(electronDistribution);
 	if (maxwellDistribution == NULL) {
@@ -31,11 +30,12 @@ double BremsstrahlungPrimitiveEvaluator::evaluateFluxFromIsotropicFunction(const
 		printLog("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
 		exit(0);
 	}
+	double temperature = maxwellDistribution->getTemperature();
 	double concentration = electronDistribution->getConcentration();
 	double m = electronDistribution->getMass();
-	double theta = photonFinalEnergy / (kBoltzman * my_temperature);
+	double theta = photonFinalEnergy / (kBoltzman * temperature);
 	double ritberg = m * electron_charge * electron_charge * electron_charge * electron_charge * 2 * pi *pi / (hplank*hplank);
-	double eta = kBoltzman * my_temperature / ritberg;
+	double eta = kBoltzman * temperature / ritberg;
 	
 
 	double gauntFactor = 1.0;
@@ -50,14 +50,16 @@ double BremsstrahlungPrimitiveEvaluator::evaluateFluxFromIsotropicFunction(const
 	else {
 		if (theta >= 1.0) {
 			if (log(theta) >= -log(eta)) {
-				gauntFactor = sqrt(12 * ritberg / photonFinalEnergy);
+				double dzeta = eta * theta;
+				gauntFactor = sqrt(12 /dzeta);
 			} else {
 				gauntFactor = 1.0;
 			}
 		}
 		else {
 			if (-log(theta) >= -0.5 * log(eta)) {
-				gauntFactor = (sqrt(3) / pi) * log(1.0 / (4 * pow(euler_mascheroni, 2.5) * theta) * sqrt(eta));
+				//where is 4?
+				gauntFactor = (sqrt(3) / pi) * log(4.0 / (pow(euler_mascheroni, 2.5) * theta) * sqrt(eta));
 			}
 			else {
 				gauntFactor = 1.0;
@@ -65,12 +67,12 @@ double BremsstrahlungPrimitiveEvaluator::evaluateFluxFromIsotropicFunction(const
 		}
 	}
 
-	double result = (1.0 / hplank) * (32 * pi * pow(electron_charge, 6) / (3 * m * speed_of_light * speed_of_light2)) * sqrt(2 * pi / (3 * kBoltzman * my_temperature * m)) * concentration * concentration * exp(-theta)*gauntFactor;
+	double result = (1.0 / hplank) * (32 * pi * pow(electron_charge, 6) / (3 * m * speed_of_light * speed_of_light2)) * sqrt(2 * pi / (3 * kBoltzman * temperature * m)) * concentration * concentration * exp(-theta)*gauntFactor;
 	result *= volume / (4*pi*sqr(distance));
 	return result;
 }
 
-double BremsstrahlungPrimitiveEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)
+double BremsstrahlungThermalEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)
 {
 	int Nrho = source->getNrho();
 	int Nz = source->getNz();

@@ -38,8 +38,7 @@ double RadiationOptimizer::evaluateOptimizationFunction(const double* vector, do
     my_evaluator->resetParameters(vector, my_maxParameters);
 
 	for (int i = 0; i < Nnu; ++i) {
-		//1E26 from Jansky
-        totalInu[i] = my_evaluator->evaluateFluxFromSource(hplank*nu[i], source)*1E26;
+        totalInu[i] = my_evaluator->evaluateFluxFromSource(hplank*nu[i], source);
 	}
 	double err = 0;
 	for (int j = 0; j < Nnu; ++j) {
@@ -610,7 +609,7 @@ double RadiationTimeOptimizer::evaluateOptimizationFunction(const double* vector
 		RadiationSource* source1 = source->getRadiationSource(times[k], my_maxParameters);
 		for (int i = 0; i < Nnu[k]; ++i) {
 			//1E26 from Jansky
-            totalInu[i] = my_evaluator->evaluateFluxFromSource(hplank*nu[k][i], source1) * 1E26;
+            totalInu[i] = my_evaluator->evaluateFluxFromSource(hplank*nu[k][i], source1);
 		}
 		for (int j = 0; j < Nnu[k]; ++j) {
 			double err1 = 0;
