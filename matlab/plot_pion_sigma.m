@@ -1,8 +1,8 @@
 clear;
 
-Fp = importdata('outputProtons.dat');
+sigma = importdata('../outputSigma.dat');
 
-N = size(Fp,1);
+N = size(sigma,1);
 
 r = 5.17E16;
 d = 40*3*10^24;
@@ -32,6 +32,6 @@ set(gca, 'XScale', 'log');
 title ('F_{E}');
 xlabel ('E GeV');
 %ylabel ('cm^{-2} erg^{-1} s^{-1}');
-ylabel ('F(E)');
+ylabel ('\sigma mb/GeV');
 
-plot(Fp(1:N,1)/(1E9*1.6E-12),Fp(1:N,2),'red','LineWidth',2);
+plot(sigma(1:N,1)/1E9,sigma(1:N,2)*1E27/(1.6E-3),'red','LineWidth',2);

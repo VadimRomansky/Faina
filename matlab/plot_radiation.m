@@ -1,6 +1,6 @@
 clear;
 
-radiation = importdata('outputSynch.dat');
+radiation = importdata('../outputSynch.dat');
 
 N = size(radiation,1);
 Nr = size(radiation,2);

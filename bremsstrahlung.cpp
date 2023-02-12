@@ -25,6 +25,12 @@ void BremsstrahlungPrimitiveEvaluator::resetParameters(const double* parameters,
 
 double BremsstrahlungPrimitiveEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance)
 {
+	MassiveParticleMaxwellDistribution* maxwellDistribution = dynamic_cast<MassiveParticleMaxwellDistribution*>(electronDistribution);
+	if (maxwellDistribution == NULL) {
+		printf("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
+		printLog("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
+		exit(0);
+	}
 	double concentration = electronDistribution->getConcentration();
 	double m = electronDistribution->getMass();
 	double theta = photonFinalEnergy / (kBoltzman * my_temperature);

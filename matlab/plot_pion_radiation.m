@@ -1,6 +1,6 @@
 clear;
 
-radiation = importdata('outputPionE.dat');
+radiation = importdata('../outputPionE.dat');
 
 N = size(radiation,1);
 

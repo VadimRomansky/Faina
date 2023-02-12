@@ -1,6 +1,6 @@
 clear;
 
-radiation = importdata('css161010.dat');
+radiation = importdata('../css161010.dat');
 
 N = size(radiation,1);
 Nr = size(radiation,2);
