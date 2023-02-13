@@ -22,7 +22,7 @@ InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, doub
 	my_dcosTheta = new double[my_Nmu];
 
 	//todo what if not electrons
-	double thetamin = 0.1 / (my_Emax / me_c2);
+	double thetamin = 0.01 / (my_Emax / me_c2);
 	double dlogtheta = log(pi / thetamin) / (Nmu - 1);
 
 	my_cosThetaLeft[0] = 1.0;
@@ -138,13 +138,13 @@ double InverseComptonEvaluator::evaluateComptonLuminocityThompsonIsotropic(const
 	//double photonConcentration = 3.536638846E7; //for CMB
 	//double photonConcentration = 400; //for CMB
 	double photonConcentration = photonDistribution->getConcentration(); //for CMB
+	double electronConcentration = electronDistribution->getConcentration();
 	double sigmat = 8 * pi * re2 / 3.0;
 	double index = powerlawDistribution->getIndex();
-	double E0 = 1.0 * massElectron * speed_of_light2;
+	double E0 = my_Emin;
 	double K = (index - 1) * pow(E0, index - 1);
-	//todo what if not CMB
-	double I = photonConcentration * electronDistribution->getConcentration() * volume * 0.5 * sigmat * pow(massElectron * speed_of_light2, 1.0 - index) * pow(photonFinalEnergy, -(index + 1.0) / 2.0) * pow((4.0 / 3.0) * 2.7012 * kBoltzman * 2.7, (index - 1.0) / 2.0) * K * speed_of_light / (4 * pi);
-
+	double I = photonConcentration * electronConcentration * volume * 0.5 * sigmat * pow(massElectron * speed_of_light2, 1.0 - index) * pow(photonFinalEnergy, -(index - 1.0) / 2.0) * pow((4.0 / 3.0) * 2.7012 * kBoltzman * 2.7, (index - 1.0) / 2.0) * K * speed_of_light / (4 * pi);
+	return I/(4*pi*sqr(distance));
 }
 double InverseComptonEvaluator::evaluateComptonLuminocityKangJonesIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
 	double m = electronDistribution->getMass();
@@ -168,7 +168,7 @@ double InverseComptonEvaluator::evaluateComptonLuminocityKangJonesIsotropic(cons
 	for (int k = 0; k < my_Ne; ++k) {
 		double electronInitialEnergy = my_Ee[k];
 		double delectronEnergy;
-		double electronInitialGamma = electronInitialEnergy / m_c2;
+		double electronInitialGamma = electronInitialEnergy / (massElectron * speed_of_light2);
 		double electronInitialBeta = sqrt(1.0 - 1.0 / (electronInitialGamma * electronInitialGamma));
 		if (k == 0) {
 			delectronEnergy = my_Ee[1] - my_Ee[0];
@@ -176,7 +176,6 @@ double InverseComptonEvaluator::evaluateComptonLuminocityKangJonesIsotropic(cons
 		else {
 			delectronEnergy = my_Ee[k] - my_Ee[k - 1];
 		}
-		double electronDist = electronDistribution->distribution(electronInitialEnergy);
 		for (int l = 0; l < Nph; ++l) {
 			double photonInitialEnergy = Eph[l];
 			double dphotonInitialEnergy;
@@ -193,17 +192,17 @@ double InverseComptonEvaluator::evaluateComptonLuminocityKangJonesIsotropic(cons
 				if (q <= 1.0) {
 					double sigma = 2 * pi * re2 * (2 * q * log(q) + 1 + q - 2 * q * q + 0.5 * q * q * (1 - q) * G * G / (1 + q * G)) / (electronInitialGamma * electronInitialGamma * photonInitialEnergy / (massElectron * speed_of_light2));
 					//divide by energy to get number of photons
-					I += electronDist * volume * sigma * photonDistribution->distribution(photonInitialEnergy) * speed_of_light * electronInitialBeta * delectronEnergy * dphotonInitialEnergy / (massElectron * speed_of_light2);
-					//I[i] += electronConcentration*concentrations3d[ir][itheta][iphi]*volume[ir][itheta][iphi]*sigma*Fph[l]*Fe[iangle][k]*speed_of_light*electronInitialBeta*delectronEnergy*dphotonInitialEnergy;
+					//I += electronDistribution->distribution(electronInitialEnergy) * volume * sigma * photonDistribution->distribution(photonInitialEnergy)  * speed_of_light * electronInitialBeta * delectronEnergy * dphotonInitialEnergy / (massElectron * speed_of_light2);
+					I += photonFinalEnergy*electronDistribution->distribution(electronInitialEnergy) * volume * sigma * photonDistribution->distribution(photonInitialEnergy) * speed_of_light * electronInitialBeta * delectronEnergy * dphotonInitialEnergy / (massElectron * speed_of_light2);
 					if (I < 0) {
-						printf("I < 0 in kang jones compton evaluating\n");
-						printLog("I < 0 in kang jones compton evaluating\n");
+						printf("I < 0\n");
+						printLog("I < 0\n");
 						exit(0);
 					}
 
 					if (I != I) {
-						printf("I = NaN in kang jones compton evaluating\n");
-						printLog("I = NaN in kang jones compton evaluating\n");
+						printf("I = NaN\n");
+						printLog("I = NaN\n");
 						exit(0);
 					}
 				}
@@ -236,6 +235,7 @@ double InverseComptonEvaluator::evaluateComptonLuminocityKleinNisinaIsotropic(co
 		else {
 			delectronEnergy = my_Ee[k] - my_Ee[k - 1];
 		}
+		double I1 = 0;
 		double electronDist = electronDistribution->distribution(electronInitialEnergy);
 		for (int imue = 0; imue < my_Nmu; ++imue) {
 			double mu_e = my_cosTheta[imue];
@@ -287,13 +287,15 @@ double InverseComptonEvaluator::evaluateComptonLuminocityKleinNisinaIsotropic(co
 							exit(0);
 						}
 
-						I += dI / (distance * distance);
+						I += dI;
+						I1 += dI;
 					}
 				}
 		}
+		//printf("%g\n", I1);
 	}
 
-	return I;
+	return I / (distance * distance);
 }
 
 double InverseComptonEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {

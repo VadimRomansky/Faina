@@ -34,4 +34,5 @@ public:
     double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
     double evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source);
 };
+
 #endif
