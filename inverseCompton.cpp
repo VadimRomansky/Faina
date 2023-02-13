@@ -9,7 +9,9 @@
 
 #include "inverseCompton.h"
 
-InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax, PhotonIsotropicDistribution* photonDistribution) : RadiationEvaluator(Ne, Emin, Emax){
+InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax, PhotonIsotropicDistribution* photonDistribution, COMPTON_SOLVER_TYPE solverType) : RadiationEvaluator(Ne, Emin, Emax){
+	my_solverType = solverType;
+	
 	my_Nmu = Nmu;
 	my_Nphi = Nphi;
 
@@ -41,7 +43,7 @@ InverseComptonEvaluator::~InverseComptonEvaluator() {
 	delete[] my_dcosTheta;
 }
 
-double InverseComptonEvaluator::evaluateComptonLuminocity(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& volume, const double& distance) {
+double InverseComptonEvaluator::evaluateComptonLuminocityKleinNisinaAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& volume, const double& distance) {
 	double I = 0;
 	double m = electronDistribution->getMass();
 	double m_c2 = m * speed_of_light2;
@@ -126,7 +128,95 @@ void InverseComptonEvaluator::resetParameters(const double *parameters, const do
 //todo change photon distribution
 }
 
-double InverseComptonEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+double InverseComptonEvaluator::evaluateComptonLuminocityThompsonIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+	MassiveParticlePowerLawDistribution* powerlawDistribution = dynamic_cast<MassiveParticlePowerLawDistribution*>(electronDistribution);
+	if (powerlawDistribution == NULL) {
+		printf("Thompson solver works only with powerlaw distribution\n");
+		printLog("Thompson solver works only with powerlaw distribution\n");
+		exit(0);
+	}
+	//double photonConcentration = 3.536638846E7; //for CMB
+	//double photonConcentration = 400; //for CMB
+	double photonConcentration = photonDistribution->getConcentration(); //for CMB
+	double sigmat = 8 * pi * re2 / 3.0;
+	double index = powerlawDistribution->getIndex();
+	double E0 = 1.0 * massElectron * speed_of_light2;
+	double K = (index - 1) * pow(E0, index - 1);
+	//todo what if not CMB
+	double I = photonConcentration * electronDistribution->getConcentration() * volume * 0.5 * sigmat * pow(massElectron * speed_of_light2, 1.0 - index) * pow(photonFinalEnergy, -(index + 1.0) / 2.0) * pow((4.0 / 3.0) * 2.7012 * kBoltzman * 2.7, (index - 1.0) / 2.0) * K * speed_of_light / (4 * pi);
+
+}
+double InverseComptonEvaluator::evaluateComptonLuminocityKangJonesIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+	double m = electronDistribution->getMass();
+	double m_c2 = m * speed_of_light2;
+	double r2 = sqr(electron_charge * electron_charge / m_c2);
+
+	double I = 0;
+
+	int Nph = 1000;
+	double* Eph = new double[Nph];
+	double Ephmin = 0.001*kBoltzman*2.7;
+	double Ephmax = 10000 * Ephmin;
+	double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+	Eph[0] = Ephmin;
+	for (int i = 1; i < Nph; ++i) {
+		Eph[i] = Eph[i - 1] * factor;
+	}
+
+	double photonFinalCosTheta = 1.0;
+	double photonFinalPhi = 0.0;
+	for (int k = 0; k < my_Ne; ++k) {
+		double electronInitialEnergy = my_Ee[k];
+		double delectronEnergy;
+		double electronInitialGamma = electronInitialEnergy / m_c2;
+		double electronInitialBeta = sqrt(1.0 - 1.0 / (electronInitialGamma * electronInitialGamma));
+		if (k == 0) {
+			delectronEnergy = my_Ee[1] - my_Ee[0];
+		}
+		else {
+			delectronEnergy = my_Ee[k] - my_Ee[k - 1];
+		}
+		double electronDist = electronDistribution->distribution(electronInitialEnergy);
+		for (int l = 0; l < Nph; ++l) {
+			double photonInitialEnergy = Eph[l];
+			double dphotonInitialEnergy;
+			if (l == 0) {
+				dphotonInitialEnergy = Eph[1] - Eph[0];
+			}
+			else {
+				dphotonInitialEnergy = Eph[l] - Eph[l - 1];
+			}
+
+			if (electronInitialGamma > photonFinalEnergy / (massElectron * speed_of_light2)) {
+				double G = 4 * electronInitialGamma * photonInitialEnergy / (massElectron * speed_of_light2);
+				double q = (photonFinalEnergy / (massElectron * speed_of_light2)) / ((electronInitialGamma - photonFinalEnergy / (massElectron * speed_of_light2)) * G);
+				if (q <= 1.0) {
+					double sigma = 2 * pi * re2 * (2 * q * log(q) + 1 + q - 2 * q * q + 0.5 * q * q * (1 - q) * G * G / (1 + q * G)) / (electronInitialGamma * electronInitialGamma * photonInitialEnergy / (massElectron * speed_of_light2));
+					//divide by energy to get number of photons
+					I += electronDist * volume * sigma * photonDistribution->distribution(photonInitialEnergy) * speed_of_light * electronInitialBeta * delectronEnergy * dphotonInitialEnergy / (massElectron * speed_of_light2);
+					//I[i] += electronConcentration*concentrations3d[ir][itheta][iphi]*volume[ir][itheta][iphi]*sigma*Fph[l]*Fe[iangle][k]*speed_of_light*electronInitialBeta*delectronEnergy*dphotonInitialEnergy;
+					if (I < 0) {
+						printf("I < 0 in kang jones compton evaluating\n");
+						printLog("I < 0 in kang jones compton evaluating\n");
+						exit(0);
+					}
+
+					if (I != I) {
+						printf("I = NaN in kang jones compton evaluating\n");
+						printLog("I = NaN in kang jones compton evaluating\n");
+						exit(0);
+					}
+				}
+			}
+		}
+
+	}
+
+	delete[] Eph;
+	return I / (distance * distance);
+}
+
+double InverseComptonEvaluator::evaluateComptonLuminocityKleinNisinaIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
 	double m = electronDistribution->getMass();
 	double m_c2 = m * speed_of_light2;
 	double r2 = sqr(electron_charge * electron_charge / m_c2);
@@ -182,7 +272,7 @@ double InverseComptonEvaluator::evaluateFluxFromIsotropicFunction(const double& 
                         double dI = photonFinalEnergy*volume * 0.5 * r2 * speed_of_light * electronDist *
 							(sqr(1 - photonInitialCosThetaRotated * electronInitialBeta) / (1.0 - photonFinalCosThetaRotated * electronInitialBeta)) *
 							(1 + cosXiPrimed * cosXiPrimed + sqr(photonFinalEnergyPrimed / m_c2) * sqr(1 - cosXiPrimed) / (1 - (photonFinalEnergyPrimed / m_c2) * (1 - cosXiPrimed))) *
-                            my_photonDistribution->distribution(photonInitialEnergy) *
+                            photonDistribution->distribution(photonInitialEnergy) *
 							2*pi * dphi_ph * my_dcosTheta[imue] * my_dcosTheta[imuph] * delectronEnergy;
 
 						if (dI < 0) {
@@ -204,6 +294,23 @@ double InverseComptonEvaluator::evaluateFluxFromIsotropicFunction(const double& 
 	}
 
 	return I;
+}
+
+double InverseComptonEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+	if (my_solverType == COMPTON_SOLVER_TYPE::ISOTROPIC_THOMPSON) {
+		return evaluateComptonLuminocityThompsonIsotropic(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
+	}
+	else if (my_solverType == COMPTON_SOLVER_TYPE::ISOTROPIC_KANG_JONES) {
+		return evaluateComptonLuminocityKangJonesIsotropic(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
+	}
+	else if (my_solverType == COMPTON_SOLVER_TYPE::KLEIN_NISINA) {
+		return evaluateComptonLuminocityKleinNisinaIsotropic(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
+	}
+	else {
+		printf("unknown compton solver type\n");
+		printLog("unknown compton solver type\n");
+		exit(0);
+	}
 }
 
 double InverseComptonEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource * source) {

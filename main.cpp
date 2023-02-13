@@ -33,7 +33,9 @@ void evaluateComtonWithPowerLawDistribution() {
 	PhotonPlankDistribution* CMBradiation = PhotonPlankDistribution::getCMBradiation();
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, Emin, electronConcentration);
 	RadiationSource* source = new SimpleFlatSource(electrons, B, sinTheta, electronConcentration, rmax, rmax, distance);
-    InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 20, 20, Emin, Emax, CMBradiation);
+    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 20, 20, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::KLEIN_NISINA);
+    InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 20, 20, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_KANG_JONES);
+    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 20, 20, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_THOMPSON);
 
 	int Nnu = 200;
 	double* E = new double[Nnu];
@@ -722,11 +724,11 @@ void evaluateBremsstrahlung() {
 
 
 int main() {
-	//evaluateComtonWithPowerLawDistribution();
+	evaluateComtonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
 	//evaluatePionDecayWithPowerLawDistribution();
-	evaluateBremsstrahlung();
+	//evaluateBremsstrahlung();
 	return 0;
 }
