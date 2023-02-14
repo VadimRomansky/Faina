@@ -65,6 +65,10 @@ PhotonPlankDistribution::PhotonPlankDistribution(const double& temperature, cons
 }
 
 double PhotonPlankDistribution::distributionNormalized(const double& energy) {
+	//for debug
+	/*if (energy > 10 * kBoltzman * my_temperature) {
+		return 0;
+	}*/
 	double theta = energy / (kBoltzman * my_temperature);
 	return my_A*(2 * energy * energy / cube(hplank * speed_of_light)) / (exp(theta) - 1.0)/my_concentration;
 }

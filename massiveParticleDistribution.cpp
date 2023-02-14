@@ -51,6 +51,10 @@ MassiveParticlePowerLawDistribution::MassiveParticlePowerLawDistribution(const d
 }
 
 double MassiveParticlePowerLawDistribution::distributionNormalized(const double& energy) {
+	//for debug
+	/*if (energy > 1000 * getMass() * speed_of_light2) {
+		return 0;
+	}*/
 	if (energy < 0) {
 		printf("electron energy < 0\n");
 		printLog("electron energy < 0\n");

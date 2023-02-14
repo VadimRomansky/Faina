@@ -31,9 +31,10 @@ void evaluateComtonWithPowerLawDistribution() {
 	double Emax = 10000 * me_c2;
 
 	PhotonPlankDistribution* CMBradiation = PhotonPlankDistribution::getCMBradiation();
+	//PhotonIsotropicDistribution* CMBradiation = new PhotonPowerLawDistribution(2, 0.01*massElectron*speed_of_light2, 1.0);
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, Emin, electronConcentration);
 	RadiationSource* source = new SimpleFlatSource(electrons, B, sinTheta, electronConcentration, rmax, rmax, distance);
-    InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 50, 20, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::KLEIN_NISINA);
+    InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 10, 4, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::KLEIN_NISINA);
     //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 20, 20, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_KANG_JONES);
     //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 20, 20, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_THOMPSON);
 
@@ -56,6 +57,7 @@ void evaluateComtonWithPowerLawDistribution() {
 		printf("%d\n", i);
         printLog("%d\n", i);
         F[i] = comptonEvaluator->evaluateFluxFromSource(E[i], source);
+        //F[i] = comptonEvaluator->evaluateFluxFromSourceAnisotropic(E[i], 0, 0, CMBradiation, source);
 	}
 
 	FILE* output_ev_EFE = fopen("outputE.dat", "w");

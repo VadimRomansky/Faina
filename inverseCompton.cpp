@@ -22,7 +22,7 @@ InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, doub
 	my_dcosTheta = new double[my_Nmu];
 
 	//todo what if not electrons
-	double thetamin = 0.01 / (my_Emax / me_c2);
+	double thetamin = 0.02 / (my_Emax / me_c2);
 	double dlogtheta = log(pi / thetamin) / (Nmu - 1);
 
 	my_cosThetaLeft[0] = 1.0;
@@ -53,7 +53,7 @@ double InverseComptonEvaluator::evaluateComptonLuminocityKleinNisinaAnisotropic(
 	for (int k = 0; k < my_Ne; ++k) {
 		double electronInitialEnergy = my_Ee[k];
 		double delectronEnergy;
-		double electronInitialGamma = electronInitialEnergy / m_c2;
+		double electronInitialGamma = electronInitialEnergy / (massElectron * speed_of_light2);
 		double electronInitialBeta = sqrt(1.0 - 1.0 / (electronInitialGamma * electronInitialGamma));
 		if (k == 0) {
 			delectronEnergy = my_Ee[1] - my_Ee[0];
@@ -66,29 +66,36 @@ double InverseComptonEvaluator::evaluateComptonLuminocityKleinNisinaAnisotropic(
 			double mu_e = my_cosTheta[imue];
 			for (int iphie = 0; iphie < my_Nphi; ++iphie) {
 				double phi_e = 2 * pi * (iphie + 0.5) / my_Nphi;
-				double dphi_e = 1.0 / my_Nphi;
-
 				double electronDist = electronDistribution->distribution(electronInitialEnergy, mu_e, phi_e);
+				double dphi_e = 1.0 / my_Nphi;
 				//rotation
 				double photonFinalCosThetaRotated;
 				double photonFinalPhiRotated;
 				rotationSphericalCoordinates(mu_e, phi_e, photonFinalCosTheta, photonFinalPhi, photonFinalCosThetaRotated, photonFinalPhiRotated);
-
+				//double photonFinalEnergyPrimed;
+				//double photonFinalCosThetaPrimed;
+				//LorentzTransformationPhotonZ(electronInitialBeta, photonFinalEnergy, photonFinalCosThetaRotated, photonFinalEnergyPrimed, photonFinalCosThetaPrimed);
 				double photonFinalEnergyPrimed = electronInitialGamma * (1 - photonFinalCosThetaRotated * electronInitialBeta) * photonFinalEnergy;
 				double photonFinalCosThetaPrimed = (photonFinalCosThetaRotated - electronInitialBeta) / (1.0 - electronInitialBeta * photonFinalCosThetaRotated);
 				double photonFinalSinThetaPrimed = sqrt(1.0 - photonFinalCosThetaPrimed * photonFinalCosThetaPrimed);
 				for (int imuph = 0; imuph < my_Nmu; ++imuph) {
 					double mu_ph = -my_cosTheta[imuph];
-					double photonInitialCosThetaPrimed = mu_ph;
-					double photonInitialSinThetaPrimed = sqrt(1.0 - photonInitialCosThetaPrimed * photonInitialCosThetaPrimed);
 					for (int iphiph = 0; iphiph < my_Nphi; ++iphiph) {
 						double phi_ph = 2 * pi * (iphiph + 0.5) / my_Nphi;
 						double dphi_ph = 1.0 / my_Nphi;
+						double photonInitialCosThetaPrimed = mu_ph;
 						double photonInitialPhiRotated = phi_ph;
+						//inverseRotationSphericalCoordinates(mu_e, phi_e, mu_ph, phi_ph, photonInitialCosThetaRotated, photonInitialPhiRotated);
+						//double photonInitialCosThetaPrimed = (photonInitialCosThetaRotated - electronInitialBeta) / (1.0 - electronInitialBeta * photonInitialCosThetaRotated);
+
+						double photonInitialSinThetaPrimed = sqrt(1.0 - photonInitialCosThetaPrimed * photonInitialCosThetaPrimed);
 
 						double cosXiPrimed = photonInitialCosThetaPrimed * photonFinalCosThetaPrimed + photonInitialSinThetaPrimed * photonFinalSinThetaPrimed * cos(photonFinalPhiRotated - photonInitialPhiRotated);
 
 						double photonInitialEnergyPrimed = photonFinalEnergyPrimed / (1.0 - (photonFinalEnergyPrimed / (m_c2)) * (1.0 - cosXiPrimed));
+						if (photonInitialEnergyPrimed <= 0) {
+							continue;
+						}
 						double photonInitialEnergy = electronInitialGamma * photonInitialEnergyPrimed + electronInitialBeta * electronInitialGamma * photonInitialEnergyPrimed * photonInitialCosThetaPrimed;
 						double photonInitialCosThetaRotated = (photonInitialCosThetaPrimed + electronInitialBeta) / (1 + photonInitialCosThetaPrimed * electronInitialBeta);
 
@@ -96,32 +103,30 @@ double InverseComptonEvaluator::evaluateComptonLuminocityKleinNisinaAnisotropic(
 						double photonInitialPhi;
 						inverseRotationSphericalCoordinates(mu_e, phi_e, photonInitialCosThetaRotated, photonInitialPhiRotated, photonInitialCosTheta, photonInitialPhi);
 
-						double dI = volume * 0.5 * r2 * speed_of_light * electronDist *
+						double dI = electronDist * volume * 0.5 * r2 * speed_of_light *
 							(sqr(1 - photonInitialCosThetaRotated * electronInitialBeta) / (1.0 - photonFinalCosThetaRotated * electronInitialBeta)) *
 							(1 + cosXiPrimed * cosXiPrimed + sqr(photonFinalEnergyPrimed / m_c2) * sqr(1 - cosXiPrimed) / (1 - (photonFinalEnergyPrimed / m_c2) * (1 - cosXiPrimed))) *
-							photonDistribution->distribution(photonInitialEnergy, photonInitialCosTheta, photonInitialPhi) *
+							photonFinalEnergy*photonDistribution->distribution(photonInitialEnergy, photonInitialCosTheta, photonInitialPhi) *
 							dphi_e * dphi_ph * my_dcosTheta[imue] * my_dcosTheta[imuph] * delectronEnergy;
 
 						if (dI < 0) {
-							printf("dI[i] <  0\n");
-							printLog("dI[i] < 0\n");
+							printf("dI <  0\n");
+							printLog("dI < 0\n");
 							exit(0);
 						}
 
-						if (dI != dI) {
-							printf("I[i] = NaN\n");
-							printLog("I[i] = NaN\n");
+						I += dI;
+						if (I != I) {
+							printf("I = NaN\n");
+							printLog("I = NaN\n");
 							exit(0);
 						}
-
-						I += dI / (distance * distance);
 					}
 				}
 			}
 		}
 	}
-
-	return I;
+	return I/sqr(distance);
 }
 
 void InverseComptonEvaluator::resetParameters(const double *parameters, const double *normalizationUnits){
@@ -262,6 +267,9 @@ double InverseComptonEvaluator::evaluateComptonLuminocityKleinNisinaIsotropic(co
 						double cosXiPrimed = photonInitialCosThetaPrimed * photonFinalCosThetaPrimed + photonInitialSinThetaPrimed * photonFinalSinThetaPrimed * cos(photonFinalPhiRotated - photonInitialPhiRotated);
 
 						double photonInitialEnergyPrimed = photonFinalEnergyPrimed / (1.0 - (photonFinalEnergyPrimed / (m_c2)) * (1.0 - cosXiPrimed));
+						if (photonInitialEnergyPrimed <= 0) {
+							continue;
+						}
 						double photonInitialEnergy = electronInitialGamma * photonInitialEnergyPrimed + electronInitialBeta * electronInitialGamma * photonInitialEnergyPrimed * photonInitialCosThetaPrimed;
 						double photonInitialCosThetaRotated = (photonInitialCosThetaPrimed + electronInitialBeta) / (1 + photonInitialCosThetaPrimed * electronInitialBeta);
 
@@ -326,6 +334,24 @@ double InverseComptonEvaluator::evaluateFluxFromSource(const double& photonFinal
 		for (int iz = 0; iz < Nz; ++iz) {
 			for (int iphi = 0; iphi < Nphi; ++iphi) {
                 result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
+			}
+		}
+	}
+
+	return result;
+}
+
+double InverseComptonEvaluator::evaluateFluxFromSourceAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, RadiationSource* source) {
+	int Nrho = source->getNrho();
+	int Nz = source->getNz();
+	int Nphi = source->getNphi();
+
+	double result = 0;
+
+	for (int irho = 0; irho < Nrho; ++irho) {
+		for (int iz = 0; iz < Nz; ++iz) {
+			for (int iphi = 0; iphi < Nphi; ++iphi) {
+				result += evaluateComptonLuminocityKleinNisinaAnisotropic(photonFinalEnergy, photonFinalTheta, photonFinalPhi, photonDistribution, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
 			}
 		}
 	}
