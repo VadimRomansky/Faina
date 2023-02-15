@@ -34,7 +34,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	//PhotonIsotropicDistribution* CMBradiation = new PhotonPowerLawDistribution(2, 0.01*massElectron*speed_of_light2, 1.0);
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, Emin, electronConcentration);
 	RadiationSource* source = new SimpleFlatSource(electrons, B, sinTheta, electronConcentration, rmax, rmax, distance);
-    InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 10, 4, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::KLEIN_NISINA);
+    InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 200, 20, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::KLEIN_NISHINA);
     //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 20, 20, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_KANG_JONES);
     //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 20, 20, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_THOMPSON);
 

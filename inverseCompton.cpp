@@ -22,7 +22,7 @@ InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, doub
 	my_dcosTheta = new double[my_Nmu];
 
 	//todo what if not electrons
-	double thetamin = 0.02 / (my_Emax / me_c2);
+	double thetamin = 0.1 / (my_Emax / me_c2);
 	double dlogtheta = log(pi / thetamin) / (Nmu - 1);
 
 	my_cosThetaLeft[0] = 1.0;
@@ -43,7 +43,7 @@ InverseComptonEvaluator::~InverseComptonEvaluator() {
 	delete[] my_dcosTheta;
 }
 
-double InverseComptonEvaluator::evaluateComptonLuminocityKleinNisinaAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& volume, const double& distance) {
+double InverseComptonEvaluator::evaluateComptonLuminocityKleinNishinaAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& volume, const double& distance) {
 	double I = 0;
 	double m = electronDistribution->getMass();
 	double m_c2 = m * speed_of_light2;
@@ -133,7 +133,7 @@ void InverseComptonEvaluator::resetParameters(const double *parameters, const do
 //todo change photon distribution
 }
 
-double InverseComptonEvaluator::evaluateComptonLuminocityThompsonIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+double InverseComptonEvaluator::evaluateComptonLuminocityThomsonIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
 	MassiveParticlePowerLawDistribution* powerlawDistribution = dynamic_cast<MassiveParticlePowerLawDistribution*>(electronDistribution);
 	if (powerlawDistribution == NULL) {
 		printf("Thompson solver works only with powerlaw distribution\n");
@@ -151,7 +151,7 @@ double InverseComptonEvaluator::evaluateComptonLuminocityThompsonIsotropic(const
 	double I = photonConcentration * electronConcentration * volume * 0.5 * sigmat * pow(massElectron * speed_of_light2, 1.0 - index) * pow(photonFinalEnergy, -(index - 1.0) / 2.0) * pow((4.0 / 3.0) * 2.7012 * kBoltzman * 2.7, (index - 1.0) / 2.0) * K * speed_of_light / (4 * pi);
 	return I/(4*pi*sqr(distance));
 }
-double InverseComptonEvaluator::evaluateComptonLuminocityKangJonesIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+double InverseComptonEvaluator::evaluateComptonLuminocityJonesIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
 	double m = electronDistribution->getMass();
 	double m_c2 = m * speed_of_light2;
 	double r2 = sqr(electron_charge * electron_charge / m_c2);
@@ -220,7 +220,7 @@ double InverseComptonEvaluator::evaluateComptonLuminocityKangJonesIsotropic(cons
 	return I / (distance * distance);
 }
 
-double InverseComptonEvaluator::evaluateComptonLuminocityKleinNisinaIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+double InverseComptonEvaluator::evaluateComptonLuminocityKleinNishinaIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
 	double m = electronDistribution->getMass();
 	double m_c2 = m * speed_of_light2;
 	double r2 = sqr(electron_charge * electron_charge / m_c2);
@@ -231,6 +231,22 @@ double InverseComptonEvaluator::evaluateComptonLuminocityKleinNisinaIsotropic(co
 	double photonFinalPhi = 0.0;
 	for (int k = 0; k < my_Ne; ++k) {
 		double electronInitialEnergy = my_Ee[k];
+
+		//experimental
+		double thetamin = 0.0001 / (electronInitialEnergy / m_c2);
+		double dlogtheta = log(pi / thetamin) / (my_Nmu - 1);
+
+		my_cosThetaLeft[0] = 1.0;
+		my_cosTheta[0] = cos(thetamin);
+		for (int i = 1; i < my_Nmu; ++i) {
+			my_cosTheta[i] = cos(thetamin * exp(dlogtheta * (i)));
+			my_cosThetaLeft[i] = (my_cosTheta[i] + my_cosTheta[i - 1]) / 2.0;
+		}
+		for (int i = 0; i < my_Nmu - 1; ++i) {
+			my_dcosTheta[i] = -(my_cosThetaLeft[i + 1] - my_cosThetaLeft[i]);
+		}
+		my_dcosTheta[my_Nmu - 1] = 1.0 + my_cosThetaLeft[my_Nmu - 1];
+		
 		double delectronEnergy;
 		double electronInitialGamma = electronInitialEnergy / m_c2;
 		double electronInitialBeta = sqrt(1.0 - 1.0 / (electronInitialGamma * electronInitialGamma));
@@ -277,11 +293,12 @@ double InverseComptonEvaluator::evaluateComptonLuminocityKleinNisinaIsotropic(co
 						//double photonInitialPhi;
 						//inverseRotationSphericalCoordinates(mu_e, phi_e, photonInitialCosThetaRotated, photonInitialPhiRotated, photonInitialCosTheta, photonInitialPhi);
 
-                        double dI = photonFinalEnergy*volume * 0.5 * r2 * speed_of_light * electronDist *
+                        double dI = volume * 0.5 * r2 * speed_of_light * electronDist *
 							(sqr(1 - photonInitialCosThetaRotated * electronInitialBeta) / (1.0 - photonFinalCosThetaRotated * electronInitialBeta)) *
 							(1 + cosXiPrimed * cosXiPrimed + sqr(photonFinalEnergyPrimed / m_c2) * sqr(1 - cosXiPrimed) / (1 - (photonFinalEnergyPrimed / m_c2) * (1 - cosXiPrimed))) *
                             photonDistribution->distribution(photonInitialEnergy) *
-							2*pi * dphi_ph * my_dcosTheta[imue] * my_dcosTheta[imuph] * delectronEnergy;
+							photonFinalEnergy*2*pi * dphi_ph * my_dcosTheta[imue] * my_dcosTheta[imuph] * delectronEnergy;
+							//2*pi * my_dcosTheta[imue] * delectronEnergy;
 
 						if (dI < 0) {
 							printf("dI[i] <  0\n");
@@ -307,14 +324,14 @@ double InverseComptonEvaluator::evaluateComptonLuminocityKleinNisinaIsotropic(co
 }
 
 double InverseComptonEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
-	if (my_solverType == COMPTON_SOLVER_TYPE::ISOTROPIC_THOMPSON) {
-		return evaluateComptonLuminocityThompsonIsotropic(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
+	if (my_solverType == COMPTON_SOLVER_TYPE::ISOTROPIC_THOMSON) {
+		return evaluateComptonLuminocityThomsonIsotropic(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
 	}
-	else if (my_solverType == COMPTON_SOLVER_TYPE::ISOTROPIC_KANG_JONES) {
-		return evaluateComptonLuminocityKangJonesIsotropic(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
+	else if (my_solverType == COMPTON_SOLVER_TYPE::ISOTROPIC_JONES) {
+		return evaluateComptonLuminocityJonesIsotropic(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
 	}
-	else if (my_solverType == COMPTON_SOLVER_TYPE::KLEIN_NISINA) {
-		return evaluateComptonLuminocityKleinNisinaIsotropic(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
+	else if (my_solverType == COMPTON_SOLVER_TYPE::KLEIN_NISHINA) {
+		return evaluateComptonLuminocityKleinNishinaIsotropic(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
 	}
 	else {
 		printf("unknown compton solver type\n");
@@ -351,7 +368,7 @@ double InverseComptonEvaluator::evaluateFluxFromSourceAnisotropic(const double& 
 	for (int irho = 0; irho < Nrho; ++irho) {
 		for (int iz = 0; iz < Nz; ++iz) {
 			for (int iphi = 0; iphi < Nphi; ++iphi) {
-				result += evaluateComptonLuminocityKleinNisinaAnisotropic(photonFinalEnergy, photonFinalTheta, photonFinalPhi, photonDistribution, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
+				result += evaluateComptonLuminocityKleinNishinaAnisotropic(photonFinalEnergy, photonFinalTheta, photonFinalPhi, photonDistribution, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
 			}
 		}
 	}

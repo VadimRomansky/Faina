@@ -6,7 +6,7 @@
 #include "radiationSource.h"
 #include "radiation.h"
 
-enum COMPTON_SOLVER_TYPE {ISOTROPIC_THOMPSON, ISOTROPIC_KANG_JONES, KLEIN_NISINA};
+enum COMPTON_SOLVER_TYPE {ISOTROPIC_THOMSON, ISOTROPIC_JONES, KLEIN_NISHINA};
 
 class InverseComptonEvaluator : public RadiationEvaluator{
 protected:
@@ -25,10 +25,10 @@ public:
 	~InverseComptonEvaluator();
     void resetParameters(const double *parameters, const double *normalizationUnits);
 
-	double evaluateComptonLuminocityThompsonIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
-	double evaluateComptonLuminocityKangJonesIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
-	double evaluateComptonLuminocityKleinNisinaIsotropic(const double& photonFinalEnergyi, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
-	double evaluateComptonLuminocityKleinNisinaAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& volume, const double& distance);
+	double evaluateComptonLuminocityThomsonIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
+	double evaluateComptonLuminocityJonesIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
+	double evaluateComptonLuminocityKleinNishinaIsotropic(const double& photonFinalEnergyi, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
+	double evaluateComptonLuminocityKleinNishinaAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& volume, const double& distance);
 
 	double evaluateComptonLuminocity(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& volume, const double& distance);
     double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);

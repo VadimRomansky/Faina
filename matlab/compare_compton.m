@@ -25,8 +25,8 @@ polyfitx(1:endPower-startPower + 1) = 0;
 polyfity(1:endPower-startPower + 1) = 0;
 
 for i = 1:endPower-startPower + 1,
-    polyfitx(i) = log(radiationEt(i+startPower - 1,1));
-    polyfity(i) = log(radiationEt(i+startPower - 1,2));
+    polyfitx(i) = log(radiationEd(i+startPower - 1,1));
+    polyfity(i) = log(radiationEd(i+startPower - 1,2));
 end;
 p = polyfit(polyfitx, polyfity, 1);
 
@@ -34,7 +34,7 @@ p = polyfit(polyfitx, polyfity, 1);
 
 for i = startPower-2:endPower+2,
     %Fpa(i) = ap*((me*energy(i)+m)^gammap);
-    Fa(i) = exp(polyval(p, log(radiationEt(i))));
+    Fa(i) = exp(polyval(p, log(radiationEd(i))));
 end;
 
 figure(1);
