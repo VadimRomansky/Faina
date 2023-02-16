@@ -22,13 +22,14 @@ InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, doub
 	my_dcosTheta = new double[my_Nmu];
 
 	//todo what if not electrons
-	double thetamin = sqr(1.0/ (my_Emax / me_c2));
-	double dlogtheta = log(pi / thetamin) / (Nmu - 1);
+	double fraction = 0.5 / my_Nmu;
+	double thetamin = min(0.1/ (my_Emax / me_c2), pi/(2*my_Nmu));
+	double dlogtheta = log((pi + (1-fraction)*thetamin) / (thetamin)) / (Nmu - 1);
 
 	my_cosThetaLeft[0] = 1.0;
-	my_cosTheta[0] = cos(thetamin);
+	my_cosTheta[0] = cos(fraction*thetamin);
 	for (int i = 1; i < my_Nmu; ++i) {
-		my_cosTheta[i] = cos(thetamin * exp(dlogtheta * (i)));
+		my_cosTheta[i] = cos(thetamin * exp(dlogtheta * (i)) - (1-fraction)*thetamin);
 		my_cosThetaLeft[i] = (my_cosTheta[i] + my_cosTheta[i - 1]) / 2.0;
 	}
 	for (int i = 0; i < my_Nmu - 1; ++i) {
@@ -36,9 +37,9 @@ InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, doub
 	}
 	my_dcosTheta[my_Nmu - 1] = 1.0 + my_cosThetaLeft[my_Nmu - 1];
 
-	double dtheta = pi / Nmu;
+	/*double dtheta = pi / Nmu;
 
-	/*my_cosThetaLeft[0] = 1.0;
+	my_cosThetaLeft[0] = 1.0;
 	my_cosTheta[0] = cos(dtheta/2);
 	for (int i = 1; i < my_Nmu; ++i) {
 		my_cosTheta[i] = cos(dtheta*(i+0.5));
@@ -59,22 +60,29 @@ InverseComptonEvaluator::~InverseComptonEvaluator() {
 void InverseComptonEvaluator::outputDifferentialFlux(const char* fileName) {
 	FILE* outFile = fopen(fileName, "w");
 
-	double photonFinalEnergt = 1.6E-12;
+	double photonFinalEnergy = 100*1.6E-12;
 	double photonFinalCosTheta = 1.0;
 	double photonFinalPhi = 0;
 
 	double electronInitialEnergy = 1000 * massElectron * speed_of_light2;
-	double electronInitialCosTheta = 1.0;
+	double electronInitialCosTheta = 0.95;
 	double electronInitialPhi = 0;
 
-	double photonInitialCosTheta = -1.0;
+	double photonInitialCosTheta = -0.95;
 	double photonInitialPhi = 0;
 
 	for (int i = 0; i < my_Nmu; ++i) {
-		//photonInitialCosTheta = -my_cosTheta[i];
+	//for (int i = 0; i < my_Nphi; ++i) {
+	//for (int i = 0; i < my_Ne; ++i) {
+		photonInitialCosTheta = -my_cosTheta[i];
 		//photonFinalCosTheta = my_cosTheta[i];
-		electronInitialCosTheta = my_cosTheta[i];
-		fprintf(outFile, "%g %g\n", electronInitialCosTheta, evaluateDifferentialFlux(photonFinalEnergt, photonFinalCosTheta, photonFinalPhi, electronInitialEnergy, electronInitialCosTheta, electronInitialPhi, photonInitialCosTheta, photonInitialPhi));
+		//electronInitialCosTheta = my_cosTheta[i];
+		//photonFinalPhi = (i + 0.5) * 2 * pi / my_Nphi;
+		//photonInitialPhi = (i + 0.5) * 2 * pi / my_Nphi;
+		//electronInitialPhi = (i + 0.5) * 2 * pi / my_Nphi;
+		//photonFinalEnergy = my_Ee[i];
+		//electronInitialEnergy = my_Ee[i];
+		fprintf(outFile, "%15.10g %15.10g  %15.10g\n", photonInitialCosTheta, my_dcosTheta[i]*evaluateDifferentialFlux(photonFinalEnergy, photonFinalCosTheta, photonFinalPhi, electronInitialEnergy, electronInitialCosTheta, electronInitialPhi, photonInitialCosTheta, photonInitialPhi), my_dcosTheta[i]);
 	}
 
 	fclose(outFile);
@@ -134,6 +142,9 @@ double InverseComptonEvaluator::evaluateComptonLuminocityKleinNishinaAnisotropic
 		else {
 			delectronEnergy = my_Ee[k] - my_Ee[k - 1];
 		}
+		//if (photonFinalEnergy > electronInitialEnergy) {
+		//	printf("aaa\n");
+		//}
 
 		for (int imue = 0; imue < my_Nmu; ++imue) {
 			double mu_e = my_cosTheta[imue];
@@ -306,19 +317,20 @@ double InverseComptonEvaluator::evaluateComptonLuminocityKleinNishinaIsotropic(c
 		double electronInitialEnergy = my_Ee[k];
 
 		//experimental
-		/*double thetamin = 0.0001 / (electronInitialEnergy / m_c2);
-		double dlogtheta = log(pi / thetamin) / (my_Nmu - 1);
+		double fraction = 0.5 / my_Nmu;
+		double thetamin = min(0.1 / (electronInitialEnergy / me_c2), pi / (2 * my_Nmu));
+		double dlogtheta = log((pi + (1 - fraction) * thetamin) / (thetamin)) / (my_Nmu - 1);
 
 		my_cosThetaLeft[0] = 1.0;
-		my_cosTheta[0] = cos(thetamin);
+		my_cosTheta[0] = cos(fraction * thetamin);
 		for (int i = 1; i < my_Nmu; ++i) {
-			my_cosTheta[i] = cos(thetamin * exp(dlogtheta * (i)));
+			my_cosTheta[i] = cos(thetamin * exp(dlogtheta * (i)) - (1 - fraction) * thetamin);
 			my_cosThetaLeft[i] = (my_cosTheta[i] + my_cosTheta[i - 1]) / 2.0;
 		}
 		for (int i = 0; i < my_Nmu - 1; ++i) {
 			my_dcosTheta[i] = -(my_cosThetaLeft[i + 1] - my_cosThetaLeft[i]);
 		}
-		my_dcosTheta[my_Nmu - 1] = 1.0 + my_cosThetaLeft[my_Nmu - 1];*/
+		my_dcosTheta[my_Nmu - 1] = 1.0 + my_cosThetaLeft[my_Nmu - 1];
 		
 		double delectronEnergy;
 		double electronInitialGamma = electronInitialEnergy / m_c2;
@@ -331,6 +343,9 @@ double InverseComptonEvaluator::evaluateComptonLuminocityKleinNishinaIsotropic(c
 		}
 		double I1 = 0;
 		double electronDist = electronDistribution->distribution(electronInitialEnergy);
+		//if (photonFinalEnergy > electronInitialEnergy) {
+		//	printf("aaa\n");
+		//}
 		for (int imue = 0; imue < my_Nmu; ++imue) {
 			double mu_e = my_cosTheta[imue];
 			//for (int iphie = 0; iphie < my_Nphi; ++iphie) {

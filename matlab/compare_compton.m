@@ -11,8 +11,8 @@ Nnu = size(radiationEu,1);
 
 
 
-startPower = 70;
-endPower = 90;
+startPower = 90;
+endPower = 110;
 
 Fa(1:Nnu) = 0;
 
