@@ -43,6 +43,16 @@ void rotationSphericalCoordinates(const double& mur, const double& phir, const d
 	}
 	mu1 = mu0 * mur + sinThetar * sinTheta0 * sin(tempPhi);
 
+	if (mu1 > 1.0 && mu1 < 1.00001) {
+		printf("mu1 = %g > 1.0 reduced to 1.0\n", mu1);
+		printLog("mu1 = %g > 1.0 reduced to 1.0\n", mu1);
+		mu1 = 1.0;
+	}
+	if (mu1 < -1.0 && mu1 > -1.00001) {
+		printf("mu1 = %g < -1.0 reduced to =-1.0\n", mu1);
+		printLog("mu1 = %g < -1.0 reduced to -1.0\n", mu1);
+		mu1 = -1.0;
+	}
 	if (mu1 > 1.0) {
 		printf("mu1 = %g > 1.0\n", mu1);
 		printLog("mu1 = %g > 1.0\n", mu1);
@@ -69,7 +79,7 @@ void rotationSphericalCoordinates(const double& mur, const double& phir, const d
 	if (cosPhi1 < -1.0 && cosPhi1 > -1.00001) {
 		printf("cosPhi1 = %g < -1.0 reduced to -1.0\n", cosPhi1);
 		printLog("cosPhi1 = %g < -1.0 reduced to -1.0\n", cosPhi1);
-		cosPhi1 = 1.0;
+		cosPhi1 = -1.0;
 	}
 	if (cosPhi1 > 1.0) {
 		printf("cosPhi1 = %g > 1.0\n", cosPhi1);
@@ -113,6 +123,16 @@ void inverseRotationSphericalCoordinates(const double& mur, const double& phir, 
 	double sinTheta1 = sqrt(1.0 - mu1 * mu1);
 
 	mu0 = mu1 * mur + sinThetar * sinTheta1 * cos(phi1 + pi / 2);
+	if (mu0 > 1.0 && mu0 < 1.00001) {
+		printf("mu0 = %g > 1.0 reduced to 1.0\n", mu0);
+		printLog("mu0 = %g > 1.0 reduced to 1.0\n", mu0);
+		mu0 = 1.0;
+	}
+	if (mu0 < -1.0 && mu0 > -1.00001) {
+		printf("mu0 = %g < -1.0 reduced to =-1.0\n", mu0);
+		printLog("mu0 = %g < -1.0 reduced to -1.0\n", mu0);
+		mu0 = -1.0;
+	}
 	if (mu0 > 1.0) {
 		printf("mu0 = %g > 1.0\n", mu0);
 		printLog("mu0 = %g > 1.0\n", mu0);
@@ -140,7 +160,7 @@ void inverseRotationSphericalCoordinates(const double& mur, const double& phir, 
 	if (cosTempPhi < -1.0 && cosTempPhi > -1.00001) {
 		printf("cosTempPhi = %g < -1.0 reduced to -1.0\n", cosTempPhi);
 		printLog("cosTempPhi = %g < -1.0 reduced to -1.0\n", cosTempPhi);
-		cosTempPhi = 1.0;
+		cosTempPhi = -1.0;
 	}
 	if (cosTempPhi > 1.0) {
 		printf("cosTempPhi = %g > 1.0\n", cosTempPhi);

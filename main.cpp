@@ -28,15 +28,16 @@ void evaluateComtonWithPowerLawDistribution() {
 	//CSS161010
 	const double distance = 150 * 3.08 * 1.0E24;
 	double Emin = me_c2;
-	double Emax = 10000 * me_c2;
+	double Emax = 1000 * me_c2;
 
 	PhotonPlankDistribution* CMBradiation = PhotonPlankDistribution::getCMBradiation();
 	//PhotonIsotropicDistribution* CMBradiation = new PhotonPowerLawDistribution(2, 0.01*massElectron*speed_of_light2, 1.0);
-	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, Emin, electronConcentration);
+	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, 2.5, Emin, electronConcentration);
 	RadiationSource* source = new SimpleFlatSource(electrons, B, sinTheta, electronConcentration, rmax, rmax, distance);
-    InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 200, 4, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::KLEIN_NISHINA);
-    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 20, 20, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_KANG_JONES);
-    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 20, 20, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_THOMPSON);
+    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 50, 4, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_KLEIN_NISHINA);
+    InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 50, 4, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ANISOTROPIC_KLEIN_NISHINA);
+    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 50, 4, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_JONES);
+    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 50, 4, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_THOMSON);
 	
 	comptonEvaluator->outputDifferentialFlux("output.dat");
 	//return;

@@ -4,6 +4,7 @@ clear;
 radiationEu = importdata('../outputEu.dat');
 radiationEd = importdata('../outputEd.dat');
 radiationEt = importdata('../outputEt.dat');
+radiationEa = importdata('../outputEa.dat');
 
 
 Nnu = size(radiationEu,1);
@@ -51,7 +52,8 @@ relation = radiationEd(startPower,2)/radiationEu(startPower,2);
 plot(radiationEd(1:Nnu,1),radiationEd(1:Nnu,2),'red','LineWidth',2);
 plot(radiationEu(1:Nnu,1),radiationEu(1:Nnu,2),'green','LineWidth',2);
 plot(radiationEt(1:Nnu,1),radiationEt(1:Nnu,2),'blue','LineWidth',2);
+plot(radiationEa(1:Nnu,1),radiationEa(1:Nnu,2)/(4*3.14),'magenta','LineWidth',2);
 plot(radiationEd(1:Nnu,1),Fa(1:Nnu),'black','LineWidth',2);
-legend('klein nisina','kang jones','thompson','Power Law');
+legend('klein nisina','kang jones','thompson','anisotropic K-N','Power Law');
 grid ;
 
