@@ -1,0 +1,417 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="ParticleDistribution">
+    <Position X="3.75" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAAAACAAAAAAAAEAAAAAAAAAAAAAAAAAAEAAIA=</HashCode>
+      <FileName>particleDistribution.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PhotonDistribution">
+    <Position X="0.75" Y="3.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>photonDistribution.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PhotonIsotropicDistribution">
+    <Position X="0.75" Y="5" Width="2.5" />
+    <InheritanceLine Type="PhotonDistribution" ManuallyRouted="true">
+      <Path>
+        <Point X="1.875" Y="4.675" />
+        <Point X="1.875" Y="4.808" />
+        <Point X="2" Y="4.808" />
+        <Point X="2" Y="5" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>photonDistribution.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PhotonMultiPlankDistribution">
+    <Position X="5.5" Y="8" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAIAAAQAAAAgAAAEAAAEAEAAAAACAAAAAAAAAEAAEA=</HashCode>
+      <FileName>photonDistribution.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PhotonPlankDistribution">
+    <Position X="3" Y="8" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACEAAAAAAAAAABAAAEAACAACAAAAAAAAAEAgAA=</HashCode>
+      <FileName>photonDistribution.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PhotonPowerLawDistribution">
+    <Position X="0.5" Y="8" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAAAAAAFAQAEAAAAAAACAAAAACAAAEAAAA=</HashCode>
+      <FileName>photonDistribution.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CompoundPhotonDistribution">
+    <Position X="4" Y="5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAQAAgAAgAAAAAAAAAAAAAAAAAAAAAAAAAEAAAA=</HashCode>
+      <FileName>photonDistribution.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MassiveParticleDistribution">
+    <Position X="11.25" Y="3.75" Width="2.25" />
+    <InheritanceLine Type="ParticleDistribution" ManuallyRouted="true">
+      <Path>
+        <Point X="5.188" Y="2.632" />
+        <Point X="5.188" Y="2.878" />
+        <Point X="12.375" Y="2.878" />
+        <Point X="12.375" Y="3.75" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAAAIAAAAAAAAAAAAAAAAACAAAACAEAAAA=</HashCode>
+      <FileName>massiveParticleDistribution.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MassiveParticleIsotropicDistribution">
+    <Position X="9.5" Y="6.75" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAEAAAgAAAAAAAAAAAAAAMAAAA=</HashCode>
+      <FileName>massiveParticleDistribution.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MassiveParticleMaxwellDistribution">
+    <Position X="13" Y="9.5" Width="2.75" />
+    <InheritanceLine Type="MassiveParticleIsotropicDistribution" FixedFromPoint="true">
+      <Path>
+        <Point X="12.188" Y="8.56" />
+        <Point X="12.188" Y="9.125" />
+        <Point X="14.375" Y="9.125" />
+        <Point X="14.375" Y="9.5" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAgAAAAAAAAAAEAACAACAAAAAAACAEAAAA=</HashCode>
+      <FileName>massiveParticleDistribution.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MassiveParticleMaxwellJuttnerDistribution">
+    <Position X="13" Y="16.5" Width="3.25" />
+    <InheritanceLine Type="MassiveParticleIsotropicDistribution" FixedFromPoint="true">
+      <Path>
+        <Point X="11.812" Y="8.56" />
+        <Point X="11.812" Y="16.26" />
+        <Point X="14.625" Y="16.26" />
+        <Point X="14.625" Y="16.5" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAAAAEAAAAACAAAAAAACAEAQAA=</HashCode>
+      <FileName>massiveParticleDistribution.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MassiveParticlePowerLawCutoffDistribution">
+    <Position X="9.25" Y="16.5" Width="3.25" />
+    <InheritanceLine Type="MassiveParticleIsotropicDistribution" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="11.688" Y="8.56" />
+        <Point X="11.688" Y="16.5" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAMAAAAAAAQAAAAAAAQCEEAAAAAACAAAABCACAEAEAA=</HashCode>
+      <FileName>massiveParticleDistribution.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MassiveParticlePowerLawDistribution">
+    <Position X="8.25" Y="9" Width="2.75" />
+    <InheritanceLine Type="MassiveParticleIsotropicDistribution" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="10.062" Y="8.56" />
+        <Point X="10.062" Y="9" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAAAAAAIAQAEAAAAAAACAAAAACACAEIAAA=</HashCode>
+      <FileName>massiveParticleDistribution.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MassiveParticleTabulatedIsotropicDistribution">
+    <Position X="13" Y="12.25" Width="3.25" />
+    <InheritanceLine Type="MassiveParticleIsotropicDistribution" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="12" Y="8.56" />
+        <Point X="12" Y="14.312" />
+        <Point X="13" Y="14.312" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>CAAICAAgAAAQAAAAAAAAAwEAAAAAAAAAEAAACAEAEAA=</HashCode>
+      <FileName>massiveParticleDistribution.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MassiveParticleTabulatedAzimutalDistribution">
+    <Position X="17" Y="5" Width="3.5" />
+    <InheritanceLine Type="MassiveParticleDistribution" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="12.375" Y="6.011" />
+        <Point X="12.375" Y="6.375" />
+        <Point X="17" Y="6.375" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>GAAACAAgAAAQAAAAIAAAAQAgAAABAAAAEAAECAEAAAA=</HashCode>
+      <FileName>massiveParticleDistribution.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MassiveParticleTabulatedAnisotropicDistribution">
+    <Position X="17" Y="9.5" Width="3.5" />
+    <InheritanceLine Type="MassiveParticleDistribution" FixedToPoint="true">
+      <Path>
+        <Point X="12.375" Y="6.011" />
+        <Point X="12.375" Y="6.375" />
+        <Point X="16.625" Y="6.375" />
+        <Point X="16.625" Y="9.812" />
+        <Point X="17" Y="9.812" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>CAAgCAAgAAAQAAAAIEAgAQAgAAAAAAAAEAAECBEAAAA=</HashCode>
+      <FileName>massiveParticleDistribution.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CompoundMassiveParticleDistribution">
+    <Position X="17" Y="17.5" Width="3.5" />
+    <InheritanceLine Type="MassiveParticleDistribution" FixedToPoint="true">
+      <Path>
+        <Point X="12.375" Y="6.011" />
+        <Point X="12.375" Y="6.396" />
+        <Point X="16.625" Y="6.396" />
+        <Point X="16.625" Y="18" />
+        <Point X="17" Y="18" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAgAAgAAAAAAAAAAAAAAAAAAAQAACCAEAAAA=</HashCode>
+      <FileName>massiveParticleDistribution.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CompoundWeightedMassiveParticleDistribution">
+    <Position X="17" Y="14.5" Width="3.5" />
+    <InheritanceLine Type="MassiveParticleDistribution" ManuallyRouted="true" FixedToPoint="true">
+      <Path>
+        <Point X="12.375" Y="6.011" />
+        <Point X="12.375" Y="6.396" />
+        <Point X="16.633" Y="6.396" />
+        <Point X="16.633" Y="14.64" />
+        <Point X="17" Y="14.64" />
+        <Point X="17" Y="14.625" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>ABAAAAEAAgQAgAAAAAAAAAAAAAAAAAAAAAAACAEAAAA=</HashCode>
+      <FileName>massiveParticleDistribution.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MassiveParticleBrokenPowerLawDistribution">
+    <Position X="8.25" Y="12.25" Width="3.25" />
+    <InheritanceLine Type="MassiveParticleIsotropicDistribution" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="11.125" Y="8.56" />
+        <Point X="11.125" Y="12.25" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAAAAAAAAAAAQCEAAIAAAADAAAAAGACAEEAAA=</HashCode>
+      <FileName>massiveParticleDistribution.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RadiationEvaluator">
+    <Position X="24" Y="0.75" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>CAQAAAAAAAAAAAABAASAAAAAAAEABAAAAAAAAAABAQA=</HashCode>
+      <FileName>radiation.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="BremsstrahlungThermalEvaluator">
+    <Position X="24.25" Y="4.75" Width="3" />
+    <InheritanceLine Type="RadiationEvaluator" FixedToPoint="true">
+      <Path>
+        <Point X="25.375" Y="3.651" />
+        <Point X="25.375" Y="4.75" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAgABAAQAAAAAAAACAAAAAAAAAAAAAQA=</HashCode>
+      <FileName>bremsstrahlung.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="InverseComptonEvaluator">
+    <Position X="27.75" Y="4.75" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAgEqAACACEACgABAABUAQAAAAAAAASAAAIQA=</HashCode>
+      <FileName>inverseCompton.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PionDecayEvaluatorBase">
+    <Position X="21.75" Y="4.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAgAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAABA=</HashCode>
+      <FileName>pionDecay.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PionDecayEvaluator">
+    <Position X="21.75" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAEAAAAAAAAAABAAQAAAAgAAAEIAACIAAAAAAAAUA=</HashCode>
+      <FileName>pionDecay.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PionDecayEvaluatorKelner">
+    <Position X="23.75" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAABAAQIAgAAAAAAAAAAEAAAAAAAAQA=</HashCode>
+      <FileName>pionDecay.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SynchrotronEvaluator">
+    <Position X="31" Y="4.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAAAAAAABCAQAACAAAAAAAAAAAAAAAAAAAQA=</HashCode>
+      <FileName>synchrotron.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RadiationSource">
+    <Position X="36" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>QRAgAICAAQAEwAQACAAgABAAAAAAAAAAAAhAYAAAEZA=</HashCode>
+      <FileName>radiationSource.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DiskSource">
+    <Position X="34.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QRAAAICAAAAEAAAAAAAACAQAAAAAAAAABABAQAAAAAA=</HashCode>
+      <FileName>radiationSource.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ExpandingRemnantSource">
+    <Position X="41.5" Y="3.75" Width="2.5" />
+    <InheritanceLine Type="RadiationTimeDependentSource" ManuallyRouted="true" FixedToPoint="true">
+      <Path>
+        <Point X="42.875" Y="2.824" />
+        <Point X="42.875" Y="3.375" />
+        <Point X="42.875" Y="3.375" />
+        <Point X="42.875" Y="3.75" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAIAAAABAAAAAAAAAEAABAAQABAAAAQA=</HashCode>
+      <FileName>radiationSource.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AngleDependentElectronsSphericalSource">
+    <Position X="38.5" Y="14.5" Width="3.25" />
+    <InheritanceLine Type="TabulatedSphericalLayerSource" FixedToPoint="true">
+      <Path>
+        <Point X="40" Y="14.108" />
+        <Point X="40" Y="14.5" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>gBAAAAQAAAAAgAAAAIAAAAAAAAAAAgAAEAAAAAAAAAA=</HashCode>
+      <FileName>radiationSource.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RadiationTimeDependentSource">
+    <Position X="41.5" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAABAAAAAAAAAAAAAAAAQIAAAAAAAAQAQA=</HashCode>
+      <FileName>radiationSource.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SimpleFlatSource">
+    <Position X="34.5" Y="10.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gRAAACCAAACEAAAAAAAAAAAAAAAABAAAEAAAAAAAAYA=</HashCode>
+      <FileName>radiationSource.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SphericalLayerSource">
+    <Position X="38.75" Y="6.5" Width="2.25" />
+    <InheritanceLine Type="RadiationSource" FixedToPoint="true">
+      <Path>
+        <Point X="37.125" Y="5.901" />
+        <Point X="37.125" Y="6.125" />
+        <Point X="39.625" Y="6.125" />
+        <Point X="39.625" Y="6.5" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>QRAAAICAAAgEQAAAAAgAAAAAAAAAAAAABABAQAAAAAA=</HashCode>
+      <FileName>radiationSource.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TabulatedDiskSource">
+    <Position X="36.25" Y="10.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>gVEAAACAAACEAAAAAAAAAAAAAAAABAAAEAAAAAAAAYA=</HashCode>
+      <FileName>radiationSource.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TabulatedSphericalLayerSource">
+    <Position X="38.75" Y="10.5" Width="2.5" />
+    <InheritanceLine Type="SphericalLayerSource" FixedToPoint="true">
+      <Path>
+        <Point X="39.875" Y="10.108" />
+        <Point X="39.875" Y="10.5" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>gxIAAACAAACEAAAAAAAAAAAAAAAABAAAEAAAAAAAAYA=</HashCode>
+      <FileName>radiationSource.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RadiationOptimizer">
+    <Position X="46.25" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>IgQAAAAAAAAAAAABAAgIAAAAAAACAAAAAAIAAAAAAEg=</HashCode>
+      <FileName>optimization.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RadiationTimeOptimizer">
+    <Position X="52.25" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>KAQAEAAAAAAAAAABAAgIAAAAAAACAAAAAAIAAAAAAEA=</HashCode>
+      <FileName>optimization.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GradientDescentRadiationOptimizer">
+    <Position X="44.75" Y="4.75" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>IQxABECAABIAAAAAIAAAAAAAAAAAAAAAAAAAAABgAAA=</HashCode>
+      <FileName>optimization.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GradientDescentRadiationTimeOptimizer">
+    <Position X="50.75" Y="4.75" Width="3" />
+    <TypeIdentifier>
+      <HashCode>IQxAAECAABoAAAAAIAAAAAAAAAAAAAAAAAAAAABgAAA=</HashCode>
+      <FileName>optimization.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GridEnumRadiationOptimizer">
+    <Position X="47.75" Y="4.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>QAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAY=</HashCode>
+      <FileName>optimization.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GridEnumRadiationTimeOptimizer">
+    <Position X="54.25" Y="4.75" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAACCAAAAAAAAY=</HashCode>
+      <FileName>optimization.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
