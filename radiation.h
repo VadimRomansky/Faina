@@ -36,6 +36,18 @@ public:
     //returns fluxes in cm^-2 s^-1 = d energy flux/ d energy
     virtual double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) = 0;
     virtual double evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source) = 0;
+
+    void writeFluxFromSourceToFile(const char* fileName, RadiationSource* source, const double& Ephmin, const double& Ephmax, const int Nph) {
+        double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+        double currentE = Ephmin;
+        FILE* outFile = fopen(fileName, "w");
+        for (int i = 0; i < Nph; ++i) {
+            double flux = evaluateFluxFromSource(currentE, source);
+            fprintf(outFile, "%g %g\n", currentE, flux);
+            currentE = currentE * factor;
+        }
+        fclose(outFile);
+    }
 };
 
 #endif // RADIATION_H
