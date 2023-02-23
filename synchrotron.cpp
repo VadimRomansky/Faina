@@ -104,8 +104,9 @@ double criticalNu(const double& E, const double& sinhi, const double& H, const d
 	return coef * H * sinhi * E * E;
 }
 
-SynchrotronEvaluator::SynchrotronEvaluator(int Ne, double Emin, double Emax):RadiationEvaluator(Ne, Emin, Emax)
+SynchrotronEvaluator::SynchrotronEvaluator(int Ne, double Emin, double Emax, bool selfAbsorption):RadiationEvaluator(Ne, Emin, Emax)
 {
+	my_selfAbsorption = selfAbsorption;
 }
 
 SynchrotronEvaluator::~SynchrotronEvaluator()
@@ -136,8 +137,6 @@ void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFre
 	//todo what if < 0?
 	double coshi = sqrt(1.0 - sinhi * sinhi);
 
-
-	double oldA = 0;
 	for (int j = 0; j < my_Ne; ++j) {
 		double delectronEnergy = 0;
 		if (j == 0) {
@@ -161,19 +160,20 @@ void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFre
 				printf("dFe[j] = %g\n", dFe);
 				exit(0);
 			}
-			////todo! F(g +dg)
-			double tempP = gamma * gamma * emissivityCoef * B * sinhi * mcDonaldIntegral;
-			double dg = 0.1 * delectronEnergy / (m_c2);
+			if (my_selfAbsorption) {
+				////todo! F(g +dg)
+				double tempP = gamma * gamma * emissivityCoef * B * sinhi * mcDonaldIntegral;
+				double dg = 0.1 * delectronEnergy / (m_c2);
 
-			double tempGamma = gamma + dg;
-			double tempnuc = criticalNu(m_c2 * tempGamma, sinhi, B, criticalNuCoef);
-			double tempP2 = tempGamma * tempGamma * emissivityCoef * B * sinhi * evaluateMcDonaldIntegral(photonFinalFrequency / tempnuc);
-			double Pder = (tempP2 - tempP) / dg;
+				double tempGamma = gamma + dg;
+				double tempnuc = criticalNu(m_c2 * tempGamma, sinhi, B, criticalNuCoef);
+				double tempP2 = tempGamma * tempGamma * emissivityCoef * B * sinhi * evaluateMcDonaldIntegral(photonFinalFrequency / tempnuc);
+				double Pder = (tempP2 - tempP) / dg;
 
 
 
-			A = A + (1.0 / (2 * m * photonFinalFrequency * photonFinalFrequency)) * dFe * Pder / (gamma * gamma);
-
+				A = A + (1.0 / (2 * m * photonFinalFrequency * photonFinalFrequency)) * dFe * Pder / (gamma * gamma);
+			}
 			if (I != I) {
 				printf("I NaN\n");
 				exit(0);
@@ -215,18 +215,23 @@ double SynchrotronEvaluator::evaluateFluxFromSource(const double& photonFinalEne
 				evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), source->getParticleDistribution(irho, iz, iphi), I, A);
 				double length = source->getLength(irho, iz, iphi);
 				if (length > 0) {
-					double I0 = localI;
-					double Q = I * area;
-					double tau = A * length;
-					double S = 0;
-					if (Q > 0) {
-						S = Q / A;
-					}
-					if (fabs(tau) < 1E-15) {
-						localI = I0 * (1.0 - tau) + S * tau;
+					if (my_selfAbsorption) {
+						double I0 = localI;
+						double Q = I * area;
+						double tau = A * length;
+						double S = 0;
+						if (Q > 0) {
+							S = Q / A;
+						}
+						if (fabs(tau) < 1E-15) {
+							localI = I0 * (1.0 - tau) + S * tau;
+						}
+						else {
+							localI = S + (I0 - S) * exp(-tau);
+						}
 					}
 					else {
-						localI = S + (I0 - S) * exp(-tau);
+						localI = localI + I * area * length;
 					}
 				}
 			}

@@ -12,7 +12,16 @@
 #include "pionDecay.h"
 #include "bremsstrahlung.h"
 
-
+//example 0 evaluation simple synchrotron
+void evaluateSimpleSynchrotron() {
+	double B = 1.0;
+	double electronConcentration = 1.0;
+	MassiveParticleIsotropicDistribution* distribution = new MassiveParticlePowerLawDistribution(massElectron, 3.0, me_c2, 1.0);
+	RadiationSource* source = new SimpleFlatSource(distribution, B, 1.0, parsec, parsec, 1000 * parsec);
+	RadiationEvaluator* evaluator = new SynchrotronEvaluator(1000, me_c2, 1000 * me_c2, true);
+	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
+	evaluator->writeFluxFromSourceToFile("output.dat", source, 10 * hplank * cyclotronOmega, 100000 * hplank * cyclotronOmega, 1000);
+}
 
 // example 1. Evaluating inverse compton flux of powerlaw distributed electrons on CMB radiation
 void evaluateComtonWithPowerLawDistribution() {
@@ -33,7 +42,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	PhotonPlankDistribution* CMBradiation = PhotonPlankDistribution::getCMBradiation();
 	//PhotonIsotropicDistribution* CMBradiation = new PhotonPowerLawDistribution(2, 0.01*massElectron*speed_of_light2, 1.0);
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, 2.5, Emin, electronConcentration);
-	RadiationSource* source = new SimpleFlatSource(electrons, B, sinTheta, electronConcentration, rmax, rmax, distance);
+	RadiationSource* source = new SimpleFlatSource(electrons, B, sinTheta, rmax, rmax, distance);
     //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 50, 4, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_KLEIN_NISHINA);
     InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 50, 4, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ANISOTROPIC_KLEIN_NISHINA);
     //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 50, 4, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_JONES);
@@ -103,7 +112,7 @@ void fitCSS161010withPowerLawDistribition() {
 	//creating electrons powerlaw distribution
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, Emin, electronConcentration);
 	//creating radiation source
-	SimpleFlatSource* source = new SimpleFlatSource(electrons, B, 1.0, electronConcentration, rmax, rmax, distance);
+	SimpleFlatSource* source = new SimpleFlatSource(electrons, B, 1.0, rmax, rmax, distance);
 	//number of parameters of the source
 	const int Nparams = 4;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
@@ -601,7 +610,7 @@ void evaluatePionDecayWithPowerLawDistribution() {
 	//MassiveParticlePowerLawDistribution* protons = new MassiveParticlePowerLawDistribution(massProton, 2.0, Emin, protonConcentration);
 	MassiveParticlePowerLawCutoffDistribution* protons = new MassiveParticlePowerLawCutoffDistribution(massProton, 2.0, Emin, 1.0, Emax, protonConcentration);
 	protons->writeDistribution("outputProtons.dat", 200, Emin, Emax);
-	RadiationSource* source = new SimpleFlatSource(protons, 0, 0, protonConcentration, rmax, rmax, distance);
+	RadiationSource* source = new SimpleFlatSource(protons, 0, 0, rmax, rmax, distance);
     double protonAmbientConcentration = 20;
     PionDecayEvaluator* pionDecayEvaluator = new PionDecayEvaluator(200, Emin, Emax, protonAmbientConcentration);
 
@@ -687,7 +696,7 @@ void evaluateBremsstrahlung() {
 	double Emax = 10000 * me_c2;
 
 	MassiveParticleMaxwellDistribution* electrons = new MassiveParticleMaxwellDistribution(massElectron, temperature, electronConcentration);
-	RadiationSource* source = new SimpleFlatSource(electrons, 0, 0, electronConcentration, rmax, rmax, distance);
+	RadiationSource* source = new SimpleFlatSource(electrons, 0, 0, rmax, rmax, distance);
 	BremsstrahlungThermalEvaluator* bremsstrahlungEvaluator = new BremsstrahlungThermalEvaluator();
 
 	int Nnu = 200;
@@ -730,7 +739,8 @@ void evaluateBremsstrahlung() {
 
 
 int main() {
-	evaluateComtonWithPowerLawDistribution();
+	evaluateSimpleSynchrotron();
+	//evaluateComtonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();

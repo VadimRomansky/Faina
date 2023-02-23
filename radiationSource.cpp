@@ -57,11 +57,11 @@ double DiskSource::getMaxZ() {
 	return my_z;
 }
 
-SimpleFlatSource::SimpleFlatSource(MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& concentration, const double& rho, const double& z, const double& distance) : DiskSource(1,1,1, rho, z,distance) {
+SimpleFlatSource::SimpleFlatSource(MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& rho, const double& z, const double& distance) : DiskSource(1,1,1, rho, z,distance) {
 	my_distribution = electronDistribution;
 	my_B = B;
 	my_sinTheta = sinTheta;
-	my_concentration = concentration;
+	my_concentration = my_distribution->getConcentration();
 }
 double SimpleFlatSource::getB(int irho, int iz, int iphi)
 {

@@ -61,7 +61,7 @@ protected:
 	double my_concentration;
 	MassiveParticleIsotropicDistribution* my_distribution;
 public:
-	SimpleFlatSource(MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& concentration, const double& rho, const double& z, const double& distance);
+	SimpleFlatSource(MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& rho, const double& z, const double& distance);
 	double getLength(int irho, int iz, int iphi);
 	double getB(int irho, int iz, int iphi);
 	double getConcentration(int irho, int iz, int iphi);
