@@ -80,7 +80,7 @@ double PhotonPlankDistribution::getTemperature() {
 PhotonPlankDistribution* PhotonPlankDistribution::getCMBradiation()
 {
 	if (!my_CMBradiation) {
-		my_CMBradiation = new PhotonPlankDistribution(2.7, 1.0);
+		my_CMBradiation = new PhotonPlankDistribution(2, 725, 1.0);
 	}
 	return my_CMBradiation;
 }
