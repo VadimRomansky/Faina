@@ -6,7 +6,7 @@
 * number of particles dN = f(E, mu, phi) dE dmu dphi dV where mu = cos theta
 */
 
-enum DistributionInputType {ENERGY_FE, ENERGY_KIN_FE, GAMMA_KIN_FGAMMA, GAMMA_FGAMMA, MOMENTUM_FP};
+enum DistributionInputType {ENERGY_FE, ENERGY_KIN_FE, GAMMA_FGAMMA, GAMMA_KIN_FGAMMA, MOMENTUM_FP};
 
 class MassiveParticleDistribution : public ParticleDistribution{
 protected:
@@ -134,11 +134,13 @@ public:
 	virtual double distributionNormalized(const double& energy);
 	virtual void resetConcentration(const double& concentration);
 	int getN();
+	double getEmin();
+	double getEmax();
 	void rescaleDistribution(const double& k);
 	void addPowerLaw(const double& Epower, const double& index);
 };
 
-class MassiveParticleTabulatedAzimutalDistribution : public MassiveParticleDistribution {
+class MassiveParticleTabulatedPolarDistribution : public MassiveParticleDistribution {
 protected:
 	int my_Ne;
 	int my_Nmu;
@@ -152,12 +154,14 @@ protected:
 	void setDistributionAtPoint(int i, int j, const double& energy, const double& distribution);
 	void normalizeDistribution();
 public:
-	MassiveParticleTabulatedAzimutalDistribution(const double& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const double& concentration, DistributionInputType inputType);
-	MassiveParticleTabulatedAzimutalDistribution(const double& mass, const double* energy, const double* mu, const double** distribution, const int Ne, const int Nmu, const double& concentration, DistributionInputType inputType);
-    virtual ~MassiveParticleTabulatedAzimutalDistribution();
+	MassiveParticleTabulatedPolarDistribution(const double& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const double& concentration, DistributionInputType inputType);
+	MassiveParticleTabulatedPolarDistribution(const double& mass, const double* energy, const double* mu, const double** distribution, const int Ne, const int Nmu, const double& concentration, DistributionInputType inputType);
+    virtual ~MassiveParticleTabulatedPolarDistribution();
 	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi);
 	virtual void resetConcentration(const double& concentration);
 	int getNe();
+	double getEmin();
+	double getEmax();
 	int getNmu();
 	void rescaleDistribution(const double& k);
 };
@@ -185,6 +189,8 @@ public:
 	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi);
 	virtual void resetConcentration(const double& concentration);
 	int getNe();
+	double getEmin();
+	double getEmax();
 	int getNmu();
 	int getNphi();
 	void rescaleDistribution(const double& k);

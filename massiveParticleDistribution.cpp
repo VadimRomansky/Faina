@@ -559,6 +559,14 @@ int MassiveParticleTabulatedIsotropicDistribution::getN() {
 	return my_Ne;
 }
 
+double MassiveParticleTabulatedIsotropicDistribution::getEmin() {
+	return my_energy[0];
+}
+
+double MassiveParticleTabulatedIsotropicDistribution::getEmax() {
+	return my_energy[my_Ne - 1];
+}
+
 void MassiveParticleTabulatedIsotropicDistribution::rescaleDistribution(const double& k)
 {
 	double m_c2 = my_mass * speed_of_light2;
@@ -585,7 +593,7 @@ void MassiveParticleTabulatedIsotropicDistribution::addPowerLaw(const double& Ep
 	normalizeDistribution();
 }
 
-void MassiveParticleTabulatedAzimutalDistribution::setDistributionAtPoint(int i, int j, const double& energy, const double& distribution)
+void MassiveParticleTabulatedPolarDistribution::setDistributionAtPoint(int i, int j, const double& energy, const double& distribution)
 {
 	double m_c2 = my_mass * speed_of_light2;
 	if (my_inputType == DistributionInputType::ENERGY_FE) {
@@ -615,7 +623,7 @@ void MassiveParticleTabulatedAzimutalDistribution::setDistributionAtPoint(int i,
 	}
 }
 
-void MassiveParticleTabulatedAzimutalDistribution::normalizeDistribution()
+void MassiveParticleTabulatedPolarDistribution::normalizeDistribution()
 {
 	double norm = 0;
 	for (int imu = 0; imu < my_Nmu; ++imu) {
@@ -642,7 +650,7 @@ void MassiveParticleTabulatedAzimutalDistribution::normalizeDistribution()
 	}
 }
 
-MassiveParticleTabulatedAzimutalDistribution::MassiveParticleTabulatedAzimutalDistribution(const double& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const double& concentration, DistributionInputType inputType)
+MassiveParticleTabulatedPolarDistribution::MassiveParticleTabulatedPolarDistribution(const double& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const double& concentration, DistributionInputType inputType)
 {
 	my_mass = mass;
 	if (Ne <= 0) {
@@ -704,7 +712,7 @@ MassiveParticleTabulatedAzimutalDistribution::MassiveParticleTabulatedAzimutalDi
 	fclose(distributionFile);
 }
 
-MassiveParticleTabulatedAzimutalDistribution::MassiveParticleTabulatedAzimutalDistribution(const double& mass, const double* energy, const double* mu, const double** distribution, const int Ne, const int Nmu, const double& concentration, DistributionInputType inputType)
+MassiveParticleTabulatedPolarDistribution::MassiveParticleTabulatedPolarDistribution(const double& mass, const double* energy, const double* mu, const double** distribution, const int Ne, const int Nmu, const double& concentration, DistributionInputType inputType)
 {
 	my_mass = mass;
 	if (Ne <= 0) {
@@ -759,7 +767,7 @@ MassiveParticleTabulatedAzimutalDistribution::MassiveParticleTabulatedAzimutalDi
 	normalizeDistribution();
 }
 
-MassiveParticleTabulatedAzimutalDistribution::~MassiveParticleTabulatedAzimutalDistribution()
+MassiveParticleTabulatedPolarDistribution::~MassiveParticleTabulatedPolarDistribution()
 {
 	delete[] my_energy;
 	delete[] my_mu;
@@ -769,7 +777,7 @@ MassiveParticleTabulatedAzimutalDistribution::~MassiveParticleTabulatedAzimutalD
 	delete[] my_distribution;
 }
 
-double MassiveParticleTabulatedAzimutalDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
+double MassiveParticleTabulatedPolarDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
 {
 	if (mu > 1.0) {
 		printf("mu = %lf > 1.0 in azimutal distribution\n", mu);
@@ -878,23 +886,31 @@ double MassiveParticleTabulatedAzimutalDistribution::distributionNormalized(cons
 	}
 }
 
-void MassiveParticleTabulatedAzimutalDistribution::resetConcentration(const double& concentration)
+void MassiveParticleTabulatedPolarDistribution::resetConcentration(const double& concentration)
 {
 	my_concentration = concentration;
 	//normalizeDistribution();
 }
 
-int MassiveParticleTabulatedAzimutalDistribution::getNe()
+int MassiveParticleTabulatedPolarDistribution::getNe()
 {
 	return my_Ne;
 }
 
-int MassiveParticleTabulatedAzimutalDistribution::getNmu()
+double MassiveParticleTabulatedPolarDistribution::getEmin() {
+	return my_energy[0];
+}
+
+double MassiveParticleTabulatedPolarDistribution::getEmax() {
+	return my_energy[my_Ne - 1];
+}
+
+int MassiveParticleTabulatedPolarDistribution::getNmu()
 {
 	return my_Nmu;
 }
 
-void MassiveParticleTabulatedAzimutalDistribution::rescaleDistribution(const double& k)
+void MassiveParticleTabulatedPolarDistribution::rescaleDistribution(const double& k)
 {
 	double m_c2 = my_mass * speed_of_light2;
 	for (int i = 0; i < my_Ne; ++i) {
@@ -1297,6 +1313,14 @@ void MassiveParticleTabulatedAnisotropicDistribution::resetConcentration(const d
 int MassiveParticleTabulatedAnisotropicDistribution::getNe()
 {
 	return my_Ne;
+}
+
+double MassiveParticleTabulatedAnisotropicDistribution::getEmin() {
+	return my_energy[0];
+}
+
+double MassiveParticleTabulatedAnisotropicDistribution::getEmax() {
+	return my_energy[my_Ne - 1];
 }
 
 int MassiveParticleTabulatedAnisotropicDistribution::getNmu()

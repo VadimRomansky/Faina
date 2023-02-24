@@ -80,7 +80,7 @@ double PhotonPlankDistribution::getTemperature() {
 PhotonPlankDistribution* PhotonPlankDistribution::getCMBradiation()
 {
 	if (!my_CMBradiation) {
-		my_CMBradiation = new PhotonPlankDistribution(2, 725, 1.0);
+		my_CMBradiation = new PhotonPlankDistribution(2.725, 1.0);
 	}
 	return my_CMBradiation;
 }
@@ -125,7 +125,7 @@ double PhotonMultiPlankDistribution::distributionNormalized(const double& energy
 PhotonMultiPlankDistribution* PhotonMultiPlankDistribution::getGalacticField()
 {
 	if (!my_GalacticField) {
-		double temperatures[5] = { 2.7, 20, 3000, 4000, 7500 };
+		double temperatures[5] = { 2.725, 20, 3000, 4000, 7500 };
 		double amplitudes[5] = { 1.0, 4E-4, 4E-13, 1.65E-13, 1E-14 };
 		my_GalacticField = new PhotonMultiPlankDistribution(5, temperatures, amplitudes);
 	}
