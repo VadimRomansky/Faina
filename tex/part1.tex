@@ -1,7 +1,10 @@
 \chapter{Расчет излучения источников}\label{radiation}
 FAINA позволяет рассчитывать электромагнитное излучение от источников с заданными функциями распределения излучающих частиц и другими параметрами. Построены модели следующих типов излучения: синхротронного, обратного комптоновского рассеяния, пионного распада в результате свободно-свободного взаимодействия протонов и тормозного излучения.
+
 \section{Функции распределения частиц}
+
 Важнейшими исходными данными для расчета любого типа излучения является функция распределения излучающих частиц. В коде FAINA для представления распределений используется абстрактный класс ParticleDistribution и семейство наседованных от него классов, соответствующих различным конкретным реализациям. Класс ParticleDistribution имеет следующие доступные методы, описанные в Таблице \ref{ParticleDistribution}:
+
 	\begin{table}
 	\begin{center}
 		\caption{Публичные методы класса ParticleDistribution }
@@ -9,11 +12,11 @@ FAINA позволяет рассчитывать электромагнитно
 		\begin{small}
 		\begin{tabularx}{\textwidth}{|X|X|}
 			\hline
-			\textbf{ParticleDistribution} & \\
+			\textbf{ParticleDistribution} & Абстрактный класс для любых распределений частиц\\
 			\hline
 			distribution(const double\& energy, const double\& mu, const double\& phi) & возвращает функцию распределения от энергии, косинуса полярного угла и азимутального угла, нормированную на единицу \\
 			\hline
-			distributionNormalized(const double\& energy, const double\& mu, const double\& phi) & возвращает функцию распределения от энергии, косинуса полярного угла и азимутального угла, нормированную на концентрацию \\
+			virtual distributionNormalized(const double\& energy, const double\& mu, const double\& phi) & чисто виртуальный метод, возвращает функцию распределения от энергии, косинуса полярного угла и азимутального угла, нормированную на концентрацию \\
 			\hline
 			getConcentration() & возвращает концентрацию частиц\\
 			\hline
@@ -23,12 +26,14 @@ FAINA позволяет рассчитывать электромагнитно
 \end{table}
 
 Для вычисления излучения необходимо в первую очередь задать распределение излучающих частиц. Для это нужно создать объект из подходящего класса-наследника ParticleDistribution. Дерево наследования на две большие ветви - распределения фотонов, представленных абстрактным классом PhotonDistribution и распределения массивных частиц - MassiveParticleDistribution. Схема наследования этих классов представлена на рисунке \ref{particleDistribution0}. 
+
 \begin{figure}
 	\centering
 	\includegraphics[width=9.5 cm]{./fig/particleDistribution0.png} 
 	\caption{Схема наследования распределения фотонов и массивных частиц}
 	\label{particleDistribution0}
 \end{figure}
+
 Важно отметить, что распределения фотонов не используются для представления результатов расчета излучения. Они нужны как входной параметр для расчета обратного комптоновского рассеяния. Класс PhotonDistribution не имеет дополнительных собственных методов и является лишь интерфейсом. Класс MassiveParticleDistribution тоже является абстрактным, в нем не задан конкретный вид распределения, но добавлены новые методы, описанные в Таблице \ref{MassiveParticleDistribution}	
 \begin{table}
 	\begin{center}
@@ -37,7 +42,7 @@ FAINA позволяет рассчитывать электромагнитно
 		\begin{small}
 			\begin{tabularx}{\textwidth}{|X|X|}
 				\hline
-				\textbf{MassiveParticleDistribution} & \\
+				\textbf{MassiveParticleDistribution} & Абстрактный класс для распределений массивных излучающих частиц\\
 				\hline
 				getMass() & возвращает массу частиц \\
 				\hline
@@ -50,6 +55,7 @@ FAINA позволяет рассчитывать электромагнитно
 \subsection{Распределения фотонов}
 
 От абстрактного класса PhotonDistribution наследуются следующие классы: абстрактный PhotonIsotropicDistribution, предназначенный для представления изотропных распределений фотонов и CompoundPhotonDistribution, представляющий из себя сумму нескольких распределений фотонов общего вида. Схема наследования классов фотонных распределений представлена на рисунке \ref{photonDistribution}.
+
 \begin{figure}
 	\centering
 	\includegraphics[width=10.5 cm]{./fig/photonDistribution1.png} 
@@ -60,20 +66,21 @@ FAINA позволяет рассчитывать электромагнитно
 У изотропного распределения PhotonIsotropicDistribution добавляются методы, возвращающие значение функции распределения только в зависимости от энергии. Важно понимать, что это не функция распределения по энергии, а полная функция распределения с отброшенными угловыми аргументами. Другими словами, для получения значения функции распределения по энергии нужно домножить значение, возвращенное данным методом на $4 \pi$.
 
 У класса PhotonIsotropicDistribution есть три наследника, которые уже не абстрактные классы, а непосредственно предназначены для создания распределений. Это PhotonPowerLawDistribution для представления степенных распределений, PhotonPlankDistribution, для планковских распределений и PhotonMultiPlankDistribution, для суммы планковских распределений. Метода класса PhotonIsotropicDistribution и его наследников перечислены в таблице \ref{photonDistributionMethods}
-\begin{table}[h!]
+
+\begin{table}
 	\begin{center}
 		\caption{Публичные методы классов изотропных распределений фотонов}
 		\label{photonDistributionMethods}
 		\begin{small}
 			\begin{tabularx}{\textwidth}{|X|X|}
 				\hline
-				\textbf{PhotonIsotropicDistribution} & \\
+				\textbf{PhotonIsotropicDistribution} & Абстрактный класс для изотропных распределений фотонов\\
 				\hline
 				distribution(const double\& energy) & возвращает функцию распределения с отброшенными угловыми аргументами, то есть нормированную на концентрацию, деленную на $4 \pi$ \\
 				\hline
-				distributionNormalized(const double\& energy) & возвращает функцию распределения с отброшенными угловыми аргументами, нормированную на  $ 1 / 4 \pi$\\
+				virtual distributionNormalized(const double\& energy) & чисто виртуальный метод, возвращает функцию распределения с отброшенными угловыми аргументами, нормированную на  $ 1 / 4 \pi$\\
 				\hline
-				\textbf{PhotonPowerLawDistribution} & \\
+				\textbf{PhotonPowerLawDistribution} & Класс для степенного распределения фотонов\\
 				\hline
 				PhotonPowerLawDistribution(const double\& index, const double\& E0, const double\& concentration) & конструктор, создающий экземпляр с заданными показателем наклона, начальной энергией и полной концентрацией \\
 				\hline
@@ -81,7 +88,7 @@ FAINA позволяет рассчитывать электромагнитно
 				\hline
 				getE0() & возвращает минимальную энергию степенного распределения\\
 				\hline
-				\textbf{PhotonPlankDistribution} & \\
+				\textbf{PhotonPlankDistribution} & Класс для планковского распределения фотонов\\
 				\hline
 				PhotonPlankDistribution(const double\& temperature, const double\& amplitude) & конструктор, создающий экземпляр с заданными температурой и апмплитудой - то есть отношением концентрации к равновесному планковскому распределению с данной температурой\\
 				\hline
@@ -89,7 +96,7 @@ FAINA позволяет рассчитывать электромагнитно
 				\hline
 				getTemperature() & возвращает температуру распределения\\
 				\hline
-				\textbf{PhotonMultiPlankDistribution} & \\
+				\textbf{PhotonMultiPlankDistribution} & Класс для распределения фотонов, состоящего из суммы планковских распределений\\
 				\hline
 				PhotonMultiPlankDistribution(int Nplank, const double* const temperatures, const double* const amplitudes) & конструктор, количество планковских распределений, участвующих в смеси, массив их температур и массив амплитуд\\
 				\hline
@@ -101,6 +108,7 @@ FAINA позволяет рассчитывать электромагнитно
 \end{table}
 
 Класс CompoundPhotonDistribution предназначен для представления смеси различных распределений фотонов, не обязательно планковских, как PhotonMultiPlankDistribution, и не обязательно изотропных. Его методы описаны в Таблице \ref{CompoundPhotonMethods}
+
 \begin{table}
 	\begin{center}
 		\caption{Публичные методы класса CompoundPhotonDistribution }
@@ -108,7 +116,7 @@ FAINA позволяет рассчитывать электромагнитно
 		\begin{small}
 			\begin{tabularx}{\textwidth}{|X|X|}
 				\hline
-				\textbf{CompoundPhotonDistribution} & \\
+				\textbf{CompoundPhotonDistribution} & Класс для распределения фотонов, состоящего из суммы других распределений\\
 				\hline
 				CompoundPhotonDistribution(int N, PhotonDistribution** distributions) & конструктор, создающий экземпляр с заданным количеством распределений в смеси и массивом этих распределений \\
 				\hline
@@ -126,18 +134,18 @@ FAINA позволяет рассчитывать электромагнитно
 \subsection{Распределения массивных частиц}
 Распределения массивных частиц представлены наследниками класса MassiveParticleDistribution. Так же как и в случае с фотонами важную роль играет абстрактный клас для представления изотропных распределений - MassiveParticleIsotropicDistribution. У этого класса есть методы возвращающие значение функции распределения в зависимости от энергии, и опять же, это не функция распределения, проинтегрированная по углам, а полная функция распределения с отброшенными угловыми аргументами. Для получения значения функции распределения по энергии нужно домножить значение, возвращенное данным методом на $4 \pi$. Так же добавлен метод записи функции распределения в файл. 
 
-\begin{table}[h!]
+\begin{table}
 	\begin{center}
 		\caption{Публичные методы класса MassiveParticleIsotropicDistribution }
 		\label{MassiveParticleMethods}
 		\begin{small}
 			\begin{tabularx}{\textwidth}{|X|X|}
 				\hline
-				\textbf{MassiveParticleIsotropicDistribution} & \\
+				\textbf{MassiveParticleIsotropicDistribution} & Абстрактный класс для изотропных распределений\\
 				\hline
 				distribution(const double\& energy) & возвращает функцию распределения с отброшенными угловыми аргументами, то есть нормированную на концентрацию, деленную на $4 \pi$ \\
 				\hline
-				distributionNormalized(const double\& energy) & возвращает функцию распределения с отброшенными угловыми аргументами, нормированную на  $ 1 / 4 \pi$\\
+				virtual distributionNormalized(const double\& energy) & чисто виртуальный метод, возвращает функцию распределения с отброшенными угловыми аргументами, нормированную на  $ 1 / 4 \pi$\\
 				\hline
 				writeDistribution(const char* fileName, int Ne, const double\& Emin, const double\& Emax) & записывает распределение в файл с данным именем, в диапазоне межджу данными минимальной и максимальной енергиями с заданным количеством точек, которые распределяются логарифмически\\
 				\hline
@@ -146,7 +154,7 @@ FAINA позволяет рассчитывать электромагнитно
 	\end{center}
 \end{table}
 
-\begin{figure}[h!]
+\begin{figure}
 	\centering
 	\includegraphics[width=14.5 cm]{./fig/massiveParticleDistribution1.png} 
 	\caption{Схема наследования классов распределения массивных частиц}
@@ -169,6 +177,7 @@ FAINA позволяет рассчитывать электромагнитно
 \end{itemize}
 
 Вне зависимости от формата входного файла, функция распределения будет преобразована к единицам энергия - распределение по энергии. С помощью этих параметров можно считывать табличные распределения из файлов, например так:
+
 \begin{lstlisting}[language=c++]
 	double electronConcentration = 1.0;
 	int N = 100;
@@ -201,7 +210,7 @@ FAINA позволяет рассчитывать электромагнитно
 	\label{MassiveParticleMethods1}
 	\begin{xtabular}{|p{0.52\textwidth}|p{0.48\textwidth}|}
 		\hline
-		\textbf{MassiveParticlePowerLawDistribution} & \\
+		\textbf{MassiveParticlePowerLawDistribution} & Класс для степенного распределения\\
 		\hline
 		MassiveParticlePowerLawDistribution( const double\& mass, const double\& index, const double\& E0, const double\& concentration) & конструктор, создает экземпляр степенного распределния частиц с заданными массой, степенным индексом, начальной энергией распределения и полной концентрацией\\
 		\hline
@@ -209,7 +218,7 @@ FAINA позволяет рассчитывать электромагнитно
 		\hline
 		getE0() & возвращает начальную энергию распределения\\
 		\hline
-		\textbf{MassiveParticleBrokenPowerLawDistribution} & \\
+		\textbf{MassiveParticleBrokenPowerLawDistribution} & Класс для степенного распределения с изломом\\
 		\hline
 		MassiveParticleBrokenPowerLawDistribution( const double\& mass, const double\& index1, const double\& index2, const double\& E0, const double\& Etran, const double\& concentration) & конструктор, создает экземпляр степенного распределния с изломом частиц с заданными массой, степенными индексоми на низких и высоких энергиях, начальной энергией распределения, энергией соответствующей излому и полной концентрацией\\
 		\hline
@@ -221,7 +230,7 @@ FAINA позволяет рассчитывать электромагнитно
 		\hline
 		getEtran() & возвращает энергию излома\\
 		\hline
-		\textbf{MassiveParticlePowerLawCutoffDistribution} & \\
+		\textbf{MassiveParticlePowerLawCutoffDistribution} & Класс для степенного распределения с экспоненциальным завалом\\
 		\hline
 		MassiveParticlePowerLawCutoffDistribution(const double\& mass, const double\& index, const double\& E0, const double\& beta, const double\& Ecut, const double\& concentration) & конструктор, создает экземпляр степенного распределния с экспоненциальным завалом частиц с заданными массой, степенным индексом, начальной энергией распределения, параметром завала, энергией завала и полной концентрацией. $F(E)\propto (E/E_0)^{-index}\cdot\exp(-(E/E_{cut})^\beta)$\\
 		\hline
@@ -233,19 +242,19 @@ FAINA позволяет рассчитывать электромагнитно
 		\hline
 		getEcutoff() & возвращает энергию экспоненциального завала\\
 		\hline
-		\textbf{MassiveParticleMaxwellDistribution} & \\
+		\textbf{MassiveParticleMaxwellDistribution} & Класс для распределения Максвелла\\
 		\hline
 		MassiveParticleMaxwellDistribution( const double\& mass, const double\& temperature, const double\& concentration) & конструктор, создает экземпляр распределния Максвелла частиц с заданными массой, температурой и полной концентрацией\\
 		\hline
 		getTemperature() & возвращает температуру распределения\\
 		\hline
-		\textbf{MassiveParticleMaxwellJuttnerDistribution} & \\
+		\textbf{MassiveParticleMaxwellJuttnerDistribution} & Класс для распределения Максвелла-Юттнера\\
 		\hline
 		MassiveParticleMaxwellJuttnerDistribution( const double\& mass, const double\& temperature, const double\& concentration) & конструктор, создает экземпляр распределния Максвелла-Юттнера частиц с заданными массой, температурой и полной концентрацией\\
 		\hline
 		getTemperature() & возвращает температуру распределения\\
 		\hline
-		\textbf{MassiveParticleTabulatedIsotropicDistribution} & \\
+		\textbf{MassiveParticleTabulatedIsotropicDistribution} & Класс для таблично заданного изотропного распределения\\
 		\hline
 		MassiveParticleTabulatedIsotropicDistribution( const double\& mass, const char* fileName, const int N, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью указанного файла, состоящего из двух колнок с данными указанной длины. Так же указывается формат входных данных.\\
 		\hline
@@ -263,7 +272,7 @@ FAINA позволяет рассчитывать электромагнитно
 		\hline
 		addPowerLaw( const double\& Epower, const double\& index) & добавляет к функции распределения степенной с указанным индексом, начиная с указанной энергии. Функция распределения при этом остается нормированной на указанную ранее концентрацию\\
 		\hline 
-		\textbf{MassiveParticleTabulatedPolarDistribution} & \\
+		\textbf{MassiveParticleTabulatedPolarDistribution} & Класс для таблично заданного распределения с зависимостью от полярного угла\\
 		\hline
 		MassiveParticleTabulatedPolarDistribution( const double\& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью  трех указанных файлов, в двух из которых содержатся сетки по энергии и косинусу полярного угла с указанными размерами, а в третьем двумерный массив функции распределения. Так же указывается формат входных данных.\\
 		\hline
@@ -279,7 +288,7 @@ FAINA позволяет рассчитывать электромагнитно
 		\hline
 		rescaleDistribution(const double\& k) & масштабирует распределение, вытягивая его по оси энергии по формуле $E' = mc^2 + k\cdot(E-mc^2)$, $F(E',\mu)=F(E,\mu)/k$. Данная функция может быть полезна, например, в случае когда исходная функция распределения получена в результате работы численного кода с измененной массой электронов\\
 		\hline
-		\textbf{MassiveParticleTabulatedAnisotropicDistribution} & \\
+		\textbf{MassiveParticleTabulatedAnisotropicDistribution} & Класс для таблично заданного анизотропного распределения общего вида\\
 		\hline
 		MassiveParticleTabulatedAnisotropicDistribution( const double\& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const int Nphi, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью  трех указанных файлов, в двух из которых содержатся сетки по энергии и косинусу полярного угла с указанными размерами, а в третьем двумерный массив функции распределения. Сетка по азимутальному углу считается расномерной и определяется только размером. Так же указывается формат входных данных.\\
 		\hline
@@ -297,7 +306,7 @@ FAINA позволяет рассчитывать электромагнитно
 		\hline
 		rescaleDistribution(const double\& k) & масштабирует распределение, вытягивая его по оси энергии по формуле $E' = mc^2 + k\cdot(E-mc^2)$, $F(E',\mu, \phi)=F(E,\mu, \phi)/k$. Данная функция может быть полезна, например, в случае когда исходная функция распределения получена в результате работы численного кода с измененной массой электронов\\
 		\hline
-		\textbf{CompoundMassiveParticleDistribution} & \\
+		\textbf{CompoundMassiveParticleDistribution} & Класс для распределения, состоящего из суммы других распределений\\
 		\hline
 		CompoundMassiveParticleDistribution( int N, MassiveParticleDistribution** distributions) & конструктор, создает экземпляр класса содержащий смесь заданного количества указанных распределений\\
 		\hline
@@ -305,7 +314,7 @@ FAINA позволяет рассчитывать электромагнитно
 		\hline
 		CompoundMassiveParticleDistribution( MassiveParticleDistribution* dist1, MassiveParticleDistribution* dist2, MassiveParticleDistribution* dist3) & конструктор, создает экземпляр класса, содержащий смесь трех распределений\\
 		\hline
-		\textbf{CompoundWeightedMassiveParticleDistribution} & \\
+		\textbf{CompoundWeightedMassiveParticleDistribution} & Класс для распределения, состоящего из взвешенной суммы других распределений \\
 		\hline
 		CompoundWeightedMassiveParticleDistribution( int N, const double* weights, MassiveParticleDistribution** distributions) & конструктор, создает экземпляр класса содержащий смесь заданного количества указанных распределений с заданными весами \\
 		\hline
@@ -316,4 +325,157 @@ FAINA позволяет рассчитывать электромагнитно
 				
 	\end{xtabular}
 \end{small}
+
+\section{Источники излучения}
+
+В коде FAINA есть возможность расчета излучения, используя на прямую функции распределения излучающих частиц, с указанием необходимых дополнительных параметров, таких как объем источника, расстояние до него, магнитное поле и других. Но более универсальным и рекомендованным способ является расчет с помощью создания модели источника излучения. При таком подходе возможно учесть геометрическое строение источника, его неоднородности и другие особенности.
+
+Реализованы два базовых класса источников - независящие от времени, представленные абстрактным классом RadiationSource, и изменяющиеся со временем, представленные абстрактным классом RadiationTimeDependentSource. Эти два класса не связаны между собой через наследование, но объект первого класса содержится внутри объектов второго как приватное поле класса. Схема классов источников излучения представлена на рисунке \ref{radiationSource}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=14.5 cm]{./fig/radiationSource.png} 
+	\caption{Схема наследования классов источников излучения}
+	\label{radiationSource}
+\end{figure}
+
+\subsection{Источники излучения, не зависящие от времени}
+Источники излучения без временной зависимости реализованы с помощью абстрактного класса RadiationSource. Геометрически каждый источник задан в виде пространственной области в цилиндрических координатах, с осью z направленной вдоль луча зрения к наблюдателю, и характеризуется максимальным радиусом и минимальным и максимальным значением координаты z. Такая система координат выбрана для удобства учета процессов поглощения при прохождении излучения внутри самого источника вдоль луча зрения. Отличие реальной формы источника от цилиндрической реализовано с помощью долей заполнения веществом источника ячеек пространственной сетки. Модель источника, имеющего форму шарового слоя, в цилиндрическо пространственной сетке изображена на рисунке \ref{sphericalLayer}. Цветом обозначена доля объема ячейки, заполненная веществом источника.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=10.5 cm]{./fig/sphericalSource.png} 
+	\caption{Модель источника в форме шарового слоя, помещенного в цилиндрическую пространственную координатную сетку. Цвет характеризует долю объема ячейки, заполненную веществом источника.}
+	\label{sphericalLayer}
+\end{figure}
+
+Так же источники излучения имеют следующие важные характеристки, которые могут меняться в различных пространственных ячейках источника: концентрация излучающих частиц, их функция распределения, магнитное поле и угол его наклона к лучу зрения. Большинство методов расчета излучения (все кроме обратного комптоновского рассеяния) реализованы только для изотропных распределений излучающих частиц, поэтому источники содержат только изотропные распределения. Так же у источника должно быть задано расстояние до наблюдателя.
+
+Класс RadiationSource имеет два абстрактных класса-наследника: DiskSource - для источников в форме диска, перпендикулярного лучу зрения, и SphericalLayerSource - для источников в форме шарового слоя. Источники в форме диска имеют две реализации: SimpleFlatSource - однородный диск, состоящий из одной пространственной ячейки с заданными параметрами, и TabulatedDiskSource - источник, в котором все характеристики таблично заданы на пространственной сетке. Источники в форме шарового слоя имеют следующие реализации: TabulatedSphericalSource - источник, в котором все характеристики таблично заданы на пространственной сетке, и отнаследованный от него AngleDependentElectronsSphericalSource. Последний класс нужен для реализации важного в астрофизике случая, когда функция распределения излучающих частиц зависит от угла наклона магнитного поля по отношению к направлению распространения ударной волны \cite{SironiSpitkovsky2009pair, GuoSironi2014_1,Crumley2019, Romansky2018, еще}. В данном источнике такие параметры, как концентрация, магнитное поле и его угол наклона к лучу зрения заданы таблично на пространственной сетке, а функция распределения излучающих частиц - в виде таблицы по углам наклона магнитного поля к направлению распространения ударной волны, которая в данном случае считается сферически симметричной. Функция распределения в каждой ячейке выбирается в зависимости от вычисленного угла наклона магнитного поля к ударной волне. Публичные методы классов источников излучения без зависимости от времени перечислены в Таблице \ref{sourceMethods1}.
+
+\begin{small}
+	\topcaption{Публичные методы классов источников излучения без зависимости от времени }
+	\label{sourceMethods1}
+	\begin{xtabular}{|p{0.5\textwidth}|p{0.5\textwidth}|}
+		\hline
+		\textbf{RadiationSource} & абстрактный класс для источников излучения общего вида\\
+		\hline
+		virtual getMaxRho() & чисто виртуальный метод, возвращает максимальный цилиндрический радиус источника\\
+		\hline
+		virtual getMinZ() & чисто виртуальный метод, возвращает минимальную границу источника по оси z\\
+		\hline
+		virtual getMaxZ() & чисто виртуальный метод, возвращает максимальную границу источника по оси z\\
+		\hline
+		getNrho() & возвращает количество пространственных ячеек по радиальной оси цилиндрических координат\\
+		\hline
+		getNz() & возвращает количество пространственных ячеек по оси z цилиндрических координат\\
+		\hline
+		getNphi() & возвращает количество пространственных ячеек по по азимутальному углу цилиндрических координат\\
+		\hline
+		getDistance() & возвращает расстояние до источника\\
+		\hline
+		getArea(int irho) & возвращает поперечное сечение данной пространственной ячейки\\
+		\hline
+		getVolume(int irho, int iz, int iphi) & возвращает объем ячейки, занятый веществом источника. Этот метод согласован с методами getArea и getLength и возвращает их произведение\\
+		\hline
+		virtual getB(int irho, int iz, int iphi) & чисто виртуальный метод, возвращает значение магнитного поля в ячейке\\
+		\hline
+		virtual getConcentration(int irho, int iz, int iphi) & чисто виртуальный метод, возвращает значение концентрации в ячейке \\
+		\hline
+		virtual getSinTheta(int irho, int iz, int iphi) & чисто виртуальный метод, возвращает синус угла наклона магнитного поля к лучу зрения\\
+		\hline
+		virtual getTotalVolume() & чисто виртуальный метод, возвращает полный объем источника\\
+		\hline
+		virtual getLength(int irho, int iz, int iphi) & чисто виртуальный метод, возвращает среднюю толщину ячейки, заполненную веществом источника\\
+		\hline
+		virtual resetParameters(const double* parameters, const double* normalizationUnits) & чисто виртуальный метод, меняющий параметры источника. Список параметров, их количество, их влияние на источник определяются пользователем в конкретных реализациях класса. Принимет массив параметров и массив единиц в которых они измеряны. Данный метод используется в процедурах оптимизации, либо при учете изменения источника со временем\\
+		\hline
+		virtual getParticleDistribution(int irho, int iz, int iphi) & чисто виртуальный метод, возвращает распределение излучающих частиц в ячейке\\
+		\hline
+		\textbf{DiskSource} & Абстрактный класс для источников в форме диска\\
+		\hline
+		\textbf{SimpleFlatSource} & Класс для источников в форме однородного диска\\
+		\hline
+		SimpleFlatSource( MassiveParticleIsotropicDistribution* electronDistribution, const double\& B, const double\& sinTheta, const double\& rho, const double\& z, const double\& distance) & конструктор, возвращает экземпляр с заданными распределением частиц, магнитным полем, синусом угла его наклона, радиусом диска, толщиной диска и расстоянием до источника\\
+		\hline
+		\textbf{TabulatedDiskSource} & Класс для источников в форме диска с таблично заданными значениями параметров\\
+		\hline
+		TabulatedDiskSource( int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta, double*** concentration, const double\& rho, const double\& z, const double\& distance) & конструктор, возвращает экземпляр с заданными с помощью массивов распределением частиц, магнитным полем, синусом угла его наклона, а так же заданными радиусом диска, толщиной диска и расстоянием до источника\\
+		\hline
+		TabulatedDiskSource( int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double\& B, const double\& sinTheta, const double\& concentration , const double\& rho, const double\& z, const double\& distance) & конструктор, возвращает экземпляр с заданными однородными распределением частиц, магнитным полем, синусом угла его наклона, а так же заданными радиусом диска, толщиной диска и расстоянием до источника\\
+		\hline
+		\textbf{SphericalLayerSource} & Абстрактный класс для источников в форме шарового слоя\\
+		\hline
+		double getInnerRho() & возвращает внутренний радиус шарового слоя\\
+		\hline
+		\textbf{TabulatedSphericalLayerSource} & Класс для источников в форме шарового слоя с таблично заданными значениями параметров\\
+		\hline
+		TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta, double*** concentration, const double\& rho, const double\& rhoin, const double\& distance) & конструктор, возвращает экземпляр с заданными с помощью массивов распределением частиц, магнитным полем, синусом угла его наклона к лучу зрения, а так же заданными внешним и внутренним радиусом диска и расстоянием до источника\\
+		\hline
+		TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double\& B, const double\& concentration, const double\& sinTheta, const double\& rho, const double\& rhoin, const double\& distance) &  конструктор, возвращает экземпляр с заданными однородными распределением частиц, магнитным полем, синусом угла его наклона, а так же заданными внутренним и внешним радиусом диска и расстоянием до источника \\
+		\hline
+		\textbf{AngleDependentElectronsSphericalSource} & Класс для источников в форме шарового слоя с таблично заданными значениями концентрации и магнитного поля и функцией распределения излучающих частиц, зависящей от угла наклона магнитного поля к направлению распространения ударной волны\\
+		\hline
+		AngleDependentElectronsSphericalSource( int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, double*** B, double*** sinTheta, double*** phi, double*** concentration, const double\& rho, const double\& rhoin, const double\& distance) & конструктор, возвращает экземпляр с заданными с помощью массивов магнитным полем, синусом угла его наклона к лучу зрения, а так же заданными внешним и внутренним радиусом диска и расстоянием до источника. Распределение частиц задается в виде массива табличных значений в зависимости от угла наклона магнитного поля к направлению распространения ударной волны\\
+		\hline
+		AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, const double\& B, const double\& sinTheta, const double\& phi, const double\& concentration, const double\& rho, const double\& rhoin, const double\& distance) & конструктор, возвращает экземпляр с заданными однородными  магнитным полем, синусом угла его наклона, а так же заданными внутренним и внешним радиусом диска и расстоянием до источника. Распределение частиц задается в виде массива табличных значений в зависимости от угла наклона магнитного поля к направлению распространения ударной волны\\
+		\hline
+	\end{xtabular}
+\end{small}
+
+\subsection{Источники излучения, меняющиеся со временем}
+Источники излучения, учитывающие зависимость от времени, представлены абастрактным классом классом RadiationTimeDependentSource. Этот класс не является наследником класса RadiationSource, но содержит экземпляр такого класса внутри себя, чтобы использовать его для расчета излучения в конкретный момент времени. В текущей версии кода реализован только один наследник RadiationTimeDependentSource - ExpandingRemnantSource, представляющий собой модель расширяющегося остатка сверхновой. В данной модели предполагается, что размер источника увеличивается во времени с постоянной скоростью, магнитное поле падает обратно пропорционально размеру источника, концентрация обратно пропорционально квадрату размера а толщина шарового слоя остается постоянной. Пользователь может создавать свои классы источников с другими зависимостями параметров от времени. Публичные методы классов RadiationTimeDependentSource и ExpandingRemnantSource перечислены  в Таблице \ref{sourceTimeDependentMethods1}.
+
+\begin{small}
+	\topcaption{Публичные методы классов источников излучения учитывающих зависимость от времени }
+	\label{sourceTimeDependentMethods1}
+	\begin{xtabular}{|p{0.5\textwidth}|p{0.5\textwidth}|}
+		\hline
+		\textbf{RadiationTimeDependentSource} & Абстрактный класс для учета изменений источников излучения со временем\\
+		\hline
+		virtual resetParameters(const double* parameters, const double* normalizationUnits) & чисто виртуальный метод, меняющий параметры источника. Список параметров, их количество, их влияние на источник определяются пользователем в конкретных реализациях класса. Принимет массив параметров и массив единиц в которых они измеряны. Данный метод применяется в процедурах оптимизации\\
+		\hline
+		virtual getRadiationSource(double\& time, const double* normalizationUnits) & возвращает источник излучения с параметрами соответствующими заданному моменту времени. Так же принимает на вход массив единиц, в которых измеряются параметры этого источника.\\
+		\hline
+		\textbf{ExpandingRemnantSource} & класс, представляющий модель расширяющегося с постоянной скоростью остатка сверхновой, имеющего форму шарового слоя постоянной толщины с однородными концентрацией и магнитным полем \\
+		\hline
+		ExpandingRemnantSource(const double\& R0, const double\& B0, const double\& concentration0, const double\& v, const double\& widthFraction, RadiationSource* source, const double\& t0) & конструктор, создает экземпляр класса расширяющейся сферической оболочки с заданными в момент t0 радиусом, магнитным полем, концентрацией, скоростью расширения, отношением толщины оболочки к радиусу и моделью источника. Для коректного учета изменения источника во времени важно, чтобы конретная реализация метода source->resetParameters соответствовала той,что используется в методе getRadiationSource. В данном случае подходят все перечисленные выше реализации источников не зависящих от времени\\
+		\hline
+	\end{xtabular}
+\end{small}
+
+\section{Вычисление излучения}
+
+Для расчета излучения источников используется класс RadiationEvaluator и его наследники. Список публичных методов этого класса приведен в Таблице \ref{radiationEvaluator}. Общая схема расчета излучения такова: создать источник излучения, используя один из классов описанных в предыдущем разделе или написанный самостоятельно, затем создать вычислитель излучения нужного типа, и вызвать у него метод evaluateFluxFromSource(const double\& photonFinalEnergy, RadiationSource* source), вычисляющую энергетическую плотность потока излучения источника на данной энергии принимаемого фотона в единицах  $\text{см}^{-2} \text{с}^{-1}$. Далее в данном разделе описаны реализации класса RadiationEvaluator для конкретных видов излучения. Схема наследования классов вычислителей излучения представлена на рисунке \ref{radiationEvaluators}. Физическая сторона вопроса, формулы по которым расчитывается излучение подробно описаны в Главе \ref{Formulae}.
+
+\begin{small}
+	\topcaption{Публичные методы классa RadiationEvaluator }
+	\label{radiationEvaluator}
+	\begin{xtabular}{|p{0.5\textwidth}|p{0.5\textwidth}|} 
+		\hline
+		\textbf{RadiationEvaluator} & абстрактный класс для вычисления излучения \\
+		\hline
+		virtual evaluateFluxFromIsotropicFunction( const double\& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double\& volume, const double\& distance) & чисто виртуальный метод, возвращает энергетическую плотность потока излучаемого элементарным объемом с источника с данным распределением, на данном расстоянии от наблюдателя в единицах $\text{см}^{-2} \text{с}^{-1}$. Данный метод лучше не использовать самостоятельно, использовать вместо него расчет излучения от источников\\
+		\hline
+		virtual evaluateFluxFromSource(const double\& photonFinalEnergy, RadiationSource* source) & чисто виртуальный метод, возвращает энергетическую плотность потока излучаемого данным источником в единицах $\text{см}^{-2} \text{с}^{-1}$ \\
+		\hline
+		virtual resetParameters( const double* parameters, const double* normalizationUnits) & чисто виртуальный метод, позволяет изменить внутренние параметры вычислителя излучения. Список параметров, их количество, их влияние на источник определяются  в конкретных реализациях класса, данный метод используется при оптимизации\\
+		\hline
+		writeFluxFromSourceToFile(const char* fileName, RadiationSource* source, const double\& Ephmin, const double\& Ephmax, const int Nph) & записывает в файл с данным именем излучение источника в единицах $\text{см}^{-2} \text{с}^{-1}$ в диапазоне от минимальной до максимальной энергии, с заданным количеством точек, распределенных логарифмически\\
+		\hline
+	\end{xtabular}
+\end{small}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=12.5 cm]{./fig/radiationEvaluator.png} 
+	\caption{Схема наследования классов вычислителей излучения.}
+	\label{radiationEvaluators}
+\end{figure}
+
+\subsection{Синхротронное излучение}
+Для расчета синхротронного излучения используется класс SynchrotronEvaluator. В нем используется приближение непрерывного спектра, то есть рассматриваемые частоты фотонов предполагаются намного большими, чем частота вращения излучающих частиц в магнитном поле. Реализован случай только изотропной функции распределения. Так же возможен учет синхротронного самопоглощения. Используемая геометрия источников, показанная на рисунке \ref{sphericalLayer}, позволяет легко интегрировать излучение по лучу зрения, и учитывать при этом поглощение внутри источника.
+\subsection{Обратное комптоновское рассеяние}
+\subsection{Распад пионов}
+\subsection{Тормозное излучение}
 

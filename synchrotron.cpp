@@ -188,6 +188,8 @@ void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFre
 
 double SynchrotronEvaluator::evaluateFluxFromIsotropicFunction(const double &photonFinalEnergy, MassiveParticleIsotropicDistribution *electronDistribution, const double &volume, const double &distance)
 {
+	printf("don't use direct flux evaluation with distribution for synchrotron radiation\n");
+	printLog("don't use direct flux evaluation with distribution for synchrotron radiation\n");
     double A = 0;
     double I = 0;
     double photonFinalFrequency = photonFinalEnergy/hplank;
