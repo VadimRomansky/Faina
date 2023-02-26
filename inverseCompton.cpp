@@ -9,7 +9,7 @@
 
 #include "inverseCompton.h"
 
-InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax, PhotonIsotropicDistribution* photonDistribution, COMPTON_SOLVER_TYPE solverType) : RadiationEvaluator(Ne, Emin, Emax){
+InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax, PhotonIsotropicDistribution* photonDistribution, ComptonSolverType solverType) : RadiationEvaluator(Ne, Emin, Emax){
 	my_solverType = solverType;
 	
 	my_Nmu = Nmu;
@@ -57,7 +57,7 @@ InverseComptonEvaluator::~InverseComptonEvaluator() {
 	delete[] my_dcosTheta;
 }
 
-void InverseComptonEvaluator::outputDifferentialFlux(const char* fileName) {
+/*void InverseComptonEvaluator::outputDifferentialFlux(const char* fileName) {
 	FILE* outFile = fopen(fileName, "w");
 
 	double photonFinalEnergy = 100*1.6E-12;
@@ -86,9 +86,9 @@ void InverseComptonEvaluator::outputDifferentialFlux(const char* fileName) {
 	}
 
 	fclose(outFile);
-}
+}*/
 
-double InverseComptonEvaluator::evaluateDifferentialFlux(const double& photonFinalEnergy, const double& photonFinalCosTheta, const double& photonFinalPhi, const double& electronInitialEnergy, const double& mu_e, const double& phi_e, const double& mu_ph, const double& phi_ph) {
+/*double InverseComptonEvaluator::evaluateDifferentialFlux(const double& photonFinalEnergy, const double& photonFinalCosTheta, const double& photonFinalPhi, const double& electronInitialEnergy, const double& mu_e, const double& phi_e, const double& mu_ph, const double& phi_ph) {
 	double m = massElectron;
 	double m_c2 = m * speed_of_light2;
 	double electronInitialGamma = electronInitialEnergy / (m * speed_of_light2);
@@ -122,13 +122,13 @@ double InverseComptonEvaluator::evaluateDifferentialFlux(const double& photonFin
 	double result = (sqr(1 - photonInitialCosThetaRotated * electronInitialBeta) / (1.0 - photonFinalCosThetaRotated * electronInitialBeta)) *
 		(1 + cosXiPrimed * cosXiPrimed + sqr(photonFinalEnergyPrimed / m_c2) * sqr(1 - cosXiPrimed) / (1 - (photonFinalEnergyPrimed / m_c2) * (1 - cosXiPrimed)));
 	return result;
-}
+}*/
 
 void InverseComptonEvaluator::resetParameters(const double *parameters, const double *normalizationUnits){
 //todo change photon distribution
 }
 
-double InverseComptonEvaluator::evaluateComptonLuminocityThomsonIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+double InverseComptonEvaluator::evaluateComptonFluxThomsonIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
 	MassiveParticlePowerLawDistribution* powerlawDistribution = dynamic_cast<MassiveParticlePowerLawDistribution*>(electronDistribution);
 	if (powerlawDistribution == NULL) {
 		printf("Thompson solver works only with powerlaw distribution\n");
@@ -154,7 +154,7 @@ double InverseComptonEvaluator::evaluateComptonLuminocityThomsonIsotropic(const 
 	double I = photonConcentration * electronConcentration * volume * 0.5 * sigmat * pow(massElectron * speed_of_light2, 1.0 - index) * pow(photonFinalEnergy, -(index - 1.0) / 2.0) * pow((4.0 / 3.0) * meanPlank * kBoltzman * temperature, (index - 1.0) / 2.0) * K * speed_of_light / (4 * pi);
 	return I/(4*pi*sqr(distance));
 }
-double InverseComptonEvaluator::evaluateComptonLuminocityJonesIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
 	double m = electronDistribution->getMass();
 	double m_c2 = m * speed_of_light2;
 	double r2 = sqr(electron_charge * electron_charge / m_c2);
@@ -223,7 +223,7 @@ double InverseComptonEvaluator::evaluateComptonLuminocityJonesIsotropic(const do
 	return I / (distance * distance);
 }
 
-double InverseComptonEvaluator::evaluateComptonLuminocityKleinNishinaIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
 	double m = electronDistribution->getMass();
 	double m_c2 = m * speed_of_light2;
 	double r2 = sqr(electron_charge * electron_charge / m_c2);
@@ -331,7 +331,7 @@ double InverseComptonEvaluator::evaluateComptonLuminocityKleinNishinaIsotropic(c
 	return I / (distance * distance);
 }
 
-double InverseComptonEvaluator::evaluateComptonLuminocityKleinNishinaAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& volume, const double& distance) {
+double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& volume, const double& distance) {
 	double I = 0;
 	double m = electronDistribution->getMass();
 	double m_c2 = m * speed_of_light2;
@@ -435,22 +435,22 @@ double InverseComptonEvaluator::evaluateComptonLuminocityKleinNishinaAnisotropic
 	return I / sqr(distance);
 }
 
-double InverseComptonEvaluator::evaluateComptonLuminocityKleinNishinaAnisotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
-	return evaluateComptonLuminocityKleinNishinaAnisotropic(photonFinalEnergy, 0, 0, photonDistribution, electronDistribution, volume, distance);
+double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+	return evaluateComptonFluxKleinNishinaAnisotropic(photonFinalEnergy, 0, 0, photonDistribution, electronDistribution, volume, distance);
 }
 
 double InverseComptonEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
-	if (my_solverType == COMPTON_SOLVER_TYPE::ISOTROPIC_THOMSON) {
-		return evaluateComptonLuminocityThomsonIsotropic(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
+	if (my_solverType == ComptonSolverType::ISOTROPIC_THOMSON) {
+		return evaluateComptonFluxThomsonIsotropic(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
 	}
-	else if (my_solverType == COMPTON_SOLVER_TYPE::ISOTROPIC_JONES) {
-		return evaluateComptonLuminocityJonesIsotropic(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
+	else if (my_solverType == ComptonSolverType::ISOTROPIC_JONES) {
+		return evaluateComptonFluxJonesIsotropic(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
 	}
-	else if (my_solverType == COMPTON_SOLVER_TYPE::ISOTROPIC_KLEIN_NISHINA) {
-		return evaluateComptonLuminocityKleinNishinaIsotropic(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
+	else if (my_solverType == ComptonSolverType::ISOTROPIC_KLEIN_NISHINA) {
+		return evaluateComptonFluxKleinNishinaIsotropic(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
 	}
-	else if (my_solverType == COMPTON_SOLVER_TYPE::ANISOTROPIC_KLEIN_NISHINA) {
-		return evaluateComptonLuminocityKleinNishinaAnisotropic(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
+	else if (my_solverType == ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA) {
+		return evaluateComptonFluxKleinNishinaAnisotropic(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
 	}
 	else {
 		printf("unknown compton solver type\n");
@@ -487,7 +487,7 @@ double InverseComptonEvaluator::evaluateFluxFromSourceAnisotropic(const double& 
 	for (int irho = 0; irho < Nrho; ++irho) {
 		for (int iz = 0; iz < Nz; ++iz) {
 			for (int iphi = 0; iphi < Nphi; ++iphi) {
-				result += evaluateComptonLuminocityKleinNishinaAnisotropic(photonFinalEnergy, photonFinalTheta, photonFinalPhi, photonDistribution, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
+				result += evaluateComptonFluxKleinNishinaAnisotropic(photonFinalEnergy, photonFinalTheta, photonFinalPhi, photonDistribution, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
 			}
 		}
 	}

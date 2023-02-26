@@ -478,13 +478,13 @@ FAINA позволяет рассчитывать электромагнитно
 \end{figure}
 
 \subsection{Синхротронное излучение}
-Для расчета синхротронного излучения используется класс SynchrotronEvaluator. В нем используется приближение непрерывного спектра, то есть рассматриваемые частоты фотонов предполагаются намного большими, чем частота вращения излучающих частиц в магнитном поле. Реализован случай только изотропной функции распределения излучающих частиц. Так же возможен учет синхротронного самопоглощения. Используемая геометрия источников, показанная на рисунке \ref{sphericalLayer}, позволяет легко интегрировать излучение по лучу зрения, и учитывать при этом поглощение внутри источника. При создании объекта класса необходимо указать рассматриваемый в нем диапазон энергий частиц и количество точек в нем, параметр отвечающиза учет самопоглощения (значение по умолчанию true), а так же значения магнитного поля, синуса угла наклона к лучу зрения и толщины излучаемой области, которые будут использоваться в случае расчета излучения без указания источника, а только с использованием распределения частиц. Публичные методы класса SynchrotronEvaluator перечислены в Таблице \ref{SynchrotronEvaluator}. Пример вычисления синхотронного излучения приведен в разделе \ref{quickStart}.
+Для расчета синхротронного излучения используется класс SynchrotronEvaluator. В нем используется приближение непрерывного спектра, то есть рассматриваемые частоты фотонов предполагаются намного большими, чем частота вращения излучающих частиц в магнитном поле. Реализован случай только изотропной функции распределения излучающих частиц. Так же возможен учет синхротронного самопоглощения. Используемая геометрия источников, показанная на рисунке \ref{sphericalLayer}, позволяет легко интегрировать излучение по лучу зрения, и учитывать при этом поглощение внутри источника. При создании объекта класса необходимо указать рассматриваемый диапазон энергий частиц и количество точек в нем, параметр отвечающиза учет самопоглощения (значение по умолчанию true), а так же значения магнитного поля, синуса угла наклона к лучу зрения и толщины излучаемой области, которые будут использоваться в случае расчета излучения без указания источника, а только с использованием распределения частиц. Публичные методы класса SynchrotronEvaluator перечислены в Таблице \ref{SynchrotronEvaluator}. Пример вычисления синхотронного излучения приведен в разделе \ref{quickStart}.
 \begin{table}
 	\begin{center}
 	\begin{small}
 	\caption{Публичные методы классa SynchrotronEvaluator }
 	\label{SynchrotronEvaluator}
-	\begin{tabularx}{\textheight}{|p{0.5\textwidth}|p{0.5\textwidth}|} 
+	\begin{tabularx}{\textwidth}{|X|X|} 
 		\hline
 		\textbf{SynchrotronEvaluator} & класс предназначенный для вычисления синхротронного излучения\\
 		\hline
@@ -497,7 +497,7 @@ FAINA позволяет рассчитывать электромагнитно
 \end{center}
 \end{table}
 \subsection{Обратное комптоновское рассеяние}
-Для расчета излучения, получающегося в результате процесса обратного комптоновского рассеяния, использеутся класс InverseComptonEvaluator. Внутри него реализованы четыре различных модели расчета излучения, для обозначения которых используется перечислимый тип ComptonSolverType, имеющий следующие значения:
+Для расчета излучения, получающегося в результате процесса обратного комптоновского рассеяния, использеутся класс InverseComptonEvaluator. Внутри него реализованы четыре различных метода расчета излучения, для обозначения которых используется перечислимый тип ComptonSolverType, имеющий следующие значения:
 
 \begin{itemize}
 	\item ISOTROPIC\_THOMSON - модель рассеяния в томсоновсков режиме. Реализовано только для степенного распределения электронов и теплового фотонов \cite{Ginzburg1975} глава 17, с 466
@@ -505,6 +505,106 @@ FAINA позволяет рассчитывать электромагнитно
 	\item ISOTROPIC\_KLEIN\_NISHINA - модель расчитывающее излучение напрямую из сечения Клейна-Нишины, но для изотропных функций распределения, что позволяет уменьшить количество интегрирований
 	\item ISOTROPIC\_JONES - модель, использующая аналитически проинтегрированное по углам сечение Клейна-Нишины \cite{JonesCompton, BykovUvarov2000}
 \end{itemize}
+
+При создании объекта класса InverseComptomEvaluator необходимо указать рассматриваемый диапазон энергий частиц и количество точек в нем, количество ячеек в сетке по полярному и азимутальному углу, изотропную функцию распределения фотонов, которая будет использоваться по умолчанию и метод расчета излучения. Публичные методы класса SynchrotronEvaluator перечислены в Таблице \ref{InverseComptonEvaluator}.
+\begin{table}[h]
+	\begin{center}
+		\begin{small}
+	\caption{Публичные методы классa InverseComptonEvaluator }
+	\label{InverseComptonEvaluator}
+	\begin{tabularx}{\textwidth}{|X|X|} 
+		\hline
+		\textbf{InverseComptonEvaluator} & класс предназначенный для вычисления излучения рождащегося в результате обратного комптоновского рассеяния\\
+		\hline
+		InverseComptonEvaluator( int Ne, int Nmu, int Nphi, double Emin, double Emax, PhotonIsotropicDistribution* photonDistribution, ComptonSolverType solverType) & конструктор, создает экземпляр с заданным рассматриваемым диапазоном энергии, количеством ячеек в сетке по полярному и азимутальному углу, изотропной функцией распределения фотонов, которая будет использоваться по умолчанию и методом расчета излучения\\
+		\hline
+		evaluateComptonFluxKleinNishinaAnisotropic const double\& photonFinalEnergy, const double\& photonFinalTheta, const double\& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double\& volume, const double\& distance) & возвращает энергетическую плотность потока энергии в заданном направлении, излучением созданным заданными функциями распределения фотонов и рассеивющих частиц (которые могут быть анизотропными) в заданном объеме на данном расстоянии\\
+		\hline
+		evaluateFluxFromSourceAnisotropic( const double\& photonFinalEnergy, const double\& photonFinalTheta, const double\& photonFinalPhi, PhotonDistribution* photonDistribution, RadiationSource* source) & возвращает энергетическую плотность потока энергии в заданном направлении, излучением созданным заданными распределения фотонов и источником, содержащим распределения рассеивающих частиц\\
+		\hline
+	\end{tabularx}
+\end{small}
+\end{center}
+\end{table}
+
+Пример вычисления излучения от обратного комптоновского рассеяние содержится в процедуре evaluateComtonWithPowerLawDistribution() в файле main.cpp. В ней расчитывается рентгеновское излучение, исходящее от объекта CSS161010 при рассеивании степенного распределения электронов, определенного в работе \cite{Coppejans2020}, на среднегалактическом распределении фотонов.  Сначала определим переменные, задающие основные параметры источника - концентрацию частиц, его размер и магнитное поле. Для вычисления обратного комптоновского рассеяния магнитное поле не используется, но в источнике нужно его задать, поэтому положим его равным нулю. Так же зададим параметры сетки по энергиям и углам, которая будет использоваться вычислителем
+
+\begin{lstlisting}[language=c++]
+	double electronConcentration = 150;
+	double sinTheta = 1.0;
+	double rmax = 1.3E17;
+	double B = 0.0;
+	double distance = 150*1E6*parsec;
+	
+	double Emin = me_c2;
+	double Emax = 1000 * me_c2;
+	int Ne = 200;
+	int Nmu = 20;
+	int Nphi = 4;
+\end{lstlisting}
+
+Далее создадим распределение фотонов, воспользовавшись статическим методом класса MultiPlankDistribution getGalacticField, который возвращает среднегалактическое фотонное распределение, и распределение электронов - возьмем степенное рспределение с показателем 3.5.
+\begin{lstlisting}[language=c++]
+	PhotonIsotropicDistribution* photonDistribution = 
+	    PhotonMultiPlankDistribution::getGalacticField();
+	MassiveParticlePowerLawDistribution* electrons = new 
+	    MassiveParticlePowerLawDistribution(massElectron, 3.5,
+	    Emin, electronConcentration);
+\end{lstlisting}
+
+С помощью введенных ранее переменных создадим источник излучения и вычислитель излучения. В качестве метода расчета выберем самый универсальный - ANISOTROPIC\_KLEIN\_NISHINA
+
+\begin{lstlisting}[language=c++]
+	RadiationSource* source = new SimpleFlatSource(
+	  electrons, B, sinTheta, rmax, rmax, distance);
+	
+	InverseComptonEvaluator* comptonEvaluator = new 
+	    InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, 
+	    photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+\end{lstlisting}
+
+Предположим, что мы не хотим пользоваться встроенным методом вывода излучения в файл, так как хотим получить конечный результат в других единицах, например энергию фотона измерят в электронвольтах, а поток вывести в формате $E F(E)$ - $\text{эрг}\text{см}^{-2}\text{с}^{-1}$. Создадим тогда сетку значений энергии фотонов
+\begin{lstlisting}[language=c++]
+	int Nnu = 200;
+	double* E = new double[Nnu];
+	double* F = new double[Nnu];
+	double Ephmin = 0.01 * kBoltzman * 2.725;
+	double Ephmax = 2 * Emax;
+	double factor = pow(Ephmax / Ephmin, 1.0 / (Nnu - 1));
+	E[0] = Ephmin;
+	F[0] = 0;
+	for (int i = 1; i < Nnu; ++i) {
+		E[i] = E[i - 1] * factor;
+		F[i] = 0;
+	}
+\end{lstlisting}
+после этого вычислим в цикле желаемые потоки излучения
+\begin{lstlisting}[language=c++]
+	for (int i = 0; i < Nnu; ++i) {
+		F[i] = comptonEvaluator->evaluateFluxFromSource(
+		    E[i], source);
+	}
+\end{lstlisting}
+и запишем их в файл, переведя в желаемые единицы
+\begin{lstlisting}[language=c++]
+	FILE* output_ev_EFE = fopen("output.dat", "w");
+	
+	for (int i = 0; i < Nnu; ++i) {
+		double nu = E[i] / hplank;
+		fprintf(output_ev_EFE, "%g %g\n",
+		    E[i] / (1.6E-12), E[i] * F[i]);
+	}
+
+	fclose(output_ev_EFE);
+\end{lstlisting}
+Спектр излучения, полученный в результате работы данной программы приведен на рисунке \ref{compton}
+\begin{figure}
+	\centering
+	\includegraphics[width=12.5 cm]{./fig/compton.png} 
+	\caption{Энергетическая плотность потока синхротронного излучения от тестового источника}
+	\label{compton}
+\end{figure}
+
 \subsection{Распад пионов}
 \subsection{Тормозное излучение}
 

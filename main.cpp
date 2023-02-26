@@ -26,31 +26,37 @@ void evaluateSimpleSynchrotron() {
 // example 1. Evaluating inverse compton flux of powerlaw distributed electrons on CMB radiation
 void evaluateComtonWithPowerLawDistribution() {
 	double electronConcentration = 150;
-	double sinTheta = sin(pi / 6);
+	double sinTheta = 1.0;
 	double rmax = 1.3E17;
-	double B = 0.6;
+	double B = 0.0;
 
 	//SN2009bb
 	//const double distance = 40*3.08*1.0E24;
 	//AT2018
 	//const double distance = 60*3.08*1.0E24;
 	//CSS161010
-	const double distance = 150 * 3.08 * 1.0E24;
+	const double distance = 150 * 1000000 * parsec;
+
 	double Emin = me_c2;
 	double Emax = 1000 * me_c2;
+	int Ne = 200;
+	int Nmu = 20;
+	int Nphi = 4;
 
-	PhotonPlankDistribution* CMBradiation = PhotonPlankDistribution::getCMBradiation();
-	//PhotonIsotropicDistribution* CMBradiation = new PhotonPowerLawDistribution(2, 0.01*massElectron*speed_of_light2, 1.0);
-	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, 2.5, Emin, electronConcentration);
-	RadiationSource* source = new SimpleFlatSource(electrons, B, sinTheta, rmax, rmax, distance);
-    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 50, 4, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_KLEIN_NISHINA);
-    InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 50, 4, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ANISOTROPIC_KLEIN_NISHINA);
-    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 50, 4, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_JONES);
-    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(200, 50, 4, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_THOMSON);
+	//initializing mean galactic photon field
+	PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
 	
-	comptonEvaluator->outputDifferentialFlux("output.dat");
-	//return;
+	//initializing electrons distribution
+	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, Emin, electronConcentration);
+	//creating radiation source
+	RadiationSource* source = new SimpleFlatSource(electrons, B, sinTheta, rmax, rmax, distance);
+    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_KLEIN_NISHINA);
+    InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_JONES);
+    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_THOMSON);
+	
 
+	//initializing photon energy grid for output
 	int Nnu = 200;
 	double* E = new double[Nnu];
 	double* F = new double[Nnu];
@@ -65,6 +71,7 @@ void evaluateComtonWithPowerLawDistribution() {
 		F[i] = 0;
 	}
 
+	//evaluating radiation flux
 	printLog("evaluating\n");
 	for (int i = 0; i < Nnu; ++i) {
 		printf("%d\n", i);
@@ -73,15 +80,16 @@ void evaluateComtonWithPowerLawDistribution() {
         //F[i] = comptonEvaluator->evaluateFluxFromSourceAnisotropic(E[i], 0, 0, CMBradiation, source);
 	}
 
-	FILE* output_ev_EFE = fopen("outputE.dat", "w");
-	FILE* output_GHz_Jansky = fopen("outputNu.dat", "w");
+	//outputing
+	FILE* output_ev_EFE = fopen("output.dat", "w");
+	//FILE* output_GHz_Jansky = fopen("output.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		double nu = E[i] / hplank;
         fprintf(output_ev_EFE, "%g %g\n", E[i] / (1.6E-12), E[i] * F[i]);
-        fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * F[i]);
+        //fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * F[i]);
 	}
 	fclose(output_ev_EFE);
-	fclose(output_GHz_Jansky);
+	//fclose(output_GHz_Jansky);
 
 	delete[] E;
 	delete[] F;
@@ -600,17 +608,19 @@ void fitTimeDependentCSS161010() {
 void evaluatePionDecayWithPowerLawDistribution() {
 	double protonConcentration = 150;
 	double rmax = 55 * 3.0856 * 1.0E18;
+	double B = 0;
+	double sinTheta = 1.0;
 
 	//Cynus
 	const double distance = 1400 * 3.0856 * 1.0E18;
 	double Emin = massProton*speed_of_light2 + 0.01E9 * 1.6E-12;
 	double Emax = 1E13 * 1.6E-12;
 
-	//MassiveParticleBrokenPowerLawDistribution* protons = new MassiveParticleBrokenPowerLawDistribution(massProton, 2.1, 2.64, Emin, 2.2E12 * 1.6E-12, protonConcentration);
+	MassiveParticleBrokenPowerLawDistribution* protons = new MassiveParticleBrokenPowerLawDistribution(massProton, 2.1, 2.64, Emin, 2.2E12 * 1.6E-12, protonConcentration);
 	//MassiveParticlePowerLawDistribution* protons = new MassiveParticlePowerLawDistribution(massProton, 2.0, Emin, protonConcentration);
-	MassiveParticlePowerLawCutoffDistribution* protons = new MassiveParticlePowerLawCutoffDistribution(massProton, 2.0, Emin, 1.0, Emax, protonConcentration);
-	protons->writeDistribution("outputProtons.dat", 200, Emin, Emax);
-	RadiationSource* source = new SimpleFlatSource(protons, 0, 0, rmax, rmax, distance);
+	//MassiveParticlePowerLawCutoffDistribution* protons = new MassiveParticlePowerLawCutoffDistribution(massProton, 2.0, Emin, 1.0, Emax, protonConcentration);
+	//protons->writeDistribution("outputProtons.dat", 200, Emin, Emax);
+	RadiationSource* source = new SimpleFlatSource(protons, B, sinTheta, rmax, rmax, distance);
     double protonAmbientConcentration = 20;
     PionDecayEvaluator* pionDecayEvaluator = new PionDecayEvaluator(200, Emin, Emax, protonAmbientConcentration);
 
@@ -628,16 +638,16 @@ void evaluatePionDecayWithPowerLawDistribution() {
 		F[i] = 0;
 	}
 
-	double* sigmaGamma = new double[Nnu];
+	/*double* sigmaGamma = new double[Nnu];
 	double protonKineticEnergy = 100000E9 * 1.6E-12;
 	for (int i = 0; i < Nnu; ++i) {
 		sigmaGamma[i] = pionDecayEvaluator->sigmaGamma(E[i], protonKineticEnergy);
-	}
+	}*/
 
-	double* sigmaInel = new double[Nnu];
+	//double* sigmaInel = new double[Nnu];
 	double* Ep = new double[Nnu];
 
-	double Epmin = 0.01 * Emin;
+	/*double Epmin = 0.01 * Emin;
 	double Epmax = 1E17 * 1.6E-12;
 	factor = pow(Epmax / Epmin, 1.0 / (Nnu - 1));
 	Ep[0] = Epmin;
@@ -649,7 +659,7 @@ void evaluatePionDecayWithPowerLawDistribution() {
 		fprintf(output_sigma_inel, "%g %g\n", Ep[i], pionDecayEvaluator->sigmaInelastic(Ep[i]));
 	}
 	fclose(output_sigma_inel);
-	delete[] Ep;
+	delete[] Ep;*/
 
 	printLog("evaluating\n");
 	for (int i = 0; i < Nnu; ++i) {
@@ -660,17 +670,17 @@ void evaluatePionDecayWithPowerLawDistribution() {
 	}
 
 	FILE* output_ev_dNdE = fopen("outputPionE.dat", "w");
-	FILE* output_GHz_Jansky = fopen("outputPionNu.dat", "w");
-	FILE* output_sigma = fopen("outputSigma.dat", "w");
+	//FILE* output_GHz_Jansky = fopen("outputPionNu.dat", "w");
+	//FILE* output_sigma = fopen("outputSigma.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		double nu = E[i] / hplank;
         fprintf(output_ev_dNdE, "%g %g\n", E[i] / (1.6E-12), F[i]/E[i]);
-        fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * F[i]);
-		fprintf(output_sigma, "%g %g\n", E[i] / (1.6E-12), sigmaGamma[i]);
+        //fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * F[i]);
+		//fprintf(output_sigma, "%g %g\n", E[i] / (1.6E-12), sigmaGamma[i]);
 	}
 	fclose(output_ev_dNdE);
-	fclose(output_GHz_Jansky);
-	fclose(output_sigma);
+	//fclose(output_GHz_Jansky);
+	//fclose(output_sigma);
 
 	delete[] E;
 	delete[] F;
@@ -739,12 +749,12 @@ void evaluateBremsstrahlung() {
 
 
 int main() {
-	evaluateSimpleSynchrotron();
+	//evaluateSimpleSynchrotron();
 	//evaluateComtonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
-	//evaluatePionDecayWithPowerLawDistribution();
+	evaluatePionDecayWithPowerLawDistribution();
 	//evaluateBremsstrahlung();
 	return 0;
 }
