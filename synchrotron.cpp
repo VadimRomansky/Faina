@@ -104,9 +104,12 @@ double criticalNu(const double& E, const double& sinhi, const double& H, const d
 	return coef * H * sinhi * E * E;
 }
 
-SynchrotronEvaluator::SynchrotronEvaluator(int Ne, double Emin, double Emax, bool selfAbsorption):RadiationEvaluator(Ne, Emin, Emax)
+SynchrotronEvaluator::SynchrotronEvaluator(int Ne, double Emin, double Emax, bool selfAbsorption, const double& defaultB, const double& defaultSinTheta, const double& defaultLength):RadiationEvaluator(Ne, Emin, Emax)
 {
 	my_selfAbsorption = selfAbsorption;
+	my_defaultB = defaultB;
+	my_defaultSinTheta = defaultSinTheta;
+	my_defaultLength = defaultLength;
 }
 
 SynchrotronEvaluator::~SynchrotronEvaluator()
@@ -193,8 +196,32 @@ double SynchrotronEvaluator::evaluateFluxFromIsotropicFunction(const double &pho
     double A = 0;
     double I = 0;
     double photonFinalFrequency = photonFinalEnergy/hplank;
-    evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, 0, 0, 0, electronDistribution, I, A);
-    return I*volume/sqr(distance);
+    evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, my_defaultB, my_defaultSinTheta, electronDistribution->getConcentration(), electronDistribution, I, A);
+
+	double localI = 0;
+	if (my_defaultLength > 0) {
+		double area = volume / my_defaultLength;
+		if (my_selfAbsorption) {
+			double I0 = localI;
+			double Q = I * area;
+			double tau = A * my_defaultLength;
+			double S = 0;
+			if (Q > 0) {
+				S = Q / A;
+			}
+			if (fabs(tau) < 1E-15) {
+				localI = I0 * (1.0 - tau) + S * tau;
+			}
+			else {
+				localI = S + (I0 - S) * exp(-tau);
+			}
+		}
+		else {
+			localI = I * volume;
+		}
+	}
+
+    return localI/sqr(distance);
 }
 
 double SynchrotronEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)
