@@ -7,11 +7,12 @@ radiationEt = importdata('../outputEt.dat');
 %radiationEa = importdata('../outputEa.dat');
 
 radiationUvarov = importdata('../compt_test1_KN.dat');
+radiationMine = importdata('../output.dat');
 
 
 Nnu = size(radiationEu,1);
 N1 = size(radiationUvarov,1);
-
+N2 = size(radiationMine,1);
 
 
 
@@ -65,4 +66,4 @@ hold on;
 set(gca, 'YScale', 'log');
 set(gca, 'XScale', 'log');
 plot(radiationUvarov(1:N1,1), radiationUvarov(1:N1,2),'red','LineWidth',2);
-plot(radiationUvarov(1:N1,1), radiationUvarov(1:N1,3),'blue','LineWidth',2);
+plot(radiationMine(1:N2,1), radiationMine(1:N2,2),'blue','LineWidth',2);

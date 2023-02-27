@@ -70,6 +70,9 @@ double PhotonPlankDistribution::distributionNormalized(const double& energy) {
 		return 0;
 	}*/
 	double theta = energy / (kBoltzman * my_temperature);
+	if (theta < 1E-12) {
+		return my_A * (2 * kBoltzman * my_temperature * energy / cube(hplank * speed_of_light)) / my_concentration;
+	}
 	return my_A*(2 * energy * energy / cube(hplank * speed_of_light)) / (exp(theta) - 1.0)/my_concentration;
 }
 

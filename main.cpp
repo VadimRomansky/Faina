@@ -25,9 +25,9 @@ void evaluateSimpleSynchrotron() {
 
 // example 1. Evaluating inverse compton flux of powerlaw distributed electrons on CMB radiation
 void evaluateComtonWithPowerLawDistribution() {
-	double electronConcentration = 150;
 	double sinTheta = 1.0;
-	double rmax = 1.3E17;
+	//double rmax = 1.3E17;
+	double rmax = 1.0/sqrt(pi);
 	double B = 0.0;
 
 	//SN2009bb
@@ -35,25 +35,30 @@ void evaluateComtonWithPowerLawDistribution() {
 	//AT2018
 	//const double distance = 60*3.08*1.0E24;
 	//CSS161010
-	const double distance = 150 * 1000000 * parsec;
+	//const double distance = 150 * 1000000 * parsec;
+	const double distance = 1.0;
 
-	double Emin = me_c2;
-	double Emax = 1000 * me_c2;
+	double Emin = me_c2 * 652.317;
+	double Emax = 1.8E11 *me_c2;
 	int Ne = 200;
-	int Nmu = 20;
+	int Nmu = 50;
 	int Nphi = 4;
+	double index = 2.5;
+	double KK = 24990.8;
+	double electronConcentration = KK/(pow(652.317,index-1)*(index-1));
 
 	//initializing mean galactic photon field
-	PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
+	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
+	PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
 	
 	//initializing electrons distribution
-	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, Emin, electronConcentration);
+	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 	//creating radiation source
 	RadiationSource* source = new SimpleFlatSource(electrons, B, sinTheta, rmax, rmax, distance);
-    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_KLEIN_NISHINA);
-    InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_JONES);
-    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, CMBradiation, COMPTON_SOLVER_TYPE::ISOTROPIC_THOMSON);
+    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+    InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
+    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
 	
 
 	//initializing photon energy grid for output
@@ -85,7 +90,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	//FILE* output_GHz_Jansky = fopen("output.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		double nu = E[i] / hplank;
-        fprintf(output_ev_EFE, "%g %g\n", E[i] / (1.6E-12), E[i] * F[i]);
+        fprintf(output_ev_EFE, "%g %g\n", E[i] / (1.6E-9), F[i]);
         //fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * F[i]);
 	}
 	fclose(output_ev_EFE);
@@ -750,11 +755,11 @@ void evaluateBremsstrahlung() {
 
 int main() {
 	//evaluateSimpleSynchrotron();
-	//evaluateComtonWithPowerLawDistribution();
+	evaluateComtonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
-	evaluatePionDecayWithPowerLawDistribution();
+	//evaluatePionDecayWithPowerLawDistribution();
 	//evaluateBremsstrahlung();
 	return 0;
 }
