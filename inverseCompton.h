@@ -15,6 +15,7 @@ protected:
 	int my_Nmu;
 	int my_Nphi;
 
+	double* my_theta;
 	double* my_cosTheta;
 	double* my_cosThetaLeft;
 	double* my_dcosTheta;

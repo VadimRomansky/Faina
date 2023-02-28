@@ -66,4 +66,4 @@ hold on;
 set(gca, 'YScale', 'log');
 set(gca, 'XScale', 'log');
 plot(radiationUvarov(1:N1,1), radiationUvarov(1:N1,2),'red','LineWidth',2);
-plot(radiationMine(1:N2,1), radiationMine(1:N2,2),'blue','LineWidth',2);
+plot(radiationMine(1:N2,1), radiationMine(1:N2,2)*(4*3.14),'blue','LineWidth',2);

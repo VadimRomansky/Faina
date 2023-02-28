@@ -39,7 +39,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	const double distance = 1.0;
 
 	double Emin = me_c2 * 652.317;
-	double Emax = 1.8E11 *me_c2;
+	double Emax = 1.8E7 *me_c2;
 	int Ne = 200;
 	int Nmu = 50;
 	int Nphi = 4;

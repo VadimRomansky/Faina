@@ -17,6 +17,7 @@ InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, doub
 
     my_photonDistribution = photonDistribution;
 
+	my_theta = new double[my_Nmu];
 	my_cosTheta = new double[my_Nmu];
 	my_cosThetaLeft = new double[my_Nmu];
 	my_dcosTheta = new double[my_Nmu];
@@ -26,10 +27,12 @@ InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, doub
 	double thetamin = min(0.1/ (my_Emax / me_c2), pi/(2*my_Nmu));
 	double dlogtheta = log((pi + (1-fraction)*thetamin) / (thetamin)) / (Nmu - 1);
 
+	my_theta[0] = 0;
 	my_cosThetaLeft[0] = 1.0;
 	my_cosTheta[0] = cos(fraction*thetamin);
 	for (int i = 1; i < my_Nmu; ++i) {
-		my_cosTheta[i] = cos(thetamin * exp(dlogtheta * (i)) - (1-fraction)*thetamin);
+		my_theta[i] = thetamin * exp(dlogtheta * (i)) - (1 - fraction) * thetamin;
+		my_cosTheta[i] = cos(my_theta[i]);
 		my_cosThetaLeft[i] = (my_cosTheta[i] + my_cosTheta[i - 1]) / 2.0;
 	}
 	for (int i = 0; i < my_Nmu - 1; ++i) {
@@ -52,6 +55,7 @@ InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, doub
 }
 
 InverseComptonEvaluator::~InverseComptonEvaluator() {
+	delete[] my_theta;
 	delete[] my_cosTheta;
 	delete[] my_cosThetaLeft;
 	delete[] my_dcosTheta;
@@ -241,13 +245,18 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 		double dlogtheta = log((pi + (1 - fraction) * thetamin) / (thetamin)) / (my_Nmu - 1);
 
 		my_cosThetaLeft[0] = 1.0;
+		my_theta[0] = 0;
 		my_cosTheta[0] = cos(fraction * thetamin);
 		for (int i = 1; i < my_Nmu; ++i) {
-			my_cosTheta[i] = cos(thetamin * exp(dlogtheta * (i)) - (1 - fraction) * thetamin);
+			my_theta[i] = thetamin * exp(dlogtheta * (i)) - (1 - fraction) * thetamin;
+			my_cosTheta[i] = cos(my_theta[i]);
 			my_cosThetaLeft[i] = (my_cosTheta[i] + my_cosTheta[i - 1]) / 2.0;
 		}
 		for (int i = 0; i < my_Nmu - 1; ++i) {
 			my_dcosTheta[i] = -(my_cosThetaLeft[i + 1] - my_cosThetaLeft[i]);
+			if (my_theta[i] < 1E-7) {
+				//my_dcosTheta[i] = sin(my_theta[i]) * (my_theta[i + 1] - my_theta[i]);
+			}
 		}
 		my_dcosTheta[my_Nmu - 1] = 1.0 + my_cosThetaLeft[my_Nmu - 1];
 		
