@@ -179,9 +179,13 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 	double photonFinalPhi = 0.0;
 	for (int k = 0; k < my_Ne; ++k) {
 		double electronInitialEnergy = my_Ee[k];
+		double electronInitialGamma = electronInitialEnergy / (massElectron * speed_of_light2);
 
-		Ephmin = 0.001 * kBoltzman * 2.7;
-		Ephmax = 10 * electronInitialEnergy;
+		Ephmin = photonFinalEnergy - (electronInitialEnergy - m_c2);
+		if (Ephmin <= 0) {
+			Ephmin = photonFinalEnergy/ (4*electronInitialGamma*electronInitialGamma);
+		}
+		Ephmax = 2 * photonFinalEnergy;
 		factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
 		Eph[0] = Ephmin;
 		for (int i = 1; i < Nph; ++i) {
@@ -189,7 +193,6 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 		}
 
 		double delectronEnergy;
-		double electronInitialGamma = electronInitialEnergy / (massElectron * speed_of_light2);
 		double electronInitialBeta = sqrt(1.0 - 1.0 / (electronInitialGamma * electronInitialGamma));
 		if (k == 0) {
 			delectronEnergy = my_Ee[1] - my_Ee[0];

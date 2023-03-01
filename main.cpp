@@ -39,7 +39,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	const double distance = 1.0;
 
 	double Emin = me_c2 * 1;
-	double Emax = 1E10 *me_c2;
+	double Emax = 1E12 *me_c2;
 	int Ne = 200;
 	int Nmu = 20;
 	int Nphi = 4;
@@ -50,7 +50,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	//initializing mean galactic photon field
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
-	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(1E3, 1.0);
+	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(1E5, 1.0);
 	
 	//initializing electrons distribution
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
