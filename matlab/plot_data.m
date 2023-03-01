@@ -1,6 +1,6 @@
 clear;
 
-data = importdata('../output.dat');
+data = importdata('../output1.dat');
 
 N = size(data,1);
 

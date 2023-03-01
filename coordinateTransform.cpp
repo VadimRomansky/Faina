@@ -6,49 +6,59 @@
 
 #include "coordinateTransform.h"
 
-void LorentzTransformationPhotonZ(const double& gamma, const double& Einit, const double& cosThetaInit, double& Eprime, double& cosThetaPrime) {
+void LorentzTransformationPhotonZ(const double& gamma, const double& Einit, const double& thetaInit, double& Eprime, double& thetaPrime) {
 	//double gamma = 1.0 / sqrt(1.0 - beta * beta);
 	double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
+	double cosThetaInit = cos(thetaInit);
 
 	Eprime = gamma*(1 - beta*cosThetaInit)*Einit;
 
 	double epsilon = 1.0 - cosThetaInit;
 	double delta = 1.0 - beta;
 	if (epsilon == 0) {
-		cosThetaPrime = 1.0;
+		//cosThetaPrime = 1.0;
+		thetaPrime = 0;
 		return;
 	}
 	if (delta == 0) {
-		cosThetaPrime = -1.0;
+		//cosThetaPrime = -1.0;
+		thetaPrime = pi;
 		return;
 	}
 	if (epsilon < 1E-8 && delta < 1E-8) {
-		cosThetaPrime = (delta - epsilon) / (epsilon + delta - epsilon * delta);
+		double cosThetaPrime = (delta - epsilon) / (epsilon + delta - epsilon * delta);
+		thetaPrime = acos(cosThetaPrime);
+		return;
 	}
-	cosThetaPrime = (cosThetaInit - beta)/(1 - cosThetaInit*beta);
+	double cosThetaPrime = (cosThetaInit - beta)/(1 - cosThetaInit*beta);
+	thetaPrime = acos(cosThetaPrime);
 }
 
-void LorentzTransformationPhotonReverseZ(const double& gamma, const double& Einit, const double& cosThetaInit, double& Eprime, double& cosThetaPrime) {
+void LorentzTransformationPhotonReverseZ(const double& gamma, const double& Einit, const double& thetaInit, double& Eprime, double& thetaPrime) {
 	//double gamma = 1.0 / sqrt(1.0 - beta * beta);
 	double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
-
+	double cosThetaInit = cos(thetaInit);
 	Eprime = gamma * (1 + beta * cosThetaInit) * Einit;
 
 	double epsilon = 1.0 + cosThetaInit;
 	double delta = 1.0 - beta;
 	if (epsilon == 0) {
-		cosThetaPrime = -1.0;
+		//cosThetaPrime = -1.0;
+		thetaPrime = pi;
 		return;
 	}
 	if (delta == 0) {
-		cosThetaPrime = 1.0;
+		//cosThetaPrime = 1.0;
+		thetaPrime = 0;
 		return;
 	}
 	if (epsilon < 1E-8 && delta < 1E-8) {
-		cosThetaPrime = (epsilon - delta) / (epsilon + delta - epsilon * delta);
+		double cosThetaPrime = (epsilon - delta) / (epsilon + delta - epsilon * delta);
+		thetaPrime = acos(cosThetaPrime);
 		return;
 	}
-	cosThetaPrime = (cosThetaInit + beta) / (1 + cosThetaInit * beta);
+	double cosThetaPrime = (cosThetaInit + beta) / (1 + cosThetaInit * beta);
+	thetaPrime = acos(cosThetaPrime);
 }
 
 //transform from one spherical system to rotated. Rotation on phir around z, and then on mur around x' 

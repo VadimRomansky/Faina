@@ -38,10 +38,10 @@ void evaluateComtonWithPowerLawDistribution() {
 	//const double distance = 150 * 1000000 * parsec;
 	const double distance = 1.0;
 
-	double Emin = me_c2 * 652.317;
-	double Emax = 1.8E11 *me_c2;
+	double Emin = me_c2 * 1;
+	double Emax = 1E10 *me_c2;
 	int Ne = 200;
-	int Nmu = 50;
+	int Nmu = 20;
 	int Nphi = 4;
 	double index = 2.5;
 	double KK = 24990.8;
@@ -50,15 +50,15 @@ void evaluateComtonWithPowerLawDistribution() {
 	//initializing mean galactic photon field
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
-	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(1000, 1.0);
+	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(1E3, 1.0);
 	
 	//initializing electrons distribution
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 	//creating radiation source
 	RadiationSource* source = new SimpleFlatSource(electrons, B, sinTheta, rmax, rmax, distance);
-    InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
     //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
+    InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
     //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
 	
 
@@ -68,7 +68,8 @@ void evaluateComtonWithPowerLawDistribution() {
 	double* F = new double[Nnu];
 
 	double Ephmin = 0.0001 * kBoltzman * 2.7;
-	double Ephmax = 2 * Emax + Emin;
+	double Ephmax = 10 * Emax + Emin;
+	//photonDistribution->writeDistribution("output3.dat", 200, Ephmin, Ephmax);
 	double factor = pow(Ephmax / Ephmin, 1.0 / (Nnu - 1));
 	E[0] = Ephmin;
 	F[0] = 0;

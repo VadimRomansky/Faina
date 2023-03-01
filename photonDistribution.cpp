@@ -14,6 +14,21 @@ double PhotonIsotropicDistribution::distributionNormalized(const double& energy,
 	return distributionNormalized(energy);
 }
 
+void PhotonIsotropicDistribution::writeDistribution(const char* fileName, int Ne, const double& Emin, const double& Emax) {
+	double* energy = new double[Ne];
+	double factor = pow(Emax / Emin, 1.0 / (Ne - 1));
+	energy[0] = Emin;
+	for (int i = 1; i < Ne; ++i) {
+		energy[i] = energy[i - 1] * factor;
+	}
+	FILE* outFile = fopen(fileName, "w");
+	for (int i = 0; i < Ne; ++i) {
+		fprintf(outFile, "%g %g\n", energy[i], distribution(energy[i]));
+	}
+	fclose(outFile);
+	delete[] energy;
+}
+
 PhotonPowerLawDistribution::PhotonPowerLawDistribution(const double& index, const double& E0, const double& concentration)
 {
 	if (index <= 1.0) {
