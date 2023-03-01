@@ -328,8 +328,12 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 						//double photonInitialPhiRotated = 0;
 
 						double cosXiPrimed = photonInitialCosThetaPrimed * photonFinalCosThetaPrimed + photonInitialSinThetaPrimed * photonFinalSinThetaPrimed * cos(photonFinalPhiRotated - photonInitialPhiRotated);
+						double Xidelta = 1.0 - cosXiPrimed;
+						if (cosXiPrimed >= (1.0 - 1E-10) && photonInitialSinThetaPrimed > 0 && photonFinalSinThetaPrimed > 0) {
+							Xidelta = 0.5*(photonInitialSinThetaPrimed* photonInitialSinThetaPrimed + photonFinalSinThetaPrimed* photonFinalSinThetaPrimed) - photonInitialSinThetaPrimed * photonFinalSinThetaPrimed * cos(photonFinalPhiRotated - photonInitialPhiRotated);
+						}
 
-						double photonInitialEnergyPrimed = photonFinalEnergyPrimed / (1.0 - (photonFinalEnergyPrimed / (m_c2)) * (1.0 - cosXiPrimed));
+						double photonInitialEnergyPrimed = photonFinalEnergyPrimed / (1.0 - (photonFinalEnergyPrimed / (m_c2)) * Xidelta);
 						if (photonInitialEnergyPrimed <= 0) {
 							continue;
 						}
@@ -358,7 +362,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 						}
                         double dI = volume * 0.5 * r2 * speed_of_light * electronDist *
 							(sqr(1 - photonInitialCosThetaRotated * electronInitialBeta) / denom) *
-							(1 + cosXiPrimed * cosXiPrimed + sqr(photonFinalEnergyPrimed / m_c2) * sqr(1 - cosXiPrimed) / (1 - (photonFinalEnergyPrimed / m_c2) * (1 - cosXiPrimed))) *
+							(1 + cosXiPrimed * cosXiPrimed + sqr(photonFinalEnergyPrimed / m_c2) * sqr(Xidelta) / (1 - (photonFinalEnergyPrimed / m_c2) * (Xidelta))) *
                             photonDistribution->distribution(photonInitialEnergy) *
 							photonFinalEnergy*2*pi * dphi_ph * my_dcosTheta[imue] * my_dcosTheta[imuph] * delectronEnergy;
 							//photonFinalEnergy * 2 * pi * dphi_e * my_dcosTheta[imue] * my_dcosTheta[imuph] * delectronEnergy;

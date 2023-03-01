@@ -9,12 +9,18 @@
 void LorentzTransformationPhotonZ(const double& gamma, const double& Einit, const double& thetaInit, double& Eprime, double& thetaPrime) {
 	//double gamma = 1.0 / sqrt(1.0 - beta * beta);
 	double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
+	double delta = 0.5 / (gamma * gamma);
 	double cosThetaInit = cos(thetaInit);
+	double epsilon = 0.5 * thetaInit * thetaInit;
 
-	Eprime = gamma*(1 - beta*cosThetaInit)*Einit;
+	if (delta > 1E-16 || epsilon > 1E-16) {
+		Eprime = gamma * (1 - beta * cosThetaInit) * Einit;
+		double cosThetaPrime = (cosThetaInit - beta) / (1 - cosThetaInit * beta);
+		thetaPrime = acos(cosThetaPrime);
+		return;
+	}
+	Eprime = gamma*(epsilon + delta)*Einit;
 
-	double epsilon = 1.0 - cosThetaInit;
-	double delta = 1.0 - beta;
 	if (epsilon == 0) {
 		//cosThetaPrime = 1.0;
 		thetaPrime = 0;
@@ -37,11 +43,17 @@ void LorentzTransformationPhotonZ(const double& gamma, const double& Einit, cons
 void LorentzTransformationPhotonReverseZ(const double& gamma, const double& Einit, const double& thetaInit, double& Eprime, double& thetaPrime) {
 	//double gamma = 1.0 / sqrt(1.0 - beta * beta);
 	double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
+	double delta = 0.5 / (gamma * gamma);
 	double cosThetaInit = cos(thetaInit);
-	Eprime = gamma * (1 + beta * cosThetaInit) * Einit;
+	double epsilon = 0.5 * (pi - thetaInit) * (pi - thetaInit);
+	if (delta > 1E-16 || epsilon > 1E-16) {
+		Eprime = gamma * (1 + beta * cosThetaInit) * Einit;
+		double cosThetaPrime = (cosThetaInit + beta) / (1 + cosThetaInit * beta);
+		thetaPrime = acos(cosThetaPrime);
+		return;
+	}
+	Eprime = gamma * (epsilon + delta) * Einit;
 
-	double epsilon = 1.0 + cosThetaInit;
-	double delta = 1.0 - beta;
 	if (epsilon == 0) {
 		//cosThetaPrime = -1.0;
 		thetaPrime = pi;
