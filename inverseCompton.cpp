@@ -61,72 +61,131 @@ InverseComptonEvaluator::~InverseComptonEvaluator() {
 	delete[] my_dcosTheta;
 }
 
-/*void InverseComptonEvaluator::outputDifferentialFlux(const char* fileName) {
+void InverseComptonEvaluator::outputDifferentialFlux(const char* fileName) {
 	FILE* outFile = fopen(fileName, "w");
 
-	double photonFinalEnergy = 100*1.6E-12;
-	double photonFinalCosTheta = 1.0;
+	double photonFinalEnergy = 1E15*1.6E-12;
+	double photonFinalTheta = 0;
 	double photonFinalPhi = 0;
 
-	double electronInitialEnergy = 1000 * massElectron * speed_of_light2;
-	double electronInitialCosTheta = 0.95;
+	double electronInitialEnergy = 1E10 * massElectron * speed_of_light2;
+	double electronInitialTheta = 1E-10;
 	double electronInitialPhi = 0;
 
-	double photonInitialCosTheta = -0.95;
+	double photonInitialTheta = pi - 1E-10;
 	double photonInitialPhi = 0;
 
 	for (int i = 0; i < my_Nmu; ++i) {
 	//for (int i = 0; i < my_Nphi; ++i) {
 	//for (int i = 0; i < my_Ne; ++i) {
-		photonInitialCosTheta = -my_cosTheta[i];
-		//photonFinalCosTheta = my_cosTheta[i];
-		//electronInitialCosTheta = my_cosTheta[i];
+		photonInitialTheta = pi-my_theta[i];
+		//photonFinalTheta = my_theta[i];
+		//electronInitialTheta = my_theta[i];
 		//photonFinalPhi = (i + 0.5) * 2 * pi / my_Nphi;
 		//photonInitialPhi = (i + 0.5) * 2 * pi / my_Nphi;
 		//electronInitialPhi = (i + 0.5) * 2 * pi / my_Nphi;
 		//photonFinalEnergy = my_Ee[i];
 		//electronInitialEnergy = my_Ee[i];
-		fprintf(outFile, "%15.10g %15.10g  %15.10g\n", photonInitialCosTheta, my_dcosTheta[i]*evaluateDifferentialFlux(photonFinalEnergy, photonFinalCosTheta, photonFinalPhi, electronInitialEnergy, electronInitialCosTheta, electronInitialPhi, photonInitialCosTheta, photonInitialPhi), my_dcosTheta[i]);
+		fprintf(outFile, "%15.10g %15.10g  %15.10g\n", photonInitialTheta, my_dcosTheta[i]*evaluateDifferentialFlux(photonFinalEnergy, photonFinalTheta, photonFinalPhi, electronInitialEnergy, electronInitialTheta, electronInitialPhi, photonInitialTheta, photonInitialPhi), my_dcosTheta[i]);
 	}
 
 	fclose(outFile);
-}*/
+}
 
-/*double InverseComptonEvaluator::evaluateDifferentialFlux(const double& photonFinalEnergy, const double& photonFinalCosTheta, const double& photonFinalPhi, const double& electronInitialEnergy, const double& mu_e, const double& phi_e, const double& mu_ph, const double& phi_ph) {
+double InverseComptonEvaluator::evaluateDifferentialFlux(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, const double& electronInitialEnergy, const double& theta_e, const double& phi_e, const double& photonInitialThetaPrimed, const double& photonInitialPhiRotated) {
 	double m = massElectron;
 	double m_c2 = m * speed_of_light2;
-	double electronInitialGamma = electronInitialEnergy / (m * speed_of_light2);
-	double electronInitialBeta = sqrt(1.0 - 1.0 / (electronInitialGamma * electronInitialGamma));
-	double photonFinalCosThetaRotated;
-	double photonFinalPhiRotated;
-	rotationSphericalCoordinates(mu_e, phi_e, photonFinalCosTheta, photonFinalPhi, photonFinalCosThetaRotated, photonFinalPhiRotated);
-	double photonFinalEnergyPrimed = electronInitialGamma * (1 - photonFinalCosThetaRotated * electronInitialBeta) * photonFinalEnergy;
-	double photonFinalCosThetaPrimed = (photonFinalCosThetaRotated - electronInitialBeta) / (1.0 - electronInitialBeta * photonFinalCosThetaRotated);
-	double photonFinalSinThetaPrimed = sqrt(1.0 - photonFinalCosThetaPrimed * photonFinalCosThetaPrimed);
-	double photonInitialCosThetaPrimed = mu_ph;
-	double photonInitialPhiRotated = phi_ph;
-	//inverseRotationSphericalCoordinates(mu_e, phi_e, mu_ph, phi_ph, photonInitialCosThetaRotated, photonInitialPhiRotated);
-	//double photonInitialCosThetaPrimed = (photonInitialCosThetaRotated - electronInitialBeta) / (1.0 - electronInitialBeta * photonInitialCosThetaRotated);
+	double fraction = 0.5 / my_Nmu;
+	double thetamin = min(0.1 / (electronInitialEnergy / m_c2), pi / (2 * my_Nmu));
+	double dlogtheta = log((pi + (1 - fraction) * thetamin) / (thetamin)) / (my_Nmu - 1);
 
-	double photonInitialSinThetaPrimed = sqrt(1.0 - photonInitialCosThetaPrimed * photonInitialCosThetaPrimed);
+	my_cosThetaLeft[0] = 1.0;
+	my_theta[0] = 0;
+	my_cosTheta[0] = cos(fraction * thetamin);
+	for (int i = 1; i < my_Nmu; ++i) {
+		my_theta[i] = thetamin * exp(dlogtheta * (i)) - (1 - fraction) * thetamin;
+		my_cosTheta[i] = cos(my_theta[i]);
+		my_cosThetaLeft[i] = (my_cosTheta[i] + my_cosTheta[i - 1]) / 2.0;
+	}
+	for (int i = 0; i < my_Nmu - 1; ++i) {
+		my_dcosTheta[i] = -(my_cosThetaLeft[i + 1] - my_cosThetaLeft[i]);
+		if (my_theta[i] < 1E-7) {
+			if (i == 0) {
+				my_dcosTheta[i] = sin(my_theta[i]) * (my_theta[i + 1] - my_theta[i]);
+			}
+			else {
+				my_dcosTheta[i] = sin(my_theta[i]) * 0.5 * (my_theta[i + 1] - my_theta[i - 1]);
+			}
+		}
+	}
+	my_dcosTheta[my_Nmu - 1] = 1.0 + my_cosThetaLeft[my_Nmu - 1];
+
+	double electronInitialGamma = electronInitialEnergy / m_c2;
+	double electronInitialBeta = sqrt(1.0 - 1.0 / (electronInitialGamma * electronInitialGamma));
+	double electronInitialDelta = 0.5 / (electronInitialGamma * electronInitialGamma); //diff from 1 for large gamma
+
+	//rotation
+	double photonFinalThetaRotated;
+	double photonFinalPhiRotated;
+	rotationSphericalCoordinates(theta_e, phi_e, photonFinalTheta, photonFinalPhi, photonFinalThetaRotated, photonFinalPhiRotated);
+	double photonFinalCosThetaRotated = cos(photonFinalThetaRotated);
+	//double photonFinalEnergyPrimed = electronInitialGamma * (1 - photonFinalCosThetaRotated * electronInitialBeta) * photonFinalEnergy;
+	double photonFinalEnergyPrimed;
+	double photonFinalThetaPrimed;
+
+	LorentzTransformationPhotonZ(electronInitialGamma, photonFinalEnergy, photonFinalThetaRotated, photonFinalEnergyPrimed, photonFinalThetaPrimed);
+	double photonFinalCosThetaPrimed = cos(photonFinalThetaPrimed);
+	double photonFinalSinThetaPrimed = sin(photonFinalThetaPrimed);
+	double photonInitialCosThetaPrimed = cos(photonInitialThetaPrimed);
+
+	double photonInitialSinThetaPrimed = sin(photonInitialThetaPrimed);
+
 
 	double cosXiPrimed = photonInitialCosThetaPrimed * photonFinalCosThetaPrimed + photonInitialSinThetaPrimed * photonFinalSinThetaPrimed * cos(photonFinalPhiRotated - photonInitialPhiRotated);
-
-	double photonInitialEnergyPrimed = photonFinalEnergyPrimed / (1.0 - (photonFinalEnergyPrimed / (m_c2)) * (1.0 - cosXiPrimed));
-	if (photonInitialEnergyPrimed <= 0) {
-		return 0;;
+	double Xidelta = 1.0 - cosXiPrimed;
+	if (cosXiPrimed >= (1.0 - 1E-10) && photonInitialSinThetaPrimed > 0 && photonFinalSinThetaPrimed > 0) {
+		Xidelta = 0.5 * (photonInitialSinThetaPrimed * photonInitialSinThetaPrimed + photonFinalSinThetaPrimed * photonFinalSinThetaPrimed) - photonInitialSinThetaPrimed * photonFinalSinThetaPrimed * cos(photonFinalPhiRotated - photonInitialPhiRotated);
 	}
-	double photonInitialEnergy = electronInitialGamma * photonInitialEnergyPrimed + electronInitialBeta * electronInitialGamma * photonInitialEnergyPrimed * photonInitialCosThetaPrimed;
-	double photonInitialCosThetaRotated = (photonInitialCosThetaPrimed + electronInitialBeta) / (1 + photonInitialCosThetaPrimed * electronInitialBeta);
 
-	double photonInitialCosTheta;
-	double photonInitialPhi;
-	inverseRotationSphericalCoordinates(mu_e, phi_e, photonInitialCosThetaRotated, photonInitialPhiRotated, photonInitialCosTheta, photonInitialPhi);
+	double photonInitialEnergyPrimed = photonFinalEnergyPrimed / (1.0 - (photonFinalEnergyPrimed / (m_c2)) * Xidelta);
+	if (photonInitialEnergyPrimed <= 0) {
+		return 0;
+	}
+				
+	double photonInitialEnergy;
+	double photonInitialThetaRotated;
 
-	double result = (sqr(1 - photonInitialCosThetaRotated * electronInitialBeta) / (1.0 - photonFinalCosThetaRotated * electronInitialBeta)) *
-		(1 + cosXiPrimed * cosXiPrimed + sqr(photonFinalEnergyPrimed / m_c2) * sqr(1 - cosXiPrimed) / (1 - (photonFinalEnergyPrimed / m_c2) * (1 - cosXiPrimed)));
+	LorentzTransformationPhotonReverseZ(electronInitialGamma, photonFinalEnergyPrimed, photonInitialThetaPrimed, photonInitialEnergy, photonInitialThetaRotated);
+	double photonInitialCosThetaRotated = cos(photonInitialThetaRotated);
+				
+
+	double denom;
+	if (1.0 - photonFinalCosThetaRotated * electronInitialBeta == 0) {
+		denom = electronInitialDelta;
+	}
+	else {
+		denom = (1.0 - photonFinalCosThetaRotated * electronInitialBeta);
+	}
+	double result = (sqr(1 - photonInitialCosThetaRotated * electronInitialBeta) / denom) *
+		(1 + cosXiPrimed * cosXiPrimed + sqr(photonFinalEnergyPrimed / m_c2) * sqr(Xidelta) / (1 - (photonFinalEnergyPrimed / m_c2) * (Xidelta))) *
+		photonFinalEnergy;
+	if (result < 0) {
+		printf("dI[i] <  0\n");
+		printLog("dI[i] < 0\n");
+		exit(0);
+	}
+
+	if (result != result) {
+		printf("I[i] = NaN\n");
+		printLog("I[i] = NaN\n");
+		exit(0);
+	}
+
+
+
+
 	return result;
-}*/
+}
 
 void InverseComptonEvaluator::resetParameters(const double *parameters, const double *normalizationUnits){
 //todo change photon distribution
@@ -179,6 +238,9 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 	double photonFinalPhi = 0.0;
 	for (int k = 0; k < my_Ne; ++k) {
 		double electronInitialEnergy = my_Ee[k];
+		if (k > 0) {
+			electronInitialEnergy = 0.5 * (my_Ee[k] + my_Ee[k - 1]);
+		}
 		double electronInitialGamma = electronInitialEnergy / (massElectron * speed_of_light2);
 
 		Ephmin = photonFinalEnergy - (electronInitialEnergy - m_c2);
@@ -320,7 +382,11 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 				for (int imuph = 0; imuph < my_Nmu; ++imuph) {
 					double photonInitialCosThetaPrimed = -my_cosTheta[imuph];
 					double photonInitialThetaPrimed = pi - my_theta[imuph];
-					double photonInitialSinThetaPrimed = sin(photonInitialThetaPrimed);
+					double photonInitialDeltaPrimed = my_theta[imuph];
+					//double photonInitialThetaPrimed = pi - imuph*(pi/my_Nmu);
+					//double photonInitialCosThetaPrimed = cos(photonInitialThetaPrimed);
+					
+					double photonInitialSinThetaPrimed = sin(photonInitialDeltaPrimed);
 					for (int iphiph = 0; iphiph < my_Nphi; ++iphiph) {
 						double phi_ph = 2 * pi * (iphiph + 0.5) / my_Nphi;
 						double dphi_ph = 2*pi / my_Nphi;

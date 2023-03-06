@@ -13,7 +13,7 @@ void LorentzTransformationPhotonZ(const double& gamma, const double& Einit, cons
 	double cosThetaInit = cos(thetaInit);
 	double epsilon = 0.5 * thetaInit * thetaInit;
 
-	if (delta > 1E-16 || epsilon > 1E-16) {
+	if (delta > 1E-9 || epsilon > 1E-9) {
 		Eprime = gamma * (1 - beta * cosThetaInit) * Einit;
 		double cosThetaPrime = (cosThetaInit - beta) / (1 - cosThetaInit * beta);
 		thetaPrime = acos(cosThetaPrime);
@@ -31,7 +31,7 @@ void LorentzTransformationPhotonZ(const double& gamma, const double& Einit, cons
 		thetaPrime = pi;
 		return;
 	}
-	if (epsilon < 1E-8 && delta < 1E-8) {
+	if (epsilon < 1E-9 && delta < 1E-9) {
 		double cosThetaPrime = (delta - epsilon) / (epsilon + delta - epsilon * delta);
 		thetaPrime = acos(cosThetaPrime);
 		return;
@@ -46,7 +46,7 @@ void LorentzTransformationPhotonReverseZ(const double& gamma, const double& Eini
 	double delta = 0.5 / (gamma * gamma);
 	double cosThetaInit = cos(thetaInit);
 	double epsilon = 0.5 * (pi - thetaInit) * (pi - thetaInit);
-	if (delta > 1E-16 || epsilon > 1E-16) {
+	if (delta > 1E-9 || epsilon > 1E-9) {
 		Eprime = gamma * (1 + beta * cosThetaInit) * Einit;
 		double cosThetaPrime = (cosThetaInit + beta) / (1 + cosThetaInit * beta);
 		thetaPrime = acos(cosThetaPrime);
@@ -64,8 +64,14 @@ void LorentzTransformationPhotonReverseZ(const double& gamma, const double& Eini
 		thetaPrime = 0;
 		return;
 	}
-	if (epsilon < 1E-8 && delta < 1E-8) {
+	if (epsilon < 1E-9 && delta < 1E-9) {
 		double cosThetaPrime = (epsilon - delta) / (epsilon + delta - epsilon * delta);
+		if (cosThetaPrime == 1.0) {
+			printf("aaaa\n");
+		}
+		if (cosThetaPrime == -1.0) {
+			printf("aaa\n");
+		}
 		thetaPrime = acos(cosThetaPrime);
 		return;
 	}
@@ -128,6 +134,15 @@ void rotationSphericalCoordinates(const double& thetar, const double& phir, cons
 		exit(0);
 	}
 	theta1 = acos(mu1);
+	/*if (mu1 >= (1.0 - 1E-8) && mu0 >(1.0 - 1E-8) && mur > (1.0 - 1E-8)) {
+		double Xidelta = 0.5 * (sinThetar * sinThetar + sinTheta0 * sinTheta0) - sinThetar * sinTheta0 * sin(tempPhi);
+		theta1 = sqrt(2 * Xidelta);
+	}*/
+
+	/*if (mu1 <= (-1.0 + 1E-8) && sinThetar > 0 && sinTheta0 > 0) {
+		double Xidelta = 0.5 * (sinThetar * sinThetar + sinTheta0 * sinTheta0) - sinThetar * sinTheta0 * sin(tempPhi);
+		theta1 = sqrt(2 * Xidelta);
+	}*/
 
 	double sinTheta1 = sin(theta1);
 	if (sinTheta1 == 0) {
@@ -215,6 +230,12 @@ void inverseRotationSphericalCoordinates(const double& thetar, const double& phi
 		exit(0);
 	}
 	theta0 = acos(mu0);
+
+	/*if (mu0 >= (1.0 - 1E-8) && mu1 >(1.0 - 1E-8) && mur > (1.0 - 1E-8)) {
+		double Xidelta = 0.5 * (sinThetar * sinThetar + sinTheta1 * sinTheta1) - sinThetar * sinTheta1 * cos(phi1 + pi / 2);
+		theta0 = sqrt(2 * Xidelta);
+	}*/
+
 	double sinTheta0 = sin(theta0);
 	if (sinTheta0 == 0) {
 		phi0 = 0;

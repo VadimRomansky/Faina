@@ -624,7 +624,7 @@ FAINA позволяет рассчитывать электромагнитно
 				\hline
 				PionDecayEvaluatorKelner(int Ne, double Emin, double Emax, const double\& ambientConcentration) & конструктор, создает экземпляр с заданным рассматриваемым диапазоном энергии и концентрацией фоновых протонов\\
 				\hline
-				\textbf{PionDecayEvaluator} & класс для вычисления гамма излучения от распада пионов по методу из статьи \cite{Kafehxui}\\
+				\textbf{PionDecayEvaluator} & класс для вычисления гамма излучения от распада пионов по методу из статьи \cite{Kafexhiu}\\
 				\hline
 				PionDecayEvaluator(int Ne, double Emin, double Emax, const double\& ambientConcentration) & конструктор, создает экземпляр с заданным рассматриваемым диапазоном энергии и концентрацией фоновых протонов\\
 				\hline
@@ -634,5 +634,39 @@ FAINA позволяет рассчитывать электромагнитно
 		\end{small}
 	\end{center}
 \end{table}
+
+Пример вычисления излучения от гамма излучения от распада пионов показан в функции evaluatePionDecay() в файлк main.cpp. В нем рассмотрено моделирование излучение объекта Кокон Лебедя в модели ускорения частиц на вторичных ударных волнах, следуя статье \cite{BykovKalyashova2022}. В данной работе вычислено, что спектр ускоренных протонов имеет вид степенной функции с изломом со следующими параметрами - показатели спектра 2.1 и 2.64 на низких и высоких энергиях соответственно, энергия излома - 2.2 ТэВ. Размер излучающей области брался равным размеру сверхкаверны Лебедя - 55 пк. Как и ранее, сначала определим переменные, задающие основные параметры источника - концентрацию частиц, его размер и магнитное поле, которое опять положим равным нулю. Диапазон энергий протонов рассмотрим от 0.01 ГэВ до 10 ТэВ. Так же укажем энергию излома.
+\begin{lstlisting}[language=c++]
+	double protonConcentration = 150;
+	double rmax = 55 * parsec;
+	double B = 0;
+	double sinTheta = 1.0;
+
+	double distance = 1400 * parsec;
+	double Emin = massProton*speed_of_light2 + 0.01E9 * 1.6E-12;
+	double Emax = 1E13 * 1.6E-12;
+	double Etrans = 2.2E12 * 1.6E-12;
+\end{lstlisting}
+После этого создадим распределение протонов и источник излучения
+\begin{lstlisting}[language=c++]
+	MassiveParticleBrokenPowerLawDistribution* protons = new 
+		MassiveParticleBrokenPowerLawDistribution(
+		massProton, 2.1, 2.64, Emin, Etrans, protonConcentration);
+	RadiationSource* source = new SimpleFlatSource(
+		protons, B, sinTheta, rmax, rmax, distance);
+\end{lstlisting}
+Далее потребуется вычислитель излучения. В случае пионного распада необходимо указать концентрацию фоновых протонов.
+\begin{lstlisting}[language=c++]
+double protonAmbientConcentration = 20;
+PionDecayEvaluator* pionDecayEvaluator = new PionDecayEvaluator(
+	200, Emin, Emax, protonAmbientConcentration);
+\end{lstlisting}
+Как и в предыдущих случаях далее необходимо внутри цикла вычислить излучение в интересующем диапазоне энергий, используя функцию evaluateFluxFromSource, и вывести результат в файл в удобных единицах. Спектр излучения, полученный в результате работы данной программы и результаты наблюдений Кокона Лебедя на Fermi LAT, ARGO и HAWC \cite{Ackermann2011, Bartoli2014, Abeysekara2021} приведены на рисунке \ref{pion}
+\begin{figure}
+	\centering
+	\includegraphics[width=12.5 cm]{./fig/compton.png} 
+	\caption{Расчетная энергетическая плотность потока гамма излучения Кокона Лебедя и данные наблюдений}
+	\label{pion}
+\end{figure}
 \subsection{Тормозное излучение}
 

@@ -49,8 +49,8 @@ void evaluateComtonWithPowerLawDistribution() {
 
 	//initializing mean galactic photon field
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
-	PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
-	//PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(1E5, 1.0);
+	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
+	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(1E5, 1.0);
 	
 	//initializing electrons distribution
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
@@ -61,6 +61,8 @@ void evaluateComtonWithPowerLawDistribution() {
     //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
     //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
 	
+	comptonEvaluator->outputDifferentialFlux("output1.dat");
+	//return;
 
 	//initializing photon energy grid for output
 	int Nnu = 200;
@@ -612,18 +614,19 @@ void fitTimeDependentCSS161010() {
 }
 
 // example 5. Evaluating pion decay gamma flux of powerlaw distributed protons in cygnus cocoon
-void evaluatePionDecayWithPowerLawDistribution() {
+void evaluatePionDecay() {
 	double protonConcentration = 150;
-	double rmax = 55 * 3.0856 * 1.0E18;
+	double rmax = 55 * parsec;
 	double B = 0;
 	double sinTheta = 1.0;
 
-	//Cynus
-	const double distance = 1400 * 3.0856 * 1.0E18;
+	//Cygnus
+	const double distance = 1400 * parsec;
 	double Emin = massProton*speed_of_light2 + 0.01E9 * 1.6E-12;
 	double Emax = 1E13 * 1.6E-12;
+	double Etrans = 2.2E12 * 1.6E-12;
 
-	MassiveParticleBrokenPowerLawDistribution* protons = new MassiveParticleBrokenPowerLawDistribution(massProton, 2.1, 2.64, Emin, 2.2E12 * 1.6E-12, protonConcentration);
+	MassiveParticleBrokenPowerLawDistribution* protons = new MassiveParticleBrokenPowerLawDistribution(massProton, 2.1, 2.64, Emin, Etrans, protonConcentration);
 	//MassiveParticlePowerLawDistribution* protons = new MassiveParticlePowerLawDistribution(massProton, 2.0, Emin, protonConcentration);
 	//MassiveParticlePowerLawCutoffDistribution* protons = new MassiveParticlePowerLawCutoffDistribution(massProton, 2.0, Emin, 1.0, Emax, protonConcentration);
 	//protons->writeDistribution("outputProtons.dat", 200, Emin, Emax);
