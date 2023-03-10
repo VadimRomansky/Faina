@@ -188,11 +188,11 @@ void fitCSS161010withPowerLawDistribition() {
 	bool optPar[Nparams] = { true, true, true, true };
 
 	//creating gradient descent optimizer
-    RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 20, ErrorScale::LINEAR);
+    RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 20);
 	//number of points per axis in gridEnumOptimizer
 	int Npoints[Nparams] = { 5,5,5,5 };
 	//creating grid enumeration optimizer
-    RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, ErrorScale::LINEAR, Npoints);
+    RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
 	//grid enumeration optimization, finding best starting point for gradien descent
 	enumOptimizer->optimize(vector, optPar, nu1, observedFlux, observedError, Nnu1, source);
 	//gradient descent optimization
@@ -343,11 +343,11 @@ void fitCSS161010withTabulatedDistributions() {
 	bool optPar[Nparams] = { true, true, true, true };
 
 	//creating gradient descent optimizer
-    RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 20, ErrorScale::LINEAR);
+    RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 20);
 	//number of points per axis in gridEnumOptimizer
 	int Npoints[Nparams] = { 5,5,5,5 };
 	//creating grid enumeration optimizer
-    RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, ErrorScale::LINEAR, Npoints);
+    RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
 	//grid enumeration optimization, finding best starting point for gradien descent
 	enumOptimizer->optimize(vector, optPar, nu1, observedFlux, observedError, Nnu1, angleDependentSource);
 	//gradient descent optimization
@@ -514,7 +514,7 @@ void fitTimeDependentCSS161010() {
 	//creating time dependent synchrotron evaluator
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax);
 	//creating time depedent grid enumeration optimizer, which will chose the best starting poin for gradien descent
-    RadiationTimeOptimizer* gridEnumOptimizer = new GridEnumRadiationTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, ErrorScale::LINEAR, Npoints);
+    RadiationTimeOptimizer* gridEnumOptimizer = new GridEnumRadiationTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
 	gridEnumOptimizer->optimize(vector, optPar, Nu, F, Error, Nnu, Ntimes, times, source);
 	/*vector[0] = 2E17 / maxParameters[0];
 	vector[1] = 10 / maxParameters[1];
@@ -522,7 +522,7 @@ void fitTimeDependentCSS161010() {
 	vector[3] = 0.325 / maxParameters[3];
 	vector[4] = 2.69813E10 / maxParameters[4];*/
 	//creating gradient descent optimizer and optimizing
-    RadiationTimeOptimizer* gradientOptimizer = new GradientDescentRadiationTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, ErrorScale::LINEAR);
+    RadiationTimeOptimizer* gradientOptimizer = new GradientDescentRadiationTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
 	gradientOptimizer->optimize(vector, optPar, Nu, F, Error, Nnu, Ntimes, times, source);
 	//reset parameters of source to the found values
 	source->resetParameters(vector, maxParameters);

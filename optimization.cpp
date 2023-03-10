@@ -12,10 +12,9 @@
 #include "optimization.h"
 
 
-RadiationOptimizer::RadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale) {
+RadiationOptimizer::RadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams) {
 	my_evaluator = evaluator;
 	my_Nparams = Nparams;
-	my_errorScale = errorScale;
 	my_minParameters = new double[my_Nparams];
 	my_maxParameters = new double[my_Nparams];
 	my_minVector = new double[my_Nparams];
@@ -43,13 +42,8 @@ double RadiationOptimizer::evaluateOptimizationFunction(const double* vector, do
 	double err = 0;
 	for (int j = 0; j < Nnu; ++j) {
 		double err1 = 0;
-		if (my_errorScale == ErrorScale::LINEAR) {
-			err1 = sqr(totalInu[j] - observedInu[j]) / sqr(observedError[j]);
-		}
-		else {
-			//todo
-			err1 = sqr(log(totalInu[j]) - log(observedInu[j])) / sqr(observedError[j] / observedInu[j]);
-		}
+		err1 = sqr(totalInu[j] - observedInu[j]) / sqr(observedError[j]);
+
 		err = err + err1;
 	}
 
@@ -69,7 +63,7 @@ void RadiationOptimizer::optimize(double* vector, bool* optPar, double* nu, doub
 	delete[] observedError;
 }
 
-GradientDescentRadiationOptimizer::GradientDescentRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, ErrorScale errorScale) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, errorScale) {
+GradientDescentRadiationOptimizer::GradientDescentRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams) {
 	my_Niterations = Niterations;
 
 	tempVector = new double[my_Nparams];
@@ -506,7 +500,7 @@ void GradientDescentRadiationOptimizer::optimize(double* vector, bool* optPar, d
 	printf("finish optimization\n");
 }
 
-GridEnumRadiationOptimizer::GridEnumRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale, const int* Npoints) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, errorScale)
+GridEnumRadiationOptimizer::GridEnumRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams)
 {
 	my_Npoints = new int[my_Nparams];
 	for (int i = 0; i < my_Nparams; ++i) {
@@ -575,7 +569,7 @@ void GridEnumRadiationOptimizer::optimize(double* vector, bool* optPar, double* 
 	delete[] tempVector;
 }
 
-RadiationTimeOptimizer::RadiationTimeOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale)
+RadiationTimeOptimizer::RadiationTimeOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams)
 {
 	my_Nparams = Nparams;
 	my_evaluator = evaluator;
@@ -587,7 +581,6 @@ RadiationTimeOptimizer::RadiationTimeOptimizer(RadiationEvaluator* evaluator, co
 		my_maxParameters[i] = maxParameters[i];
 		my_minVector[i] = my_minParameters[i] / my_maxParameters[i];
 	}
-	my_errorScale = errorScale;
 }
 
 RadiationTimeOptimizer::~RadiationTimeOptimizer()
@@ -613,13 +606,8 @@ double RadiationTimeOptimizer::evaluateOptimizationFunction(const double* vector
 		}
 		for (int j = 0; j < Nnu[k]; ++j) {
 			double err1 = 0;
-			if (my_errorScale == ErrorScale::LINEAR) {
-				err1 = sqr(totalInu[j] - observedInu[k][j]) / sqr(observedError[k][j]);
-			}
-			else {
-				//todo
-				err1 = sqr(log(totalInu[j]) - log(observedInu[k][j])) / sqr(observedError[k][j] / observedInu[k][j]);
-			}
+			err1 = sqr(totalInu[j] - observedInu[k][j]) / sqr(observedError[k][j]);
+
 			err = err + err1;
 		}
 
@@ -647,7 +635,7 @@ void RadiationTimeOptimizer::optimize(double* vector, bool* optPar, double** nu,
 	delete[] observedError;
 }
 
-GradientDescentRadiationTimeOptimizer::GradientDescentRadiationTimeOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, ErrorScale errorScale) : RadiationTimeOptimizer(evaluator, minParameters, maxParameters, Nparams, errorScale)
+GradientDescentRadiationTimeOptimizer::GradientDescentRadiationTimeOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations) : RadiationTimeOptimizer(evaluator, minParameters, maxParameters, Nparams)
 {
 	my_Niterations = Niterations;
 
@@ -1088,7 +1076,7 @@ void GradientDescentRadiationTimeOptimizer::optimize(double* vector, bool* optPa
 	printf("finish optimization\n");
 }
 
-GridEnumRadiationTimeOptimizer::GridEnumRadiationTimeOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, ErrorScale errorScale, const int* Npoints) : RadiationTimeOptimizer(evaluator, minParameters, maxParameters, Nparams, errorScale)
+GridEnumRadiationTimeOptimizer::GridEnumRadiationTimeOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints) : RadiationTimeOptimizer(evaluator, minParameters, maxParameters, Nparams)
 {
 	my_Npoints = new int[my_Nparams];
 	for (int i = 0; i < my_Nparams; ++i) {
