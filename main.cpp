@@ -110,36 +110,38 @@ void evaluateComtonWithPowerLawDistribution() {
 //example 2. Fitting observed synchrotron radio fluxes from CSS1601010 at one time moment with simple flat disk source and powerlaw distribution
 void fitCSS161010withPowerLawDistribition() {
 	//initial parameters of the source
-	double electronConcentration = 150;
+	double electronConcentration = 25;
 	double B = 0.6;
-	double rmax = 1.3E17;
-
+	double R = 1.4E17;
+	double fraction = 0.5;
 	//SN2009bb
 	//const double distance = 40*3.08*1.0E24;
 	//AT2018
 	//const double distance = 60*3.08*1.0E24;
 	//CSS161010
 	//distance to source
-	const double distance = 150 * 3.08 * 1.0E24;
+	const double distance = 150 * 1E6 * parsec;
 	//energies of electrons wich will be used for evaluatig radiation
-	double Emin = me_c2;
+	double Emin = 4*me_c2;
 	double Emax = 10000 * me_c2;
+	double index = 3.6;
 	//creating synchrotron evaluator
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax);
 	//creating electrons powerlaw distribution
-	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, Emin, electronConcentration);
+	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 	//creating radiation source
-	SimpleFlatSource* source = new SimpleFlatSource(electrons, B, 1.0, rmax, rmax, distance);
+	SimpleFlatSource* source = new SimpleFlatSource(electrons, B, 1.0, R, fraction*R, distance);
 	//number of parameters of the source
 	const int Nparams = 4;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 1E16, 0.01, 0.01, 0.1 };
-	double maxParameters[Nparams] = { 2E17, 10, 1000, 1.0 };
+	double minParameters[Nparams] = { 1E17, 0.01, 0.5, 0.1 };
+	double maxParameters[Nparams] = { 2E17, 10, 200, 1.0 };
 	//starting point of optimization and normalization
-	double vector[Nparams] = { rmax, B, electronConcentration, 0.5 };
+	double vector[Nparams] = { R, B, electronConcentration, fraction};
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
 	}
+
 	//at2018 t = 15
 	//nu1[0] = 35E9;
 	//observedInu[0] = 8;
@@ -179,28 +181,35 @@ void fitCSS161010withPowerLawDistribition() {
 	observedError[5] = 0.008;
 	Time = 357*24*3600;*/
 	//css1610101 t = 98
-	//observed parameters of the source in units of GHz and mJansky
-	const int Nnu1 = 4;
-	double nu1[Nnu1] = { 1.5E9, 3.0E9, 6.1E9, 0.97E9 };
-	double observedFlux[Nnu1] = { 1.5/(hplank*1E26), 4.3 / (hplank * 1E26), 6.1 / (hplank * 1E26), 4.2 / (hplank * 1E26) };
-	double observedError[Nnu1] = { 0.1 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.3 / (hplank * 1E26), 0.2 / (hplank * 1E26) };
+	//observed parameters of the source in units of erg ana cm^-2 s^-1
+	const int Nenergy1 = 4;
+	double energy1[Nenergy1] = { 1.5E9*hplank, 3.0E9 * hplank, 6.1E9 * hplank, 9.8E9 * hplank };
+	double observedFlux[Nenergy1] = { 1.5/(hplank*1E26), 4.3 / (hplank * 1E26), 6.1 / (hplank * 1E26), 4.2 / (hplank * 1E26) };
+	double observedError[Nenergy1] = { 0.1 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.3 / (hplank * 1E26), 0.2 / (hplank * 1E26) };
+
+
 	//picking parameters to be optimized
 	bool optPar[Nparams] = { true, true, true, true };
-
+	int Niterations = 20;
 	//creating gradient descent optimizer
-    RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 20);
+    RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
 	//number of points per axis in gridEnumOptimizer
-	int Npoints[Nparams] = { 5,5,5,5 };
+	int Npoints[Nparams] = { 10,10,10,10 };
 	//creating grid enumeration optimizer
     RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
+
+	source->resetParameters(vector, maxParameters);
+	//evaluating resulting error
+	double error0 = gradientOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
+
 	//grid enumeration optimization, finding best starting point for gradien descent
-	enumOptimizer->optimize(vector, optPar, nu1, observedFlux, observedError, Nnu1, source);
+	enumOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
 	//gradient descent optimization
-	synchrotronOptimizer->optimize(vector, optPar, nu1, observedFlux, observedError, Nnu1, source);
+	gradientOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
 	//reseting source parameters to found values
 	source->resetParameters(vector, maxParameters);
 	//evaluating resulting error
-	double error = synchrotronOptimizer->evaluateOptimizationFunction(vector, nu1, observedFlux, observedError, Nnu1, source);
+	double error = gradientOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
 
 	//initialization arrays for full spectrum
 	const int Nnu = 200;
@@ -226,7 +235,7 @@ void fitCSS161010withPowerLawDistribition() {
 	//outputing spectrum
 	FILE* output_synchr = fopen("outputSynch.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
-		fprintf(output_synchr, "%g %g\n", Nu[i] / 1E9, F[i] * 1E26);
+		fprintf(output_synchr, "%g %g\n", Nu[i] / 1E9, F[i]* hplank * 1E26);
 	}
 	fclose(output_synchr);
 
@@ -252,7 +261,7 @@ void fitCSS161010withPowerLawDistribition() {
 
 	delete synchrotronEvaluator;
 	delete electrons;
-	delete synchrotronOptimizer;
+	delete gradientOptimizer;
 	delete enumOptimizer;
 }
 
@@ -269,7 +278,7 @@ void fitCSS161010withTabulatedDistributions() {
 	//const double distance = 60*3.08*1.0E24;
 	//CSS161010
 	//distance to source
-	const double distance = 150 * 3.08 * 1.0E24;
+	const double distance = 150 * 1E6 * parsec;
 	//energies of electrons wich will be used for evaluatig radiation
 	double Emin = me_c2;
 	double Emax = 10000 * me_c2;
@@ -335,10 +344,10 @@ void fitCSS161010withTabulatedDistributions() {
 	Time = 357*24*3600;*/
 	//css1610101 t = 98
 	//observed parameters of the source in units of GHz and mJansky
-	const int Nnu1 = 4;
-	double nu1[Nnu1] = { 1.5E9, 3.0E9, 6.1E9, 0.97E9 };
-	double observedFlux[Nnu1] = { 1.5 / (hplank * 1E26), 4.3 / (hplank * 1E26), 6.1 / (hplank * 1E26), 4.2 / (hplank * 1E26) };
-	double observedError[Nnu1] = { 0.1 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.3 / (hplank * 1E26), 0.2 / (hplank * 1E26) };
+	const int Nenergy1 = 4;
+	double energy1[Nenergy1] = { 1.5E9 * hplank, 3.0E9 * hplank, 6.1E9 * hplank, 0.97E9 * hplank };
+	double observedFlux[Nenergy1] = { 1.5 / (hplank * 1E26), 4.3 / (hplank * 1E26), 6.1 / (hplank * 1E26), 4.2 / (hplank * 1E26) };
+	double observedError[Nenergy1] = { 0.1 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.3 / (hplank * 1E26), 0.2 / (hplank * 1E26) };
 	//picking parameters to be optimized
 	bool optPar[Nparams] = { true, true, true, true };
 
@@ -349,13 +358,13 @@ void fitCSS161010withTabulatedDistributions() {
 	//creating grid enumeration optimizer
     RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
 	//grid enumeration optimization, finding best starting point for gradien descent
-	enumOptimizer->optimize(vector, optPar, nu1, observedFlux, observedError, Nnu1, angleDependentSource);
+	enumOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, angleDependentSource);
 	//gradient descent optimization
-	synchrotronOptimizer->optimize(vector, optPar, nu1, observedFlux, observedError, Nnu1, angleDependentSource);
+	synchrotronOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, angleDependentSource);
 	//reseting source parameters to found values
 	angleDependentSource->resetParameters(vector, maxParameters);
 	//evaluating resulting error
-	double error = synchrotronOptimizer->evaluateOptimizationFunction(vector, nu1, observedFlux, observedError, Nnu1, angleDependentSource);
+	double error = synchrotronOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, angleDependentSource);
 
 	//initialization arrays for full spectrum
 	const int Nnu = 200;
@@ -417,15 +426,15 @@ void fitCSS161010withTabulatedDistributions() {
 //example 4. Fitting observed synchrotron radio fluxes from CSS161010 at 3 time moments
 void fitTimeDependentCSS161010() {
 	//observed data at 99, 162 and 357 days after explosion in units GHz and mJansky
-	const double cssx1[4] = { 1.5, 3.0, 6.1, 9.87 };
+	const double cssx1[4] = { 1.5 * hplank, 3.0 * hplank, 6.1 * hplank, 9.87 * hplank };
 	const double cssy1[4] = { 1.5 / (hplank * 1E26), 4.3 / (hplank * 1E26), 6.1 / (hplank * 1E26), 4.2/(hplank*1E26) };
 	const double cssError1[4] = { 0.1 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.3 / (hplank * 1E26), 0.2 / (hplank * 1E26) };
 
-	const double cssx2[5] = { 1.5, 2.94, 6.1, 9.74, 22.0 };
+	const double cssx2[5] = { 1.5 * hplank, 2.94 * hplank, 6.1 * hplank, 9.74 * hplank, 22.0 * hplank };
 	const double cssy2[5] = { 4.7 / (hplank * 1E26), 2.9 / (hplank * 1E26), 2.3 / (hplank * 1E26), 1.74 / (hplank * 1E26), 0.56 / (hplank * 1E26) };
 	const double cssError2[5] = { 0.6 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.1 / (hplank * 1E26), 0.09 / (hplank * 1E26), 0.03 / (hplank * 1E26) };
 
-	const double cssx3[6] = { 0.33, 0.61, 1.5, 3.0, 6.05, 10.0 };
+	const double cssx3[6] = { 0.33 * hplank, 0.61 * hplank, 1.5 * hplank, 3.0 * hplank, 6.05 * hplank, 10.0 * hplank };
 	const double cssy3[6] = { 0.1 / (hplank * 1E26), 0.79 / (hplank * 1E26), 0.27 / (hplank * 1E26), 0.17 / (hplank * 1E26), 0.07 / (hplank * 1E26), 0.032 / (hplank * 1E26) };
 	const double cssError3[6] = { 0.375 / (hplank * 1E26), 0.09 / (hplank * 1E26), 0.07 / (hplank * 1E26), 0.03 / (hplank * 1E26), 0.01 / (hplank * 1E26), 0.008 / (hplank * 1E26) };
 
@@ -435,41 +444,41 @@ void fitTimeDependentCSS161010() {
 
 
 	//putting observed data into 2d arrays for optimizer
-	int Nnu[Ntimes];
-	Nnu[0] = 4;
-	Nnu[1] = 5;
-	Nnu[2] = 6;
+	int Nenergy[Ntimes];
+	Nenergy[0] = 4;
+	Nenergy[1] = 5;
+	Nenergy[2] = 6;
 
-	double** Nu = new double* [Ntimes];
+	double** energy = new double* [Ntimes];
 	double** F = new double* [Ntimes];
 	double** Error = new double* [Ntimes];
 	for (int m = 0; m < Ntimes; ++m) {
-		Nu[m] = new double[Nnu[m]];
-		F[m] = new double[Nnu[m]];
-		Error[m] = new double[Nnu[m]];
+		energy[m] = new double[Nenergy[m]];
+		F[m] = new double[Nenergy[m]];
+		Error[m] = new double[Nenergy[m]];
 	}
 
-	for (int i = 0; i < Nnu[0]; ++i) {
-		Nu[0][i] = cssx1[i] * 1E9;
+	for (int i = 0; i < Nenergy[0]; ++i) {
+		energy[0][i] = cssx1[i] * 1E9 * hplank;
 		F[0][i] = cssy1[i];
 		Error[0][i] = cssError1[i];
 	}
 
-	for (int i = 0; i < Nnu[1]; ++i) {
-		Nu[1][i] = cssx2[i] * 1E9;
+	for (int i = 0; i < Nenergy[1]; ++i) {
+		energy[1][i] = cssx2[i] * 1E9 * hplank;
 		F[1][i] = cssy2[i];
 		Error[1][i] = cssError2[i];
 	}
 
-	for (int i = 0; i < Nnu[2]; ++i) {
-		Nu[2][i] = cssx3[i] * 1E9;
+	for (int i = 0; i < Nenergy[2]; ++i) {
+		energy[2][i] = cssx3[i] * 1E9 * hplank;
 		F[2][i] = cssy3[i];
 		Error[2][i] = cssError3[i];
 	}
 
 
 	//distance to source
-	const double distance = 150 * 3.08 * 1.0E24;
+	const double distance = 150 * 1E6 * parsec;
 	//energies of electrons wich will be used for evaluatig radiation
 	double Emin = me_c2;
 	double Emax = 10000 * me_c2;
@@ -515,7 +524,7 @@ void fitTimeDependentCSS161010() {
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax);
 	//creating time depedent grid enumeration optimizer, which will chose the best starting poin for gradien descent
     RadiationTimeOptimizer* gridEnumOptimizer = new GridEnumRadiationTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
-	gridEnumOptimizer->optimize(vector, optPar, Nu, F, Error, Nnu, Ntimes, times, source);
+	gridEnumOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
 	/*vector[0] = 2E17 / maxParameters[0];
 	vector[1] = 10 / maxParameters[1];
 	vector[2] = 0.01 / maxParameters[2];
@@ -523,11 +532,11 @@ void fitTimeDependentCSS161010() {
 	vector[4] = 2.69813E10 / maxParameters[4];*/
 	//creating gradient descent optimizer and optimizing
     RadiationTimeOptimizer* gradientOptimizer = new GradientDescentRadiationTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
-	gradientOptimizer->optimize(vector, optPar, Nu, F, Error, Nnu, Ntimes, times, source);
+	gradientOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
 	//reset parameters of source to the found values
 	source->resetParameters(vector, maxParameters);
 	//evaluating final error
-	double error = gradientOptimizer->evaluateOptimizationFunction(vector, Nu, F, Error, Nnu, Ntimes, times, source);
+	double error = gradientOptimizer->evaluateOptimizationFunction(vector, energy, F, Error, Nenergy, Ntimes, times, source);
 
 	//initializing arrays for evaluationg full spectrum of source with found values
 	int Nout = 200;
@@ -590,12 +599,12 @@ void fitTimeDependentCSS161010() {
 
 	//deleting arrays
 	for (int i = 0; i < Ntimes; ++i) {
-		delete[] Nu[i];
+		delete[] energy[i];
 		delete[] F[i];
 		delete[] Error[i];
 		delete[] Fout[i];
 	}
-	delete[] Nu;
+	delete[] energy;
 	delete[] F;
 	delete[] Error;
 	delete[] Fout;
@@ -760,8 +769,8 @@ void evaluateBremsstrahlung() {
 
 int main() {
 	//evaluateSimpleSynchrotron();
-	evaluateComtonWithPowerLawDistribution();
-	//fitCSS161010withPowerLawDistribition();
+	//evaluateComtonWithPowerLawDistribution();
+	fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
 	//evaluatePionDecayWithPowerLawDistribution();
