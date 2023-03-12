@@ -40,6 +40,9 @@ double RadiationOptimizer::evaluateOptimizationFunction(const double* vector, do
         totalInu[i] = my_evaluator->evaluateFluxFromSource(energy[i], source);
 	}
 	double err = 0;
+	//for debug only
+	//err = sqr(vector[0] * my_maxParameters[0] - 1.4E17)/1E30 + sqr(vector[1] * my_maxParameters[1] - 0.6) + sqr(vector[2] * my_maxParameters[2] - 10) + sqr(vector[3] * my_maxParameters[3] - 0.5);
+	//err = sqr(vector[0] * my_maxParameters[0] - 1.4E17) / 1E30 + sqr(vector[1] * my_maxParameters[1] - 0.6 + vector[2] * my_maxParameters[2] - 10) + sqr(vector[3] * my_maxParameters[3] - 0.5);
 	for (int j = 0; j < Ne; ++j) {
 		double err1 = 0;
 		err1 = sqr(totalInu[j] - observedFlux[j]) / sqr(observedError[j]);
