@@ -23,13 +23,13 @@
 		\hline
 		evaluateOptimizationFunction( const double* vector, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source) & вычисляет целевую функцию - взвешенную сумму квадратов ошибок во всех наблюдательных точках $f = \sum \frac{(F_i - F_{obs,i})^2}{\sigma_i^2}$, где $F_i$ - расчетная спектральная плотность потока излучения, $F_{obs,i}$ - наблюдаемая спектральная плотность потока излучения, $\sigma_i$ - её погрешность\\
 		\hline
-		optimize( double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source) & функция, осуществляющая оптимизацию, принимает на вход массив подбираемых параметров, в который будет записан результат, массив булевских переменных, определяющих оптимизировать соответствующий параметр, или считать его фиксированным, массив энергий, на которых производились наблюдения, соответствующие наблюдаемые потоки в единицах $\text{см}^{-2}\text{с}^{-1}$, количество наблюдательных точек, и источник излучения.\\
+		optimize( double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source) & функция, осуществляющая оптимизацию, принимает на вход массив подбираемых параметров, в который будет записан результат, массив булевских переменных, определяющих оптимизировать соответствующий параметр, или считать его фиксированным, массив энергий, на которых производились наблюдения, соответствующие наблюдаемые потоки в единицах $\text{см}^{-2}\text{с}^{-1}$, погрешности измерения потоков, количество наблюдательных точек, и источник излучения.\\
 		\hline
 		optimize( double* vector, bool* optPar, double* energy, double* observedFlux, int Ne, RadiationSource* source) & функция, осуществляющая оптимизацию, в случае не заданных наблюдательных ошибок. В таком случае ошибки у всех точек считаются равными елинице и веса всех ошибок в целевой функции оказываются равными\\
 		\hline
 		\textbf{GridEnumRadiationOptimizer} & класс предназначенный для оптимизации параметров с помощью перебора по сетке\\
 		\hline
-		GridEnumRadiationOptimizer( RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints) & конструктор, создает экземпляр класса с указанным вычислителем излучения, минимальными и максимальными значениями оптимизируемых параметров, количеством этих параметров и массивом с количеством перебираемых точек по каждому параметру. При переборе точки будут распределены равномерно по оси.\\
+		GridEnumRadiationOptimizer( RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints) & конструктор, создает экземпляр класса с указанным вычислителем излучения, минимальными и максимальными значениями оптимизируемых параметров, количеством этих параметров и массивом с количеством перебираемых точек по каждому параметру. При переборе точки будут распределены логарифмически равномерно по оси.\\
 		\hline
 		\textbf{GradientDescentRadiationOptimizer} & класс, предназначенный для оптимизации параметров методом градиентного спуска\\
 		\hline
@@ -72,7 +72,7 @@
 	    vector[i] = vector[i] / maxParameters[i];
     }
 \end{lstlisting}
-Зададим наблюдательные данные, которые и будем фитировать. Обратите внимание, что частоты нужно перевести в энергии, а спектральную плотность потока - в энергетическую.
+Зададим наблюдательные данные, которые и будем фитировать. Обратите внимание, что частоты нужно перевести в энергии, а спектральную плотность потока - в энергетическую (в единицы $\text{см}^{-2}\text{с}^{-1}$).
 \begin{lstlisting}[language=c++]
     const int Nenergy1 = 4;
     double energy1[Nenergy1] = { 1.5E9*hplank, 3.0E9 * hplank, 
@@ -105,14 +105,41 @@
 Полученные в результате оптимизации парметры источника равны: радиус диска $R = 1.8\times10^17 \text{ см}$, магнитное поле $B = 1.6 \text{ Гс}$, концентрация электронов $n = 2.3 \text{ см}^{-3}$, доля толщины $fraction = 0.54 $. Значение целевой функции $f \approx 50$. Модельный спектр излучения  с данными параметрами и наблюдательные данные изображены на рисунке \ref{synchrotron1}.
 \begin{figure}
 	\centering
-	\includegraphics[width=10.5 cm]{./fig/synchrotron1.png} 
+	\includegraphics[width=12.5 cm]{./fig/synchrotron1.png} 
 	\caption{Наблюдаемый и расчетный спектр радиоизлучения объекта CSS161010 на 98 день после вспышки}
 	\label{synchrotron1}
 \end{figure}
 \section{Фитирование источников, зависящих от времени}
+Для фитирования постоянных во времени кривых блеска изменяющихся во времени предназначен абстрактный класс RadiationTimeOptimizer. В нем определена виртуальныя функция optimize(double* vector, bool* optPar, double** energy, double** observedFLux, double** observedError, int* Ne, int Ntimes, double* times, RadiationTimeDependentSource* source), которая и выполняет оптимизацию. Так же как и в случае не зависящей от времени оптимизации она принимает на вход массив параметров, массив булевских переменных, и наблюдательные данные. Но наблюдательные данные теперь представляют собой двумерные массивы (причем количество заданных точек в разные моменты времени так же может быть разным). Так же нужно указать количество серий измерений во времени и соответствующие им времена. Исследуемый источник должен относиться к классу зависящих от времени источников.
+
+Как и ранее, в коде реализованы два наследника класса RadiationTimeOptimazer: GridEnumRadiationTimeOptimizer - для поиска минимума перебором, и GradientDescentRadiationTimeOptimizer - в котором минимум находится методом градиентного спуска. Схема насследования классов оптимизаторов показана на рисунке \ref{radiationOptimizerTime}, а список их публичных методов приведен в Таблице \ref{RadiationTimeOptimizerMethods}.
 \begin{figure}
 	\centering
 	\includegraphics[width=10.5 cm]{./fig/radiationOptimizerTime.png} 
-	\caption{Схема наследования классов оптимизаторов, зависящих от времени}
+	\caption{Схема наследования классов оптимизаторов, учитывающих переменность источников}
 	\label{radiationOptimizerTime}
 \end{figure}
+
+\begin{small}
+	\topcaption{Публичные методы классов оптимизаторов параметров переменных во времени источников }
+	\label{RadiationTimeOptimizerMethods}
+	\begin{xtabular}{|p{0.5\textwidth}|p{0.5\textwidth}|}
+		\hline
+		\textbf{RadiationTimeOptimizer} & абстрактный класс, предназначенный для оптимизации параметров зависящих от времени источников\\
+		\hline
+		evaluateOptimizationFunction( const double* vector, double** energy, double** observedFlux, double** observedError, int* Ne, int Ntimes, double* times, RadiationTimeDependentSource* source) & вычисляет целевую функцию - взвешенную сумму квадратов ошибок во всех наблюдательных точках во все моменты времени $f = \sum \frac{(F_i - F_{obs,i})^2}{\sigma_i^2}$, где $F_i$ - расчетная спектральная плотность потока излучения, $F_{obs,i}$ - наблюдаемая спектральная плотность потока излучения, $\sigma_i$ - её погрешность\\
+		\hline
+		optimize (double* vector, bool* optPar, double** energy, double** observedFLux, double** observedError, int* Ne, int Ntimes, double* times, RadiationTimeDependentSource* source) & функция, осуществляющая оптимизацию, принимает на вход массив подбираемых параметров, в который будет записан результат, массив булевских переменных, определяющих оптимизировать соответствующий параметр, или считать его фиксированным, двумерные массивы энергий, на которых производились наблюдения, соответствующих энергиям наблюдаемых потоков в единицах $\text{см}^{-2}\text{с}^{-1}$, погрешности наблюдаемых потоков, массив количества наблюдательных точек в каждый момент времени, количество моментов времени, когда производились измерения, соответствующие времена и переменный источник излучения.\\
+		\hline
+		optimize(double* vector, bool* optPar, double** energy, double** observedFlux, int* Ne, int Ntimes, double* times, RadiationTimeDependentSource* source) & функция, осуществляющая оптимизацию, в случае не заданных наблюдательных ошибок. В таком случае ошибки у всех точек считаются равными елинице и веса всех ошибок в целевой функции оказываются равными\\
+		\hline
+		\textbf{GridEnumRadiationTimeOptimizer} & класс, предназначенный для оптимизации параметров переменных источников с помощью перебора по сетке\\
+		\hline
+		GridEnumRadiationTimeOptimizer( RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints) & конструктор, создает экземпляр класса с указанным вычислителем излучения, минимальными и максимальными значениями оптимизируемых параметров, количеством этих параметров и массивом с количеством перебираемых точек по каждому параметру. При переборе точки будут распределены логарифмически равномерно.\\
+		\hline
+		\textbf{GradientDescentRadiationTimeOptimizer} & класс, предназначенный для оптимизации параметров переменных источников методом градиентного спуска\\
+		\hline
+		GradientDescentRadiationTimeOptimizer( RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations) & конструктор, создает экземпляр класса с указанным вычислителем излучения, минимальными и максимальными значеними оптимизируемых параметров, количеством этих параметров и максимальным количеством итераций градиентного спуска\\
+		\hline		
+\end{xtabular}
+\end{small}
