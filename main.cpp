@@ -114,6 +114,8 @@ void fitCSS161010withPowerLawDistribition() {
 	double B = 0.6;
 	double R = 1.4E17;
 	double fraction = 0.5;
+	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
+	sigma = 0.0002;
 	//SN2009bb
 	//const double distance = 40*3.08*1.0E24;
 	//AT2018
@@ -134,10 +136,10 @@ void fitCSS161010withPowerLawDistribition() {
 	//number of parameters of the source
 	const int Nparams = 4;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 1E17, 0.01, 0.5, 0.1 };
-	double maxParameters[Nparams] = { 2E17, 10, 200, 1.0 };
+	double minParameters[Nparams] = { 1E17, 0.0001, 0.5, 0.1 };
+	double maxParameters[Nparams] = { 2E17, 1.0, 2000, 1.0 };
 	//starting point of optimization and normalization
-	double vector[Nparams] = { R, B, electronConcentration, fraction};
+	double vector[Nparams] = { R, sigma, electronConcentration, fraction};
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
 	}
@@ -189,7 +191,7 @@ void fitCSS161010withPowerLawDistribition() {
 
 
 	//picking parameters to be optimized
-	bool optPar[Nparams] = { true, true, true, true };
+	bool optPar[Nparams] = { true, false, true, false };
 	int Niterations = 20;
 	//creating gradient descent optimizer
     RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
@@ -247,12 +249,15 @@ void fitCSS161010withPowerLawDistribition() {
 	fprintf(paramFile, "parameters at first time moment:\n");
 	printf("R = %g\n", vector[0] * maxParameters[0]);
 	fprintf(paramFile, "R = %g\n", vector[0] * maxParameters[0]);
-	printf("B = %g\n", vector[1] * maxParameters[1]);
-	fprintf(paramFile, "B = %g\n", vector[1] * maxParameters[1]);
+	printf("sigma = %g\n", vector[1] * maxParameters[1]);
+	fprintf(paramFile, "sigma = %g\n", vector[1] * maxParameters[1]);
 	printf("n = %g\n", vector[2] * maxParameters[2]);
 	fprintf(paramFile, "n = %g\n", vector[2] * maxParameters[2]);
 	printf("width fraction = %g\n", vector[3] * maxParameters[3]);
 	fprintf(paramFile, "width fraction = %g\n", vector[3] * maxParameters[3]);
+	B = sqrt(vector[1] * maxParameters[1] * 4 * pi * massProton * vector[2] * maxParameters[2] * speed_of_light2);
+	printf("B = %g\n", B);
+	fprintf(paramFile, "B = %g\n", B);
 	fclose(paramFile);
 
 	//deleting arrays
@@ -271,7 +276,8 @@ void fitCSS161010withTabulatedDistributions() {
 	double electronConcentration = 150;
 	double B = 0.6;
 	double rmax = 1.3E17;
-
+	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
+	sigma = 0.002;
 	//SN2009bb
 	//const double distance = 40*3.08*1.0E24;
 	//AT2018
@@ -297,10 +303,10 @@ void fitCSS161010withTabulatedDistributions() {
 	//number of parameters of the source
 	const int Nparams = 4;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 1E16, 0.01, 0.01, 0.1 };
-	double maxParameters[Nparams] = { 2E17, 10, 1000, 1.0 };
+	double minParameters[Nparams] = { 1E16, 0.0001, 0.01, 0.1 };
+	double maxParameters[Nparams] = { 2E17, 1, 1000, 1.0 };
 	//starting point of optimization and normalization
-	double vector[Nparams] = { rmax, B, electronConcentration, 0.5 };
+	double vector[Nparams] = { rmax, sigma, electronConcentration, 0.5 };
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
 	}
@@ -349,7 +355,7 @@ void fitCSS161010withTabulatedDistributions() {
 	double observedFlux[Nenergy1] = { 1.5 / (hplank * 1E26), 4.3 / (hplank * 1E26), 6.1 / (hplank * 1E26), 4.2 / (hplank * 1E26) };
 	double observedError[Nenergy1] = { 0.1 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.3 / (hplank * 1E26), 0.2 / (hplank * 1E26) };
 	//picking parameters to be optimized
-	bool optPar[Nparams] = { true, true, true, true };
+	bool optPar[Nparams] = { true, false, true, false };
 
 	//creating gradient descent optimizer
     RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 20);
@@ -402,12 +408,16 @@ void fitCSS161010withTabulatedDistributions() {
 	fprintf(paramFile, "parameters at first time moment:\n");
 	printf("R = %g\n", vector[0] * maxParameters[0]);
 	fprintf(paramFile, "R = %g\n", vector[0] * maxParameters[0]);
-	printf("B = %g\n", vector[1] * maxParameters[1]);
-	fprintf(paramFile, "B = %g\n", vector[1] * maxParameters[1]);
+	printf("sigma = %g\n", vector[1] * maxParameters[1]);
+	fprintf(paramFile, "sigma = %g\n", vector[1] * maxParameters[1]);
 	printf("n = %g\n", vector[2] * maxParameters[2]);
 	fprintf(paramFile, "n = %g\n", vector[2] * maxParameters[2]);
 	printf("width fraction = %g\n", vector[3] * maxParameters[3]);
 	fprintf(paramFile, "width fraction = %g\n", vector[3] * maxParameters[3]);
+	
+	B = sqrt(vector[1] * maxParameters[1] * 4 * pi * massProton * vector[2] * maxParameters[2] * speed_of_light2);
+	printf("B = %g\n", B);
+	fprintf(paramFile, "B = %g\n", B);
 	fclose(paramFile);
 
 	//deleting arrays
@@ -492,13 +502,14 @@ void fitTimeDependentCSS161010() {
 	double B = 0.6;
 	double widthFraction = 0.5;
 	double v = 0.3 * speed_of_light;
+	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
 	//number of optimized parameters
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 1E16, 0.01, 0.01, 0.1, 0.01*speed_of_light};
-	double maxParameters[Nparams] = { 2E17, 10, 1000, 1.0, 0.9*speed_of_light};
+	double minParameters[Nparams] = { 1E16, 0.0001, 0.01, 0.1, 0.01*speed_of_light};
+	double maxParameters[Nparams] = { 2E17, 1, 1000, 1.0, 0.9*speed_of_light};
 	//starting point of optimization and normalization
-	double vector[Nparams] = { rmax, B, electronConcentration, widthFraction, v};
+	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v};
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
 	}
@@ -588,13 +599,16 @@ void fitTimeDependentCSS161010() {
 	printf("R = %g\n", vector[0] * maxParameters[0]);
 	fprintf(paramFile, "R = %g\n", vector[0] * maxParameters[0]);
 	printf("B = %g\n", vector[1] * maxParameters[1]);
-	fprintf(paramFile, "B = %g\n", vector[1] * maxParameters[1]);
+	fprintf(paramFile, "sigma = %g\n", vector[1] * maxParameters[1]);
 	printf("n = %g\n", vector[2] * maxParameters[2]);
 	fprintf(paramFile, "n = %g\n", vector[2] * maxParameters[2]);
 	printf("width fraction = %g\n", vector[3] * maxParameters[3]);
 	fprintf(paramFile, "width fraction = %g\n", vector[3] * maxParameters[3]);
 	printf("v/c = %g\n", vector[4] * maxParameters[4] / speed_of_light);
 	fprintf(paramFile, "v/c = %g\n", vector[4] * maxParameters[4]/speed_of_light);
+	B = sqrt(vector[1] * maxParameters[1] * 4 * pi * massProton * vector[2] * maxParameters[2] * speed_of_light2);
+	printf("B = %g\n", B);
+	fprintf(paramFile, "B = %g\n", B);
 	fclose(paramFile);
 
 	//deleting arrays

@@ -83,14 +83,15 @@ void SimpleFlatSource::resetParameters(const double* parameters, const double* n
 {
 	/*parameters must be
 	* R = parameters[0]
-	* B = parameters[1]
+	* sigma = parameters[1]
 	* n = parameters[2]
 	* z = R*parameters[3]
 	*/
+	double sigma = parameters[1] * normalizationUnits[1];
 	my_rho = parameters[0] * normalizationUnits[0];
-	my_B = parameters[1] * normalizationUnits[1];
 	my_concentration = parameters[2] * normalizationUnits[2];
 	my_z = my_rho * parameters[3] * normalizationUnits[3];
+	my_B = sqrt(sigma * 4 * pi * massProton * my_concentration * speed_of_light2);
 }
 double SimpleFlatSource::getLength(int irho, int iz, int iphi) {
 	return my_z;
@@ -181,19 +182,23 @@ void TabulatedDiskSource::resetParameters(const double* parameters, const double
 {
 	/*parameters must be
 * R = parameters[0]
-* B[i][j][k] ~ parameters[1]
+* sigma[i][j][k] ~ parameters[1]
 * n[i][j][k] ~ parameters[2]
 * where B[Nrho-1][0][0] = parameters[1]
 * z = R*parameters[3]
 */
 	my_rho = parameters[0] * normalizationUnits[0];
-	double B = my_B[my_Nrho - 1][0][0];
-	double n = my_concentration[my_Nrho - 1][0][0];
+	double sigma = parameters[1] * normalizationUnits[1];
+	double B0 = my_B[my_Nrho - 1][0][0];
+	double n0 = my_concentration[my_Nrho - 1][0][0];
+	double sigma0 = sqr(my_B[my_Nrho - 1][0][0]) / (4 * pi * massProton * my_concentration[my_Nrho - 1][0][0] * speed_of_light2);
 	for (int irho = 0; irho < my_Nrho; ++irho) {
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
-				my_B[irho][iz][iphi] *= parameters[1] * normalizationUnits[1]/B;
-				my_concentration[irho][iz][iphi] *= parameters[2] * normalizationUnits[2]/n;
+				double sigma = sqr(my_B[irho][iz][iphi]) / (4 * pi * massProton * my_concentration[irho][iz][iphi]*speed_of_light2);
+				sigma *= parameters[1] * normalizationUnits[1]/sigma0;
+				my_concentration[irho][iz][iphi] *= parameters[2] * normalizationUnits[2]/n0;
+				my_B[irho][iz][iphi] = sqrt(sigma * 4 * pi * massProton * my_concentration[irho][iz][iphi] * speed_of_light2);
 			}
 		}
 	}
@@ -359,13 +364,17 @@ void TabulatedSphericalLayerSource::resetParameters(const double* parameters, co
 * Rin = R*(1 - parameters[3])
 */
 	my_rho = parameters[0] * normalizationUnits[0];
-	double B = my_B[my_Nrho - 1][0][0];
-	double n = my_concentration[my_Nrho - 1][0][0];
+	double sigma = parameters[1] * normalizationUnits[1];
+	double B0 = my_B[my_Nrho - 1][0][0];
+	double n0 = my_concentration[my_Nrho - 1][0][0];
+	double sigma0 = sqr(my_B[my_Nrho - 1][0][0]) / (4 * pi * massProton * my_concentration[my_Nrho - 1][0][0] * speed_of_light2);
 	for (int irho = 0; irho < my_Nrho; ++irho) {
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
-				my_B[irho][iz][iphi] *= parameters[1] * normalizationUnits[1] / B;
-				my_concentration[irho][iz][iphi] *= parameters[2] * normalizationUnits[2] / n;
+				double sigma = sqr(my_B[irho][iz][iphi]) / (4 * pi * massProton * my_concentration[irho][iz][iphi] * speed_of_light2);
+				sigma *= parameters[1] * normalizationUnits[1] / sigma0;
+				my_concentration[irho][iz][iphi] *= parameters[2] * normalizationUnits[2] / n0;
+				my_B[irho][iz][iphi] = sqrt(sigma * 4 * pi * massProton * my_concentration[irho][iz][iphi] * speed_of_light2);
 			}
 		}
 	}
@@ -529,23 +538,24 @@ ExpandingRemnantSource::ExpandingRemnantSource(const double& R0, const double& B
 
 void ExpandingRemnantSource::resetParameters(const double* parameters, const double* normalizationUnits) {
 	my_R0 = parameters[0] * normalizationUnits[0];
-	my_B0 = parameters[1] * normalizationUnits[1];
+	double sigma = parameters[1] * normalizationUnits[1];
 	my_concentration0 = parameters[2] * normalizationUnits[2];
 	my_widthFraction = parameters[3] * normalizationUnits[3];
 	my_v = parameters[4] * normalizationUnits[4];
+	my_B0 = sqrt(sigma * 4 * pi * massProton * my_concentration0 * speed_of_light2);
 }
 
 //just one possible example
 RadiationSource* ExpandingRemnantSource::getRadiationSource(double& time, const double* normalizationUnits) {
 	double R = my_R0 + my_v * (time - my_t0);
-	double B = my_B0 * my_R0 / R;
+	double sigma = sqr(my_B0) / (4 * pi * massProton * my_concentration0 * speed_of_light2);
 	//double B = my_B0;
 	double n = my_concentration0 * sqr(my_R0 / R);
 	double fracton = my_widthFraction * my_R0/R;
 
 	double parameters[4];
 	parameters[0] = R / normalizationUnits[0];
-	parameters[1] = B / normalizationUnits[1];
+	parameters[1] = sigma / normalizationUnits[1];
 	parameters[2] = n / normalizationUnits[2];
 	parameters[3] = fracton / normalizationUnits[3];
 	my_radiationSource->resetParameters(parameters, normalizationUnits);

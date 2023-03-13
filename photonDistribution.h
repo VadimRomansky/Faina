@@ -38,6 +38,7 @@ public:
 
     };
 	virtual double distributionNormalized(const double& energy);
+	virtual double getMeanEnergy();
 
 	double getIndex();
 	double getE0();
@@ -56,6 +57,7 @@ public:
 
     }
 	virtual double distributionNormalized(const double& energy);
+	virtual double getMeanEnergy();
 
 	double getTemperature();
 
@@ -74,6 +76,7 @@ public:
 	PhotonMultiPlankDistribution(int Nplank, const double* const temperatures, const double* const amplitudes);
     virtual ~PhotonMultiPlankDistribution();
 	virtual double distributionNormalized(const double& energy);
+	virtual double getMeanEnergy();
 
 	//Mathis 1983?
 	static PhotonMultiPlankDistribution* getGalacticField();
@@ -90,6 +93,7 @@ public:
     virtual ~CompoundPhotonDistribution();
 
 	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi);
+	virtual double getMeanEnergy();
 };
 
 #endif

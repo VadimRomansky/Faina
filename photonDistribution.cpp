@@ -58,6 +58,10 @@ double PhotonPowerLawDistribution::distributionNormalized(const double& energy)
     return my_A/pow(energy/my_E0, my_index);
 }
 
+double PhotonPowerLawDistribution::getMeanEnergy() {
+	return my_A * my_E0 * my_E0 / (my_index - 2);
+}
+
 double PhotonPowerLawDistribution::getIndex()
 {
     return my_index;
@@ -89,6 +93,11 @@ double PhotonPlankDistribution::distributionNormalized(const double& energy) {
 		return my_A * (2 * kBoltzman * my_temperature * energy / cube(hplank * speed_of_light)) / my_concentration;
 	}
 	return my_A*(2 * energy * energy / cube(hplank * speed_of_light)) / (exp(theta) - 1.0)/my_concentration;
+}
+
+double PhotonPlankDistribution::getMeanEnergy()
+{
+	return 0.0;
 }
 
 double PhotonPlankDistribution::getTemperature() {
@@ -138,6 +147,15 @@ double PhotonMultiPlankDistribution::distributionNormalized(const double& energy
 	}
 
 	return result/my_concentration;
+}
+
+double PhotonMultiPlankDistribution::getMeanEnergy()
+{
+	double result = 0;
+	for (int i = 0; i < my_Nplank; ++i) {
+		result += my_concentrations[i]*my_
+	}
+	return 0.0;
 }
 
 PhotonMultiPlankDistribution* PhotonMultiPlankDistribution::getGalacticField()
@@ -194,4 +212,13 @@ double CompoundPhotonDistribution::distributionNormalized(const double& energy, 
 		result += my_distributions[i]->distribution(energy, mu, phi);
 	}
 	return result/my_concentration;
+}
+
+double CompoundPhotonDistribution::getMeanEnergy()
+{
+	double result = 0;
+	for (int i = 0; i < my_Ndistr; ++i) {
+		result += my_distributions[i]->getConcentration()*my_distributions[i]->getMeanEnergy()''
+	}
+	return result / my_concentration;
 }

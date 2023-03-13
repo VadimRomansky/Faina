@@ -12,6 +12,7 @@ public:
 		return my_concentration * distributionNormalized(energy, mu, phi);
 	};
 	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi) = 0;
+	virtual double getMeanEnergy() = 0;
 	double getConcentration() {
 		return my_concentration;
 	};
