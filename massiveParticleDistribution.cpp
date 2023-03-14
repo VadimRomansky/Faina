@@ -69,6 +69,11 @@ double MassiveParticlePowerLawDistribution::distributionNormalized(const double&
 	return my_A / pow(energy / my_E0, my_index);
 }
 
+double MassiveParticlePowerLawDistribution::getMeanEnergy()
+{
+	return my_A*4*pi*my_E0*my_E0/(my_index - 2);
+}
+
 void MassiveParticlePowerLawDistribution::resetConcentration(const double& concentration)
 {
 	my_concentration = concentration;
@@ -142,6 +147,23 @@ double MassiveParticlePowerLawCutoffDistribution::distributionNormalized(const d
 		return 0;
 	}
 	return (my_A / pow(energy / my_E0, my_index))*exp(-pow(energy/my_Ecut, my_beta));
+}
+
+double MassiveParticlePowerLawCutoffDistribution::getMeanEnergy()
+{
+	double Emin = my_E0;
+	double Emax = 10 * my_Ecut;
+	double Emean = 0;
+	int N = 100000;
+	double factor = pow(Emax / Emin, 1.0 / (N - 1));
+	double norm = 0;
+	double E = Emin;
+	for (int i = 0; i < N; ++i) {
+		double dE = E * (factor - 1.0);
+		Emean += 4 * pi * distributionNormalized(E) * E * dE;
+		E = E * factor;
+	}
+	return Emean;
 }
 
 void MassiveParticlePowerLawCutoffDistribution::resetConcentration(const double& concentration)
@@ -226,6 +248,25 @@ double MassiveParticleBrokenPowerLawDistribution::distributionNormalized(const d
 	}
 }
 
+double MassiveParticleBrokenPowerLawDistribution::getMeanEnergy()
+{
+	double first = 0;
+	if(my_index1 == 2.0){
+		first = my_E0 * my_E0 * my_A * log(my_Etran / my_E0);
+	}
+	else {
+		first = my_E0 * my_E0 * my_A * (1.0 - pow(my_E0 / my_Etran, my_index1 - 2)) / (my_index1 - 2.0);
+	}
+	double second = 0;
+	if (my_index2 <= 2.0) {
+		printf("MassiveParticleBrokenPowerLawDistribution has infinite energy\n");
+		printLog("MassiveParticleBrokenPowerLawDistribution has infinite energy\n");
+		exit(0);
+	}
+	second = my_E0 * my_E0 * my_B * pow(my_E0/my_Etran, my_index2 - 2.0) / (my_index2 - 2.0);
+	return first + second;
+}
+
 void MassiveParticleBrokenPowerLawDistribution::resetConcentration(const double& concentration)
 {
 	my_concentration = concentration;
@@ -276,6 +317,11 @@ double MassiveParticleMaxwellDistribution::distributionNormalized(const double& 
 	return my_A*sqrt(energy)*exp(-energy/(kBoltzman*my_temperature));
 }
 
+double MassiveParticleMaxwellDistribution::getMeanEnergy()
+{
+	return 3.0 * kBoltzman * my_temperature / 2.0;
+}
+
 void MassiveParticleMaxwellDistribution::resetConcentration(const double& concentration)
 {
 	my_concentration = concentration;
@@ -317,7 +363,25 @@ double MassiveParticleMaxwellJuttnerDistribution::distributionNormalized(const d
 		printLog("particle energy is less than m c^2 in maxwell-juttner distribution\n");
 		exit(0);
 	}
-	return my_A * sqrt(energy) * sqrt(energy*energy - m_c2*m_c2)*energy*exp(-energy / (kBoltzman * my_temperature));
+	return my_A * sqrt(energy*energy - m_c2*m_c2)*energy*exp(-energy / (kBoltzman * my_temperature));
+}
+
+double MassiveParticleMaxwellJuttnerDistribution::getMeanEnergy()
+{
+	double m_c2 = my_mass * speed_of_light2;
+	double Emin = m_c2;
+	double Emax = 100 * kBoltzman*my_temperature;
+	double Emean = 0;
+	int N = 100000;
+	double factor = pow(Emax / Emin, 1.0 / (N - 1));
+	double norm = 0;
+	double E = Emin;
+	for (int i = 0; i < N; ++i) {
+		double dE = E * (factor - 1.0);
+		Emean += 4 * pi * distributionNormalized(E) * E * dE;
+		E = E * factor;
+	}
+	return Emean;
 }
 
 void MassiveParticleMaxwellJuttnerDistribution::resetConcentration(const double& concentration)
@@ -549,6 +613,16 @@ double MassiveParticleTabulatedIsotropicDistribution::distributionNormalized(con
 	}
 }
 
+double MassiveParticleTabulatedIsotropicDistribution::getMeanEnergy()
+{
+	double Emean = 0;
+	Emean += 4*pi*my_distribution[0] * (my_energy[1] - my_energy[0]) * (my_energy[1] + my_energy[0])/2.0;
+	for (int i = 1; i < my_Ne; ++i) {
+		Emean += 4*pi*my_distribution[i] * (my_energy[i] - my_energy[i - 1]) * (my_energy[i] + my_energy[i - 1])/2.0;
+	}
+	return Emean;
+}
+
 void MassiveParticleTabulatedIsotropicDistribution::resetConcentration(const double& concentration)
 {
 	my_concentration = concentration;
@@ -775,6 +849,28 @@ MassiveParticleTabulatedPolarDistribution::~MassiveParticleTabulatedPolarDistrib
 		delete[] my_distribution[i];
 	}
 	delete[] my_distribution;
+}
+
+double MassiveParticleTabulatedPolarDistribution::getMeanEnergy()
+{
+	double Emean = 0;
+	for (int imu = 0; imu < my_Nmu; ++imu) {
+		double dmu;
+		if (imu == 0) {
+			dmu = 1 - (my_mu[0] + my_mu[1]) / 2;
+		}
+		else if (imu == my_Nmu - 1) {
+			dmu = (my_mu[my_Nmu - 2] + my_mu[my_Nmu - 1]) / 2 + 1;
+		}
+		else {
+			dmu = (my_mu[imu - 1] - my_mu[imu + 1]) / 2;
+		}
+		Emean += my_distribution[0][imu] * (my_energy[1] - my_energy[0]) * dmu * (my_energy[1] + my_energy[0])/2.0;
+		for (int i = 1; i < my_Ne; ++i) {
+			Emean += my_distribution[i][imu] * (my_energy[i] - my_energy[i - 1]) * dmu * (my_energy[i] + my_energy[i - 1])/2.0;
+		}
+	}
+	return Emean;
 }
 
 double MassiveParticleTabulatedPolarDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
@@ -1304,6 +1400,31 @@ double MassiveParticleTabulatedAnisotropicDistribution::distributionNormalized(c
 	}
 }
 
+double MassiveParticleTabulatedAnisotropicDistribution::getMeanEnergy()
+{
+	double Emean = 0;
+	double dphi = 2 * pi / my_Nphi;
+	for (int imu = 0; imu < my_Nmu; ++imu) {
+		double dmu;
+		if (imu == 0) {
+			dmu = 1 - (my_mu[0] + my_mu[1]) / 2;
+		}
+		else if (imu == my_Nmu - 1) {
+			dmu = (my_mu[my_Nmu - 2] + my_mu[my_Nmu - 1]) / 2 + 1;
+		}
+		else {
+			dmu = (my_mu[imu - 1] - my_mu[imu + 1]) / 2;
+		}
+		for (int k = 0; k < my_Nphi; ++k) {
+			Emean += my_distribution[0][imu][k] * (my_energy[1] - my_energy[0]) * dmu * dphi * (my_energy[1] + my_energy[0])/2.0;
+			for (int i = 1; i < my_Ne; ++i) {
+				Emean += my_distribution[i][imu][k] * (my_energy[i] - my_energy[i - 1]) * dmu * dphi * (my_energy[i] + my_energy[i - 1])/2.0;
+			}
+		}
+	}
+	return Emean;
+}
+
 void MassiveParticleTabulatedAnisotropicDistribution::resetConcentration(const double& concentration)
 {
 	my_concentration = concentration;
@@ -1412,6 +1533,15 @@ double CompoundMassiveParticleDistribution::distributionNormalized(const double&
 	return result/my_concentration;
 }
 
+double CompoundMassiveParticleDistribution::getMeanEnergy()
+{
+	double Emean = 0;
+	for (int i = 0; i < my_Ndistr; ++i) {
+		Emean += my_distributions[i]->getConcentration()*my_distributions[i]->getMeanEnergy();
+	}
+	return Emean / my_concentration;
+}
+
 void CompoundMassiveParticleDistribution::resetConcentration(const double& concentration)
 {
 	double ratio = concentration / my_concentration;
@@ -1497,6 +1627,15 @@ double CompoundWeightedMassiveParticleDistribution::distributionNormalized(const
 		result += my_weights[i]*my_distributions[i]->distributionNormalized(energy, mu, phi);
 	}
 	return result;
+}
+
+double CompoundWeightedMassiveParticleDistribution::getMeanEnergy()
+{
+	double Emean = 0;
+	for (int i = 0; i < my_Ndistr; ++i) {
+		Emean += my_weights[i] * my_distributions[i]->getMeanEnergy();
+	}
+	return Emean;
 }
 
 void CompoundWeightedMassiveParticleDistribution::resetConcentration(const double& concentration)
