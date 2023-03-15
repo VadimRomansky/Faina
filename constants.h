@@ -27,19 +27,5 @@ const double four_pi = 4*pi;
 const double euler_mascheroni = 1.781072417990;
 const double parsec = 3.0856776E18;
 
-//SN2009bb
-//const double distance = 40*3.08*1.0E24;
-//AT2018
-//const double distance = 60*3.08*1.0E24;
-//CSS161010
-const double distance = 150*3.08*1.0E24;
-
-//const std::string outputfileName = "radiation.dat";
-//const std::string fileNameP = "../../tristan-mp-pitp/Pe";
-//const std::string fileNameF = "../../tristan-mp-pitp/Fe";
-//const std::string fileNameP = "Ee";
-//const std::string fileNameF = "Fs";
-//const std::string logFileName = "log.dat";
-
 
 #endif

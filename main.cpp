@@ -110,12 +110,12 @@ void evaluateComtonWithPowerLawDistribution() {
 //example 2. Fitting observed synchrotron radio fluxes from CSS1601010 at one time moment with simple flat disk source and powerlaw distribution
 void fitCSS161010withPowerLawDistribition() {
 	//initial parameters of the source
-	double electronConcentration = 25;
-	double B = 0.6;
+	double electronConcentration = 1.9;
+	double B = 0.29;
 	double R = 1.4E17;
-	double fraction = 0.5;
+	double fraction = 0.5*4/3;
 	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
-	sigma = 0.0002;
+	//sigma = 0.0002;
 	//SN2009bb
 	//const double distance = 40*3.08*1.0E24;
 	//AT2018
@@ -124,9 +124,9 @@ void fitCSS161010withPowerLawDistribition() {
 	//distance to source
 	const double distance = 150 * 1E6 * parsec;
 	//energies of electrons wich will be used for evaluatig radiation
-	double Emin = 4*me_c2;
+	double Emin = 5.05*me_c2;
 	double Emax = 10000 * me_c2;
-	double index = 3.6;
+	double index = 3.0;
 	//creating synchrotron evaluator
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax);
 	//creating electrons powerlaw distribution
@@ -143,6 +143,12 @@ void fitCSS161010withPowerLawDistribition() {
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
 	}
+
+	double magneticDensity = B * B / (8 * pi);
+	double particleDensity = (index - 1.0) * electronConcentration * Emin / (index - 2.0);
+
+	double EminCop = ((B * B / (8 * pi)) * ((index - 2) / (index - 1)) / electronConcentration) / me_c2;
+	double conc = (B * B / (8 * pi)) * ((index - 2) / (index - 1)) / Emin;
 
 	//at2018 t = 15
 	//nu1[0] = 35E9;
