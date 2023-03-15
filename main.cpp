@@ -786,14 +786,44 @@ void evaluateBremsstrahlung() {
 	delete bremsstrahlungEvaluator;
 }
 
+//example 7 compare compton and synchrotron
+void compareComptonSynchrotron() {
+	double B = 1.0E-5;
+	double electronConcentration = 1.0;
+	double Emin = 10 * massElectron * speed_of_light2;
+	MassiveParticleIsotropicDistribution* distribution = new MassiveParticlePowerLawDistribution(massElectron, 3.0, Emin, 1.0);
+	RadiationSource* source = new SimpleFlatSource(distribution, B, 1.0, parsec, parsec, 1000 * parsec);
+	RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(1000, Emin, 10000 * me_c2, false);
+	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
+	synchrotronEvaluator->writeFluxFromSourceToFile("output1.dat", source, 0.001*hplank * cyclotronOmega, 100000 * hplank * cyclotronOmega, 100);
+	PhotonIsotropicDistribution* photons = PhotonPlankDistribution::getCMBradiation();
+	RadiationEvaluator* inverseComptonEvaluator = new InverseComptonEvaluator(1000, 50, 4, Emin, 10000 * me_c2, photons, ComptonSolverType::ISOTROPIC_JONES);
+	inverseComptonEvaluator->writeFluxFromSourceToFile("output2.dat", source, 1E9 * hplank * cyclotronOmega, 1E15 * hplank * cyclotronOmega, 100);
+
+	double magneticEnergy = B * B / (8 * pi);
+	double photonEnergy = photons->getConcentration() * photons->getMeanEnergy();
+	double ratioEnergy = magneticEnergy / photonEnergy;
+
+	double synchrotronFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.001 * hplank * cyclotronOmega, 100000 * hplank * cyclotronOmega, source);
+	double inverseComptonFlux = inverseComptonEvaluator->evaluateTotalFluxInEnergyRange(1E9 * hplank * cyclotronOmega, 1E15 * hplank * cyclotronOmega, source);
+	double ratioFlux = synchrotronFlux / inverseComptonFlux;
+
+	double ratioRatio = ratioFlux / ratioEnergy;
+
+	printf("energy ratio %g\n", ratioEnergy);
+	printf("flux ratio = %g\n", ratioFlux);
+	printf("ratio ratio = %g\n", ratioRatio);
+}
+
 
 int main() {
 	//evaluateSimpleSynchrotron();
 	//evaluateComtonWithPowerLawDistribution();
-	fitCSS161010withPowerLawDistribition();
+	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
 	//evaluatePionDecayWithPowerLawDistribution();
 	//evaluateBremsstrahlung();
+	compareComptonSynchrotron();
 	return 0;
 }

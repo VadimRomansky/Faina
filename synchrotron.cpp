@@ -148,7 +148,7 @@ void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFre
 		else {
 			delectronEnergy = my_Ee[j] - my_Ee[j - 1];
 		}
-		double electronDist = 4*pi*concentration*electronDistribution->distributionNormalized(my_Ee[j]);
+		double electronDist = concentration*electronDistribution->distributionNormalized(my_Ee[j]);
 		if (electronDist > 0) {
 			double dFe = electronDist * delectronEnergy;
 			double nuc = criticalNu(my_Ee[j], sinhi, B, criticalNuCoef);

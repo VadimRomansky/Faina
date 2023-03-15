@@ -37,11 +37,26 @@ public:
     virtual double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) = 0;
     virtual double evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source) = 0;
 
+    double evaluateTotalFluxInEnergyRange(const double& Ephmin, const double& Ephmax, RadiationSource* source) {
+        int Nph = 1000;
+        double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+        double currentE = Ephmin;
+        double flux = 0;
+        for (int i = 0; i < Nph; ++i) {
+            printf("%d\n", i);
+            double dE = currentE * (factor - 1.0);
+            flux = evaluateFluxFromSource(currentE, source)*dE;
+            currentE = currentE * factor;
+        }
+        return flux;
+    }
+
     void writeFluxFromSourceToFile(const char* fileName, RadiationSource* source, const double& Ephmin, const double& Ephmax, const int Nph) {
         double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
         double currentE = Ephmin;
         FILE* outFile = fopen(fileName, "w");
         for (int i = 0; i < Nph; ++i) {
+            printf("%d\n", i);
             double flux = evaluateFluxFromSource(currentE, source);
             fprintf(outFile, "%g %g\n", currentE, flux);
             currentE = currentE * factor;
