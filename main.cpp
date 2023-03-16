@@ -790,29 +790,49 @@ void evaluateBremsstrahlung() {
 void compareComptonSynchrotron() {
 	double B = 1.0E-5;
 	double electronConcentration = 1.0;
-	double Emin = 10 * massElectron * speed_of_light2;
-	MassiveParticleIsotropicDistribution* distribution = new MassiveParticlePowerLawDistribution(massElectron, 3.0, Emin, 1.0);
-	RadiationSource* source = new SimpleFlatSource(distribution, B, 1.0, parsec, parsec, 1000 * parsec);
-	RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(1000, Emin, 10000 * me_c2, false);
+	double Emin = 20 * massElectron * speed_of_light2;
+	double Emax = 10000 * me_c2;
+	double distance = 1000 * parsec;
+	MassiveParticleIsotropicDistribution* distribution = new MassiveParticlePowerLawDistribution(massElectron, 4.0, Emin, 1.0);
+	RadiationSource* source = new SimpleFlatSource(distribution, B, 1.0, parsec, parsec, distance);
+	RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(100, Emin, Emax, false);
 	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
-	synchrotronEvaluator->writeFluxFromSourceToFile("output1.dat", source, 0.001*hplank * cyclotronOmega, 100000 * hplank * cyclotronOmega, 100);
+	synchrotronEvaluator->writeFluxFromSourceToFile("output1.dat", source, 0.001*hplank * cyclotronOmega, 1000000 * hplank * cyclotronOmega, 100);
 	PhotonIsotropicDistribution* photons = PhotonPlankDistribution::getCMBradiation();
-	RadiationEvaluator* inverseComptonEvaluator = new InverseComptonEvaluator(1000, 50, 4, Emin, 10000 * me_c2, photons, ComptonSolverType::ISOTROPIC_JONES);
-	inverseComptonEvaluator->writeFluxFromSourceToFile("output2.dat", source, 1E9 * hplank * cyclotronOmega, 1E15 * hplank * cyclotronOmega, 100);
+	RadiationEvaluator* inverseComptonEvaluator = new InverseComptonEvaluator(100, 50, 4, Emin, Emax, photons, ComptonSolverType::ISOTROPIC_JONES);
+	inverseComptonEvaluator->writeFluxFromSourceToFile("output2.dat", source, 1E11 * hplank * cyclotronOmega, 1E16 * hplank * cyclotronOmega, 100);
+
+	double meanFactor = 0;
+	double currentE = Emin;
+	double factor = pow(Emax / Emin, 1.0 / (1000 - 1));
+	for (int i = 0; i < 1000; ++i) {
+		double dE = currentE * (factor - 1);
+		double gamma = currentE / (me_c2);
+		double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
+		meanFactor += gamma * gamma * beta * beta * distribution->distributionNormalized(currentE)*dE;
+		currentE *= factor;
+	}
+
 
 	double magneticEnergy = B * B / (8 * pi);
 	double photonEnergy = photons->getConcentration() * photons->getMeanEnergy();
 	double ratioEnergy = magneticEnergy / photonEnergy;
 
-	double synchrotronFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.001 * hplank * cyclotronOmega, 100000 * hplank * cyclotronOmega, source);
-	double inverseComptonFlux = inverseComptonEvaluator->evaluateTotalFluxInEnergyRange(1E9 * hplank * cyclotronOmega, 1E15 * hplank * cyclotronOmega, source);
+	double sigmaT = 8.0 * pi * re2 / 3.0;
+	double Ptheor = (4.0 / 3.0) * sigmaT * speed_of_light * photonEnergy * meanFactor * electronConcentration * source->getTotalVolume() / (4 * pi * distance * distance);
+
+	double synchrotronFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.001 * hplank * cyclotronOmega, 1000000 * hplank * cyclotronOmega, source);
+	double inverseComptonFlux = inverseComptonEvaluator->evaluateTotalFluxInEnergyRange(1E11 * hplank * cyclotronOmega, 1E16 * hplank * cyclotronOmega, source);
 	double ratioFlux = synchrotronFlux / inverseComptonFlux;
+
+	double ratioGhiselini = Ptheor / inverseComptonFlux;
 
 	double ratioRatio = ratioFlux / ratioEnergy;
 
 	printf("energy ratio %g\n", ratioEnergy);
 	printf("flux ratio = %g\n", ratioFlux);
 	printf("ratio ratio = %g\n", ratioRatio);
+	printf("ghiselini ratio %g\n", ratioGhiselini*4*pi);
 }
 
 

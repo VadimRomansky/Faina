@@ -38,14 +38,14 @@ public:
     virtual double evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source) = 0;
 
     double evaluateTotalFluxInEnergyRange(const double& Ephmin, const double& Ephmax, RadiationSource* source) {
-        int Nph = 1000;
+        int Nph = 100;
         double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
         double currentE = Ephmin;
         double flux = 0;
         for (int i = 0; i < Nph; ++i) {
             printf("%d\n", i);
             double dE = currentE * (factor - 1.0);
-            flux = evaluateFluxFromSource(currentE, source)*dE;
+            flux += evaluateFluxFromSource(currentE, source)*dE;
             currentE = currentE * factor;
         }
         return flux;
