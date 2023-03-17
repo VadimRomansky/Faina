@@ -38,7 +38,7 @@ public:
     virtual double evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source) = 0;
 
     double evaluateTotalFluxInEnergyRange(const double& Ephmin, const double& Ephmax, RadiationSource* source) {
-        int Nph = 100;
+        int Nph = 200;
         double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
         double currentE = Ephmin;
         double flux = 0;

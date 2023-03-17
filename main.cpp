@@ -795,11 +795,11 @@ void compareComptonSynchrotron() {
 	double distance = 1000 * parsec;
 	MassiveParticleIsotropicDistribution* distribution = new MassiveParticlePowerLawDistribution(massElectron, 4.0, Emin, 1.0);
 	RadiationSource* source = new SimpleFlatSource(distribution, B, 1.0, parsec, parsec, distance);
-	RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(100, Emin, Emax, false);
+	RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(400, Emin, Emax, false);
 	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
 	synchrotronEvaluator->writeFluxFromSourceToFile("output1.dat", source, 0.001*hplank * cyclotronOmega, 1000000 * hplank * cyclotronOmega, 100);
 	PhotonIsotropicDistribution* photons = PhotonPlankDistribution::getCMBradiation();
-	RadiationEvaluator* inverseComptonEvaluator = new InverseComptonEvaluator(100, 50, 4, Emin, Emax, photons, ComptonSolverType::ISOTROPIC_JONES);
+	RadiationEvaluator* inverseComptonEvaluator = new InverseComptonEvaluator(400, 50, 4, Emin, Emax, photons, ComptonSolverType::ISOTROPIC_JONES);
 	inverseComptonEvaluator->writeFluxFromSourceToFile("output2.dat", source, 1E11 * hplank * cyclotronOmega, 1E16 * hplank * cyclotronOmega, 100);
 
 	double meanFactor = 0;
