@@ -38,7 +38,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	//const double distance = 150 * 1000000 * parsec;
 	const double distance = 1.0;
 
-	double Emin = me_c2 * 1;
+	double Emin = 652.317*me_c2 * 1;
 	double Emax = 1E12 *me_c2;
 	int Ne = 200;
 	int Nmu = 50;
@@ -49,19 +49,19 @@ void evaluateComtonWithPowerLawDistribution() {
 
 	//initializing mean galactic photon field
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
-	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
-	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(1E5, 1.0);
+	PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
+	//PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(1E5, 1.0);
 	
 	//initializing electrons distribution
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 	//creating radiation source
 	RadiationSource* source = new SimpleFlatSource(electrons, B, sinTheta, rmax, rmax, distance);
-    InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
     //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
+    InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
     //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
 	
-	comptonEvaluator->outputDifferentialFlux("output1.dat");
+	//comptonEvaluator->outputDifferentialFlux("output1.dat");
 	//return;
 
 	//initializing photon energy grid for output
@@ -441,16 +441,16 @@ void fitCSS161010withTabulatedDistributions() {
 
 //example 4. Fitting observed synchrotron radio fluxes from CSS161010 at 3 time moments
 void fitTimeDependentCSS161010() {
-	//observed data at 99, 162 and 357 days after explosion in units GHz and mJansky
-	const double cssx1[4] = { 1.5 * hplank, 3.0 * hplank, 6.1 * hplank, 9.87 * hplank };
+	//observed data at 99, 162 and 357 days after explosion in units erg and cm^-2 s^-2
+	const double cssx1[4] = { 1.5 * hplank *1E9, 3.0 * hplank * 1E9, 6.1 * hplank * 1E9, 9.87 * hplank * 1E9 };
 	const double cssy1[4] = { 1.5 / (hplank * 1E26), 4.3 / (hplank * 1E26), 6.1 / (hplank * 1E26), 4.2/(hplank*1E26) };
 	const double cssError1[4] = { 0.1 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.3 / (hplank * 1E26), 0.2 / (hplank * 1E26) };
 
-	const double cssx2[5] = { 1.5 * hplank, 2.94 * hplank, 6.1 * hplank, 9.74 * hplank, 22.0 * hplank };
+	const double cssx2[5] = { 1.5 * hplank * 1E9, 2.94 * hplank * 1E9, 6.1 * hplank * 1E9, 9.74 * hplank * 1E9, 22.0 * hplank * 1E9 };
 	const double cssy2[5] = { 4.7 / (hplank * 1E26), 2.9 / (hplank * 1E26), 2.3 / (hplank * 1E26), 1.74 / (hplank * 1E26), 0.56 / (hplank * 1E26) };
 	const double cssError2[5] = { 0.6 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.1 / (hplank * 1E26), 0.09 / (hplank * 1E26), 0.03 / (hplank * 1E26) };
 
-	const double cssx3[6] = { 0.33 * hplank, 0.61 * hplank, 1.5 * hplank, 3.0 * hplank, 6.05 * hplank, 10.0 * hplank };
+	const double cssx3[6] = { 0.33 * hplank * 1E9, 0.61 * hplank * 1E9, 1.5 * hplank * 1E9, 3.0 * hplank * 1E9, 6.05 * hplank * 1E9, 10.0 * hplank * 1E9 };
 	const double cssy3[6] = { 0.1 / (hplank * 1E26), 0.79 / (hplank * 1E26), 0.27 / (hplank * 1E26), 0.17 / (hplank * 1E26), 0.07 / (hplank * 1E26), 0.032 / (hplank * 1E26) };
 	const double cssError3[6] = { 0.375 / (hplank * 1E26), 0.09 / (hplank * 1E26), 0.07 / (hplank * 1E26), 0.03 / (hplank * 1E26), 0.01 / (hplank * 1E26), 0.008 / (hplank * 1E26) };
 
@@ -475,19 +475,19 @@ void fitTimeDependentCSS161010() {
 	}
 
 	for (int i = 0; i < Nenergy[0]; ++i) {
-		energy[0][i] = cssx1[i] * 1E9 * hplank;
+		energy[0][i] = cssx1[i];
 		F[0][i] = cssy1[i];
 		Error[0][i] = cssError1[i];
 	}
 
 	for (int i = 0; i < Nenergy[1]; ++i) {
-		energy[1][i] = cssx2[i] * 1E9 * hplank;
+		energy[1][i] = cssx2[i];
 		F[1][i] = cssy2[i];
 		Error[1][i] = cssError2[i];
 	}
 
 	for (int i = 0; i < Nenergy[2]; ++i) {
-		energy[2][i] = cssx3[i] * 1E9 * hplank;
+		energy[2][i] = cssx3[i];
 		F[2][i] = cssy3[i];
 		Error[2][i] = cssError3[i];
 	}
@@ -513,7 +513,7 @@ void fitTimeDependentCSS161010() {
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 1E16, 0.0001, 0.01, 0.1, 0.01*speed_of_light};
-	double maxParameters[Nparams] = { 2E17, 1, 1000, 1.0, 0.9*speed_of_light};
+	double maxParameters[Nparams] = { 2E17, 1, 1000, 1.0, 0.6*speed_of_light};
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v};
 	for (int i = 0; i < Nparams; ++i) {
@@ -522,7 +522,7 @@ void fitTimeDependentCSS161010() {
 	//picking parameters to be optimized
 	bool optPar[Nparams] = { true, true, true, true, true };
 	//number of points per axis in gridEnumOptimizer
-	int Npoints[Nparams] = { 5,5,5,5,5};
+	int Npoints[Nparams] = { 20,20,20,20,20};
 	//number of iterations in gradient descent optimizer
 	int Niterations = 20;
 
@@ -542,11 +542,11 @@ void fitTimeDependentCSS161010() {
 	//creating time depedent grid enumeration optimizer, which will chose the best starting poin for gradien descent
     RadiationTimeOptimizer* gridEnumOptimizer = new GridEnumRadiationTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
 	gridEnumOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
-	/*vector[0] = 2E17 / maxParameters[0];
-	vector[1] = 10 / maxParameters[1];
-	vector[2] = 0.01 / maxParameters[2];
-	vector[3] = 0.325 / maxParameters[3];
-	vector[4] = 2.69813E10 / maxParameters[4];*/
+	vector[0] = 9.457E16 / maxParameters[0];
+	vector[1] = 1.0 / maxParameters[1];
+	vector[2] = 56.2341 / maxParameters[2];
+	vector[3] = 0.5 / maxParameters[3];
+	vector[4] = 1.798E10 / maxParameters[4];
 	//creating gradient descent optimizer and optimizing
     RadiationTimeOptimizer* gradientOptimizer = new GradientDescentRadiationTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
 	gradientOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
@@ -841,9 +841,9 @@ int main() {
 	//evaluateComtonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
-	//fitTimeDependentCSS161010();
+	fitTimeDependentCSS161010();
 	//evaluatePionDecayWithPowerLawDistribution();
 	//evaluateBremsstrahlung();
-	compareComptonSynchrotron();
+	//compareComptonSynchrotron();
 	return 0;
 }

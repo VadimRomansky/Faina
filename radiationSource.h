@@ -102,7 +102,8 @@ public:
 	double getTotalVolume();
 	double getInnerRho();
 
-	virtual double getLength(int irho, int iz, int iphi) = 0;
+	virtual double getLength(int irho, int iz, int iphi);
+	virtual double getArea(int irho, int iz, int iphi);
 	virtual double getB(int irho, int iz, int iphi) = 0;
 	virtual double getSinTheta(int irho, int iz, int iphi) = 0;
 	virtual MassiveParticleIsotropicDistribution* getParticleDistribution(int irho, int iz, int iphi) = 0;
@@ -119,7 +120,7 @@ public:
 	TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& sinTheta, const double& rho, const double& rhoin, const double& distance);
     virtual ~TabulatedSphericalLayerSource();
 
-	virtual double getLength(int irho, int iz, int iphi);
+	//virtual double getLength(int irho, int iz, int iphi);
 	virtual double getB(int irho, int iz, int iphi);
 	double getConcentration(int irho, int iz, int iphi);
 	virtual double getSinTheta(int irho, int iz, int iphi);

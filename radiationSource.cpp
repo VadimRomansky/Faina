@@ -230,6 +230,57 @@ SphericalLayerSource::SphericalLayerSource(int Nrho, int Nz, int Nphi, const dou
 	my_rho = rho;
 	my_rhoin = rhoin;
 }
+
+double SphericalLayerSource::getLength(int irho, int iz, int iphi) {
+	double dr = my_rho / my_Nrho;
+	double r = (irho + 0.5) * dr;
+	double z1 = -sqrt(my_rho * my_rho - r * r);
+	double z2 = 0;
+	if (my_rhoin > r) {
+		z2 = -sqrt(my_rhoin * my_rhoin - r * r);
+	}
+	double z3 = -z2;
+	double z4 = -z1;
+	double dz = 2 * my_rho / my_Nz;
+	double zmin = -my_rho + iz * dz;
+	double zmax = zmin + dz;
+	if (zmin >= 0) {
+		if (z3 > zmax) {
+			return 0;
+		}
+		if (z4 < zmin) {
+			return 0;
+		}
+		double lowz = max(zmin, z3);
+		double topz = min(zmax, z4);
+		return topz - lowz;
+	}
+	else {
+		if (z1 > zmax) {
+			return 0;
+		}
+		if (z2 < zmin) {
+			return 0;
+		}
+		double lowz = max(zmin, z1);
+		double topz = min(zmax, z2);
+		return topz - lowz;
+	}
+}
+
+double SphericalLayerSource::getArea(int irho, int iz, int iphi)
+{
+	double rho0 = irho * getMaxRho() / my_Nrho;
+	double rho1 = (irho + 1) * getMaxRho() / my_Nrho;
+	if (rho0 > my_rhoin) {
+		return 2 * pi * (rho1 * rho1 - rho0 * rho0) / my_Nphi;
+	}
+	if (rho1 < my_rhoin) {
+		return 0;
+	}
+	return 2 * pi * (rho1 * rho1 - my_rhoin*my_rhoin) / my_Nphi;
+}
+
 double SphericalLayerSource::getMaxRho() {
 	return my_rho;
 }
@@ -304,42 +355,6 @@ TabulatedSphericalLayerSource::~TabulatedSphericalLayerSource() {
 	delete[] my_sinTheta;
 }
 
-double TabulatedSphericalLayerSource::getLength(int irho, int iz, int iphi) {
-	double dr = my_rho / my_Nrho;
-	double r = (irho + 0.5) * dr;
-	double z1 = -sqrt(my_rho * my_rho - r * r);
-	double z2 = 0;
-	if (my_rhoin > r) {
-		z2 = -sqrt(my_rhoin * my_rhoin - r * r);
-	}
-	double z3 = -z2;
-	double z4 = -z1;
-	double dz = 2 * my_rho / my_Nz;
-	double zmin = -my_rho + iz * dz;
-	double zmax = zmin + dz;
-	if (zmin >= 0) {
-		if (z3 > zmax) {
-			return 0;
-		}
-		if (z4 < zmin) {
-			return 0;
-		}
-		double lowz = max(zmin, z3);
-		double topz = min(zmax, z4);
-		return topz - lowz;
-	}
-	else {
-		if (z1 > zmax) {
-			return 0;
-		}
-		if (z2 < zmin) {
-			return 0;
-		}
-		double lowz = max(zmin, z1);
-		double topz = min(zmax, z2);
-		return topz - lowz;
-	}
-}
 double TabulatedSphericalLayerSource::getB(int irho, int iz, int iphi) {
 	return my_B[irho][iz][iphi];
 }
@@ -552,6 +567,7 @@ RadiationSource* ExpandingRemnantSource::getRadiationSource(double& time, const 
 	//double B = my_B0;
 	double n = my_concentration0 * sqr(my_R0 / R);
 	double fracton = my_widthFraction * my_R0/R;
+	//double fracton = my_widthFraction;
 
 	double parameters[4];
 	parameters[0] = R / normalizationUnits[0];

@@ -206,7 +206,7 @@ double SynchrotronEvaluator::evaluateFluxFromIsotropicFunction(const double &pho
 			double Q = I * area;
 			double tau = A * my_defaultLength;
 			double S = 0;
-			if (Q > 0) {
+			if (A > 0) {
 				S = Q / A;
 			}
 			if (fabs(tau) < 1E-15) {
@@ -249,7 +249,7 @@ double SynchrotronEvaluator::evaluateFluxFromSource(const double& photonFinalEne
 						double Q = I * area;
 						double tau = A * length;
 						double S = 0;
-						if (Q > 0) {
+						if (A > 0) {
 							S = Q / A;
 						}
 						if (fabs(tau) < 1E-15) {
