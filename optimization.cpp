@@ -920,12 +920,12 @@ void GradientDescentRadiationTimeOptimizer::optimize(double* vector, bool* optPa
 
 	for (int k = 0; k < my_Niterations; ++k) {
 		///randomization;
-		for (int j = 0; j < 5; ++j) {
+		for (int j = 0; j < 10; ++j) {
 			for (int i = 0; i < my_Nparams; ++i) {
 				tempVector[i] = vector[i];
 				if (optPar[i]) {
 					//tempVector[i] = minVector[i] + (1.0 - minVector[i])*uniformDistribution();
-					tempVector[i] = vector[i] + 0.2 * my_minVector[i] * (0.5 - uniformDistribution());
+					tempVector[i] = vector[i] + 0.2 * vector[i] * (0.5 - uniformDistribution());
 					if (tempVector[i] > 1.0) {
 						tempVector[i] = 1.0;
 					}

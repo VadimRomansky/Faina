@@ -26,21 +26,22 @@ int RadiationSource::getNphi() {
 double RadiationSource::getDistance() {
 	return my_distance;
 }
-double RadiationSource::getArea(int irho) {
-	double rho0 = irho*getMaxRho()/my_Nrho;
-	double rho1 = (irho+1)*getMaxRho()/my_Nrho;
-	return 2 * pi * (rho1 * rho1 - rho0 * rho0) / my_Nphi;
-}
 
 double RadiationSource::getVolume(int irho, int iz, int iphi)
 {
-	return getArea(irho)*getLength(irho, iz, iphi);
+	return getArea(irho, iz, iphi)*getLength(irho, iz, iphi);
 }
 
 DiskSource::DiskSource(int Nrho, int Nz, int Nphi, const double& rho, const double& z, const double& distance) : RadiationSource(Nrho, Nz, Nphi, distance)
 {
 	my_rho = rho;
 	my_z = z;
+}
+
+double DiskSource::getArea(int irho, int iz, int iphi) {
+	double rho0 = irho * getMaxRho() / my_Nrho;
+	double rho1 = (irho + 1) * getMaxRho() / my_Nrho;
+	return 2 * pi * (rho1 * rho1 - rho0 * rho0) / my_Nphi;
 }
 
 double DiskSource::getTotalVolume()
@@ -272,13 +273,36 @@ double SphericalLayerSource::getArea(int irho, int iz, int iphi)
 {
 	double rho0 = irho * getMaxRho() / my_Nrho;
 	double rho1 = (irho + 1) * getMaxRho() / my_Nrho;
-	if (rho0 > my_rhoin) {
-		return 2 * pi * (rho1 * rho1 - rho0 * rho0) / my_Nphi;
+	double rmin = rho0;
+	double rmax = rho1;
+	if (iz >= my_Nz / 2) {
+		//upper hemisphere
+		double zmax = (iz + 1 - my_Nz / 2) * (2 * my_rho / my_Nz);
+		double zmin = (iz - my_Nz / 2) * (2 * my_rho / my_Nz);
+		rmin = rho0;
+		if (zmax < my_rhoin) {
+			rmin = max(rho0, sqrt(my_rhoin * my_rhoin - zmax * zmax));
+		}
+		rmax = rho1;
+		rmax = min(rho1, sqrt(my_rho*my_rho - zmin*zmin));
 	}
-	if (rho1 < my_rhoin) {
+	else {
+		//lower hemisphere, z inversed
+		double zmax = fabs((iz - my_Nz / 2) * (2 * my_rho / my_Nz));
+		double zmin = fabs((iz + 1 - my_Nz / 2) * (2 * my_rho / my_Nz));
+
+		rmin = rho0;
+		if (zmax < my_rhoin) {
+			rmin = max(rho0, sqrt(my_rhoin * my_rhoin - zmax * zmax));
+		}
+		rmax = rho1;
+		rmax = min(rho1, sqrt(my_rho * my_rho - zmin * zmin));
+	}
+	if (rmax < rho0 || rmin > rho1 || rmax < rmin) {
 		return 0;
 	}
-	return 2 * pi * (rho1 * rho1 - my_rhoin*my_rhoin) / my_Nphi;
+
+	return 2 * pi * (rmax * rmax - rmin*rmin) / my_Nphi;
 }
 
 double SphericalLayerSource::getMaxRho() {
@@ -563,9 +587,12 @@ void ExpandingRemnantSource::resetParameters(const double* parameters, const dou
 //just one possible example
 RadiationSource* ExpandingRemnantSource::getRadiationSource(double& time, const double* normalizationUnits) {
 	double R = my_R0 + my_v * (time - my_t0);
-	double sigma = sqr(my_B0) / (4 * pi * massProton * my_concentration0 * speed_of_light2);
+	//double R = my_R0 + (5.0/2.0) * my_v * my_t0 * (pow(time/my_t0, 2.0/5.0) - 1.0);
+	double sigma = sqr(my_B0) / (4 * pi * massProton * my_concentration0 * speed_of_light2)/(my_R0/R);
 	//double B = my_B0;
-	double n = my_concentration0 * sqr(my_R0 / R);
+	//double n = my_concentration0 * sqr(my_R0 / R);
+	//double n = my_concentration0;
+	double n = my_concentration0*cube(my_R0/R);
 	double fracton = my_widthFraction * my_R0/R;
 	//double fracton = my_widthFraction;
 

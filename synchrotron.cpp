@@ -235,10 +235,10 @@ double SynchrotronEvaluator::evaluateFluxFromSource(const double& photonFinalEne
 	double result = 0;
 
 	for (int irho = 0; irho < Nrho; ++irho) {
-		double area = source->getArea(irho);
 		for (int iphi = 0; iphi < Nphi; ++iphi) {
 			double localI = 0;
 			for (int iz = 0; iz < Nz; ++iz) {
+				double area = source->getArea(irho, iz, iphi);
 				double A = 0;
 				double I = 0;
 				evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), source->getParticleDistribution(irho, iz, iphi), I, A);

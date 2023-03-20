@@ -24,7 +24,7 @@ public:
 	int getNz();
 	int getNphi();
 	double getDistance();
-	virtual double getArea(int irho);
+	virtual double getArea(int irho, int iz, int iphi)=0;
 	virtual double getVolume(int irho, int iz, int iphi);
 
 	virtual double getB(int irho, int iz, int iphi) = 0;
@@ -48,6 +48,7 @@ public:
 	double getMaxZ();
 	double getTotalVolume();
 
+	virtual double getArea(int irho, int iz, int iphi);
 	virtual double getLength(int irho, int iz, int iphi) = 0;
 	virtual double getB(int irho, int iz, int iphi) = 0;
 	virtual double getSinTheta(int irho, int iz, int iphi) = 0;

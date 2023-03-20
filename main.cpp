@@ -450,8 +450,9 @@ void fitTimeDependentCSS161010() {
 	const double cssy2[5] = { 4.7 / (hplank * 1E26), 2.9 / (hplank * 1E26), 2.3 / (hplank * 1E26), 1.74 / (hplank * 1E26), 0.56 / (hplank * 1E26) };
 	const double cssError2[5] = { 0.6 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.1 / (hplank * 1E26), 0.09 / (hplank * 1E26), 0.03 / (hplank * 1E26) };
 
+	//todo first point
 	const double cssx3[6] = { 0.33 * hplank * 1E9, 0.61 * hplank * 1E9, 1.5 * hplank * 1E9, 3.0 * hplank * 1E9, 6.05 * hplank * 1E9, 10.0 * hplank * 1E9 };
-	const double cssy3[6] = { 0.1 / (hplank * 1E26), 0.79 / (hplank * 1E26), 0.27 / (hplank * 1E26), 0.17 / (hplank * 1E26), 0.07 / (hplank * 1E26), 0.032 / (hplank * 1E26) };
+	const double cssy3[6] = { 0.0 / (hplank * 1E26), 0.79 / (hplank * 1E26), 0.27 / (hplank * 1E26), 0.17 / (hplank * 1E26), 0.07 / (hplank * 1E26), 0.032 / (hplank * 1E26) };
 	const double cssError3[6] = { 0.375 / (hplank * 1E26), 0.09 / (hplank * 1E26), 0.07 / (hplank * 1E26), 0.03 / (hplank * 1E26), 0.01 / (hplank * 1E26), 0.008 / (hplank * 1E26) };
 
 	//initializing time moments
@@ -522,16 +523,16 @@ void fitTimeDependentCSS161010() {
 	//picking parameters to be optimized
 	bool optPar[Nparams] = { true, true, true, true, true };
 	//number of points per axis in gridEnumOptimizer
-	int Npoints[Nparams] = { 20,20,20,20,20};
+	int Npoints[Nparams] = { 10,10,10,10,10};
 	//number of iterations in gradient descent optimizer
-	int Niterations = 20;
+	int Niterations = 5;
 
 	//reading electron distributions from files
 	//ElectronIsotropicDistribution** angleDependentDistributions = ElectronDistributionFactory::readTabulatedIsotropicDistributions("./input/Ee", "./input/Fs", ".dat", 10, ElectronInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
 	MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(massElectron, "./input/Ee", "./input/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200, 50*me_c2, 3.5);
 	for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
-		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
+		//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
 	}
 	//creating radiation source, which does not depend on time
 	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, 1.0, 0, electronConcentration, rmax, 0.5 * rmax, distance);
@@ -541,11 +542,11 @@ void fitTimeDependentCSS161010() {
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax);
 	//creating time depedent grid enumeration optimizer, which will chose the best starting poin for gradien descent
     RadiationTimeOptimizer* gridEnumOptimizer = new GridEnumRadiationTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
-	gridEnumOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
+	//gridEnumOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
 	vector[0] = 9.457E16 / maxParameters[0];
-	vector[1] = 1.0 / maxParameters[1];
-	vector[2] = 56.2341 / maxParameters[2];
-	vector[3] = 0.5 / maxParameters[3];
+	vector[1] = 0.1 / maxParameters[1];
+	vector[2] = 560.2341 / maxParameters[2];
+	vector[3] = 0.1 / maxParameters[3];
 	vector[4] = 1.798E10 / maxParameters[4];
 	//creating gradient descent optimizer and optimizing
     RadiationTimeOptimizer* gradientOptimizer = new GradientDescentRadiationTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
