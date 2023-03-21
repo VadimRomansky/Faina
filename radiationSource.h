@@ -169,6 +169,10 @@ protected:
 	double my_concentration0;
 	double my_v;
 	double my_widthFraction;
+
+	double my_radiusPower;
+	double my_concentrationPower;
+	double my_Bpower;
 public:
 	ExpandingRemnantSource(const double& R0, const double& B0, const double& concentration0, const double& v, const double& widthFraction, RadiationSource* source, const double& t0);
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);

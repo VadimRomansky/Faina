@@ -511,19 +511,19 @@ void fitTimeDependentCSS161010() {
 	double v = 0.3 * speed_of_light;
 	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
 	//number of optimized parameters
-	const int Nparams = 5;
+	const int Nparams = 8;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 1E16, 0.0001, 0.01, 0.1, 0.01*speed_of_light};
-	double maxParameters[Nparams] = { 2E17, 1, 1000, 1.0, 0.6*speed_of_light};
+	double minParameters[Nparams] = { 1E16, 0.0001, 0.01, 0.1, 0.01*speed_of_light, 1.1, 1.0, 1.0};
+	double maxParameters[Nparams] = { 2E17, 1, 1000, 1.0, 0.6*speed_of_light, 2.0, 3.0, 3.5};
 	//starting point of optimization and normalization
-	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v};
+	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v, 2.0, 2.0, 3.0};
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
 	}
 	//picking parameters to be optimized
-	bool optPar[Nparams] = { true, true, true, true, true };
+	bool optPar[Nparams] = { true, true, true, true, true, false, true, true };
 	//number of points per axis in gridEnumOptimizer
-	int Npoints[Nparams] = { 10,10,10,10,10};
+	int Npoints[Nparams] = { 3,3,3,3,3, 3, 3, 3};
 	//number of iterations in gradient descent optimizer
 	int Niterations = 5;
 
@@ -532,7 +532,7 @@ void fitTimeDependentCSS161010() {
 	MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(massElectron, "./input/Ee", "./input/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200, 50*me_c2, 3.5);
 	for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
-		//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
+		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
 	}
 	//creating radiation source, which does not depend on time
 	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, 1.0, 0, electronConcentration, rmax, 0.5 * rmax, distance);
@@ -543,11 +543,14 @@ void fitTimeDependentCSS161010() {
 	//creating time depedent grid enumeration optimizer, which will chose the best starting poin for gradien descent
     RadiationTimeOptimizer* gridEnumOptimizer = new GridEnumRadiationTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
 	//gridEnumOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
-	vector[0] = 9.457E16 / maxParameters[0];
+	/*vector[0] = 9.457E16 / maxParameters[0];
 	vector[1] = 0.1 / maxParameters[1];
 	vector[2] = 560.2341 / maxParameters[2];
 	vector[3] = 0.1 / maxParameters[3];
 	vector[4] = 1.798E10 / maxParameters[4];
+	vector[5] = 2.0 / maxParameters[5];
+	vector[6] = 2.0 / maxParameters[6];
+	vector[7] = 3.0 / maxParameters[7];*/
 	//creating gradient descent optimizer and optimizing
     RadiationTimeOptimizer* gradientOptimizer = new GradientDescentRadiationTimeOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
 	gradientOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
@@ -613,6 +616,12 @@ void fitTimeDependentCSS161010() {
 	fprintf(paramFile, "width fraction = %g\n", vector[3] * maxParameters[3]);
 	printf("v/c = %g\n", vector[4] * maxParameters[4] / speed_of_light);
 	fprintf(paramFile, "v/c = %g\n", vector[4] * maxParameters[4]/speed_of_light);
+	printf("r power = %g\n", vector[5] * maxParameters[5] - 1.0);
+	fprintf(paramFile, "r power = %g\n", vector[5] * maxParameters[5] - 1.0);
+	printf("concentration power = %g\n", vector[6] * maxParameters[6] - 1.0);
+	fprintf(paramFile, "concentration power = %g\n", vector[6] * maxParameters[6] - 1.0);
+	printf("B power = %g\n", vector[7] * maxParameters[7] - 1.0);
+	fprintf(paramFile, "B power = %g\n", vector[7] * maxParameters[7] - 1.0);
 	B = sqrt(vector[1] * maxParameters[1] * 4 * pi * massProton * vector[2] * maxParameters[2] * speed_of_light2);
 	printf("B = %g\n", B);
 	fprintf(paramFile, "B = %g\n", B);

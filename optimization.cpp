@@ -1163,6 +1163,7 @@ void GridEnumRadiationTimeOptimizer::optimize(double* vector, bool* optPar, doub
 		tempVector[i] = vector[i];
 	}
 	double currentF = evaluateOptimizationFunction(vector, energy, observedFlux, observedError, Ne, Ntimes, times, source);
+	printf("Grid Enum Optimizer: start \noptimization function = %g\n", currentF);
 	int N = 1;
 	for (int i = 0; i < my_Nparams; ++i) {
 		N *= my_Npoints[i];
@@ -1188,6 +1189,7 @@ void GridEnumRadiationTimeOptimizer::optimize(double* vector, bool* optPar, doub
 			}
 			printf("optimization function = %g\n", tempF);
 		}
+		printf("optimization function %d = %g\n", i, tempF);
 	}
 	printf("GridEnumTimeOptimizer: optimization function = %g\n", currentF);
 	for (int i = 0; i < my_Nparams; ++i) {
