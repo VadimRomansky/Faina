@@ -17,5 +17,6 @@ title ('F_{E}');
 xlabel ('E эрг');
 ylabel ('F_{E} см^{-2} с^{-1}');
 
-
-plot(data(1:N,1),data(1:N,2),'red','LineWidth',2);
+m_e = 9.1*10^-28;
+c=3*10^10;
+plot(data(1:N,1)/(m_e*c*c),data(1:N,2),'red','LineWidth',2);

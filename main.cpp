@@ -304,6 +304,7 @@ void fitCSS161010withTabulatedDistributions() {
 		//rescale distributions to real mp/me relation
 		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
 	}
+	//angleDependentDistributions[4]->writeDistribution("output1.dat", 200, Emin, Emax);
 	//creating radiation source
 	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, 1.0, 0, electronConcentration, rmax, 0.5 * rmax, distance);
 	//number of parameters of the source
@@ -446,9 +447,14 @@ void fitTimeDependentCSS161010() {
 	const double cssy1[4] = { 1.5 / (hplank * 1E26), 4.3 / (hplank * 1E26), 6.1 / (hplank * 1E26), 4.2/(hplank*1E26) };
 	const double cssError1[4] = { 0.1 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.3 / (hplank * 1E26), 0.2 / (hplank * 1E26) };
 
-	const double cssx2[5] = { 1.5 * hplank * 1E9, 2.94 * hplank * 1E9, 6.1 * hplank * 1E9, 9.74 * hplank * 1E9, 22.0 * hplank * 1E9 };
-	const double cssy2[5] = { 4.7 / (hplank * 1E26), 2.9 / (hplank * 1E26), 2.3 / (hplank * 1E26), 1.74 / (hplank * 1E26), 0.56 / (hplank * 1E26) };
-	const double cssError2[5] = { 0.6 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.1 / (hplank * 1E26), 0.09 / (hplank * 1E26), 0.03 / (hplank * 1E26) };
+	//remove first point because The measurements below 2 GHz at 162 days post explosion were strongly affected by radio frequency interference
+	//const double cssx2[5] = { 1.5 * hplank * 1E9, 2.94 * hplank * 1E9, 6.1 * hplank * 1E9, 9.74 * hplank * 1E9, 22.0 * hplank * 1E9 };
+	//const double cssy2[5] = { 4.7 / (hplank * 1E26), 2.9 / (hplank * 1E26), 2.3 / (hplank * 1E26), 1.74 / (hplank * 1E26), 0.56 / (hplank * 1E26) };
+	//const double cssError2[5] = { 0.6 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.1 / (hplank * 1E26), 0.09 / (hplank * 1E26), 0.03 / (hplank * 1E26) };
+
+	const double cssx2[4] = {2.94 * hplank * 1E9, 6.1 * hplank * 1E9, 9.74 * hplank * 1E9, 22.0 * hplank * 1E9 };
+	const double cssy2[4] = {2.9 / (hplank * 1E26), 2.3 / (hplank * 1E26), 1.74 / (hplank * 1E26), 0.56 / (hplank * 1E26) };
+	const double cssError2[4] = {0.2 / (hplank * 1E26), 0.1 / (hplank * 1E26), 0.09 / (hplank * 1E26), 0.03 / (hplank * 1E26) };
 
 	//todo first point
 	const double cssx3[6] = { 0.33 * hplank * 1E9, 0.61 * hplank * 1E9, 1.5 * hplank * 1E9, 3.0 * hplank * 1E9, 6.05 * hplank * 1E9, 10.0 * hplank * 1E9 };
@@ -463,7 +469,7 @@ void fitTimeDependentCSS161010() {
 	//putting observed data into 2d arrays for optimizer
 	int Nenergy[Ntimes];
 	Nenergy[0] = 4;
-	Nenergy[1] = 5;
+	Nenergy[1] = 4;
 	Nenergy[2] = 6;
 
 	double** energy = new double* [Ntimes];
@@ -514,7 +520,7 @@ void fitTimeDependentCSS161010() {
 	const int Nparams = 8;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 1E16, 0.0001, 0.01, 0.1, 0.01*speed_of_light, 1.1, 1.0, 1.0};
-	double maxParameters[Nparams] = { 2E17, 1, 1000, 1.0, 0.6*speed_of_light, 2.0, 3.0, 3.5};
+	double maxParameters[Nparams] = { 2E17, 1, 1000, 1.0, 0.6 * speed_of_light, 2.0, 3.5, 3.5 };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v, 2.0, 2.0, 3.0};
 	for (int i = 0; i < Nparams; ++i) {
@@ -529,11 +535,12 @@ void fitTimeDependentCSS161010() {
 
 	//reading electron distributions from files
 	//ElectronIsotropicDistribution** angleDependentDistributions = ElectronDistributionFactory::readTabulatedIsotropicDistributions("./input/Ee", "./input/Fs", ".dat", 10, ElectronInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
-	MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(massElectron, "./input/Ee", "./input/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200, 50*me_c2, 3.5);
+	MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(massElectron, "./input/Ee", "./input/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200, 20*me_c2, 3.5);
 	for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
 		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
 	}
+	angleDependentDistributions[9]->writeDistribution("output1.dat", 200, Emin, Emax);
 	//creating radiation source, which does not depend on time
 	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, 1.0, 0, electronConcentration, rmax, 0.5 * rmax, distance);
 	//creating time dependent radiation source

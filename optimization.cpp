@@ -913,6 +913,8 @@ void GradientDescentRadiationTimeOptimizer::optimize(double* vector, bool* optPa
 		currentVector[i] = vector[i];
 	}
 	double currentF = evaluateOptimizationFunction(vector, energy, observedFlux, observedError, Ne, Ntimes, times, source);
+	printf("Gradient Descent Time Optimizer started\n");
+	printLog("Gradient Descent Time Optimizer started\n");
 	printf("optimization function = %g\n", currentF);
 	for (int i = 0; i < my_Nparams; ++i) {
 		printf("parameter[%d] = %g\n", i, vector[i] * my_maxParameters[i]);
@@ -954,6 +956,7 @@ void GradientDescentRadiationTimeOptimizer::optimize(double* vector, bool* optPa
 		}
 
 		printf("optimization k = %d\n", k);
+		printLog("optimization k = %d\n", k);
 
 		for (int i = 0; i < my_Nparams; ++i) {
 			if (optPar[i]) {
@@ -972,6 +975,7 @@ void GradientDescentRadiationTimeOptimizer::optimize(double* vector, bool* optPa
 
 				if (grad[i] != grad[i]) {
 					printf("grad[i] = NaN\n");
+					printLog("grad[i] = NaN\n");
 					exit(0);
 				}
 				if (grad[i] > 0) {
@@ -1000,6 +1004,7 @@ void GradientDescentRadiationTimeOptimizer::optimize(double* vector, bool* optPa
 		}
 		if (gradNorm != gradNorm) {
 			printf("gradNorm = NaN\n");
+			printLog("gradNorm = NaN\n");
 			exit(0);
 		}
 		for (int i = 0; i < my_Nparams; ++i) {
@@ -1029,6 +1034,7 @@ void GradientDescentRadiationTimeOptimizer::optimize(double* vector, bool* optPa
 				grad[i] = getDerivativeByCoordinate(vector, i, energy, observedFlux, observedError, Ne, Ntimes, times, source);
 				if (grad[i] != grad[i]) {
 					printf("grad[i] = NaN\n");
+					printLog("grad[i] = NaN\n");
 					exit(0);
 				}
 				if (grad[i] > 0) {
@@ -1057,6 +1063,7 @@ void GradientDescentRadiationTimeOptimizer::optimize(double* vector, bool* optPa
 		}
 		if (gradNorm != gradNorm) {
 			printf("gradNorm = NaN\n");
+			printLog("gradNorm = NaN\n");
 			exit(0);
 		}
 		for (int i = 0; i < my_Nparams; ++i) {
@@ -1094,6 +1101,7 @@ void GradientDescentRadiationTimeOptimizer::optimize(double* vector, bool* optPa
 		}
 		if (gradNorm != gradNorm) {
 			printf("gradNorm = NaN\n");
+			printLog("gradNorm = NaN\n");
 			exit(0);
 		}
 
@@ -1116,12 +1124,13 @@ void GradientDescentRadiationTimeOptimizer::optimize(double* vector, bool* optPa
 			prevVector[i] = currentVector[i];
 			currentVector[i] = vector[i];
 		}
-		printf("optimization function = %g\n", currentF);
+		printf("Gradien Descent Time Optimizer: optimization function = %g\n", currentF);
+		printLog("Gradien Descent Time Optimizer: optimization function = %g\n", currentF);
 		for (int i = 0; i < my_Nparams; ++i) {
 			printf("parameter[%d] = %g\n", i, vector[i] * my_maxParameters[i]);
+			printLog("parameter[%d] = %g\n", i, vector[i] * my_maxParameters[i]);
 		}
 	}
-	printf("finish optimization\n");
 }
 
 GridEnumRadiationTimeOptimizer::GridEnumRadiationTimeOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints) : RadiationTimeOptimizer(evaluator, minParameters, maxParameters, Nparams)
@@ -1164,6 +1173,7 @@ void GridEnumRadiationTimeOptimizer::optimize(double* vector, bool* optPar, doub
 	}
 	double currentF = evaluateOptimizationFunction(vector, energy, observedFlux, observedError, Ne, Ntimes, times, source);
 	printf("Grid Enum Optimizer: start \noptimization function = %g\n", currentF);
+	printLog("Grid Enum Optimizer: start \noptimization function = %g\n", currentF);
 	int N = 1;
 	for (int i = 0; i < my_Nparams; ++i) {
 		N *= my_Npoints[i];
@@ -1188,12 +1198,15 @@ void GridEnumRadiationTimeOptimizer::optimize(double* vector, bool* optPar, doub
 				}
 			}
 			printf("optimization function = %g\n", tempF);
+			printLog("optimization function = %g\n", tempF);
 		}
-		printf("optimization function %d = %g\n", i, tempF);
+		//printf("optimization function %d = %g\n", i, tempF);
 	}
 	printf("GridEnumTimeOptimizer: optimization function = %g\n", currentF);
+	printLog("GridEnumTimeOptimizer: optimization function = %g\n", currentF);
 	for (int i = 0; i < my_Nparams; ++i) {
 		printf("parameter[%d] = %g\n", i, vector[i] * my_maxParameters[i]);
+		printLog("parameter[%d] = %g\n", i, vector[i] * my_maxParameters[i]);
 	}
 
 	delete[] index;
