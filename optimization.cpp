@@ -626,22 +626,22 @@ double RadiationTimeOptimizer::evaluateOptimizationFunction(const double* vector
     my_evaluator->resetParameters(vector, my_maxParameters);
 	double err = 0;
 	for (int k = 0; k < Ntimes; ++k) {
-		double* totalInu = new double[Ne[k]];
+		//double* totalInu = new double[Ne[k]];
 
-
+		double totalInu = 0;
 		RadiationSource* source1 = source->getRadiationSource(times[k], my_maxParameters);
 		for (int i = 0; i < Ne[k]; ++i) {
 			//1E26 from Jansky
-            totalInu[i] = my_evaluator->evaluateFluxFromSource(energy[k][i], source1);
+            totalInu = my_evaluator->evaluateFluxFromSource(energy[k][i], source1);
 		}
 		for (int j = 0; j < Ne[k]; ++j) {
 			double err1 = 0;
-			err1 = sqr(totalInu[j] - observedFlux[k][j]) / sqr(observedError[k][j]);
+			err1 = sqr(totalInu - observedFlux[k][j]) / sqr(observedError[k][j]);
 
 			err = err + err1;
 		}
 
-		delete[] totalInu;
+		//delete[] totalInu;
 	}
 
 	return err;

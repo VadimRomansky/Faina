@@ -213,6 +213,97 @@ MassiveParticleIsotropicDistribution* TabulatedDiskSource::getParticleDistributi
 	return my_distribution;
 }
 
+void SphericalLayerSource::evaluateLengthAndArea()
+{
+	//length
+	double dr = my_rho / my_Nrho;
+	double dz = 2 * my_rho / my_Nz;
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				double r = (irho + 0.5) * dr;
+				double z1 = -sqrt(my_rho * my_rho - r * r);
+				double z2 = 0;
+				if (my_rhoin > r) {
+					z2 = -sqrt(my_rhoin * my_rhoin - r * r);
+				}
+				double z3 = -z2;
+				double z4 = -z1;
+				double zmin = -my_rho + iz * dz;
+				double zmax = zmin + dz;
+				if (zmin >= 0) {
+					if (z3 > zmax) {
+						my_length[irho][iz][iphi] = 0;
+					} else
+					if (z4 < zmin) {
+						my_length[irho][iz][iphi] = 0;
+					}
+					else {
+						double lowz = max(zmin, z3);
+						double topz = min(zmax, z4);
+						my_length[irho][iz][iphi] = topz - lowz;
+					}
+				}
+				else {
+					if (z1 > zmax) {
+						my_length[irho][iz][iphi] = 0;
+					} else if (z2 < zmin) {
+						my_length[irho][iz][iphi] = 0;
+					}
+					else {
+						double lowz = max(zmin, z1);
+						double topz = min(zmax, z2);
+						my_length[irho][iz][iphi] = topz - lowz;
+					}
+				}
+			}
+		}
+	}
+
+	//area
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				double rho0 = irho * getMaxRho() / my_Nrho;
+				double rho1 = (irho + 1) * getMaxRho() / my_Nrho;
+				double rmin = rho0;
+				double rmax = rho1;
+				if (iz >= my_Nz / 2) {
+					//upper hemisphere
+					double zmax = (iz + 1 - my_Nz / 2) * (2 * my_rho / my_Nz);
+					double zmin = (iz - my_Nz / 2) * (2 * my_rho / my_Nz);
+					rmin = rho0;
+					if (zmax < my_rhoin) {
+						rmin = max(rho0, sqrt(my_rhoin * my_rhoin - zmax * zmax));
+					}
+					rmax = rho1;
+					rmax = min(rho1, sqrt(my_rho * my_rho - zmin * zmin));
+				}
+				else {
+					//lower hemisphere, z inversed
+					double zmax = fabs((iz - my_Nz / 2) * (2 * my_rho / my_Nz));
+					double zmin = fabs((iz + 1 - my_Nz / 2) * (2 * my_rho / my_Nz));
+
+					rmin = rho0;
+					if (zmax < my_rhoin) {
+						rmin = max(rho0, sqrt(my_rhoin * my_rhoin - zmax * zmax));
+					}
+					rmax = rho1;
+					rmax = min(rho1, sqrt(my_rho * my_rho - zmin * zmin));
+				}
+				if (rmax < rho0 || rmin > rho1 || rmax < rmin) {
+					my_area[irho][iz][iphi] = 0;
+				}
+				else {
+					my_area[irho][iz][iphi] = 2 * pi * (rmax * rmax - rmin * rmin) / my_Nphi;
+				}
+			}
+		}
+	}
+
+	my_geometryCashed = true;
+}
+
 SphericalLayerSource::SphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& distance) : RadiationSource(Nrho, Nz, Nphi, distance) {
 	if (rhoin > rho) {
 		printf("rhoin > rho in spherical layer source\n");
@@ -230,79 +321,51 @@ SphericalLayerSource::SphericalLayerSource(int Nrho, int Nz, int Nphi, const dou
 	}
 	my_rho = rho;
 	my_rhoin = rhoin;
+
+	my_geometryCashed = false;
+	my_area = new double** [my_Nrho];
+	my_length = new double** [my_Nrho];
+	for (int i = 0; i < my_Nrho; ++i) {
+		my_area[i] = new double* [my_Nz];
+		my_length[i] = new double* [my_Nz];
+		for (int j = 0; j < my_Nz; ++j) {
+			my_area[i][j] = new double [my_Nphi];
+			my_length[i][j] = new double [my_Nphi];
+			for (int k = 0; k < my_Nphi; ++k) {
+				my_area[i][j][k] = 0;
+				my_length[i][j][k] = 0;
+			}
+		}
+	}
+}
+
+SphericalLayerSource::~SphericalLayerSource()
+{
+	for (int i = 0; i < my_Nrho; ++i) {
+		for (int j = 0; j < my_Nz; ++j) {
+			delete[] my_area[i][j];
+			delete[] my_length[i][j];
+		}
+		delete[] my_area[i];
+		delete[] my_length[i];
+	}
+	delete[] my_area;
+	delete[] my_length;
 }
 
 double SphericalLayerSource::getLength(int irho, int iz, int iphi) {
-	double dr = my_rho / my_Nrho;
-	double r = (irho + 0.5) * dr;
-	double z1 = -sqrt(my_rho * my_rho - r * r);
-	double z2 = 0;
-	if (my_rhoin > r) {
-		z2 = -sqrt(my_rhoin * my_rhoin - r * r);
+	if (!my_geometryCashed) {
+		evaluateLengthAndArea();
 	}
-	double z3 = -z2;
-	double z4 = -z1;
-	double dz = 2 * my_rho / my_Nz;
-	double zmin = -my_rho + iz * dz;
-	double zmax = zmin + dz;
-	if (zmin >= 0) {
-		if (z3 > zmax) {
-			return 0;
-		}
-		if (z4 < zmin) {
-			return 0;
-		}
-		double lowz = max(zmin, z3);
-		double topz = min(zmax, z4);
-		return topz - lowz;
-	}
-	else {
-		if (z1 > zmax) {
-			return 0;
-		}
-		if (z2 < zmin) {
-			return 0;
-		}
-		double lowz = max(zmin, z1);
-		double topz = min(zmax, z2);
-		return topz - lowz;
-	}
+	return my_length[irho][iz][iphi];
 }
 
 double SphericalLayerSource::getArea(int irho, int iz, int iphi)
 {
-	double rho0 = irho * getMaxRho() / my_Nrho;
-	double rho1 = (irho + 1) * getMaxRho() / my_Nrho;
-	double rmin = rho0;
-	double rmax = rho1;
-	if (iz >= my_Nz / 2) {
-		//upper hemisphere
-		double zmax = (iz + 1 - my_Nz / 2) * (2 * my_rho / my_Nz);
-		double zmin = (iz - my_Nz / 2) * (2 * my_rho / my_Nz);
-		rmin = rho0;
-		if (zmax < my_rhoin) {
-			rmin = max(rho0, sqrt(my_rhoin * my_rhoin - zmax * zmax));
-		}
-		rmax = rho1;
-		rmax = min(rho1, sqrt(my_rho*my_rho - zmin*zmin));
+	if (!my_geometryCashed) {
+		evaluateLengthAndArea();
 	}
-	else {
-		//lower hemisphere, z inversed
-		double zmax = fabs((iz - my_Nz / 2) * (2 * my_rho / my_Nz));
-		double zmin = fabs((iz + 1 - my_Nz / 2) * (2 * my_rho / my_Nz));
-
-		rmin = rho0;
-		if (zmax < my_rhoin) {
-			rmin = max(rho0, sqrt(my_rhoin * my_rhoin - zmax * zmax));
-		}
-		rmax = rho1;
-		rmax = min(rho1, sqrt(my_rho * my_rho - zmin * zmin));
-	}
-	if (rmax < rho0 || rmin > rho1 || rmax < rmin) {
-		return 0;
-	}
-
-	return 2 * pi * (rmax * rmax - rmin*rmin) / my_Nphi;
+	return my_area[irho][iz][iphi];
 }
 
 double SphericalLayerSource::getMaxRho() {
@@ -402,6 +465,8 @@ void TabulatedSphericalLayerSource::resetParameters(const double* parameters, co
 * where B[Nrho-1][0][0] = parameters[1]
 * Rin = R*(1 - parameters[3])
 */
+	my_geometryCashed = false;
+
 	my_rho = parameters[0] * normalizationUnits[0];
 	double sigma = parameters[1] * normalizationUnits[1];
 	double B0 = my_B[my_Nrho - 1][0][0];

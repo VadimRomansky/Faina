@@ -95,8 +95,15 @@ class SphericalLayerSource : public RadiationSource {
 protected:
 	double my_rho;
 	double my_rhoin;
+
+	double*** my_area;
+	double*** my_length;
+	bool my_geometryCashed;
+
+	virtual void evaluateLengthAndArea();
 public:
 	SphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& distance);
+	virtual ~SphericalLayerSource();
 	double getMaxRho();
 	double getMinZ();
 	double getMaxZ();
