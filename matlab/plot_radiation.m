@@ -194,8 +194,8 @@ errorbar(cssx1,cssy1,cssError1,'red','LineWidth',2);
 
 %legend('theory', 'shevalier', 'observation');
 
-xlim([0.1 100]);
-ylim([0.05 50]);
+%xlim([0.1 100]);
+%ylim([0.05 50]);
 
 %legend('april','may','june','august','Location','northwest');
 %legend('99 days','162 days ','357 days','Location','northwest');

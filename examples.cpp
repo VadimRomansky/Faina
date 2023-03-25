@@ -840,8 +840,8 @@ void compareComptonSynchrotron() {
 	double sigmaT = 8.0 * pi * re2 / 3.0;
 	double Ptheor = (4.0 / 3.0) * sigmaT * speed_of_light * photonEnergy * meanFactor * electronConcentration * source->getTotalVolume() / (4 * pi * distance * distance);
 
-	double synchrotronFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.001 * hplank * cyclotronOmega, 1000000 * hplank * cyclotronOmega, source);
-	double inverseComptonFlux = inverseComptonEvaluator->evaluateTotalFluxInEnergyRange(1E11 * hplank * cyclotronOmega, 1E16 * hplank * cyclotronOmega, source);
+	double synchrotronFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.001 * hplank * cyclotronOmega, 1000000 * hplank * cyclotronOmega, 100, source);
+	double inverseComptonFlux = inverseComptonEvaluator->evaluateTotalFluxInEnergyRange(1E11 * hplank * cyclotronOmega, 1E16 * hplank * cyclotronOmega, 100, source);
 	double ratioFlux = synchrotronFlux / inverseComptonFlux;
 
 	double ratioGhiselini = Ptheor / inverseComptonFlux;

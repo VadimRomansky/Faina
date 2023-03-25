@@ -130,6 +130,7 @@
   <ItemGroup>
     <ClCompile Include="bremsstrahlung.cpp" />
     <ClCompile Include="coordinateTransform.cpp" />
+    <ClCompile Include="examples.cpp" />
     <ClCompile Include="massiveParticleDistribution.cpp" />
     <ClCompile Include="inverseCompton.cpp" />
     <ClCompile Include="main.cpp" />
@@ -144,6 +145,7 @@
     <ClInclude Include="bremsstrahlung.h" />
     <ClInclude Include="constants.h" />
     <ClInclude Include="coordinateTransform.h" />
+    <ClInclude Include="examples.h" />
     <ClInclude Include="massiveParticleDistribution.h" />
     <ClInclude Include="inverseCompton.h" />
     <ClInclude Include="optimization.h" />
