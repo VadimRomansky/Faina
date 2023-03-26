@@ -438,6 +438,79 @@ SphericalLayerSource::~SphericalLayerSource()
 	delete[] my_length;
 }
 
+/*double SphericalLayerSource::getLength(int irho, int iz, int iphi) {
+	double dr = my_rho / my_Nrho;
+	double r = (irho + 0.5) * dr;
+	double z1 = -sqrt(my_rho * my_rho - r * r);
+	double z2 = 0;
+	if (my_rhoin > r) {
+		z2 = -sqrt(my_rhoin * my_rhoin - r * r);
+	}
+	double z3 = -z2;
+	double z4 = -z1;
+	double dz = 2 * my_rho / my_Nz;
+	double zmin = -my_rho + iz * dz;
+	double zmax = zmin + dz;
+	if (zmin >= 0) {
+		if (z3 > zmax) {
+			return 0;
+		}
+		if (z4 < zmin) {
+			return 0;
+		}
+		double lowz = max(zmin, z3);
+		double topz = min(zmax, z4);
+		return topz - lowz;
+	}
+	else {
+		if (z1 > zmax) {
+			return 0;
+		}
+		if (z2 < zmin) {
+			return 0;
+		}
+		double lowz = max(zmin, z1);
+		double topz = min(zmax, z2);
+		return topz - lowz;
+	}
+}
+
+double SphericalLayerSource::getArea(int irho, int iz, int iphi)
+{
+	double rho0 = irho * getMaxRho() / my_Nrho;
+	double rho1 = (irho + 1) * getMaxRho() / my_Nrho;
+	double rmin = rho0;
+	double rmax = rho1;
+	if (iz >= my_Nz / 2) {
+		//upper hemisphere
+		double zmax = (iz + 1 - my_Nz / 2) * (2 * my_rho / my_Nz);
+		double zmin = (iz - my_Nz / 2) * (2 * my_rho / my_Nz);
+		rmin = rho0;
+		if (zmax < my_rhoin) {
+			rmin = max(rho0, sqrt(my_rhoin * my_rhoin - zmax * zmax));
+		}
+		rmax = rho1;
+		rmax = min(rho1, sqrt(my_rho * my_rho - zmin * zmin));
+	}
+	else {
+		//lower hemisphere, z inversed
+		double zmax = fabs((iz - my_Nz / 2) * (2 * my_rho / my_Nz));
+		double zmin = fabs((iz + 1 - my_Nz / 2) * (2 * my_rho / my_Nz));
+
+		rmin = rho0;
+		if (zmax < my_rhoin) {
+			rmin = max(rho0, sqrt(my_rhoin * my_rhoin - zmax * zmax));
+		}
+		rmax = rho1;
+		rmax = min(rho1, sqrt(my_rho * my_rho - zmin * zmin));
+	}
+	if (rmax < rho0 || rmin > rho1 || rmax < rmin) {
+		return 0;
+	}
+
+	return 2 * pi * (rmax * rmax - rmin * rmin) / my_Nphi;
+}*/
+
 double SphericalLayerSource::getLength(int irho, int iz, int iphi) {
 	if (!my_geometryCashed) {
 		evaluateLengthAndArea();
