@@ -514,6 +514,7 @@ void fitTimeDependentCSS161010() {
 	//initial parameters of source
 	double electronConcentration = 150;
 	double rmax = 1.3E17;
+	//rmax = 1.0;
 	double B = 0.6;
 	double widthFraction = 0.5;
 	double v = 0.3 * speed_of_light;
@@ -544,7 +545,7 @@ void fitTimeDependentCSS161010() {
 	}
 	angleDependentDistributions[9]->writeDistribution("output1.dat", 200, Emin, Emax);
 	//creating radiation source, which does not depend on time
-	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, 1.0, 0, electronConcentration, rmax, 0.5 * rmax, distance);
+	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(4, 4, 4, Ndistributions, angleDependentDistributions, B, 1.0, 0, electronConcentration, rmax, 0.5 * rmax, distance);
 	//creating time dependent radiation source
 	RadiationTimeDependentSource* source = new ExpandingRemnantSource(rmax, B, electronConcentration, 0.3 * speed_of_light, 0.5, angleDependentSource, times[0]);
 	//creating time dependent synchrotron evaluator

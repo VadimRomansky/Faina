@@ -100,6 +100,8 @@ protected:
 	double*** my_length;
 	bool my_geometryCashed;
 
+	virtual double evaluateLength(int irho, int iz, int iphi);
+	virtual double evaluateArea(int irho, int iz, int iphi);
 	virtual void evaluateLengthAndArea();
 public:
 	SphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& distance);

@@ -213,24 +213,109 @@ MassiveParticleIsotropicDistribution* TabulatedDiskSource::getParticleDistributi
 	return my_distribution;
 }
 
+double SphericalLayerSource::evaluateLength(int irho, int iz, int iphi) {
+	double dr = my_rho / my_Nrho;
+	double dz = 2 * my_rho / my_Nz;
+	double length = 0;
+	double r = (irho + 0.5) * dr;
+	double z1 = -sqrt(my_rho * my_rho - r * r);
+	double z2 = 0;
+	if (my_rhoin > r) {
+		z2 = -sqrt(my_rhoin * my_rhoin - r * r);
+	}
+	double z3 = -z2;
+	double z4 = -z1;
+	double zmin = -my_rho + iz * dz;
+	double zmax = zmin + dz;
+	if (zmin >= 0) {
+		if (z3 > zmax) {
+			length = 0;
+		}
+		else
+			if (z4 < zmin) {
+				length = 0;
+			}
+			else {
+				double lowz = max(zmin, z3);
+				double topz = min(zmax, z4);
+				length = topz - lowz;
+			}
+	}
+	else {
+		if (z1 > zmax) {
+			length = 0;
+		}
+		else if (z2 < zmin) {
+			length = 0;
+		}
+		else {
+			double lowz = max(zmin, z1);
+			double topz = min(zmax, z2);
+			length = topz - lowz;
+		}
+	}
+	return length;
+}
+
+double SphericalLayerSource::evaluateArea(int irho, int iz, int iphi) {
+	double dr = my_rho / my_Nrho;
+	double dz = 2 * my_rho / my_Nz;
+	double area = 0;
+	double rho0 = irho * getMaxRho() / my_Nrho;
+	double rho1 = (irho + 1) * getMaxRho() / my_Nrho;
+	double rmin = rho0;
+	double rmax = rho1;
+	if (iz >= my_Nz / 2) {
+		//upper hemisphere
+		double zmax = (iz + 1 - my_Nz / 2) * (2 * my_rho / my_Nz);
+		double zmin = (iz - my_Nz / 2) * (2 * my_rho / my_Nz);
+		rmin = rho0;
+		if (zmax < my_rhoin) {
+			rmin = max(rho0, sqrt(my_rhoin * my_rhoin - zmax * zmax));
+		}
+		rmax = rho1;
+		rmax = min(rho1, sqrt(my_rho * my_rho - zmin * zmin));
+	}
+	else {
+		//lower hemisphere, z inversed
+		double zmax = fabs((iz - my_Nz / 2) * (2 * my_rho / my_Nz));
+		double zmin = fabs((iz + 1 - my_Nz / 2) * (2 * my_rho / my_Nz));
+
+		rmin = rho0;
+		if (zmax < my_rhoin) {
+			rmin = max(rho0, sqrt(my_rhoin * my_rhoin - zmax * zmax));
+		}
+		rmax = rho1;
+		rmax = min(rho1, sqrt(my_rho * my_rho - zmin * zmin));
+	}
+	if (rmax < rho0 || rmin > rho1 || rmax < rmin) {
+		area = 0;
+	}
+	else {
+		area = 2 * pi * (rmax * rmax - rmin * rmin) / my_Nphi;
+	}
+
+	return area;
+}
+
 void SphericalLayerSource::evaluateLengthAndArea()
 {
 	//length
 	double dr = my_rho / my_Nrho;
 	double dz = 2 * my_rho / my_Nz;
 	for (int irho = 0; irho < my_Nrho; ++irho) {
+		double r = (irho + 0.5) * dr;
+		double z1 = -sqrt(my_rho * my_rho - r * r);
+		double z2 = 0;
+		if (my_rhoin > r) {
+			z2 = -sqrt(my_rhoin * my_rhoin - r * r);
+		}
+		double z3 = -z2;
+		double z4 = -z1;
 		for (int iz = 0; iz < my_Nz; ++iz) {
+			double zmin = -my_rho + iz * dz;
+			double zmax = zmin + dz;
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
-				double r = (irho + 0.5) * dr;
-				double z1 = -sqrt(my_rho * my_rho - r * r);
-				double z2 = 0;
-				if (my_rhoin > r) {
-					z2 = -sqrt(my_rhoin * my_rhoin - r * r);
-				}
-				double z3 = -z2;
-				double z4 = -z1;
-				double zmin = -my_rho + iz * dz;
-				double zmax = zmin + dz;
 				if (zmin >= 0) {
 					if (z3 > zmax) {
 						my_length[irho][iz][iphi] = 0;
@@ -262,35 +347,35 @@ void SphericalLayerSource::evaluateLengthAndArea()
 
 	//area
 	for (int irho = 0; irho < my_Nrho; ++irho) {
+		double rho0 = irho * my_rho / my_Nrho;
+		double rho1 = (irho + 1) * my_rho / my_Nrho;
+		double rmin = rho0;
+		double rmax = rho1;
 		for (int iz = 0; iz < my_Nz; ++iz) {
-			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
-				double rho0 = irho * getMaxRho() / my_Nrho;
-				double rho1 = (irho + 1) * getMaxRho() / my_Nrho;
-				double rmin = rho0;
-				double rmax = rho1;
-				if (iz >= my_Nz / 2) {
-					//upper hemisphere
-					double zmax = (iz + 1 - my_Nz / 2) * (2 * my_rho / my_Nz);
-					double zmin = (iz - my_Nz / 2) * (2 * my_rho / my_Nz);
-					rmin = rho0;
-					if (zmax < my_rhoin) {
-						rmin = max(rho0, sqrt(my_rhoin * my_rhoin - zmax * zmax));
-					}
-					rmax = rho1;
-					rmax = min(rho1, sqrt(my_rho * my_rho - zmin * zmin));
+			if (iz >= my_Nz / 2) {
+				//upper hemisphere
+				double zmin = -my_rho + iz * dz;
+				double zmax = zmin + dz;
+				rmin = rho0;
+				if (zmax < my_rhoin) {
+					rmin = max(rho0, sqrt(my_rhoin * my_rhoin - zmax * zmax));
 				}
-				else {
-					//lower hemisphere, z inversed
-					double zmax = fabs((iz - my_Nz / 2) * (2 * my_rho / my_Nz));
-					double zmin = fabs((iz + 1 - my_Nz / 2) * (2 * my_rho / my_Nz));
+				rmax = rho1;
+				rmax = min(rho1, sqrt(my_rho * my_rho - zmin * zmin));
+			}
+			else {
+				//lower hemisphere, z inversed
+				double zmax = fabs( - my_rho + iz * dz);
+				double zmin = zmax - dz;
 
-					rmin = rho0;
-					if (zmax < my_rhoin) {
-						rmin = max(rho0, sqrt(my_rhoin * my_rhoin - zmax * zmax));
-					}
-					rmax = rho1;
-					rmax = min(rho1, sqrt(my_rho * my_rho - zmin * zmin));
+				rmin = rho0;
+				if (zmax < my_rhoin) {
+					rmin = max(rho0, sqrt(my_rhoin * my_rhoin - zmax * zmax));
 				}
+				rmax = rho1;
+				rmax = min(rho1, sqrt(my_rho * my_rho - zmin * zmin));
+			}
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
 				if (rmax < rho0 || rmin > rho1 || rmax < rmin) {
 					my_area[irho][iz][iphi] = 0;
 				}
@@ -358,6 +443,7 @@ double SphericalLayerSource::getLength(int irho, int iz, int iphi) {
 		evaluateLengthAndArea();
 	}
 	return my_length[irho][iz][iphi];
+	//return evaluateLength(irho, iz, iphi);
 }
 
 double SphericalLayerSource::getArea(int irho, int iz, int iphi)
@@ -366,6 +452,7 @@ double SphericalLayerSource::getArea(int irho, int iz, int iphi)
 		evaluateLengthAndArea();
 	}
 	return my_area[irho][iz][iphi];
+	//return evaluateArea(irho, iz, iphi);
 }
 
 double SphericalLayerSource::getMaxRho() {
@@ -483,6 +570,7 @@ void TabulatedSphericalLayerSource::resetParameters(const double* parameters, co
 		}
 	}
 	my_rhoin = my_rho * (1.0 - parameters[3] * normalizationUnits[3]);
+	evaluateLengthAndArea();
 }
 MassiveParticleIsotropicDistribution* TabulatedSphericalLayerSource::getParticleDistribution(int irho, int iz, int iphi) {
 	my_distribution->resetConcentration(getConcentration(irho, iz, iphi));
