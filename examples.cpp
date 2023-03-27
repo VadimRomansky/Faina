@@ -51,8 +51,8 @@ void evaluateComtonWithPowerLawDistribution() {
 
 	//initializing mean galactic photon field
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
-	PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
-	//PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(1E5, 1.0);
+	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
+	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(1E5, 1.0);
 
 	//initializing electrons distribution
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
@@ -64,6 +64,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
 
 	//comptonEvaluator->outputDifferentialFlux("output1.dat");
+	comptonEvaluator->outputDifferentialFluxJones("output2.dat");
 	//return;
 
 	//initializing photon energy grid for output

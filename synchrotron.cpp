@@ -252,7 +252,7 @@ double SynchrotronEvaluator::evaluateFluxFromSource(const double& photonFinalEne
 						if (A > 0) {
 							S = Q / A;
 						}
-						if (fabs(tau) < 1E-15) {
+						if (fabs(tau) < 1E-10) {
 							localI = I0 * (1.0 - tau) + S * tau;
 						}
 						else {

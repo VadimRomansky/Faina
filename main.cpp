@@ -140,10 +140,10 @@ void evaluateFluxSNRtoWind() {
 
 int main() {
 	//evaluateSimpleSynchrotron();
-	//evaluateComtonWithPowerLawDistribution();
+	evaluateComtonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
-	fitTimeDependentCSS161010();
+	//fitTimeDependentCSS161010();
 	//evaluatePionDecayWithPowerLawDistribution();
 	//evaluateBremsstrahlung();
 	//compareComptonSynchrotron();
