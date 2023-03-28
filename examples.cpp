@@ -64,7 +64,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
 
 	//comptonEvaluator->outputDifferentialFlux("output1.dat");
-	comptonEvaluator->outputDifferentialFluxJones("output2.dat");
+	comptonEvaluator->outputDifferentialFluxJones("output2.dat", photonDistribution, electrons);
 	//return;
 
 	//initializing photon energy grid for output

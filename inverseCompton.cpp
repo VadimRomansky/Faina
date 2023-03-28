@@ -92,10 +92,10 @@ void InverseComptonEvaluator::outputDifferentialFlux(const char* fileName) {
 	fclose(outFile);
 }
 
-void InverseComptonEvaluator::outputDifferentialFluxJones(const char* fileName) {
+void InverseComptonEvaluator::outputDifferentialFluxJones(const char* fileName, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution) {
 	FILE* outFile = fopen(fileName, "w");
 
-	double photonFinalEnergy = 1E14 * 1.6E-12;
+	double photonFinalEnergy = 1E18 * 1.6E-12;
 	double photonFinalTheta = 0;
 	double photonFinalPhi = 0;
 
@@ -119,16 +119,16 @@ void InverseComptonEvaluator::outputDifferentialFluxJones(const char* fileName) 
 		Eph[j] = Eph[j - 1] * factor;
 	}
 
-	//for (int i = 0; i < Nph; ++i) {
-	for (int i = 0; i < my_Ne; ++i) {
-		//photonFinalEnergy = Eph[i];
+	for (int i = 0; i < Nph; ++i) {
+	//for (int i = 0; i < my_Ne; ++i) {
+		photonFinalEnergy = Eph[i];
 		//photonInitialEnergy = Eph[i];
-		electronInitialEnergy = my_Ee[i];
+		//electronInitialEnergy = my_Ee[i];
 
 
-		//fprintf(outFile, "%15.10g  %15.10g\n", photonFinalEnergy, evaluateDifferentialFluxJones(photonFinalEnergy, electronInitialEnergy, photonInitialEnergy));
-		//fprintf(outFile, "%15.10g  %15.10g\n", photonInitialEnergy, evaluateDifferentialFluxJones(photonFinalEnergy, electronInitialEnergy, photonInitialEnergy));
-		fprintf(outFile, "%15.10g  %15.10g\n", electronInitialEnergy, evaluateDifferentialFluxJones(photonFinalEnergy, electronInitialEnergy, photonInitialEnergy));
+		fprintf(outFile, "%15.10g  %15.10g\n", photonFinalEnergy, evaluateDifferentialFluxJones(photonFinalEnergy, electronInitialEnergy, photonInitialEnergy, photonDistribution, electronDistribution));
+		//fprintf(outFile, "%15.10g  %15.10g\n", photonInitialEnergy, evaluateDifferentialFluxJones(photonFinalEnergy, electronInitialEnergy, photonInitialEnergy, photonDistribution, electronDistribution));
+		//fprintf(outFile, "%15.10g  %15.10g\n", electronInitialEnergy, evaluateDifferentialFluxJones(photonFinalEnergy, electronInitialEnergy, photonInitialEnergy, photonDistribution, electronDistribution));
 	}
 
 	delete[] Eph;
@@ -230,7 +230,7 @@ double InverseComptonEvaluator::evaluateDifferentialFlux(const double& photonFin
 	return result;
 }
 
-double InverseComptonEvaluator::evaluateDifferentialFluxJones(const double& photonFinalEnergy, const double& electronInitialEnergy, const double& photonInitialEnergy)
+double InverseComptonEvaluator::evaluateDifferentialFluxJones(const double& photonFinalEnergy, const double& electronInitialEnergy, const double& photonInitialEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution)
 {
 	double electronInitialGamma = electronInitialEnergy / me_c2;
 	if (electronInitialGamma < photonFinalEnergy / me_c2) {
@@ -243,7 +243,7 @@ double InverseComptonEvaluator::evaluateDifferentialFluxJones(const double& phot
 		double sigma = 2 * pi * re2 * (2 * q * log(q) + 1 + q - 2 * q * q + 0.5 * q * q * (1 - q) * G * G / (1 + q * G)) / (electronInitialGamma * electronInitialGamma * photonInitialEnergy / me_c2);
 		//divide by energy to get number of photons
 		//I += electronDistribution->distribution(electronInitialEnergy) * volume * sigma * photonDistribution->distribution(photonInitialEnergy)  * speed_of_light * electronInitialBeta * delectronEnergy * dphotonInitialEnergy / (massElectron * speed_of_light2);
-		double I = photonFinalEnergy * 4 * pi * sigma * speed_of_light * electronInitialBeta / me_c2;
+		double I = electronDistribution->distributionNormalized(electronInitialEnergy)*photonDistribution->distributionNormalized(photonInitialEnergy)*photonFinalEnergy * 4 * pi * sigma * speed_of_light * electronInitialBeta / me_c2;
 		if (I < 0) {
 			printf("I < 0\n");
 			printLog("I < 0\n");

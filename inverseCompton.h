@@ -32,9 +32,9 @@ public:
     void resetParameters(const double *parameters, const double *normalizationUnits);
 
 	void outputDifferentialFlux(const char* fileName);
-	void outputDifferentialFluxJones(const char* fileName);
+	void outputDifferentialFluxJones(const char* fileName, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution);
 	double evaluateDifferentialFlux(const double& photonFinalEnergy, const double& photonFinalCosTheta, const double& photonFinalPhi, const double& electronInitialEnergy, const double& mu_e, const double& phi_e, const double& mu_ph, const double& phi_ph);
-	double evaluateDifferentialFluxJones(const double& photonFinalEnergy, const double& electronInitialEnergy, const double& photonInitialEnergy);
+	double evaluateDifferentialFluxJones(const double& photonFinalEnergy, const double& electronInitialEnergy, const double& photonInitialEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution);
 
 	
 	double evaluateComptonFluxKleinNishinaAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& volume, const double& distance);
