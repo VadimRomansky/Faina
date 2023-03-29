@@ -55,6 +55,9 @@ double PhotonPowerLawDistribution::distributionNormalized(const double& energy)
 		printLog("photon energy < 0\n");
 		exit(0);
 	}
+	if (energy < my_E0) {
+		return 0;
+	}
     return my_A/pow(energy/my_E0, my_index);
 }
 

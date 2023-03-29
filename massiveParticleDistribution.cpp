@@ -66,6 +66,10 @@ double MassiveParticlePowerLawDistribution::distributionNormalized(const double&
 		//exit(0);
 		return 0;
 	}
+
+	if (energy < my_E0) {
+		return 0;
+	}
 	return my_A / pow(energy / my_E0, my_index);
 }
 
@@ -144,6 +148,9 @@ double MassiveParticlePowerLawCutoffDistribution::distributionNormalized(const d
 		printf("warning: energy is less than m c^2\n");
 		printLog("warning: energy is less than m c^2\n");
 		//exit(0);
+		return 0;
+	}
+	if (energy < my_E0) {
 		return 0;
 	}
 	return (my_A / pow(energy / my_E0, my_index))*exp(-pow(energy/my_Ecut, my_beta));
@@ -239,6 +246,9 @@ double MassiveParticleBrokenPowerLawDistribution::distributionNormalized(const d
 		printf("warning: energy is less than m c^2\n");
 		printLog("warning: energy is less than m c^2\n");
 		//exit(0);
+		return 0;
+	}
+	if (energy < my_E0) {
 		return 0;
 	}
 	if (energy < my_Etran) {
