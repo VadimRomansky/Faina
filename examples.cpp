@@ -52,7 +52,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	//initializing mean galactic photon field
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
-	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(1E5, 1.0);
+	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(1E1, 1.0);
 
 	//initializing electrons distribution
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
@@ -64,7 +64,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
 
 	//comptonEvaluator->outputDifferentialFlux("output1.dat");
-	comptonEvaluator->outputDifferentialFluxJones("output2.dat", photonDistribution, electrons);
+	//comptonEvaluator->outputDifferentialFluxJones("output2.dat", photonDistribution, electrons);
 	//return;
 
 	//initializing photon energy grid for output
@@ -93,7 +93,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	}
 
 	//outputing
-	FILE* output_ev_EFE = fopen("output.dat", "w");
+	FILE* output_ev_EFE = fopen("output2.dat", "w");
 	//FILE* output_GHz_Jansky = fopen("output.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		double nu = E[i] / hplank;

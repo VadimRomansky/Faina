@@ -131,8 +131,26 @@ void InverseComptonEvaluator::outputDifferentialFluxJones(const char* fileName, 
 		//fprintf(outFile, "%15.10g  %15.10g\n", electronInitialEnergy, evaluateDifferentialFluxJones(photonFinalEnergy, electronInitialEnergy, photonInitialEnergy, photonDistribution, electronDistribution));
 	}
 
+
 	delete[] Eph;
 	fclose(outFile);
+
+	FILE* file1 = fopen("output3.dat", "w");
+	for (int i = 0; i < my_Ne; ++i) {
+		double electronInitialEnergy = my_Ee[i];
+		if (i > 0) {
+			electronInitialEnergy = 0.5 * (my_Ee[i] + my_Ee[i - 1]);
+		}
+		double delectronEnergy;
+		if (i == 0) {
+			delectronEnergy = my_Ee[1] - my_Ee[0];
+		}
+		else {
+			delectronEnergy = my_Ee[i] - my_Ee[i - 1];
+		}
+		fprintf(file1, "%g %g %g %g\n", electronInitialEnergy, delectronEnergy, electronDistribution->distributionNormalized(electronInitialEnergy), electronInitialEnergy * delectronEnergy * electronDistribution->distributionNormalized(electronInitialEnergy));
+	}
+	fclose(file1);
 }
 
 double InverseComptonEvaluator::evaluateDifferentialFlux(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, const double& electronInitialEnergy, const double& theta_e, const double& phi_e, const double& photonInitialThetaPrimed, const double& photonInitialPhiRotated) {
@@ -307,6 +325,7 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 		Eph[i] = Eph[i - 1] * factor;
 	}
 
+
 	double photonFinalCosTheta = 1.0;
 	double photonFinalPhi = 0.0;
 	for (int k = 0; k < my_Ne; ++k) {
@@ -377,6 +396,108 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 	delete[] Eph;
 	return I / (distance * distance);
 }
+
+/*double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+	double m = electronDistribution->getMass();
+	double m_c2 = m * speed_of_light2;
+	double r2 = sqr(electron_charge * electron_charge / m_c2);
+
+	double I = 0;
+
+	int Nph = 100;
+	double* Eph = new double[Nph];
+	double Ephmin = 0.001 * kBoltzman * 2.7;
+	double Ephmax = 10000 * Ephmin;
+	double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+	Eph[0] = Ephmin;
+	for (int i = 1; i < Nph; ++i) {
+		Eph[i] = Eph[i - 1] * factor;
+	}
+
+
+	double photonFinalCosTheta = 1.0;
+	double photonFinalPhi = 0.0;
+	for (int l = 0; l < Nph; ++l) {
+		double photonInitialEnergy = Eph[l];
+		double dphotonInitialEnergy;
+		if (l == 0) {
+			dphotonInitialEnergy = Eph[1] - Eph[0];
+		}
+		else {
+			dphotonInitialEnergy = Eph[l] - Eph[l - 1];
+		}
+
+		double Eemin = max(0.5*photonFinalEnergy*(1.0 + sqrt(1 + m_c2*m_c2/(photonFinalEnergy*photonInitialEnergy))), m_c2);
+		double Eemax = my_Emax;
+		double Eetran = 2 * Eemin;
+		if (Eemax < Eemin) {
+			Eemax = 2 * Eemin;
+		}
+		if (Eemax < Eetran) {
+			Eetran = (Eemax + Eemin) / 2;
+		}
+		int linearN = my_Ne / 2;
+		int logN = my_Ne - linearN;
+		double delta = (Eetran - Eemin) / linearN;
+		my_Ee[0] = Eemin;
+		for (int i = 0; i < linearN; ++i) {
+			my_Ee[i] = Eemin + delta * i;
+		}
+		double factor = pow(Eemax / Eetran, 1.0 / (logN - 1));
+		my_Ee[linearN] = Eetran;
+		for (int i = linearN+1; i < my_Ne; ++i) {
+			my_Ee[i] = my_Ee[i - 1] * factor;
+		}
+
+
+
+		
+		for (int k = 0; k < my_Ne; ++k) {
+			double electronInitialEnergy = my_Ee[k];
+			if (k > 0) {
+				electronInitialEnergy = 0.5 * (my_Ee[k] + my_Ee[k - 1]);
+			}
+			double electronInitialGamma = electronInitialEnergy / m_c2;
+			if (electronInitialGamma < photonFinalEnergy / m_c2) {
+				continue;
+			}
+			double delectronEnergy;
+			double electronInitialBeta = sqrt(1.0 - 1.0 / (electronInitialGamma * electronInitialGamma));
+			if (k == 0) {
+				delectronEnergy = my_Ee[1] - my_Ee[0];
+			}
+			else {
+				delectronEnergy = my_Ee[k] - my_Ee[k - 1];
+			}
+
+			if (electronInitialGamma > photonFinalEnergy / (m_c2)) {
+				double G = 4 * electronInitialGamma * photonInitialEnergy / (m_c2);
+				double q = (photonFinalEnergy / (m_c2)) / ((electronInitialGamma - photonFinalEnergy / (m_c2)) * G);
+				if (q <= 1.0) {
+					double sigma = 2 * pi * r2 * (2 * q * log(q) + 1 + q - 2 * q * q + 0.5 * q * q * (1 - q) * G * G / (1 + q * G)) / (electronInitialGamma * electronInitialGamma * photonInitialEnergy / m_c2);
+					//divide by energy to get number of photons
+					//I += electronDistribution->distribution(electronInitialEnergy) * volume * sigma * photonDistribution->distribution(photonInitialEnergy)  * speed_of_light * electronInitialBeta * delectronEnergy * dphotonInitialEnergy / (massElectron * speed_of_light2);
+					I += photonFinalEnergy * 4 * pi * electronDistribution->distribution(electronInitialEnergy) * volume * sigma * photonDistribution->distribution(photonInitialEnergy) * speed_of_light * electronInitialBeta * delectronEnergy * dphotonInitialEnergy / m_c2;
+					if (I < 0) {
+						printf("I < 0\n");
+						printLog("I < 0\n");
+						exit(0);
+					}
+
+					if (I != I) {
+						printf("I = NaN\n");
+						printLog("I = NaN\n");
+						exit(0);
+					}
+				}
+			}
+		}
+
+	}
+
+	delete[] Eph;
+	return I / (distance * distance);
+}*/
 
 double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
 	double m = electronDistribution->getMass();
