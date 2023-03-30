@@ -8,7 +8,7 @@ clear;
 
 radiationUvarov = importdata('../compt_test1_KN.dat');
 radiationMine = importdata('../output.dat');
-radiationMineJones = importdata('../outputJ.dat');
+radiationMineJones = importdata('../output1.dat');
 
 
 %Nnu = size(radiationEu,1);
