@@ -50,6 +50,8 @@ void evaluateComtonWithPowerLawDistribution() {
 	double electronConcentration = KK / (pow(652.317, index - 1) * (index - 1));
 
 	//initializing mean galactic photon field
+	double Ephmin = 0.01 * 2.7 * kBoltzman;
+	double Ephmax = 100 * 2.7 * kBoltzman;
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
 	PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
 	//PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(1E5, 1.0);
@@ -58,7 +60,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 	//creating radiation source
 	RadiationSource* source = new SimpleFlatSource(electrons, B, sinTheta, rmax, rmax, distance);
-	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
@@ -72,11 +74,11 @@ void evaluateComtonWithPowerLawDistribution() {
 	double* E = new double[Nnu];
 	double* F = new double[Nnu];
 
-	double Ephmin = 0.0001 * kBoltzman * 2.7;
-	double Ephmax = 10 * Emax + Emin;
+	double EphFinalmin = 0.0001 * kBoltzman * 2.7;
+	double EphFinalmax = 10 * Emax + Emin;
 	//photonDistribution->writeDistribution("output3.dat", 200, Ephmin, Ephmax);
-	double factor = pow(Ephmax / Ephmin, 1.0 / (Nnu - 1));
-	E[0] = Ephmin;
+	double factor = pow(EphFinalmax / EphFinalmin, 1.0 / (Nnu - 1));
+	E[0] = EphFinalmin;
 	F[0] = 0;
 	for (int i = 1; i < Nnu; ++i) {
 		E[i] = E[i - 1] * factor;
@@ -820,13 +822,16 @@ void compareComptonSynchrotron() {
 	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
 	synchrotronEvaluator->writeFluxFromSourceToFile("output1.dat", source, 0.001 * hplank * cyclotronOmega, 1000000 * hplank * cyclotronOmega, 100);
 	double T = 1E6;
+	double Ephmin = 0.01 * kBoltzman * T;
+	double Ephmax = 100 * kBoltzman * T;
 	//PhotonIsotropicDistribution* photons = PhotonPlankDistribution::getCMBradiation();
 	PhotonIsotropicDistribution* photons = new PhotonPlankDistribution(T, 1.0);
-	//RadiationEvaluator* inverseComptonEvaluator = new InverseComptonEvaluator(400, 50, 4, Emin, Emax, photons, ComptonSolverType::ISOTROPIC_JONES);
-	RadiationEvaluator* inverseComptonEvaluator = new InverseComptonEvaluator(400, 50, 4, Emin, Emax, photons, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
-	double EminCompton = 1E15 * hplank * cyclotronOmega;
-	double EmaxCompton = 1E22 * hplank * cyclotronOmega;
-	inverseComptonEvaluator->writeFluxFromSourceToFile("output2.dat", source, EminCompton, EmaxCompton, 200);
+	RadiationEvaluator* inverseComptonEvaluator = new InverseComptonEvaluator(400, 50, 4, Emin, Emax, Ephmin, Ephmax, photons, ComptonSolverType::ISOTROPIC_JONES);
+	RadiationEvaluator* inverseComptonEvaluator2 = new InverseComptonEvaluator(400, 50, 4, Emin, Emax, Ephmin, Ephmax, photons, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+	double EminCompton = 0.1*kBoltzman*T;
+	double EmaxCompton = 20*sqrt(kBoltzman * T * Emax);
+	inverseComptonEvaluator->writeFluxFromSourceToFile("output2.dat", source, EminCompton, EmaxCompton, 100);
+	inverseComptonEvaluator2->writeFluxFromSourceToFile("output3.dat", source, EminCompton, EmaxCompton, 100);
 
 	double meanFactor = 0;
 	double currentE = Emin;
@@ -858,7 +863,7 @@ void compareComptonSynchrotron() {
 	double Ptheor = (4.0 / 3.0) * sigmaT * speed_of_light * photonEnergy * meanFactor * electronConcentration * source->getTotalVolume() / (4 * pi * distance * distance);
 
 	double synchrotronFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.001 * hplank * cyclotronOmega, 1000000 * hplank * cyclotronOmega, 100, source);
-	double inverseComptonFlux = inverseComptonEvaluator->evaluateTotalFluxInEnergyRange(EminCompton, EmaxCompton, 100, source);
+	double inverseComptonFlux = inverseComptonEvaluator->evaluateTotalFluxInEnergyRange(EminCompton, EmaxCompton, 200, source);
 	double ratioFlux = synchrotronFlux / inverseComptonFlux;
 
 	double ratioGhiselini = Ptheor / inverseComptonFlux;

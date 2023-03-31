@@ -15,6 +15,9 @@ protected:
 	int my_Nmu;
 	int my_Nphi;
 
+	double my_Ephmin;
+	double my_Ephmax;
+
 	double* my_theta;
 	double* my_cosTheta;
 	double* my_cosThetaLeft;
@@ -27,7 +30,7 @@ protected:
 	double evaluateComptonFluxKleinNishinaIsotropic(const double& photonFinalEnergyi, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
 	double evaluateComptonFluxKleinNishinaAnisotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
 public:
-    InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax, PhotonIsotropicDistribution* photonDistribution, ComptonSolverType solverType);
+    InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonIsotropicDistribution* photonDistribution, ComptonSolverType solverType);
 	~InverseComptonEvaluator();
     void resetParameters(const double *parameters, const double *normalizationUnits);
 

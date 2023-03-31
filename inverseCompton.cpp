@@ -9,9 +9,12 @@
 
 #include "inverseCompton.h"
 
-InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax, PhotonIsotropicDistribution* photonDistribution, ComptonSolverType solverType) : RadiationEvaluator(Ne, Emin, Emax){
+InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonIsotropicDistribution* photonDistribution, ComptonSolverType solverType) : RadiationEvaluator(Ne, Emin, Emax){
 	my_solverType = solverType;
 	
+	my_Ephmin = Ephmin;
+	my_Ephmax = Ephmax;
+
 	my_Nmu = Nmu;
 	my_Nphi = Nphi;
 
@@ -106,8 +109,8 @@ void InverseComptonEvaluator::outputDifferentialFluxJones(const char* fileName, 
 
 	int Nph = 100;
 	double* Eph = new double[Nph];
-	double Ephmin;
-	double Ephmax;
+	double Ephmin = my_Ephmin;
+	double Ephmax = my_Ephmax;
 	Ephmin = photonFinalEnergy / (4 * electronInitialGamma * (electronInitialGamma - photonFinalEnergy / me_c2));
 	if (Ephmin <= 0) {
 		Ephmin = photonFinalEnergy / (4 * electronInitialGamma * electronInitialGamma);
@@ -308,7 +311,7 @@ double InverseComptonEvaluator::evaluateComptonFluxThomsonIsotropic(const double
 	double I = photonConcentration * electronConcentration * volume * 0.5 * sigmat * pow(massElectron * speed_of_light2, 1.0 - index) * pow(photonFinalEnergy, -(index - 1.0) / 2.0) * pow((4.0 / 3.0) * meanPlank * kBoltzman * temperature, (index - 1.0) / 2.0) * K * speed_of_light / (4 * pi);
 	return I/(sqr(distance));
 }
-double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+/*double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
 	double m = electronDistribution->getMass();
 	double m_c2 = m * speed_of_light2;
 	double r2 = sqr(electron_charge * electron_charge / m_c2);
@@ -395,9 +398,9 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 
 	delete[] Eph;
 	return I / (distance * distance);
-}
+}*/
 
-/*double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
 	double m = electronDistribution->getMass();
 	double m_c2 = m * speed_of_light2;
 	double r2 = sqr(electron_charge * electron_charge / m_c2);
@@ -406,7 +409,7 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 
 	int Nph = 100;
 	double* Eph = new double[Nph];
-	double Ephmin = 0.001 * kBoltzman * 2.7;
+	double Ephmin = 0.001 * kBoltzman * 1E6;
 	double Ephmax = 10000 * Ephmin;
 	double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
 	Eph[0] = Ephmin;
@@ -500,7 +503,7 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 
 	delete[] Eph;
 	return I / (distance * distance);
-}*/
+}
 
 double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
 	double m = electronDistribution->getMass();

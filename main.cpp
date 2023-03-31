@@ -37,6 +37,8 @@ void evaluateFluxSNRtoWind() {
 	double Tstar = 50 * 5500;
 
 	//initializing mean galactic photon field
+	double Ephmin = 0.01 * Tstar * kBoltzman;
+	double Ephmax = 100 * Tstar * kBoltzman;
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
 	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar/rsource));
@@ -47,10 +49,10 @@ void evaluateFluxSNRtoWind() {
 	electronsFromSmilei->addPowerLaw(20 * massElectron * speed_of_light2, 3.5);
 	//creating radiation source
 	RadiationSource* source = new SimpleFlatSource(electronsFromSmilei, B, sinTheta, rsource, rsource, distance);
-	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
-	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
-	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
+	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
+	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
 	//SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true);
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true);
 	//comptonEvaluator->outputDifferentialFlux("output1.dat");
@@ -61,11 +63,11 @@ void evaluateFluxSNRtoWind() {
 	double* E = new double[Nnu];
 	double* F = new double[Nnu];
 
-	double Ephmin = 0.0001 * kBoltzman * Tstar;
-	double Ephmax = 2 * Emax + Emin;
+	double EphFinalmin = 0.01 * kBoltzman * Tstar;
+	double EphFinalmax = 2 * Emax + Emin;
 	//photonDistribution->writeDistribution("output3.dat", 200, Ephmin, Ephmax);
-	double factor = pow(Ephmax / Ephmin, 1.0 / (Nnu - 1));
-	E[0] = Ephmin;
+	double factor = pow(EphFinalmax / EphFinalmin, 1.0 / (Nnu - 1));
+	E[0] = EphFinalmin;
 	F[0] = 0;
 	for (int i = 1; i < Nnu; ++i) {
 		E[i] = E[i - 1] * factor;
