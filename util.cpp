@@ -161,19 +161,34 @@ double McDonaldFunction(double index, double x) {
 
 //1 - cos
 double versin(const double& x) {
+    if (x > pi / 4) {
+        return 1.0 - cos(x);
+    }
     double result = 0;
     double temp = x * x;
     int factorial = 2.0;
-    for (int i = 2; i < 10; ++i) {
-        result = result + temp / factorial;
+    int i = 2;
+    double df = 1.0;
+    while(fabs(df) > 1E-10){
+        df = temp / factorial;
+        result = result + df;
         temp = temp * x * x;
         factorial = -factorial * (2 * i - 1) * (2 * i);
+        ++i;
+        if (i > 1000000) {
+            printf("versin didn't converge, x = %g\n", x);
+            printLog("versin didn't converge, x = %g\n", x);
+            exit(0);
+        }
     }
     return result;
 }
 
 //1 - beta
 double relativisticDelta(const double& gamma) {
+    if (gamma < 10) {
+        return 1.0 - sqrt(1.0 - 1.0 / (gamma * gamma));
+    }
     double result = 0;
     double temp = gamma*gamma;
     double factor = 0.5;
@@ -186,7 +201,35 @@ double relativisticDelta(const double& gamma) {
         temp = temp * gamma*gamma;
         factor = factor * (2 * i - 1) / (2.0 * (i + 1));
         ++i;
+        if (i > 1000000) {
+            printf("relativisticDelta didn't converge, x = %g\n", gamma);
+            printLog("relativisticDelta didn't converge, x = %g\n", gamma);
+            exit(0);
+        }
     }
 
     return result;
+}
+
+void checkAndFixCosValue(double& mu) {
+    if (mu > 1.0 && mu < 1.00001) {
+        printf("mu = %g > 1.0 reduced to 1.0\n", mu);
+        printLog("mu = %g > 1.0 reduced to 1.0\n", mu);
+        mu = 1.0;
+    }
+    if (mu < -1.0 && mu > -1.00001) {
+        printf("mu = %g < -1.0 reduced to =-1.0\n", mu);
+        printLog("mu = %g < -1.0 reduced to -1.0\n", mu);
+        mu = -1.0;
+    }
+    if (mu > 1.0) {
+        printf("mu = %g > 1.0\n", mu);
+        printLog("mu = %g > 1.0\n", mu);
+        exit(0);
+    }
+    if (mu < -1.0) {
+        printf("mu = %g < -1.0\n", mu);
+        printLog("mu = %g < -1.0\n", mu);
+        exit(0);
+    }
 }

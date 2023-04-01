@@ -15,5 +15,6 @@ void printLog (const char *fmt, ...);
 double McDonaldFunction(double index, double x);
 double versin(const double& x);
 double relativisticDelta(const double& gamma);
+void checkAndFixCosValue(double& mu);
 
 #endif

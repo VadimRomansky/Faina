@@ -9,17 +9,9 @@
 void LorentzTransformationPhotonZ(const double& gamma, const double& Einit, const double& thetaInit, double& Eprime, double& thetaPrime) {
 	//double gamma = 1.0 / sqrt(1.0 - beta * beta);
 	double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
-	double delta = 0.5 / (gamma * gamma) + 0.125 / (gamma * gamma * gamma * gamma);
+	double delta = relativisticDelta(gamma);
 	double cosThetaInit = cos(thetaInit);
-	double epsilon = 0.5 * thetaInit * thetaInit + thetaInit * thetaInit * thetaInit * thetaInit / 24.0;
-
-	if (delta > 1E-7 || epsilon > 1E-7) {
-		Eprime = gamma * (1 - beta * cosThetaInit) * Einit;
-		double cosThetaPrime = (cosThetaInit - beta) / (1 - cosThetaInit * beta);
-		thetaPrime = acos(cosThetaPrime);
-		return;
-	}
-	Eprime = gamma*(epsilon + delta)*Einit;
+	double epsilon = versin(thetaInit);
 
 	if (epsilon == 0) {
 		//cosThetaPrime = 1.0;
@@ -31,28 +23,33 @@ void LorentzTransformationPhotonZ(const double& gamma, const double& Einit, cons
 		thetaPrime = pi;
 		return;
 	}
-	if (epsilon < 1E-7 && delta < 1E-7) {
-		double cosThetaPrime = (delta - epsilon) / (epsilon + delta - epsilon * delta);
-		thetaPrime = acos(cosThetaPrime);
-		return;
+
+	double factor = epsilon + delta - epsilon * delta;
+	Eprime = gamma * factor * Einit;
+	double versinThetaPrime = (2 * epsilon -epsilon*delta)/ factor;
+	if (versinThetaPrime > 2.0 && versinThetaPrime < 2.0000001) {
+		//printf("versin = %g > 2.0 reduced to 2.0\n", versinThetaPrime);
+		//printLog("versin = %g > 2.0 reduced to 2.0\n", versinThetaPrime);
+		versinThetaPrime = 2.0;
 	}
-	double cosThetaPrime = (cosThetaInit - beta)/(1 - cosThetaInit*beta);
-	thetaPrime = acos(cosThetaPrime);
+	if (versinThetaPrime > 2.0) {
+		printf("versin = %g > 2.0\n", versinThetaPrime);
+		printLog("versin = %g > 2.0\n", versinThetaPrime);
+		exit(0);
+	}
+	double sinThetaPrime = sqrt(2 * versinThetaPrime - versinThetaPrime * versinThetaPrime);
+	//double cosThetaPrime = (delta - epsilon) / factor;
+	//checkAndFixCosValue(cosThetaPrime);
+	//thetaPrime = acos(cosThetaPrime);
+	thetaPrime = asin(sinThetaPrime);
 }
 
 void LorentzTransformationPhotonReverseZ(const double& gamma, const double& Einit, const double& thetaInit, double& Eprime, double& thetaPrime) {
 	//double gamma = 1.0 / sqrt(1.0 - beta * beta);
 	double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
-	double delta = 0.5 / (gamma * gamma)+0.125/(gamma*gamma*gamma*gamma);
+	double delta = relativisticDelta(gamma);
 	double cosThetaInit = cos(thetaInit);
-	double epsilon = 0.5 * (pi - thetaInit) * (pi - thetaInit) + sqr(sqr(pi - thetaInit))/24;
-	if (delta > 1E-7 || epsilon > 1E-7) {
-		Eprime = gamma * (1 + beta * cosThetaInit) * Einit;
-		double cosThetaPrime = (cosThetaInit + beta) / (1 + cosThetaInit * beta);
-		thetaPrime = acos(cosThetaPrime);
-		return;
-	}
-	Eprime = gamma * (epsilon + delta) * Einit;
+	double epsilon = versin(pi - thetaInit);
 
 	if (epsilon == 0) {
 		//cosThetaPrime = -1.0;
@@ -64,19 +61,24 @@ void LorentzTransformationPhotonReverseZ(const double& gamma, const double& Eini
 		thetaPrime = 0;
 		return;
 	}
-	if (epsilon < 1E-7 && delta < 1E-7) {
-		double cosThetaPrime = (epsilon - delta) / (epsilon + delta - epsilon * delta);
-		if (cosThetaPrime == 1.0) {
-			printf("aaaa\n");
-		}
-		if (cosThetaPrime == -1.0) {
-			printf("aaa\n");
-		}
-		thetaPrime = acos(cosThetaPrime);
-		return;
+	double factor = epsilon + delta - epsilon * delta;
+	Eprime = gamma * factor * Einit;
+	double versinThetaPrime = (2 * delta - epsilon*delta) / factor;
+	if (versinThetaPrime > 2.0 && versinThetaPrime < 2.0000001) {
+		//printf("versin = %g > 2.0 reduced to 2.0\n", versinThetaPrime);
+		//printLog("versin = %g > 2.0 reduced to 2.0\n", versinThetaPrime);
+		versinThetaPrime = 2.0;
 	}
-	double cosThetaPrime = (cosThetaInit + beta) / (1 + cosThetaInit * beta);
-	thetaPrime = acos(cosThetaPrime);
+	if (versinThetaPrime > 2.0) {
+		printf("versin = %g > 2.0\n", versinThetaPrime);
+		printLog("versin = %g > 2.0\n", versinThetaPrime);
+		exit(0);
+	}
+	double sinThetaPrime = sqrt(2 * versinThetaPrime - versinThetaPrime * versinThetaPrime);
+	//double cosThetaPrime = (epsilon - delta) / factor;
+	//checkAndFixCosValue(cosThetaPrime);
+	//thetaPrime = acos(cosThetaPrime);
+	thetaPrime = asin(sinThetaPrime);
 }
 
 //transform from one spherical system to rotated. Rotation on phir around z, and then on mur around x' 
