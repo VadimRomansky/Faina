@@ -42,6 +42,9 @@ void LorentzTransformationPhotonZ(const double& gamma, const double& Einit, cons
 	//checkAndFixCosValue(cosThetaPrime);
 	//thetaPrime = acos(cosThetaPrime);
 	thetaPrime = asin(sinThetaPrime);
+	if (versinThetaPrime > 1.0) {
+		thetaPrime = pi - thetaPrime;
+	}
 }
 
 void LorentzTransformationPhotonReverseZ(const double& gamma, const double& Einit, const double& thetaInit, double& Eprime, double& thetaPrime) {
@@ -79,6 +82,9 @@ void LorentzTransformationPhotonReverseZ(const double& gamma, const double& Eini
 	//checkAndFixCosValue(cosThetaPrime);
 	//thetaPrime = acos(cosThetaPrime);
 	thetaPrime = asin(sinThetaPrime);
+	if (versinThetaPrime > 1.0) {
+		thetaPrime = pi - thetaPrime;
+	}
 }
 
 //transform from one spherical system to rotated. Rotation on phir around z, and then on mur around x' 

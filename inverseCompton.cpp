@@ -320,8 +320,8 @@ double InverseComptonEvaluator::evaluateComptonFluxThomsonIsotropic(const double
 
 	int Nph = 100;
 	double* Eph = new double[Nph];
-	double Ephmin = 0.001*kBoltzman*2.7;
-	double Ephmax = 10000 * Ephmin;
+	double Ephmin = my_Ephmin;
+	double Ephmax = my_Ephmax;
 	double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
 	Eph[0] = Ephmin;
 	for (int i = 1; i < Nph; ++i) {
@@ -409,8 +409,8 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 
 	int Nph = 100;
 	double* Eph = new double[Nph];
-	double Ephmin = 0.001 * kBoltzman * 1E6;
-	double Ephmax = 10000 * Ephmin;
+	double Ephmin = my_Ephmin;
+	double Ephmax = my_Ephmax;
 	double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
 	Eph[0] = Ephmin;
 	for (int i = 1; i < Nph; ++i) {

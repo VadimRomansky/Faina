@@ -821,7 +821,7 @@ void compareComptonSynchrotron() {
 	RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(400, Emin, Emax, false);
 	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
 	synchrotronEvaluator->writeFluxFromSourceToFile("output1.dat", source, 0.001 * hplank * cyclotronOmega, 1000000 * hplank * cyclotronOmega, 100);
-	double T = 1E-2;
+	double T = 1E2;
 	double Ephmin = 0.01 * kBoltzman * T;
 	double Ephmax = 100 * kBoltzman * T;
 	//PhotonIsotropicDistribution* photons = PhotonPlankDistribution::getCMBradiation();
@@ -864,14 +864,18 @@ void compareComptonSynchrotron() {
 
 	double synchrotronFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.001 * hplank * cyclotronOmega, 1000000 * hplank * cyclotronOmega, 100, source);
 	double inverseComptonFlux = inverseComptonEvaluator->evaluateTotalFluxInEnergyRange(EminCompton, EmaxCompton, 200, source);
+	double inverseComptonFlux2 = inverseComptonEvaluator2->evaluateTotalFluxInEnergyRange(EminCompton, EmaxCompton, 200, source);
 	double ratioFlux = synchrotronFlux / inverseComptonFlux;
 
 	double ratioGhiselini = Ptheor / inverseComptonFlux;
 
 	double ratioRatio = ratioFlux / ratioEnergy;
 
+	double ratioComptonEvaluators = inverseComptonFlux / inverseComptonFlux2;
+
 	printf("magneticEnergy/photonEnergy = %g\n", ratioEnergy);
 	printf("synchrotron / compton = %g\n", ratioFlux);
 	printf("(synchrotron/magnetic) / (compton/photon) = %g\n", ratioRatio);
 	printf("theoretical compton/ compton %g\n", ratioGhiselini * 4 * pi);
+	printf("Jones flux/klein-nishina flux = %g\n", ratioComptonEvaluators);
 }
