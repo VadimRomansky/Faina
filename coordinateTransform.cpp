@@ -112,16 +112,19 @@ void rotationSphericalCoordinates(const double& thetar, const double& phir, cons
 	//double sinThetar = sqrt(1.0 - mur * mur);
 	double sinThetar = sin(thetar);
 	double mur = cos(thetar);
+	double versinr = versin(thetar);
 	//double sinTheta0 = sqrt(1.0 - mu0 * mu0);
 	double sinTheta0 = sin(theta0);
 	double mu0 = cos(theta0);
+	double versin0 = versin(theta0);
 	double tempPhi = phi0 - phir;
 	if (tempPhi < 0) {
 		tempPhi = tempPhi + 2 * pi;
 	}
-	double mu1 = mu0 * mur + sinThetar * sinTheta0 * sin(tempPhi);
+	//double mu1 = mu0 * mur + sinThetar * sinTheta0 * sin(tempPhi);
+	double versin1 = versinr + versin0 - versinr * versin0 - sinThetar * sinTheta0 * sin(tempPhi);
 
-	if (mu1 > 1.0 && mu1 < 1.00001) {
+	/*if (mu1 > 1.0 && mu1 < 1.00001) {
 		printf("mu1 = %g > 1.0 reduced to 1.0\n", mu1);
 		printLog("mu1 = %g > 1.0 reduced to 1.0\n", mu1);
 		mu1 = 1.0;
@@ -140,8 +143,13 @@ void rotationSphericalCoordinates(const double& thetar, const double& phir, cons
 		printf("mu1 = %g < -1.0\n", mu1);
 		printLog("mu1 = %g < -1.0\n", mu1);
 		exit(0);
+	}*/
+	checkAndFixVersin(versin1);
+	double sinTheta1 = sqrt(2 * versin1 - versin1 * versin1);
+	theta1 = asin(sinTheta1);
+	if (versin1 > 1.0) {
+		theta1 = pi - theta1;
 	}
-	theta1 = acos(mu1);
 	/*if (mu1 >= (1.0 - 1E-8) && mu0 >(1.0 - 1E-8) && mur > (1.0 - 1E-8)) {
 		double Xidelta = 0.5 * (sinThetar * sinThetar + sinTheta0 * sinTheta0) - sinThetar * sinTheta0 * sin(tempPhi);
 		theta1 = sqrt(2 * Xidelta);
@@ -152,7 +160,6 @@ void rotationSphericalCoordinates(const double& thetar, const double& phir, cons
 		theta1 = sqrt(2 * Xidelta);
 	}*/
 
-	double sinTheta1 = sin(theta1);
 	if (sinTheta1 == 0) {
 		phi1 = 0;
 		theta1 = 0;
@@ -211,13 +218,16 @@ void inverseRotationSphericalCoordinates(const double& thetar, const double& phi
 	//double sinThetar = sqrt(1.0 - mur * mur);
 	double sinThetar = sin(thetar);
 	double mur = cos(thetar);
+	double versinr = versin(thetar);
 	//double sinTheta1 = sqrt(1.0 - mu1 * mu1);
 	double sinTheta1 = sin(theta1);
 	double mu1 = cos(theta1);
+	double versin1 = versin(theta1);
 
 
-	double mu0 = mu1 * mur + sinThetar * sinTheta1 * cos(phi1 + pi / 2);
-	if (mu0 > 1.0 && mu0 < 1.00001) {
+	//double mu0 = mu1 * mur + sinThetar * sinTheta1 * cos(phi1 + pi / 2);
+	double versin0 = versinr + versin1 - versinr * versin1 - sinThetar * sinTheta1 * cos(phi1 + pi / 2);
+	/*if (mu0 > 1.0 && mu0 < 1.00001) {
 		printf("mu0 = %g > 1.0 reduced to 1.0\n", mu0);
 		printLog("mu0 = %g > 1.0 reduced to 1.0\n", mu0);
 		mu0 = 1.0;
@@ -236,15 +246,20 @@ void inverseRotationSphericalCoordinates(const double& thetar, const double& phi
 		printf("mu0 = %g < -1.0\n", mu0);
 		printLog("mu0 = %g < -1.0\n", mu0);
 		exit(0);
+	}*/
+	//theta0 = acos(mu0);
+	checkAndFixVersin(versin0);
+	double sinTheta0 = sqrt(2 * versin0 - versin0 * versin0);
+	theta0 = asin(sinTheta0);
+	if (versin0 > 1) {
+		theta0 = pi - theta0;
 	}
-	theta0 = acos(mu0);
 
 	/*if (mu0 >= (1.0 - 1E-8) && mu1 >(1.0 - 1E-8) && mur > (1.0 - 1E-8)) {
 		double Xidelta = 0.5 * (sinThetar * sinThetar + sinTheta1 * sinTheta1) - sinThetar * sinTheta1 * cos(phi1 + pi / 2);
 		theta0 = sqrt(2 * Xidelta);
 	}*/
 
-	double sinTheta0 = sin(theta0);
 	if (sinTheta0 == 0) {
 		phi0 = 0;
 		theta0 = 0;

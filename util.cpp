@@ -233,3 +233,24 @@ void checkAndFixCosValue(double& mu) {
         exit(0);
     }
 }
+
+void checkAndFixVersin(double& v) {
+    if (v > 2.0 && v < 2.0000001) {
+        //printf("versin = %g > 2.0 reduced to 2.0\n", versinThetaPrime);
+        //printLog("versin = %g > 2.0 reduced to 2.0\n", versinThetaPrime);
+        v = 2.0;
+    }
+    if (v > 2.0) {
+        printf("versin = %g > 2.0\n", v);
+        printLog("versin = %g > 2.0\n", v);
+        exit(0);
+    }
+    if (v < 0 && v > -1E-16) {
+        v = 0;
+    }
+    if (v < 0) {
+        printf("versin = %g < 0\n", v);
+        printLog("versin = %g < 0\n", v);
+        exit(0);
+    }
+}

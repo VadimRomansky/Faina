@@ -821,7 +821,7 @@ void compareComptonSynchrotron() {
 	RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(400, Emin, Emax, false);
 	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
 	synchrotronEvaluator->writeFluxFromSourceToFile("output1.dat", source, 0.001 * hplank * cyclotronOmega, 1000000 * hplank * cyclotronOmega, 100);
-	double T = 1E2;
+	double T = 1E1;
 	double Ephmin = 0.01 * kBoltzman * T;
 	double Ephmax = 100 * kBoltzman * T;
 	//PhotonIsotropicDistribution* photons = PhotonPlankDistribution::getCMBradiation();
