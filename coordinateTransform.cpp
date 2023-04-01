@@ -9,11 +9,11 @@
 void LorentzTransformationPhotonZ(const double& gamma, const double& Einit, const double& thetaInit, double& Eprime, double& thetaPrime) {
 	//double gamma = 1.0 / sqrt(1.0 - beta * beta);
 	double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
-	double delta = 0.5 / (gamma * gamma);
+	double delta = 0.5 / (gamma * gamma) + 0.125 / (gamma * gamma * gamma * gamma);
 	double cosThetaInit = cos(thetaInit);
-	double epsilon = 0.5 * thetaInit * thetaInit;
+	double epsilon = 0.5 * thetaInit * thetaInit + thetaInit * thetaInit * thetaInit * thetaInit / 24.0;
 
-	if (delta > 1E-9 || epsilon > 1E-9) {
+	if (delta > 1E-7 || epsilon > 1E-7) {
 		Eprime = gamma * (1 - beta * cosThetaInit) * Einit;
 		double cosThetaPrime = (cosThetaInit - beta) / (1 - cosThetaInit * beta);
 		thetaPrime = acos(cosThetaPrime);
@@ -31,7 +31,7 @@ void LorentzTransformationPhotonZ(const double& gamma, const double& Einit, cons
 		thetaPrime = pi;
 		return;
 	}
-	if (epsilon < 1E-9 && delta < 1E-9) {
+	if (epsilon < 1E-7 && delta < 1E-7) {
 		double cosThetaPrime = (delta - epsilon) / (epsilon + delta - epsilon * delta);
 		thetaPrime = acos(cosThetaPrime);
 		return;
@@ -43,10 +43,10 @@ void LorentzTransformationPhotonZ(const double& gamma, const double& Einit, cons
 void LorentzTransformationPhotonReverseZ(const double& gamma, const double& Einit, const double& thetaInit, double& Eprime, double& thetaPrime) {
 	//double gamma = 1.0 / sqrt(1.0 - beta * beta);
 	double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
-	double delta = 0.5 / (gamma * gamma);
+	double delta = 0.5 / (gamma * gamma)+0.125/(gamma*gamma*gamma*gamma);
 	double cosThetaInit = cos(thetaInit);
-	double epsilon = 0.5 * (pi - thetaInit) * (pi - thetaInit);
-	if (delta > 1E-9 || epsilon > 1E-9) {
+	double epsilon = 0.5 * (pi - thetaInit) * (pi - thetaInit) + sqr(sqr(pi - thetaInit))/24;
+	if (delta > 1E-7 || epsilon > 1E-7) {
 		Eprime = gamma * (1 + beta * cosThetaInit) * Einit;
 		double cosThetaPrime = (cosThetaInit + beta) / (1 + cosThetaInit * beta);
 		thetaPrime = acos(cosThetaPrime);
@@ -64,7 +64,7 @@ void LorentzTransformationPhotonReverseZ(const double& gamma, const double& Eini
 		thetaPrime = 0;
 		return;
 	}
-	if (epsilon < 1E-9 && delta < 1E-9) {
+	if (epsilon < 1E-7 && delta < 1E-7) {
 		double cosThetaPrime = (epsilon - delta) / (epsilon + delta - epsilon * delta);
 		if (cosThetaPrime == 1.0) {
 			printf("aaaa\n");

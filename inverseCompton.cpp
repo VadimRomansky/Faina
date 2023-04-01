@@ -547,6 +547,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 		double delectronEnergy;
 		double electronInitialGamma = electronInitialEnergy / m_c2;
 		double electronInitialBeta = sqrt(1.0 - 1.0 / (electronInitialGamma * electronInitialGamma));
+		//double electronInitialDelta = 0.5 / (electronInitialGamma * electronInitialGamma) + 0.125/(electronInitialGamma*electronInitialGamma*electronInitialGamma*electronInitialGamma); //diff from 1 for large gamma
 		double electronInitialDelta = 0.5 / (electronInitialGamma * electronInitialGamma); //diff from 1 for large gamma
 		if (k == 0) {
 			delectronEnergy = my_Ee[1] - my_Ee[0];
@@ -586,11 +587,11 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 				for (int imuph = 0; imuph < my_Nmu; ++imuph) {
 					double photonInitialCosThetaPrimed = -my_cosTheta[imuph];
 					double photonInitialThetaPrimed = pi - my_theta[imuph];
-					double photonInitialDeltaPrimed = my_theta[imuph];
+					double photonInitialAlphaPrimed = my_theta[imuph];
 					//double photonInitialThetaPrimed = pi - imuph*(pi/my_Nmu);
 					//double photonInitialCosThetaPrimed = cos(photonInitialThetaPrimed);
 					
-					double photonInitialSinThetaPrimed = sin(photonInitialDeltaPrimed);
+					double photonInitialSinThetaPrimed = sin(photonInitialAlphaPrimed);
 					for (int iphiph = 0; iphiph < my_Nphi; ++iphiph) {
 						double phi_ph = 2 * pi * (iphiph + 0.5) / my_Nphi;
 						double dphi_ph = 2*pi / my_Nphi;
@@ -599,7 +600,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 
 						double cosXiPrimed = photonInitialCosThetaPrimed * photonFinalCosThetaPrimed + photonInitialSinThetaPrimed * photonFinalSinThetaPrimed * cos(photonFinalPhiRotated - photonInitialPhiRotated);
 						double Xidelta = 1.0 - cosXiPrimed;
-						if (cosXiPrimed >= (1.0 - 1E-10) && photonInitialSinThetaPrimed > 0 && photonFinalSinThetaPrimed > 0) {
+						if (cosXiPrimed >= (1.0 - 1E-7) && photonInitialSinThetaPrimed > 0 && photonFinalSinThetaPrimed > 0) {
 							Xidelta = 0.5*(photonInitialSinThetaPrimed* photonInitialSinThetaPrimed + photonFinalSinThetaPrimed* photonFinalSinThetaPrimed) - photonInitialSinThetaPrimed * photonFinalSinThetaPrimed * cos(photonFinalPhiRotated - photonInitialPhiRotated);
 						}
 
@@ -624,7 +625,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 
 						
 						double denom;
-						if (1.0 - photonFinalCosThetaRotated * electronInitialBeta == 0) {
+						if (1.0 - photonFinalCosThetaRotated * electronInitialBeta < 1E-7) {
 							denom = electronInitialDelta;
 						}
 						else {

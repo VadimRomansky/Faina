@@ -158,3 +158,35 @@ double McDonaldFunction(double index, double x) {
 
     return result;
 }
+
+//1 - cos
+double versin(const double& x) {
+    double result = 0;
+    double temp = x * x;
+    int factorial = 2.0;
+    for (int i = 2; i < 10; ++i) {
+        result = result + temp / factorial;
+        temp = temp * x * x;
+        factorial = -factorial * (2 * i - 1) * (2 * i);
+    }
+    return result;
+}
+
+//1 - beta
+double relativisticDelta(const double& gamma) {
+    double result = 0;
+    double temp = gamma*gamma;
+    double factor = 0.5;
+    int i = 1;
+    double df = 1.0;
+
+    while(df > 1E-16) {
+        df = factor / temp;
+        result = result + df;
+        temp = temp * gamma*gamma;
+        factor = factor * (2 * i - 1) / (2.0 * (i + 1));
+        ++i;
+    }
+
+    return result;
+}
