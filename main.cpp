@@ -11,6 +11,7 @@
 #include "optimization.h"
 #include "pionDecay.h"
 #include "bremsstrahlung.h"
+#include "coordinateTransform.h"
 #include "examples.h"
 
 void evaluateFluxSNRtoWind() {
@@ -142,13 +143,14 @@ void evaluateFluxSNRtoWind() {
 
 int main() {
 	//evaluateSimpleSynchrotron();
-	//evaluateComtonWithPowerLawDistribution();
+	evaluateComtonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
 	//evaluatePionDecayWithPowerLawDistribution();
 	//evaluateBremsstrahlung();
-	compareComptonSynchrotron();
+	//compareComptonSynchrotron();
+
 
 	//evaluateFluxSNRtoWind();
 

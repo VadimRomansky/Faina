@@ -61,9 +61,9 @@ void evaluateComtonWithPowerLawDistribution() {
 	//creating radiation source
 	RadiationSource* source = new SimpleFlatSource(electrons, B, sinTheta, rmax, rmax, distance);
 	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
-	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
-	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
+	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator2 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
+	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
 
 	//comptonEvaluator->outputDifferentialFlux("output1.dat");
 	//comptonEvaluator->outputDifferentialFluxJones("output2.dat", photonDistribution, electrons);
@@ -95,14 +95,17 @@ void evaluateComtonWithPowerLawDistribution() {
 	}
 
 	//outputing
-	FILE* output_ev_EFE = fopen("output1.dat", "w");
+	FILE* output_ev_EFE = fopen("output.dat", "w");
+	FILE* output_ev_EFE1 = fopen("output1.dat", "w");
 	//FILE* output_GHz_Jansky = fopen("output.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		double nu = E[i] / hplank;
 		fprintf(output_ev_EFE, "%g %g\n", E[i] / (1.6E-9), F[i]);
+		fprintf(output_ev_EFE1, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator2->evaluateFluxFromSource(E[i], source));
 		//fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * F[i]);
 	}
 	fclose(output_ev_EFE);
+	fclose(output_ev_EFE1);
 	//fclose(output_GHz_Jansky);
 
 	delete[] E;
@@ -814,20 +817,20 @@ void compareComptonSynchrotron() {
 	double B = 1.0E-5;
 	double electronConcentration = 1.0;
 	double Emin = 20 * massElectron * speed_of_light2;
-	double Emax = 1E12 * me_c2;
+	double Emax = 1E16 * me_c2;
 	double distance = 1000 * parsec;
 	MassiveParticleIsotropicDistribution* distribution = new MassiveParticlePowerLawDistribution(massElectron, 4.0, Emin, 1.0);
 	RadiationSource* source = new SimpleFlatSource(distribution, B, 1.0, parsec, parsec, distance);
 	RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(400, Emin, Emax, false);
 	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
 	synchrotronEvaluator->writeFluxFromSourceToFile("output1.dat", source, 0.001 * hplank * cyclotronOmega, 1000000 * hplank * cyclotronOmega, 100);
-	double T = 1E1;
+	double T = 1E3;
 	double Ephmin = 0.01 * kBoltzman * T;
 	double Ephmax = 100 * kBoltzman * T;
 	//PhotonIsotropicDistribution* photons = PhotonPlankDistribution::getCMBradiation();
 	PhotonIsotropicDistribution* photons = new PhotonPlankDistribution(T, 1.0);
-	RadiationEvaluator* inverseComptonEvaluator = new InverseComptonEvaluator(400, 50, 4, Emin, Emax, Ephmin, Ephmax, photons, ComptonSolverType::ISOTROPIC_JONES);
-	RadiationEvaluator* inverseComptonEvaluator2 = new InverseComptonEvaluator(400, 50, 4, Emin, Emax, Ephmin, Ephmax, photons, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+	RadiationEvaluator* inverseComptonEvaluator = new InverseComptonEvaluator(100, 50, 4, Emin, Emax, Ephmin, Ephmax, photons, ComptonSolverType::ISOTROPIC_JONES);
+	RadiationEvaluator* inverseComptonEvaluator2 = new InverseComptonEvaluator(100, 50, 4, Emin, Emax, Ephmin, Ephmax, photons, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
 	double EminCompton = 0.1*kBoltzman*T;
 	double EmaxCompton = 20*sqrt(kBoltzman * T * Emax);
 	inverseComptonEvaluator->writeFluxFromSourceToFile("output2.dat", source, EminCompton, EmaxCompton, 100);

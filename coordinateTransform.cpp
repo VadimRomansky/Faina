@@ -16,11 +16,13 @@ void LorentzTransformationPhotonZ(const double& gamma, const double& Einit, cons
 	if (epsilon == 0) {
 		//cosThetaPrime = 1.0;
 		thetaPrime = 0;
+		Eprime = gamma * delta * Einit;
 		return;
 	}
 	if (delta == 0) {
 		//cosThetaPrime = -1.0;
 		thetaPrime = pi;
+		Eprime = gamma *epsilon * Einit;
 		return;
 	}
 
@@ -84,6 +86,48 @@ void LorentzTransformationPhotonReverseZ(const double& gamma, const double& Eini
 	thetaPrime = asin(sinThetaPrime);
 	if (versinThetaPrime > 1.0) {
 		thetaPrime = pi - thetaPrime;
+	}
+}
+
+void LorentzTransformationPhotonReverseZalpha(const double& gamma, const double& Einit, const double& alphaInit, double& Eprime, double& alphaPrime) {
+	//double gamma = 1.0 / sqrt(1.0 - beta * beta);
+	double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
+	double delta = relativisticDelta(gamma);
+	//double cosThetaInit = cos(thetaInit);
+	double epsilon = versin(alphaInit);
+
+	if (epsilon == 0) {
+		//cosThetaPrime = -1.0;
+		//thetaPrime = pi;
+		alphaPrime = 0;
+		return;
+	}
+	if (delta == 0) {
+		//cosThetaPrime = 1.0;
+		//thetaPrime = 0;
+		alphaPrime = pi;
+		return;
+	}
+	double factor = epsilon + delta - epsilon * delta;
+	Eprime = gamma * factor * Einit;
+	double versinThetaPrime = (2 * delta - epsilon * delta) / factor;
+	if (versinThetaPrime > 2.0 && versinThetaPrime < 2.0000001) {
+		//printf("versin = %g > 2.0 reduced to 2.0\n", versinThetaPrime);
+		//printLog("versin = %g > 2.0 reduced to 2.0\n", versinThetaPrime);
+		versinThetaPrime = 2.0;
+	}
+	if (versinThetaPrime > 2.0) {
+		printf("versin = %g > 2.0\n", versinThetaPrime);
+		printLog("versin = %g > 2.0\n", versinThetaPrime);
+		exit(0);
+	}
+	double sinThetaPrime = sqrt(2 * versinThetaPrime - versinThetaPrime * versinThetaPrime);
+	//double cosThetaPrime = (epsilon - delta) / factor;
+	//checkAndFixCosValue(cosThetaPrime);
+	//thetaPrime = acos(cosThetaPrime);
+	alphaPrime = asin(sinThetaPrime);
+	if (versinThetaPrime > 1.0) {
+		alphaPrime = pi - alphaPrime;
 	}
 }
 
