@@ -43,7 +43,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	double Emin = 652.317 * me_c2 * 1;
 	double Emax = 1E12 * me_c2;
 	int Ne = 200;
-	int Nmu = 50;
+	int Nmu = 20;
 	int Nphi = 4;
 	double index = 2.5;
 	double KK = 24990.8;
@@ -60,9 +60,10 @@ void evaluateComtonWithPowerLawDistribution() {
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 	//creating radiation source
 	RadiationSource* source = new SimpleFlatSource(electrons, B, sinTheta, rmax, rmax, distance);
-	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	InverseComptonEvaluator* comptonEvaluator2 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
+	InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator2 = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA1);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
 
 	//comptonEvaluator->outputDifferentialFlux("output1.dat");
@@ -97,15 +98,18 @@ void evaluateComtonWithPowerLawDistribution() {
 	//outputing
 	FILE* output_ev_EFE = fopen("output.dat", "w");
 	FILE* output_ev_EFE1 = fopen("output1.dat", "w");
+	FILE* output_ev_EFE2 = fopen("output2.dat", "w");
 	//FILE* output_GHz_Jansky = fopen("output.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		double nu = E[i] / hplank;
 		fprintf(output_ev_EFE, "%g %g\n", E[i] / (1.6E-9), F[i]);
-		fprintf(output_ev_EFE1, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator2->evaluateFluxFromSource(E[i], source));
+		fprintf(output_ev_EFE1, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator1->evaluateFluxFromSource(E[i], source));
+		fprintf(output_ev_EFE2, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator2->evaluateFluxFromSource(E[i], source));
 		//fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * F[i]);
 	}
 	fclose(output_ev_EFE);
 	fclose(output_ev_EFE1);
+	fclose(output_ev_EFE2);
 	//fclose(output_GHz_Jansky);
 
 	delete[] E;

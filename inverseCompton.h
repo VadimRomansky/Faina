@@ -6,7 +6,7 @@
 #include "radiationSource.h"
 #include "radiation.h"
 
-enum ComptonSolverType {ISOTROPIC_THOMSON, ISOTROPIC_JONES, ISOTROPIC_KLEIN_NISHINA, ANISOTROPIC_KLEIN_NISHINA};
+enum ComptonSolverType {ISOTROPIC_THOMSON, ISOTROPIC_JONES, ISOTROPIC_KLEIN_NISHINA, ISOTROPIC_KLEIN_NISHINA1, ANISOTROPIC_KLEIN_NISHINA};
 
 class InverseComptonEvaluator : public RadiationEvaluator{
 protected:

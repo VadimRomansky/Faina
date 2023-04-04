@@ -1,9 +1,9 @@
 clear;
 
 
-radiation1 = importdata('../output1.dat');
-radiation2 = importdata('../output2.dat');
-radiation3 = importdata('../output3.dat');
+radiation1 = importdata('../output.dat');
+radiation2 = importdata('../output1.dat');
+radiation3 = importdata('../output2.dat');
 
 
 %radiation = importdata('../outputNu.dat');

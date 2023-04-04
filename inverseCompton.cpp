@@ -842,7 +842,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 					}*/
 					double dI = volume * 0.5 * r2 * speed_of_light * electronDist *
 						//(sqr(1 - photonInitialCosThetaRotated * electronInitialBeta) / denom) *
-						(numenator / (electronInitialGamma*denom)) *
+						(numenator / (electronInitialGamma* electronInitialGamma * electronInitialGamma * electronInitialGamma *denom)) *
 						//(1 + cosXiPrimed * cosXiPrimed + sqr(photonFinalEnergyPrimed / m_c2) * sqr(Xidelta) / (1 - (photonFinalEnergyPrimed / m_c2) * (Xidelta))) *
 						(2 - 2 * Xidelta + Xidelta * Xidelta + sqr(photonFinalEnergyPrimed / m_c2) * sqr(Xidelta) / (1 - (photonFinalEnergyPrimed / m_c2) * (Xidelta))) *
 						photonDistribution->distribution(photonInitialEnergy) *
@@ -995,6 +995,9 @@ double InverseComptonEvaluator::evaluateFluxFromIsotropicFunction(const double& 
 		return evaluateComptonFluxJonesIsotropic(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
 	}
 	else if (my_solverType == ComptonSolverType::ISOTROPIC_KLEIN_NISHINA) {
+		return evaluateComptonFluxKleinNishinaIsotropic(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
+	}
+	else if (my_solverType == ComptonSolverType::ISOTROPIC_KLEIN_NISHINA1) {
 		return evaluateComptonFluxKleinNishinaIsotropic1(photonFinalEnergy, my_photonDistribution, electronDistribution, volume, distance);
 	}
 	else if (my_solverType == ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA) {
