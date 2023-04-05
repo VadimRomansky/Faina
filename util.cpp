@@ -245,7 +245,7 @@ void checkAndFixVersin(double& v) {
         printLog("versin = %g > 2.0\n", v);
         exit(0);
     }
-    if (v < 0 && v > -1E-16) {
+    if (v < 0 && v > -1E-14) {
         v = 0;
     }
     if (v < 0) {
