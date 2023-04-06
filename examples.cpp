@@ -40,9 +40,10 @@ void evaluateComtonWithPowerLawDistribution() {
 	//const double distance = 150 * 1000000 * parsec;
 	const double distance = 1.0;
 
-	double Emin = 652.317 * me_c2 * 1;
-	double Emax = 1E12 * me_c2;
-	int Ne = 200;
+	//double Emin = 652.317 * me_c2 * 1;
+	double Emin = 1E1 * me_c2;
+	double Emax = 1E20 * me_c2;
+	int Ne = 500;
 	int Nmu = 20;
 	int Nphi = 4;
 	double index = 2.5;
@@ -66,7 +67,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	InverseComptonEvaluator* comptonEvaluator2 = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA1);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
 
-	//comptonEvaluator->outputDifferentialFlux("output1.dat");
+	comptonEvaluator2->outputDifferentialFlux("output3.dat");
 	//comptonEvaluator->outputDifferentialFluxJones("output2.dat", photonDistribution, electrons);
 	//return;
 
@@ -88,12 +89,12 @@ void evaluateComtonWithPowerLawDistribution() {
 
 	//evaluating radiation flux
 	printLog("evaluating\n");
-	for (int i = 0; i < Nnu; ++i) {
+	/*for (int i = 0; i < Nnu; ++i) {
 		printf("%d\n", i);
 		printLog("%d\n", i);
 		F[i] = comptonEvaluator->evaluateFluxFromSource(E[i], source);
 		//F[i] = comptonEvaluator->evaluateFluxFromSourceAnisotropic(E[i], 0, 0, CMBradiation, source);
-	}
+	}*/
 
 	//outputing
 	FILE* output_ev_EFE = fopen("output.dat", "w");
@@ -101,8 +102,9 @@ void evaluateComtonWithPowerLawDistribution() {
 	FILE* output_ev_EFE2 = fopen("output2.dat", "w");
 	//FILE* output_GHz_Jansky = fopen("output.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
+		printf("%d\n", i);
 		double nu = E[i] / hplank;
-		fprintf(output_ev_EFE, "%g %g\n", E[i] / (1.6E-9), F[i]);
+		fprintf(output_ev_EFE, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator->evaluateFluxFromSource(E[i], source));
 		fprintf(output_ev_EFE1, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator1->evaluateFluxFromSource(E[i], source));
 		fprintf(output_ev_EFE2, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator2->evaluateFluxFromSource(E[i], source));
 		//fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * F[i]);

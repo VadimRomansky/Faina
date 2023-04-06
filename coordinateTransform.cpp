@@ -206,7 +206,7 @@ void rotationSphericalCoordinates(const double& thetar, const double& phir, cons
 
 	if (sinTheta1 == 0) {
 		phi1 = 0;
-		theta1 = 0;
+		//theta1 = 0;
 		return;
 	}
 	double coshi = sinTheta0 * cos(tempPhi);
@@ -306,7 +306,7 @@ void inverseRotationSphericalCoordinates(const double& thetar, const double& phi
 
 	if (sinTheta0 == 0) {
 		phi0 = 0;
-		theta0 = 0;
+		//theta0 = 0;
 		return;
 	}
 
