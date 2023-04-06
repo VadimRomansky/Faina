@@ -136,7 +136,7 @@ void fitCSS161010withPowerLawDistribition() {
 	//distance to source
 	const double distance = 150 * 1E6 * parsec;
 	//energies of electrons wich will be used for evaluatig radiation
-	double Emin = 5.05 * me_c2;
+	double Emin = 1.0*me_c2;
 	double Emax = 10000 * me_c2;
 	double index = 3.0;
 	//creating synchrotron evaluator
@@ -148,8 +148,8 @@ void fitCSS161010withPowerLawDistribition() {
 	//number of parameters of the source
 	const int Nparams = 4;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 1E17, 0.0001, 0.5, 0.1 };
-	double maxParameters[Nparams] = { 2E17, 1.0, 2000, 1.0 };
+	double minParameters[Nparams] = { 1E17, 0.0001, 0.5, 0.001 };
+	double maxParameters[Nparams] = { 2E17, 1.0, 2E5, 0.1 };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { R, sigma, electronConcentration, fraction };
 	for (int i = 0; i < Nparams; ++i) {
@@ -209,7 +209,7 @@ void fitCSS161010withPowerLawDistribition() {
 
 
 	//picking parameters to be optimized
-	bool optPar[Nparams] = { true, false, true, false };
+	bool optPar[Nparams] = { false, true, true, true };
 	int Niterations = 20;
 	//creating gradient descent optimizer
 	RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
