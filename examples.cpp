@@ -42,7 +42,7 @@ void evaluateComtonWithPowerLawDistribution() {
 
 	//double Emin = 652.317 * me_c2 * 1;
 	double Emin = 1E1 * me_c2;
-	double Emax = 1E12 * me_c2;
+	double Emax = 1E20 * me_c2;
 	int Ne = 500;
 	int Nmu = 20;
 	int Nphi = 4;
