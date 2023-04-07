@@ -182,6 +182,6 @@ errorbar(cssx3,cssy3,cssError3,'blue','LineWidth',2);
 xlim([0.1 200]);
 ylim([0.001 10]);
 
-grid ;
+%grid ;
 
 dlmwrite('radiation.dat',radiation,'delimiter',' ');
