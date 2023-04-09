@@ -261,6 +261,9 @@ void fitCSS161010withPowerLawDistribition() {
 	}
 	fclose(output_synchr);
 
+	double synchrotronFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(hplank * 0.5E9, hplank * 2E10, 100, source);
+	printf("total synchrotron flux = %g erg/cm^2 s\n", synchrotronFlux);
+
 	//outputing parameters
 	FILE* paramFile = fopen("parametersCSS161010.dat", "w");
 	printf("hi^2 = %g\n", error);
@@ -313,7 +316,7 @@ void fitCSS161010withTabulatedDistributions() {
 	//number of different distributions depending on inclination angle, wich will be read from files
 	int Ndistributions = 10;
 	//reading electron distributions from files
-	MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./input/Ee", "./input/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
+	MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(massElectron, "./input/Ee", "./input/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200, 18*me_c2, 3.5);
 	for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
 		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
@@ -324,10 +327,10 @@ void fitCSS161010withTabulatedDistributions() {
 	//number of parameters of the source
 	const int Nparams = 4;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 1E16, 0.0001, 0.01, 0.1 };
-	double maxParameters[Nparams] = { 2E17, 1, 1000, 1.0 };
+	double minParameters[Nparams] = { 1E17, 0.0001, 100, 0.0001 };
+	double maxParameters[Nparams] = { 2E17, 1.0, 2E6, 0.2 };
 	//starting point of optimization and normalization
-	double vector[Nparams] = { rmax, sigma, electronConcentration, 0.5 };
+	double vector[Nparams] = { rmax, sigma, electronConcentration, 0.001 };
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
 	}
@@ -376,7 +379,7 @@ void fitCSS161010withTabulatedDistributions() {
 	double observedFlux[Nenergy1] = { 1.5 / (hplank * 1E26), 4.3 / (hplank * 1E26), 6.1 / (hplank * 1E26), 4.2 / (hplank * 1E26) };
 	double observedError[Nenergy1] = { 0.1 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.3 / (hplank * 1E26), 0.2 / (hplank * 1E26) };
 	//picking parameters to be optimized
-	bool optPar[Nparams] = { true, false, true, false };
+	bool optPar[Nparams] = { false, true, true, true };
 
 	//creating gradient descent optimizer
 	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 20);
@@ -420,6 +423,9 @@ void fitCSS161010withTabulatedDistributions() {
 		fprintf(output_GZ_Jansky, "%g %g\n", Nu[i] / 1E9, hplank * F[i] * 1E26);
 	}
 	fclose(output_GZ_Jansky);
+
+	double synchrotronFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(hplank * 1E8, hplank * 1E11, 100, angleDependentSource);
+	printf("total synchrotron flux = %g erg/cm^2 s\n", synchrotronFlux);
 
 	//outputing parameters
 	FILE* paramFile = fopen("parametersCSS161010.dat", "w");
