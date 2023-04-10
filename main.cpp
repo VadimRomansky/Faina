@@ -144,8 +144,8 @@ void evaluateFluxSNRtoWind() {
 int main() {
 	//evaluateSimpleSynchrotron();
 	//evaluateComtonWithPowerLawDistribution();
-	fitCSS161010withPowerLawDistribition();
-	//fitCSS161010withTabulatedDistributions();
+	//fitCSS161010withPowerLawDistribition();
+	fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
 	//evaluatePionDecayWithPowerLawDistribution();
 	//evaluateBremsstrahlung();

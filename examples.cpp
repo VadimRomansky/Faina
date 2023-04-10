@@ -298,9 +298,9 @@ void fitCSS161010withTabulatedDistributions() {
 	//initial parameters of the source
 	double electronConcentration = 150;
 	double B = 0.6;
-	double rmax = 1.3E17;
+	double rmax = 1.4E17;
 	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
-	sigma = 0.002;
+	//sigma = 0.002;
 	//SN2009bb
 	//const double distance = 40*3.08*1.0E24;
 	//AT2018
@@ -316,19 +316,20 @@ void fitCSS161010withTabulatedDistributions() {
 	//number of different distributions depending on inclination angle, wich will be read from files
 	int Ndistributions = 10;
 	//reading electron distributions from files
-	MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(massElectron, "./input/Ee", "./input/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200, 18*me_c2, 3.5);
+	MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./input/Ee", "./input/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
 	for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
-		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
+		//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
+		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(30*me_c2, 3.5);
 	}
-	//angleDependentDistributions[4]->writeDistribution("output1.dat", 200, Emin, Emax);
+	angleDependentDistributions[4]->writeDistribution("output4.dat", 200, Emin, Emax);
 	//creating radiation source
 	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, 1.0, 0, electronConcentration, rmax, 0.5 * rmax, distance);
 	//number of parameters of the source
 	const int Nparams = 4;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 1E17, 0.0001, 100, 0.0001 };
-	double maxParameters[Nparams] = { 2E17, 1.0, 2E6, 0.2 };
+	double minParameters[Nparams] = { 1E17, 0.0001, 100, 0.1 };
+	double maxParameters[Nparams] = { 2E17, 1.0, 2E6, 0.5 };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, 0.001 };
 	for (int i = 0; i < Nparams; ++i) {
@@ -388,14 +389,14 @@ void fitCSS161010withTabulatedDistributions() {
 	//creating grid enumeration optimizer
 	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
 	//grid enumeration optimization, finding best starting point for gradien descent
-	enumOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, angleDependentSource);
+	//enumOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, angleDependentSource);
 	//gradient descent optimization
-	synchrotronOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, angleDependentSource);
+	//synchrotronOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, angleDependentSource);
 	//reseting source parameters to found values
 	angleDependentSource->resetParameters(vector, maxParameters);
 	//evaluating resulting error
 	double error = synchrotronOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, angleDependentSource);
-
+	printf("error = %g\n", error);
 	//initialization arrays for full spectrum
 	const int Nnu = 200;
 	double* Nu = new double[Nnu];

@@ -1,6 +1,6 @@
 clear;
 
-data = importdata('../output3.dat');
+data = importdata('../output4.dat');
 
 N = size(data,1);
 
@@ -11,7 +11,7 @@ set(0,'DefaultTextFontSize',20,'DefaultTextFontName','Times New Roman');
 
 figure(1);
 hold on;
-%set(gca, 'YScale', 'log');
+set(gca, 'YScale', 'log');
 set(gca, 'XScale', 'log');
 title ('F_{E}');
 xlabel ('E эрг');
