@@ -35,6 +35,20 @@ public:
 	void writeDistribution(const char* fileName, int Ne, const double& Emin, const double& Emax);
 };
 
+class MassiveParticleMonoenergeticDistribution : public MassiveParticleIsotropicDistribution {
+protected:
+	double my_E0;
+	double my_dE;
+public:
+	virtual ~MassiveParticleMonoenergeticDistribution() {
+
+	}
+	MassiveParticleMonoenergeticDistribution(const double& mass, const double& Energy, const double& halfWidth, const double& concentration);
+	virtual double distributionNormalized(const double& energy);
+	virtual double getMeanEnergy();
+	virtual void resetConcentration(const double& concentration);
+};
+
 class MassiveParticlePowerLawDistribution : public MassiveParticleIsotropicDistribution {
 protected:
 	double my_index;

@@ -142,10 +142,10 @@ void evaluateFluxSNRtoWind() {
 
 
 int main() {
-	//evaluateSimpleSynchrotron();
+	evaluateSimpleSynchrotron();
 	//evaluateComtonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
-	fitCSS161010withTabulatedDistributions();
+	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
 	//evaluatePionDecayWithPowerLawDistribution();
 	//evaluateBremsstrahlung();

@@ -1717,3 +1717,35 @@ MassiveParticleIsotropicDistribution** MassiveParticleDistributionFactory::readT
 	}
 	return distributions;
 }
+
+MassiveParticleMonoenergeticDistribution::MassiveParticleMonoenergeticDistribution(const double& mass, const double& Energy, const double& halfWidth, const double& concentration)
+{
+	my_mass = mass;
+	my_E0 = Energy;
+	my_dE = halfWidth;
+	if (halfWidth > my_E0) {
+		printf("dE > E0 in monoenergetic distribution\n");
+		printLog("dE > E0 in monoenergetic distribution\n");
+		exit(0);
+	}
+	my_concentration = concentration;
+}
+
+double MassiveParticleMonoenergeticDistribution::distributionNormalized(const double& energy)
+{
+	if (energy > my_E0 + my_dE || energy < my_E0 - my_dE) {
+		return 0;
+	}
+	return 1.0/(4*pi*2*my_dE);
+}
+
+double MassiveParticleMonoenergeticDistribution::getMeanEnergy()
+{
+	//only for narrow beam
+	return my_E0;
+}
+
+void MassiveParticleMonoenergeticDistribution::resetConcentration(const double& concentration)
+{
+	my_concentration = concentration;
+}
