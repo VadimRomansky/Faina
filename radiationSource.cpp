@@ -555,13 +555,20 @@ TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, i
 		my_sinTheta[irho] = new double* [my_Nz];
 		my_concentration[irho] = new double* [my_Nz];
 		for (int iz = 0; iz < my_Nz; ++iz) {
+			double rho1 = (irho + 0.5) * my_rho / my_Nrho;
+			double z = -my_rho + (iz + 0.5) * 2 * my_rho / my_Nz;
+
+			double r = sqrt(z * z + rho1 * rho1);
+
 			my_B[irho][iz] = new double[my_Nphi];
 			my_sinTheta[irho][iz] = new double[my_Nphi];
 			my_concentration[irho][iz] = new double[my_Nphi];
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
-				my_B[irho][iz][iphi] = B[irho][iz][iphi];
+				//my_B[irho][iz][iphi] = B[irho][iz][iphi];
+				my_B[irho][iz][iphi] = B[irho][iz][iphi]*(my_rho/r);
 				my_sinTheta[irho][iz][iphi] = sinTheta[irho][iz][iphi];
-				my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi];
+				//my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi];
+				my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi] * sqr(my_rho / r);
 			}
 		}
 	}

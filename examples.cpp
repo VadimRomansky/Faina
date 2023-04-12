@@ -320,8 +320,8 @@ void fitCSS161010withTabulatedDistributions() {
 	MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./input/Ee", "./input/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
 	for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
-		//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
-		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(30*me_c2, 3.5);
+		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
+		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(50*me_c2, 3.5);
 	}
 	angleDependentDistributions[4]->writeDistribution("output4.dat", 200, Emin, Emax);
 	//creating radiation source
@@ -329,8 +329,8 @@ void fitCSS161010withTabulatedDistributions() {
 	//number of parameters of the source
 	const int Nparams = 4;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 1E17, 0.0001, 100, 0.1 };
-	double maxParameters[Nparams] = { 2E17, 1.0, 2E6, 0.5 };
+	double minParameters[Nparams] = { 1E17, 0.0001, 1000, 0.001 };
+	double maxParameters[Nparams] = { 2E17, 0.01, 2E6, 0.1 };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, 0.001 };
 	for (int i = 0; i < Nparams; ++i) {
@@ -377,9 +377,15 @@ void fitCSS161010withTabulatedDistributions() {
 	//css1610101 t = 98
 	//observed parameters of the source in units of GHz and mJansky
 	const int Nenergy1 = 4;
-	double energy1[Nenergy1] = { 1.5E9 * hplank, 3.0E9 * hplank, 6.1E9 * hplank, 0.97E9 * hplank };
+	double energy1[Nenergy1] = { 1.5E9 * hplank, 3.0E9 * hplank, 6.1E9 * hplank, 9.7E9 * hplank };
 	double observedFlux[Nenergy1] = { 1.5 / (hplank * 1E26), 4.3 / (hplank * 1E26), 6.1 / (hplank * 1E26), 4.2 / (hplank * 1E26) };
 	double observedError[Nenergy1] = { 0.1 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.3 / (hplank * 1E26), 0.2 / (hplank * 1E26) };
+	//css1610101 t = 357
+	//observed parameters of the source in units of GHz and mJansky
+	/*const int Nenergy1 = 6;
+	double energy1[Nenergy1] = { 0.33E9 * hplank, 0.61E9*hplank, 1.5E9 * hplank, 3.0E9 * hplank, 6.05E9 * hplank, 10E9 * hplank };
+	double observedFlux[Nenergy1] = { 0.357 / (hplank * 1E26), 0.79 / (hplank * 1E26), 0.27 / (hplank * 1E26), 0.17 / (hplank * 1E26), 0.07 / (hplank * 1E26), 0.032 / (hplank * 1E26) };
+	double observedError[Nenergy1] = { 0.09 / (hplank * 1E26), 0.09 / (hplank * 1E26), 0.07 / (hplank * 1E26), 0.03 / (hplank * 1E26), 0.01 / (hplank * 1E26), 0.008 / (hplank * 1E26) };*/
 	//picking parameters to be optimized
 	bool optPar[Nparams] = { false, true, true, true };
 
@@ -390,9 +396,9 @@ void fitCSS161010withTabulatedDistributions() {
 	//creating grid enumeration optimizer
 	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
 	//grid enumeration optimization, finding best starting point for gradien descent
-	//enumOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, angleDependentSource);
+	enumOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, angleDependentSource);
 	//gradient descent optimization
-	//synchrotronOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, angleDependentSource);
+	synchrotronOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, angleDependentSource);
 	//reseting source parameters to found values
 	angleDependentSource->resetParameters(vector, maxParameters);
 	//evaluating resulting error
