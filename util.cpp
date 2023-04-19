@@ -254,3 +254,28 @@ void checkAndFixVersin(double& v) {
         exit(0);
     }
 }
+
+double*** create3dArray(const int N1, const int N2, const int N3, const double& value)
+{
+    double*** a = new double** [N1];
+    for (int i = 0; i < N1; ++i) {
+        a[i] = new double*[N2];
+        for (int j = 0; j < N2; ++j) {
+            a[i][j] = new double[N3];
+            for (int k = 0; k < N3; ++k) {
+                a[i][j][k] = value;
+            }
+        }
+    }
+}
+
+void delete3dArray(double*** a, const int N1, const int N2, const int N3)
+{
+    for (int i = 0; i < N1; ++i) {
+        for (int j = 0; j < N2; ++j) {
+            delete[] a[i][j];
+        }
+        delete[] a[i];
+    }
+    delete[] a;
+}

@@ -188,5 +188,21 @@ public:
 	virtual RadiationSource* getRadiationSource(double& time, const double* normalizationUnits);
 };
 
+class RadiationSourceFactory {
+private:
+	static double evaluateTurbulenceAmplitude(const double& k, const double& turbulenceKoef, const double& index, const double& L0);
+	static void normalizeTurbulenceKoef(double& turbulenceKoef, const double& index, const double& L0, const int Nmodes, const double& fraction, const double& B0);
+public:
+	static void initializeTurbulentField(double*** B, double*** sinTheta, double*** phi, int Nrho, int Nz, int Nphi, const double& B0, const double& sinTheta0, const double& phi0, const double& fraction, const double& index, const double& L0, int Nmodes, const double& R);
+
+	static void initializeParkerField(double*** B, double*** sinTheta, double*** phi, double*** concentration, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& R);
+	static void initializeParkerFieldWithRotation(double*** B, double*** sinTheta, double*** phi, double*** concentration, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& R, const double& thetaRot);
+
+	static AngleDependentElectronsSphericalSource* createSourceWithTurbulentField(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& sinTheta0, const double& phi0, const double n0, const double& fraction, const double& index, const double& L0, int Nmodes, const double& rho, const double& rhoin, const double& distance);
+
+	static AngleDependentElectronsSphericalSource* createSourceWithParkerField(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& rho, const double& rhoin, const double& distance);
+	static AngleDependentElectronsSphericalSource* createSourceWithParkerFieldWithRotation(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& thetaRot, const double& rho, const double& rhoin, const double& distance);
+};
+
 
 #endif
