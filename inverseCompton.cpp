@@ -553,7 +553,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic1(const 
 							double f2 = photonFinalCosThetaPrimed * x2 - a * sqrt(1.0 - x2 * x2);
 							double x3 = (x1 + x2) / 2.0;
 							double f3 = photonFinalCosThetaPrimed * x3 - a * sqrt(1.0 - x3 * x3);
-							printf("x1 = %g x2 =  %g f1 = %g f2 = %g f3 = %g b = %g\n", x1, x2, f1, f2, f3, b);
+							//printf("x1 = %g x2 =  %g f1 = %g f2 = %g f3 = %g b = %g\n", x1, x2, f1, f2, f3, b);
 						}
 					}
 

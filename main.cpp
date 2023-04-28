@@ -145,8 +145,8 @@ int main() {
 	//evaluateSimpleSynchrotron();
 	//evaluateComtonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
-	fitCSS161010withTabulatedDistributions();
-	//fitTimeDependentCSS161010();
+	//fitCSS161010withTabulatedDistributions();
+	fitTimeDependentCSS161010();
 	//evaluatePionDecayWithPowerLawDistribution();
 	//evaluateBremsstrahlung();
 	//compareComptonSynchrotron();

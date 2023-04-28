@@ -43,7 +43,7 @@ void evaluateComtonWithPowerLawDistribution() {
 
 	//double Emin = 652.317 * me_c2 * 1;
 	double Emin = 1E1 * me_c2;
-	double Emax = 1E20 * me_c2;
+	double Emax = 1E10 * me_c2;
 	int Ne = 500;
 	int Nmu = 20;
 	int Nphi = 4;
@@ -486,7 +486,7 @@ void fitTimeDependentCSS161010() {
 
 	//todo first point
 	const double cssx3[6] = { 0.33 * hplank * 1E9, 0.61 * hplank * 1E9, 1.5 * hplank * 1E9, 3.0 * hplank * 1E9, 6.05 * hplank * 1E9, 10.0 * hplank * 1E9 };
-	const double cssy3[6] = { 0.0 / (hplank * 1E26), 0.79 / (hplank * 1E26), 0.27 / (hplank * 1E26), 0.17 / (hplank * 1E26), 0.07 / (hplank * 1E26), 0.032 / (hplank * 1E26) };
+	const double cssy3[6] = { 0.375 / (hplank * 1E26), 0.79 / (hplank * 1E26), 0.27 / (hplank * 1E26), 0.17 / (hplank * 1E26), 0.07 / (hplank * 1E26), 0.032 / (hplank * 1E26) };
 	const double cssError3[6] = { 0.375 / (hplank * 1E26), 0.09 / (hplank * 1E26), 0.07 / (hplank * 1E26), 0.03 / (hplank * 1E26), 0.01 / (hplank * 1E26), 0.008 / (hplank * 1E26) };
 
 	//initializing time moments
@@ -530,12 +530,6 @@ void fitTimeDependentCSS161010() {
 
 	//distance to source
 	const double distance = 150 * 1E6 * parsec;
-	//energies of electrons wich will be used for evaluatig radiation
-	double Emin = me_c2;
-	double Emax = 10000 * me_c2;
-
-	//number of different distributions depending on inclination angle, wich will be read from files
-	const int Ndistributions = 10;
 
 	//initial parameters of source
 	double electronConcentration = 150;
@@ -556,11 +550,11 @@ void fitTimeDependentCSS161010() {
 		vector[i] = vector[i] / maxParameters[i];
 	}
 	//picking parameters to be optimized
-	bool optPar[Nparams] = { true, true, true, true, true, false, true, true };
-	//number of points per axis in gridEnumOptimizer
-	int Npoints[Nparams] = { 3,3,3,3,3, 3, 3, 3 };
-	//number of iterations in gradient descent optimizer
-	int Niterations = 5;
+	bool optPar[Nparams] = { true, true, true, true, true, true, true, true };
+	
+
+	//number of different distributions depending on inclination angle, wich will be read from files
+	const int Ndistributions = 10;
 
 	//reading electron distributions from files
 	//ElectronIsotropicDistribution** angleDependentDistributions = ElectronDistributionFactory::readTabulatedIsotropicDistributions("./input/Ee", "./input/Fs", ".dat", 10, ElectronInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
@@ -569,11 +563,19 @@ void fitTimeDependentCSS161010() {
 		//rescale distributions to real mp/me relation
 		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
 	}
-	angleDependentDistributions[9]->writeDistribution("output1.dat", 200, Emin, Emax);
+	//angleDependentDistributions[9]->writeDistribution("output1.dat", 200, Emin, Emax);
 	//creating radiation source, which does not depend on time
 	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, 1.0, 0, electronConcentration, rmax, 0.5 * rmax, distance);
 	//creating time dependent radiation source
 	RadiationTimeDependentSource* source = new ExpandingRemnantSource(rmax, B, electronConcentration, 0.3 * speed_of_light, 0.5, angleDependentSource, times[0]);
+	
+	//number of points per axis in gridEnumOptimizer
+	int Npoints[Nparams] = { 3,3,3,3,3, 3, 3, 3 };
+	//number of iterations in gradient descent optimizer
+	int Niterations = 5;
+	//energies of electrons wich will be used for evaluatig radiation
+	double Emin = me_c2;
+	double Emax = 10000 * me_c2;
 	//creating time dependent synchrotron evaluator
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax);
 	//creating time depedent grid enumeration optimizer, which will chose the best starting poin for gradien descent
@@ -644,7 +646,7 @@ void fitTimeDependentCSS161010() {
 	fprintf(paramFile, "parameters at first time moment:\n");
 	printf("R = %g\n", vector[0] * maxParameters[0]);
 	fprintf(paramFile, "R = %g\n", vector[0] * maxParameters[0]);
-	printf("B = %g\n", vector[1] * maxParameters[1]);
+	printf("sigma = %g\n", vector[1] * maxParameters[1]);
 	fprintf(paramFile, "sigma = %g\n", vector[1] * maxParameters[1]);
 	printf("n = %g\n", vector[2] * maxParameters[2]);
 	fprintf(paramFile, "n = %g\n", vector[2] * maxParameters[2]);

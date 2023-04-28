@@ -146,11 +146,157 @@
 
 Пример фитирования параметров источника по наблюдательным данным приведен в функции fitTimeDependentCSS161010() в файле examples.cpp. Подберем параметры Быстрого Оптического Голубого Транзиента CSS161010 на основе наблюдений радиоизлучения, проведенных на 98, 162, 357 день после вспышки.  Расчет синхротронного излучения учитывает самопоглощение и раширение источника. Источник будем считать шаровым слоем с однородной плотностью и однороным магнитным полем, направленным перпендикулярно лучу зрения. Функцию распределения излучающих электронов возьмем на основе Particle-in-Cell расчетов для ударной волны со скоростью 0.3c,как сделано в работе \cite{BykovUniverse}. Учтена зависимость функции распределения от угла между магнитным полем и направлением распространения ударной волны.
 
-Подберем параметры Быстрого Оптического Голубого Транзиента CSS161010 на основе наблюдений радиоизлучения, проведенных на 98, 162, 357 день после вспышки. 
+Подберем параметры Быстрого Оптического Голубого Транзиента CSS161010 на основе наблюдений радиоизлучения, проведенных на 98, 162, 357 день после вспышки.  Зададим сначала массивы наблюдательных точек, переведя при этом из единиц герцы и милиянские в эрги и $\text{см}^{-2} \text{c}^{-1}$
 \begin{lstlisting}[language=c++]
-double electronConcentration = 25;
-double B = 0.6;
-double R = 1.4E17;
-double fraction = 0.5;
-const double distance = 150 * 1E6 * parsec;
+const double cssx1[4] = 
+{1.5*hplank*1E9, 3.0*hplank*1E9, 6.1*hplank*1E9, 9.87*hplank*1E9};
+const double cssy1[4] =  {1.5/(hplank*1E26), 
+4.3/(hplank*1E26), 6.1/(hplank*1E26), 4.2/(hplank*1E26)};
+const double cssError1[4] = {0.1/(hplank*1E26), 
+0.2/(hplank*1E26), 0.3/(hplank*1E26), 0.2/(hplank*1E26)};
+	
+const double cssx2[4] = 
+{2.94*hplank*1E9, 6.1*hplank*1E9, 9.74*hplank*1E9, 22.0*hplank*1E9};
+const double cssy2[4] = {2.9/(hplank*1E26), 
+2.3/(hplank*1E26), 1.74/(hplank*1E26), 0.56/(hplank*1E26)};
+const double cssError2[4] = {0.2/(hplank*1E26), 
+0.1/(hplank*1E26), 0.09/(hplank*1E26), 0.03/(hplank*1E26)};
+	
+const double cssx3[6] = {0.33*hplank*1E9, 0.61*hplank*1E9, 
+1.5*hplank*1E9, 3.0*hplank*1E9, 6.05*hplank*1E9, 10.0*hplank*1E9};
+const double cssy3[6] = {0.375/(hplank*1E26), 0.79/(hplank*1E26), 
+0.27/(hplank*1E26),0.17/(hplank*1E26),0.07/(hplank*1E26),0.32/(hplank*1E27)};
+const double cssError3[6] = {0.375/(hplank*1E26), 0.09/(hplank*1E26),
+0.07/(hplank*1E26),0.03/(hplank*1E26),0.01/(hplank*1E26),0.8/(hplank * 1E28)};
 \end{lstlisting}
+
+Определим моменты времени инаблюдений и соответствующие им количества точек
+
+\begin{lstlisting}[language=c++]
+const int Ntimes = 3;
+double times[Ntimes] = { 99 * 24 * 3600, 162 * 24 * 3600, 357 * 24 * 3600 };
+int Nenergy[Ntimes];
+Nenergy[0] = 4;
+Nenergy[1] = 4;
+Nenergy[2] = 6;
+\end{lstlisting}
+Создадим и инициализируем необходимые массивы с наблюдательными данными
+\begin{lstlisting}[language=c++]
+double** energy = new double* [Ntimes];
+double** F = new double* [Ntimes];
+double** Error = new double* [Ntimes];
+for (int m = 0; m < Ntimes; ++m) {
+	energy[m] = new double[Nenergy[m]];
+	F[m] = new double[Nenergy[m]];
+	Error[m] = new double[Nenergy[m]];
+}
+
+for (int i = 0; i < Nenergy[0]; ++i) {
+	energy[0][i] = cssx1[i];
+	F[0][i] = cssy1[i];
+	Error[0][i] = cssError1[i];
+}
+
+for (int i = 0; i < Nenergy[1]; ++i) {
+	energy[1][i] = cssx2[i];
+	F[1][i] = cssy2[i];
+	Error[1][i] = cssError2[i];
+}
+
+for (int i = 0; i < Nenergy[2]; ++i) {
+	energy[2][i] = cssx3[i];
+	F[2][i] = cssy3[i];
+	Error[2][i] = cssError3[i];
+}
+\end{lstlisting}
+
+Зададим физические параметры источника (или их начальные приближения) - расстояние, размер, концентрацию, магнитное поле, долю толщины шара, занятую излучающим веществом, скорость расширения и магнетизацию.
+
+\begin{lstlisting}[language=c++]
+const double distance = 150 * 1E6 * parsec;
+double rmax = 1.3E17;
+double electronConcentration = 150;
+double B = 0.6;
+double widthFraction = 0.5;
+double v = 0.3 * speed_of_light;
+double sigma = B * B / (4 * pi * massProton * 
+electronConcentration * speed_of_light2);
+\end{lstlisting}
+
+Укажем для оптимизаторов количество параметров, ихи минимальные и максимальные значения и соответствие вектора параметров и физических величин. Оптимизируемыми параметрами являются - размер источника, магнетизация, доля заполнения и скорость расширения в первый момент времени, а так же показатели степени расширения со временем и изменения магнитного поля и концентрации с радиусом, то есть $\alpha, \beta, \gamma$ где эти величины определены через уравнения $R(t) = R_0 + \frac{1}{\alpha-1}\cdot V(0) \cdot t_0 \cdot ({t/t_0}^{\alpha-1}-1 )$, $B(R) = B(R_0)\cdot{R_0/R}^{\beta-1}$, $n(R) = n(R_0)\cdot{R_0/R}^{\gamma - 1}$. Единица добавлена к показателям степени для удобства численных расчетов при близости величин к нулю.
+\begin{lstlisting}[language=c++]
+const int Nparams = 8;
+double minParameters[Nparams] = { 1E16, 0.0001, 0.01, 0.1, 
+0.01 * speed_of_light, 1.1, 1.0, 1.0 };
+double maxParameters[Nparams] = { 2E17, 1, 1000, 1.0, 0.6 * 
+speed_of_light, 2.0, 3.5, 3.5 };
+double vector[Nparams] = { rmax, sigma, electronConcentration, 
+widthFraction, v, 2.0, 2.0, 3.0 };
+for (int i = 0; i < Nparams; ++i) {
+    vector[i] = vector[i] / maxParameters[i];
+}
+bool optPar[Nparams] = { true, true, true, true, true, true, true, true };
+\end{lstlisting}
+
+Далее создадим источник излучения. Воспользуемся моделью расширяющейся однородной сферической оболочки, с однородным магнитным полем, перпендикулярным лучу зрения и функцией распределения электронов, зависящей от угла между направлением магнитного поля и направлением расширения оболочки. Функции распределения получены с использованием Particle-in-Cell кода Smilei \cite{Derouillat} и содержатся в директории examplesData. Методика расчетов описана в статье \cite{BykovUnirse}. Количетсво распределений, посчитанных для углов от 0 до 90 градусов равно десяти. Их можно считать из соответствующих файлов, используя метод класса MassiveParticleDistributionFactory. Так же будет добавлено продолжение мтепенного хвоста, так как PIC расчеты не пользволяют получать длинные спектры из-за большой вычислительной сложности. Так же необходимо провести масштабирование распределения, так как в PIC расчетах испольовалось уменьшенное отношение масс протонов и электронов $m_p/m_e = 100$. Имея массив распределений создадим источник, учитывающий угловую зависимость, и передим его далее источнику. учитывающему зависимость от времени.
+
+\begin{lstlisting}[language=c++]
+const int Ndistributions = 10;
+
+MassiveParticleIsotropicDistribution** angleDependentDistributions = 
+MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail
+(massElectron, "./input/Ee", "./input/Fs", ".dat", 10, 
+DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200, 20 * me_c2, 3.5);
+for (int i = 0; i < Ndistributions; ++i) {
+(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>
+(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
+}
+
+AngleDependentElectronsSphericalSource* angleDependentSource = new 
+AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, 
+angleDependentDistributions,B,1.0,0,electronConcentration,rmax,0.5*rmax,distance);
+
+RadiationTimeDependentSource* source = new 
+ExpandingRemnantSource(rmax, B, electronConcentration, 0.3 * speed_of_light,
+0.5, angleDependentSource, times[0]);
+
+\end{lstlisting}
+
+Теперь создадим вычислитель синхротронного излучения и два оптимизатора параметров - первый будет работать перебором параметров по сетке, а второй - градиентным спуском. Укажем количество точек по осям для перебора, количество итераций для градиентного спуска и диапазон энергий электронов, который будет рассматривать вычислитель синхротронного излучения.
+
+\begin{lstlisting}[language=c++]
+int Npoints[Nparams] = { 3, 3, 3, 3, 3, 3, 3, 3 };
+int Niterations = 5;
+
+double Emin = me_c2;
+double Emax = 10000 * me_c2;
+
+SynchrotronEvaluator* synchrotronEvaluator=new SynchrotronEvaluator(200, Emin, Emax);
+
+RadiationTimeOptimizer* gridEnumOptimizer = 
+new GridEnumRadiationTimeOptimizer(synchrotronEvaluator, minParameters, 
+maxParameters, Nparams, Npoints);
+RadiationTimeOptimizer* gradientOptimizer = 
+new GradientDescentRadiationTimeOptimizer(synchrotronEvaluator,minParameters, 
+maxParameters, Nparams, Niterations);
+\end{lstlisting}
+
+Применим созданые оптимизаторы и изменим параметры источника на найденные, соответствующие минимуму.
+
+\begin{lstlisting}[language=c++]
+
+gridEnumOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
+
+gradientOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
+
+source->resetParameters(vector, maxParameters);
+\end{lstlisting}
+
+Полученные в результате оптимизации парметры источника равны: радиус диска в начальный момент времени $R = 1.8\times10^17 \text{ см}$, магнитное поле $B = 1.6 \text{ Гс}$, концентрация электронов $n = 2.3 \text{ см}^{-3}$, доля толщины $fraction = 0.54 $, степени зависимости . Значение целевой функции $f \approx 50$. Модельный спектр излучения  с данными параметрами и наблюдательные данные изображены на рисунке \ref{synchrotronSeries}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=12.5 cm]{./fig/synchrotronSeries.png} 
+	\caption{Наблюдаемый и расчетный спектр радиоизлучения объекта CSS161010 на 99, 162 и 357 дни после вспышки}
+	\label{synchrotronSeries}
+\end{figure}
