@@ -54,8 +54,9 @@ protected:
 	double my_defaultB;
 	double my_defaultSinTheta;
 	double my_defaultLength;
+	bool my_doppler;
 public:
-	SynchrotronEvaluator(int Ne, double Emin, double Emax, bool selfAbsorption = true, const double& defaultB = 0, const double& defaultSinTheta = 1.0, const double& defaultLength = 0);
+	SynchrotronEvaluator(int Ne, double Emin, double Emax, bool selfAbsorption = true, bool doppler = false, const double& defaultB = 0, const double& defaultSinTheta = 1.0, const double& defaultLength = 0);
     virtual ~SynchrotronEvaluator();
     void resetParameters(const double *parameters, const double *normalizationUnits);
 	void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, const double& concentration, MassiveParticleIsotropicDistribution* electronDistribution, double& I, double& A);

@@ -20,12 +20,17 @@ public:
 	virtual double getMaxRho()=0;
 	virtual double getMinZ()=0;
 	virtual double getMaxZ()=0;
+	virtual double getMaxB() = 0;
+	virtual double getMaxOuterB() = 0;
+	virtual double getAverageSigma() = 0;
+	virtual double getAverageConcentration() = 0;
 	int getNrho();
 	int getNz();
 	int getNphi();
 	double getDistance();
 	virtual double getArea(int irho, int iz, int iphi)=0;
 	virtual double getVolume(int irho, int iz, int iphi);
+	virtual void getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi) = 0;
 
 	virtual double getB(int irho, int iz, int iphi) = 0;
 	virtual double getConcentration(int irho, int iz, int iphi) = 0;
@@ -58,14 +63,20 @@ public:
 class SimpleFlatSource : public DiskSource {
 protected:
 	double my_B;
-	double my_sinTheta;
+	double my_theta;
 	double my_concentration;
+	double my_velocity;
 	MassiveParticleIsotropicDistribution* my_distribution;
 public:
-	SimpleFlatSource(MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& rho, const double& z, const double& distance);
+	SimpleFlatSource(MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& theta, const double& rho, const double& z, const double& distance, const double& velocity = 0);
 	double getLength(int irho, int iz, int iphi);
 	double getB(int irho, int iz, int iphi);
+	double getMaxB();
+	double getMaxOuterB();
+	double getAverageSigma();
+	double getAverageConcentration();
 	double getConcentration(int irho, int iz, int iphi);
+	void getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi);
 	double getSinTheta(int irho, int iz, int iphi);
 	//void resetConcentration(const double& concentration);
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
@@ -75,16 +86,18 @@ public:
 class TabulatedDiskSource : public DiskSource {
 protected:
 	double*** my_B;
-	double*** my_sinTheta;
+	double*** my_theta;
 	double*** my_concentration;
+	double my_velocity;
 	MassiveParticleIsotropicDistribution* my_distribution;
 public:
-	TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta, double*** concentration, const double& rho, const double& z, const double& distance);
-	TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& concentration , const double& rho, const double& z, const double& distance);
+	TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& z, const double& distance, const double& velocity = 0);
+	TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& theta, const double& concentration , const double& rho, const double& z, const double& distance, const double& velocity = 0);
     virtual ~TabulatedDiskSource();
 	double getLength(int irho, int iz, int iphi);
 	double getB(int irho, int iz, int iphi);
 	double getConcentration(int irho, int iz, int iphi);
+	virtual void getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi);
 	double getSinTheta(int irho, int iz, int iphi);
 	//void resetConcentration(const double& concentration);
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
@@ -122,17 +135,23 @@ public:
 class TabulatedSphericalLayerSource : public SphericalLayerSource {
 protected:
 	double*** my_B;
-	double*** my_sinTheta;
+	double*** my_theta;
 	double*** my_concentration;
+	double my_velocity;
 	MassiveParticleIsotropicDistribution* my_distribution;
 public:
-	TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta, double*** concentration, const double& rho, const double& rhoin, const double& distance);
-	TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& sinTheta, const double& rho, const double& rhoin, const double& distance);
+	TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity = 0);
+	TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& distance, const double& velocity = 0);
     virtual ~TabulatedSphericalLayerSource();
 
 	//virtual double getLength(int irho, int iz, int iphi);
 	virtual double getB(int irho, int iz, int iphi);
+	virtual double getMaxB();
+	virtual double getMaxOuterB();
+	virtual double getAverageSigma();
+	virtual double getAverageConcentration();
 	double getConcentration(int irho, int iz, int iphi);
+	virtual void getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi);
 	virtual double getSinTheta(int irho, int iz, int iphi);
 	//void resetConcentration(const double& concentration);
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
@@ -146,8 +165,8 @@ protected:
 	double*** my_phi;
 	double*** my_shockWaveAngle;
 public:
-	AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, double*** B, double*** sinTheta, double*** phi, double*** concentration, const double& rho, const double& rhoin, const double& distance);
-	AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, const double& B, const double& sinTheta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance);
+	AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, double*** B, double*** sinTheta, double*** phi, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity = 0);
+	AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, const double& B, const double& sinTheta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity = 0);
     virtual ~AngleDependentElectronsSphericalSource();
 
 	//void resetConcentration(const double& concentration);
@@ -193,12 +212,14 @@ private:
 	static double evaluateTurbulenceAmplitude(const double& k, const double& turbulenceKoef, const double& index, const double& L0);
 	static void normalizeTurbulenceKoef(double& turbulenceKoef, const double& index, const double& L0, const int Nmodes, const double& fraction, const double& B0);
 public:
-	static void initializeTurbulentField(double*** B, double*** sinTheta, double*** phi, int Nrho, int Nz, int Nphi, const double& B0, const double& sinTheta0, const double& phi0, const double& fraction, const double& index, const double& L0, int Nmodes, const double& R);
+	static void sumFields(double*** B, double*** theta, double*** phi, double*** B1, double*** theta1, double*** phi1, double*** B2, double*** theta2, double*** phi2, int Nrho, int Nz, int Nphi);
 
-	static void initializeParkerField(double*** B, double*** sinTheta, double*** phi, double*** concentration, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& R);
-	static void initializeParkerFieldWithRotation(double*** B, double*** sinTheta, double*** phi, double*** concentration, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& R, const double& thetaRot);
+	static void initializeTurbulentField(double*** B, double*** theta, double*** phi, int Nrho, int Nz, int Nphi, const double& B0, const double& theta0, const double& phi0, const double& fraction, const double& index, const double& L0, int Nmodes, const double& R);
 
-	static AngleDependentElectronsSphericalSource* createSourceWithTurbulentField(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& sinTheta0, const double& phi0, const double n0, const double& fraction, const double& index, const double& L0, int Nmodes, const double& rho, const double& rhoin, const double& distance);
+	static void initializeParkerField(double*** B, double*** theta, double*** phi, double*** concentration, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& R);
+	static void initializeParkerFieldWithRotation(double*** B, double*** theta, double*** phi, double*** concentration, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& R, const double& thetaRot);
+
+	static AngleDependentElectronsSphericalSource* createSourceWithTurbulentField(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& theta0, const double& phi0, const double n0, const double& fraction, const double& index, const double& L0, int Nmodes, const double& rho, const double& rhoin, const double& distance);
 
 	static AngleDependentElectronsSphericalSource* createSourceWithParkerField(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& rho, const double& rhoin, const double& distance);
 	static AngleDependentElectronsSphericalSource* createSourceWithParkerFieldWithRotation(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& thetaRot, const double& rho, const double& rhoin, const double& distance);

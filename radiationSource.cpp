@@ -58,23 +58,46 @@ double DiskSource::getMaxZ() {
 	return my_z;
 }
 
-SimpleFlatSource::SimpleFlatSource(MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& rho, const double& z, const double& distance) : DiskSource(1,1,1, rho, z,distance) {
+SimpleFlatSource::SimpleFlatSource(MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& theta, const double& rho, const double& z, const double& distance, const double& velocity) : DiskSource(1,1,1, rho, z,distance) {
 	my_distribution = electronDistribution;
 	my_B = B;
-	my_sinTheta = sinTheta;
+	my_theta = theta;
 	my_concentration = my_distribution->getConcentration();
+	my_velocity = velocity;
 }
 double SimpleFlatSource::getB(int irho, int iz, int iphi)
 {
 	return my_B;
 }
+double SimpleFlatSource::getMaxB()
+{
+	return my_B;
+}
+double SimpleFlatSource::getMaxOuterB()
+{
+	return my_B;
+}
+double SimpleFlatSource::getAverageSigma()
+{
+	return my_B*my_B/(4*pi*my_concentration*massProton*speed_of_light2);
+}
+double SimpleFlatSource::getAverageConcentration()
+{
+	return my_concentration;
+}
 double SimpleFlatSource::getConcentration(int irho, int iz, int iphi)
 {
 	return my_concentration;
 }
+void SimpleFlatSource::getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi)
+{
+	velocity = my_velocity;
+	theta = 0;
+	phi = 0;
+}
 double SimpleFlatSource::getSinTheta(int irho, int iz, int iphi)
 {
-	return my_sinTheta;
+	return sin(my_theta);
 }
 /*void SimpleFlatSource::resetConcentration(const double& concentration)
 {
@@ -101,47 +124,49 @@ MassiveParticleIsotropicDistribution* SimpleFlatSource::getParticleDistribution(
 	return my_distribution;
 }
 
-TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta, double*** concentration, const double& rho, const double& z, const double& distance) : DiskSource(Nrho, Nz, Nphi, rho, z, distance) {
+TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& z, const double& distance, const double& velocity) : DiskSource(Nrho, Nz, Nphi, rho, z, distance) {
 	my_distribution = electronDistribution;
+	my_velocity = 0;
 
 	my_B = new double** [my_Nrho];
-	my_sinTheta = new double** [my_Nrho];
+	my_theta = new double** [my_Nrho];
 	my_concentration = new double** [my_Nrho];
 	for (int irho = 0; irho < my_Nrho; ++irho) {
 		my_B[irho] = new double* [my_Nz];
-		my_sinTheta[irho] = new double* [my_Nz];
+		my_theta[irho] = new double* [my_Nz];
 		my_concentration[irho] = new double* [my_Nz];
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			my_B[irho][iz] = new double[my_Nphi];
-			my_sinTheta[irho][iz] = new double[my_Nphi];
+			my_theta[irho][iz] = new double[my_Nphi];
 			my_concentration[irho][iz] = new double[my_Nphi];
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
 				my_B[irho][iz][iphi] = B[irho][iz][iphi];
-				my_sinTheta[irho][iz][iphi] = sinTheta[irho][iz][iphi];
+				my_theta[irho][iz][iphi] = theta[irho][iz][iphi];
 				my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi];
 			}
 		}
 	}
 }
 
-TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& concentration, const double& rho, const double& z, const double& distance) : DiskSource(Nrho, Nz, Nphi, rho, z, distance)
+TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& theta, const double& concentration, const double& rho, const double& z, const double& distance, const double& velocity) : DiskSource(Nrho, Nz, Nphi, rho, z, distance)
 {
 	my_distribution = electronDistribution;
+	my_velocity = velocity;
 
 	my_B = new double** [my_Nrho];
-	my_sinTheta = new double** [my_Nrho];
+	my_theta = new double** [my_Nrho];
 	my_concentration = new double** [my_Nrho];
 	for (int irho = 0; irho < my_Nrho; ++irho) {
 		my_B[irho] = new double* [my_Nz];
-		my_sinTheta[irho] = new double* [my_Nz];
+		my_theta[irho] = new double* [my_Nz];
 		my_concentration[irho] = new double* [my_Nz];
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			my_B[irho][iz] = new double[my_Nphi];
-			my_sinTheta[irho][iz] = new double[my_Nphi];
+			my_theta[irho][iz] = new double[my_Nphi];
 			my_concentration[irho][iz] = new double[my_Nphi];
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
 				my_B[irho][iz][iphi] = B;
-				my_sinTheta[irho][iz][iphi] = sinTheta;
+				my_theta[irho][iz][iphi] = theta;
 				my_concentration[irho][iz][iphi] = concentration;
 			}
 		}
@@ -152,15 +177,15 @@ TabulatedDiskSource::~TabulatedDiskSource()
 	for (int irho = 0; irho < my_Nrho; ++irho) {
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			delete[] my_B[irho][iz];
-			delete[] my_sinTheta[irho][iz];
+			delete[] my_theta[irho][iz];
 			delete[] my_concentration[irho][iz];
 		}
 		delete[] my_B[irho];
-		delete[] my_sinTheta[irho];
+		delete[] my_theta[irho];
 		delete[] my_concentration[irho];
 	}
 	delete[] my_B;
-	delete[] my_sinTheta;
+	delete[] my_theta;
 	delete[] my_concentration;
 }
 double TabulatedDiskSource::getB(int irho, int iz, int iphi)
@@ -171,9 +196,15 @@ double TabulatedDiskSource::getConcentration(int irho, int iz, int iphi)
 {
 	return my_concentration[irho][iz][iphi];
 }
+void TabulatedDiskSource::getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi)
+{
+	velocity = my_velocity;
+	theta = 0;
+	phi = 0;
+}
 double TabulatedDiskSource::getSinTheta(int irho, int iz, int iphi)
 {
-	return my_sinTheta[irho][iz][iphi];
+	return sin(my_theta[irho][iz][iphi]);
 }
 /*void TabulatedDiskSource::resetConcentration(const double& concentration)
 {
@@ -190,9 +221,11 @@ void TabulatedDiskSource::resetParameters(const double* parameters, const double
 */
 	my_rho = parameters[0] * normalizationUnits[0];
 	double sigma = parameters[1] * normalizationUnits[1];
-	double B0 = my_B[my_Nrho - 1][0][0];
-	double n0 = my_concentration[my_Nrho - 1][0][0];
-	double sigma0 = sqr(my_B[my_Nrho - 1][0][0]) / (4 * pi * massProton * my_concentration[my_Nrho - 1][0][0] * speed_of_light2);
+	//double B0 = my_B[my_Nrho - 1][0][0];
+	//double n0 = my_concentration[my_Nrho - 1][0][0];
+	double n0 = getAverageConcentration();
+	//double sigma0 = sqr(my_B[my_Nrho - 1][0][0]) / (4 * pi * massProton * my_concentration[my_Nrho - 1][0][0] * speed_of_light2);
+	double sigma0 = getAverageSigma();
 	for (int irho = 0; irho < my_Nrho; ++irho) {
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
@@ -544,15 +577,16 @@ double SphericalLayerSource::getInnerRho() {
 	return my_rhoin;
 }
 
-TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta, double*** concentration, const double& rho, const double& rhoin, const double& distance) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance) {
+TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance) {
 	my_distribution = electronDistribution;
+	my_velocity = velocity;
 	
 	my_B = new double** [my_Nrho];
-	my_sinTheta = new double** [my_Nrho];
+	my_theta = new double** [my_Nrho];
 	my_concentration = new double** [my_Nrho];
 	for (int irho = 0; irho < my_Nrho; ++irho) {
 		my_B[irho] = new double* [my_Nz];
-		my_sinTheta[irho] = new double* [my_Nz];
+		my_theta[irho] = new double* [my_Nz];
 		my_concentration[irho] = new double* [my_Nz];
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			double rho1 = (irho + 0.5) * my_rho / my_Nrho;
@@ -561,35 +595,36 @@ TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, i
 			double r = sqrt(z * z + rho1 * rho1);
 
 			my_B[irho][iz] = new double[my_Nphi];
-			my_sinTheta[irho][iz] = new double[my_Nphi];
+			my_theta[irho][iz] = new double[my_Nphi];
 			my_concentration[irho][iz] = new double[my_Nphi];
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
 				//my_B[irho][iz][iphi] = B[irho][iz][iphi];
 				my_B[irho][iz][iphi] = B[irho][iz][iphi]*(my_rho/r);
-				my_sinTheta[irho][iz][iphi] = sinTheta[irho][iz][iphi];
+				my_theta[irho][iz][iphi] = theta[irho][iz][iphi];
 				//my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi];
 				my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi] * sqr(my_rho / r);
 			}
 		}
 	}
 }
-TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& sinTheta, const double& concentration, const double& rho, const double& rhoin, const double& distance) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance) {
+TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& theta, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance) {
 	my_distribution = electronDistribution;
+	my_velocity = velocity;
 
 	my_B = new double** [my_Nrho];
-	my_sinTheta = new double** [my_Nrho];
+	my_theta = new double** [my_Nrho];
 	my_concentration = new double** [my_Nrho];
 	for (int irho = 0; irho < my_Nrho; ++irho) {
 		my_B[irho] = new double* [my_Nz];
-		my_sinTheta[irho] = new double* [my_Nz];
+		my_theta[irho] = new double* [my_Nz];
 		my_concentration[irho] = new double* [my_Nz];
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			my_B[irho][iz] = new double[my_Nphi];
-			my_sinTheta[irho][iz] = new double[my_Nphi];
+			my_theta[irho][iz] = new double[my_Nphi];
 			my_concentration[irho][iz] = new double[my_Nphi];
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
 				my_B[irho][iz][iphi] = B;
-				my_sinTheta[irho][iz][iphi] = sinTheta;
+				my_theta[irho][iz][iphi] = theta;
 				my_concentration[irho][iz][iphi] = concentration;
 			}
 		}
@@ -600,24 +635,109 @@ TabulatedSphericalLayerSource::~TabulatedSphericalLayerSource() {
 	for (int irho = 0; irho < my_Nrho; ++irho) {
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			delete[] my_B[irho][iz];
-			delete[] my_sinTheta[irho][iz];
+			delete[] my_theta[irho][iz];
 		}
 		delete[] my_B[irho];
-		delete[] my_sinTheta[irho];
+		delete[] my_theta[irho];
 	}
 	delete[] my_B;
-	delete[] my_sinTheta;
+	delete[] my_theta;
 }
 
 double TabulatedSphericalLayerSource::getB(int irho, int iz, int iphi) {
 	return my_B[irho][iz][iphi];
 }
+double TabulatedSphericalLayerSource::getMaxB()
+{
+	double Bmax = 0;
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				if (my_B[irho][iz][iphi] > Bmax) {
+					Bmax = my_B[irho][iz][iphi];
+				}
+			}
+		}
+	}
+	return Bmax;
+}
+double TabulatedSphericalLayerSource::getMaxOuterB()
+{
+	double Bmax = 0;
+	int irho = my_Nrho - 1;
+	int iz = 0;
+	for (iz = 0; iz < my_Nz; ++iz) {
+		for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+			if (my_B[irho][iz][iphi] > Bmax) {
+				Bmax = my_B[irho][iz][iphi];
+			}
+		}
+	}
+
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+			iz = 0;
+			if (my_B[irho][iz][iphi] > Bmax) {
+				Bmax = my_B[irho][iz][iphi];
+			}
+
+			iz = my_Nz - 1;
+			if (my_B[irho][iz][iphi] > Bmax) {
+				Bmax = my_B[irho][iz][iphi];
+			}
+		}
+	}
+
+	return Bmax;
+}
+double TabulatedSphericalLayerSource::getAverageSigma()
+{
+	double magneticEnergy = 0;
+	double restEnergy = 0;
+
+
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				magneticEnergy += my_B[irho][iz][iphi] * my_B[irho][iz][iphi] * getVolume(irho, iz, iphi) / (4 * pi);
+				restEnergy += my_concentration[irho][iz][iphi] * massProton * speed_of_light2 * getVolume(irho, iz, iphi);
+			}
+		}
+	}
+
+	return magneticEnergy/restEnergy;
+}
+double TabulatedSphericalLayerSource::getAverageConcentration()
+{
+	double concentration = 0;
+	double volume = 0;
+
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				concentration += my_concentration[irho][iz][iphi] * getVolume(irho, iz, iphi);
+				volume += getVolume(irho, iz, iphi);
+			}
+		}
+	}
+
+	return concentration/volume;
+}
 double TabulatedSphericalLayerSource::getConcentration(int irho, int iz, int iphi)
 {
 	return my_concentration[irho][iz][iphi];
 }
+void TabulatedSphericalLayerSource::getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi)
+{
+	velocity = my_velocity;
+	double rho = (irho + 0.5) * my_rho / my_Nrho;
+	double z = -my_rho + (iz + 0.5) * 2 * my_rho / my_Nz;
+	double r = sqrt(z * z + rho * rho);
+	theta = acos(z / r);
+	phi = (iphi + 0.5) * 2 * pi / my_Nphi;
+}
 double TabulatedSphericalLayerSource::getSinTheta(int irho, int iz, int iphi) {
-	return my_sinTheta[irho][iz][iphi];
+	return sin(my_theta[irho][iz][iphi]);
 }
 /*void TabulatedSphericalLayerSource::resetConcentration(const double& concentration)
 {
@@ -657,7 +777,7 @@ MassiveParticleIsotropicDistribution* TabulatedSphericalLayerSource::getParticle
 	return my_distribution;
 }
 
-AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, double*** B, double*** sinTheta, double*** concentration, double*** phi, const double& rho, const double& rhoin, const double& distance) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, concentration, rho, rhoin, distance)
+AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, double*** B, double*** sinTheta, double*** concentration, double*** phi, const double& rho, const double& rhoin, const double& distance, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, concentration, rho, rhoin, distance, velocity)
 {
 	my_Ntheta = Ntheta;
 	my_distributions = new MassiveParticleIsotropicDistribution*[my_Ntheta];
@@ -689,9 +809,9 @@ AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(i
 				double nx = rho * cos(alpha) / r;
 				double ny = rho * sin(alpha) / r;
 
-				double Bz = my_B[irho][iz][iphi] * sqrt(1.0 - sqr(my_sinTheta[irho][iz][iphi]));
-				double Bx = my_B[irho][iz][iphi] * my_sinTheta[irho][iz][iphi] * cos(my_phi[irho][iz][iphi]);
-				double By = my_B[irho][iz][iphi] * my_sinTheta[irho][iz][iphi] * sin(my_phi[irho][iz][iphi]);
+				double Bz = my_B[irho][iz][iphi] * cos(my_theta[irho][iz][iphi]);
+				double Bx = my_B[irho][iz][iphi] * sin(my_theta[irho][iz][iphi]) * cos(my_phi[irho][iz][iphi]);
+				double By = my_B[irho][iz][iphi] * sin(my_theta[irho][iz][iphi]) * sin(my_phi[irho][iz][iphi]);
 
 				double cosTheta = (nz * Bz + nx * Bx + ny * By) / my_B[irho][iz][iphi];
 
@@ -707,7 +827,7 @@ AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(i
 	}
 }
 
-AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, const double& B, const double& sinTheta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, concentration, rho, rhoin, distance)
+AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, const double& B, const double& sinTheta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, concentration, rho, rhoin, distance, velocity)
 {
 	my_Ntheta = Ntheta;
 	my_distributions = new MassiveParticleIsotropicDistribution * [my_Ntheta];
@@ -739,9 +859,9 @@ AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(i
 				double nx = rho * cos(alpha) / r;
 				double ny = rho * sin(alpha) / r;
 
-				double Bz = my_B[irho][iz][iphi] * sqrt(1.0 - sqr(my_sinTheta[irho][iz][iphi]));
-				double Bx = my_B[irho][iz][iphi] * my_sinTheta[irho][iz][iphi] * cos(my_phi[irho][iz][iphi]);
-				double By = my_B[irho][iz][iphi] * my_sinTheta[irho][iz][iphi] * sin(my_phi[irho][iz][iphi]);
+				double Bz = my_B[irho][iz][iphi] * cos(my_theta[irho][iz][iphi]);
+				double Bx = my_B[irho][iz][iphi] * sin(my_theta[irho][iz][iphi]) * cos(my_phi[irho][iz][iphi]);
+				double By = my_B[irho][iz][iphi] * sin(my_theta[irho][iz][iphi]) * sin(my_phi[irho][iz][iphi]);
 
 				double cosTheta = (nz * Bz + nx * Bx + ny * By) / my_B[irho][iz][iphi];
 
@@ -785,7 +905,7 @@ AngleDependentElectronsSphericalSource::~AngleDependentElectronsSphericalSource(
 
 MassiveParticleIsotropicDistribution* AngleDependentElectronsSphericalSource::getParticleDistribution(int irho, int iz, int iphi)
 {
-	double dtheta = pi / (my_Ntheta-1);
+	double dtheta = 0.5*pi / (my_Ntheta-1);
 	double theta = my_shockWaveAngle[irho][iz][iphi];
 	if (theta > pi / 2) {
 		theta = pi - theta;
@@ -872,9 +992,42 @@ void RadiationSourceFactory::normalizeTurbulenceKoef(double& turbulenceKoef, con
 	turbulenceKoef = turbulenceKoef * sqrt(B0 * B0 * fraction / energy);
 }
 
-void RadiationSourceFactory::initializeTurbulentField(double*** B, double*** sinTheta, double*** phi, int Nrho, int Nz, int Nphi, const double& B0, const double& sinTheta0, const double& phi0, const double& fraction, const double& index, const double& L0, const int Nmodes, const double& R)
+void RadiationSourceFactory::sumFields(double*** B, double*** theta, double*** phi, double*** B1, double*** theta1, double*** phi1, double*** B2, double*** theta2, double*** phi2, int Nrho, int Nz, int Nphi) {
+	for (int irho = 0; irho < Nrho; ++irho) {
+		//double rho = (irho + 0.5) * R / Nrho;
+		for (int iz = 0; iz < Nz; ++iz) {
+			//double z = 2 * (iz + 0.5) * R / Nz - R;
+			//double r = sqrt(z * z + rho * rho);
+			//double cosAlpha = z / r;
+			//double sinAlpha = sqrt(1.0 - cosAlpha * cosAlpha);
+			for (int iphi = 0; iphi < Nphi; ++iphi) {
+				//double hi = 2 * pi * (iphi + 0.5) / Nphi;
+
+				double cosTheta1 = cos(theta1[irho][iz][iphi]);
+				double cosTheta2 = cos(theta2[irho][iz][iphi]);
+
+				double Bx = B1[irho][iz][iphi] * sin(theta1[irho][iz][iphi]) * cos(phi1[irho][iz][iphi]) +
+					B2[irho][iz][iphi] * sin(theta2[irho][iz][iphi]) * cos(phi2[irho][iz][iphi]);
+				double By = B1[irho][iz][iphi] * sin(theta1[irho][iz][iphi]) * sin(phi1[irho][iz][iphi]) +
+					B2[irho][iz][iphi] * sin(theta2[irho][iz][iphi]) * sin(phi2[irho][iz][iphi]);
+				double Bz = B1[irho][iz][iphi] * cosTheta1 + B2[irho][iz][iphi] * cosTheta2;
+
+
+				double Blocal = sqrt(Bx * Bx + By * By + Bz * Bz);
+				double Bxy = sqrt(Bx * Bx + By * By);
+
+				B[irho][iz][iphi] = Blocal;
+				theta[irho][iz][iphi] = acos(Bz / Blocal);
+				phi[irho][iz][iphi] = atan2(By, Bx);
+			}
+		}
+	}
+}
+
+void RadiationSourceFactory::initializeTurbulentField(double*** B, double*** theta, double*** phi, int Nrho, int Nz, int Nphi, const double& B0, const double& theta0, const double& phi0, const double& fraction, const double& index, const double& L0, const int Nmodes, const double& R)
 {
-	double cosTheta0 = sqrt(1.0 - sinTheta0 * sinTheta0);
+	double cosTheta0 = cos(theta0);
+	double sinTheta0 = sin(theta0);
 
 	double*** Bx = create3dArray(Nrho, Nz, Nphi, B0 * sinTheta0 * cos(phi0));
 	double*** By = create3dArray(Nrho, Nz, Nphi, B0 * sinTheta0 * sin(phi0));
@@ -949,7 +1102,7 @@ void RadiationSourceFactory::initializeTurbulentField(double*** B, double*** sin
 				double Bxy = sqrt(Bx[irho][iz][iphi] * Bx[irho][iz][iphi] + By[irho][iz][iphi] * By[irho][iz][iphi]);
 
 				B[irho][iz][iphi] = Blocal;
-				sinTheta[irho][iz][iphi] = Bxy / Blocal;
+				theta[irho][iz][iphi] = acos(Bz[irho][iz][iphi] / Blocal);
 				phi[irho][iz][iphi] = atan2(By[irho][iz][iphi], Bx[irho][iz][iphi]);
 			}
 		}
@@ -963,7 +1116,7 @@ void RadiationSourceFactory::initializeTurbulentField(double*** B, double*** sin
 	delete3dArray(phases2, Nmodes, Nmodes, Nmodes);
 }
 
-void RadiationSourceFactory::initializeParkerField(double*** B, double*** sinTheta, double*** phi , double*** concentration, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& R) {
+void RadiationSourceFactory::initializeParkerField(double*** B, double*** theta, double*** phi , double*** concentration, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& R) {
 	for (int irho = 0; irho < Nrho; ++irho) {
 		double rho = (irho + 0.5) * R / Nrho;
 		for (int iz = 0; iz < Nz; ++iz) {
@@ -981,7 +1134,7 @@ void RadiationSourceFactory::initializeParkerField(double*** B, double*** sinThe
 				double By = Br * sinAlpha * sin(hi) + Bphi * cos(hi);
 
 				B[irho][iz][iphi] = sqrt(Br * Br + Bphi * Bphi);
-				sinTheta[irho][iz][iphi] = sqrt(Bphi * Bphi + Br * Br * cosAlpha * cosAlpha) / B[irho][iz][iphi];
+				theta[irho][iz][iphi] = acos(Br * cosAlpha  / B[irho][iz][iphi]);
 				phi[irho][iz][iphi] = atan2(By, Bx);
 
 				concentration[irho][iz][iphi] = n0 * sqr(R / r);
@@ -990,7 +1143,7 @@ void RadiationSourceFactory::initializeParkerField(double*** B, double*** sinThe
 	}
 }
 
-void RadiationSourceFactory::initializeParkerFieldWithRotation(double*** B, double*** sinTheta, double*** phi, double*** concentration, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& R, const double& thetaRot) {
+void RadiationSourceFactory::initializeParkerFieldWithRotation(double*** B, double*** theta, double*** phi, double*** concentration, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& R, const double& thetaRot) {
 	double cosThetaRot = cos(thetaRot);
 	double sinThetaRot = sin(thetaRot);
 	for (int irho = 0; irho < Nrho; ++irho) {
@@ -1023,7 +1176,7 @@ void RadiationSourceFactory::initializeParkerFieldWithRotation(double*** B, doub
 				double Bx = Bx1 * cosThetaRot + Bz1 * sinThetaRot;
 				double By = By1;
 				double Bz = Bz1 * cosThetaRot - Bx1 * sinThetaRot;
-				sinTheta[irho][iz][iphi] = sqrt(Bx*Bx + By*By) / B[irho][iz][iphi];
+				theta[irho][iz][iphi] = acos(Bz / B[irho][iz][iphi]);
 				phi[irho][iz][iphi] = atan2(By, Bx);
 
 				concentration[irho][iz][iphi] = n0 * sqr(R / r);
@@ -1032,102 +1185,102 @@ void RadiationSourceFactory::initializeParkerFieldWithRotation(double*** B, doub
 	}
 }
 
-AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWithTurbulentField(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& sinTheta0, const double& phi0, const double n0, const double& fraction, const double& index, const double& L0, int Nmodes, const double& rho, const double& rhoin, const double& distance)
+AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWithTurbulentField(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& theta0, const double& phi0, const double n0, const double& fraction, const double& index, const double& L0, int Nmodes, const double& rho, const double& rhoin, const double& distance)
 {
 	double*** B = create3dArray(Nrho, Nz, Nphi, B0);
-	double*** sinTheta = create3dArray(Nrho, Nz, Nphi, sinTheta0);
+	double*** theta = create3dArray(Nrho, Nz, Nphi, theta0);
 	double*** phi = create3dArray(Nrho, Nz, Nphi, phi0);
 
 	double*** concentration = create3dArray(Nrho, Nz, Nphi, n0);
 
-	initializeTurbulentField(B, sinTheta, phi, Nrho, Nz, Nphi, B0, sinTheta0, phi0, fraction, index, L0, Nmodes, rho);
+	initializeTurbulentField(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, fraction, index, L0, Nmodes, rho);
 
 	delete3dArray(B, Nrho, Nz, Nphi);
-	delete3dArray(sinTheta, Nrho, Nz, Nphi);
+	delete3dArray(theta, Nrho, Nz, Nphi);
 	delete3dArray(phi, Nrho, Nz, Nphi);
 	delete3dArray(concentration, Nrho, Nz, Nphi);
 
-	return new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ntheta, electronDistributions, B, sinTheta, phi, concentration, rho, rhoin, distance);
+	return new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ntheta, electronDistributions, B, theta, phi, concentration, rho, rhoin, distance);
 }
 
 AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWithParkerField(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& rho, const double& rhoin, const double& distance)
 {
 	double*** B = new double** [Nrho];
-	double*** sinTheta = new double** [Nrho];
+	double*** theta = new double** [Nrho];
 	double*** phi = new double** [Nrho];
 	double*** concentration = new double** [Nrho];
 	for (int irho = 0; irho < Nrho; ++irho) {
 		B[irho] = new double* [Nz];
-		sinTheta[irho] = new double* [Nz];
+		theta[irho] = new double* [Nz];
 		phi[irho] = new double* [Nz];
 		concentration[irho] = new double* [Nz];
 		for (int iz = 0; iz < Nz; ++iz) {
 			B[irho][iz] = new double[Nphi];
-			sinTheta[irho][iz] = new double[Nphi];
+			theta[irho][iz] = new double[Nphi];
 			phi[irho][iz] = new double[Nphi];
 			concentration[irho][iz] = new double[Nphi];
 		}
 	}
 
-	initializeParkerField(B, sinTheta, phi, concentration, Nrho, Nz, Nphi, B0, n0, v, d, omega, rho);
+	initializeParkerField(B, theta, phi, concentration, Nrho, Nz, Nphi, B0, n0, v, d, omega, rho);
 
 	for (int irho = 0; irho < Nrho; ++irho) {
 		for (int iz = 0; iz < Nz; ++iz) {
 			delete[] B[irho][iz];
-			delete[] sinTheta[irho][iz];
+			delete[] theta[irho][iz];
 			delete[] phi[irho][iz];
 			delete[] concentration[irho][iz];
 		}
 		delete[] B[irho];
-		delete[] sinTheta[irho];
+		delete[] theta[irho];
 		delete[] phi[irho];
 		delete[] concentration[irho];
 	}
 	delete[] B;
-	delete[] sinTheta;
+	delete[] theta;
 	delete[] phi;
 	delete[] concentration;
 
-	return new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ntheta, electronDistributions, B, sinTheta, phi, concentration, rho, rhoin, distance);
+	return new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ntheta, electronDistributions, B, theta, phi, concentration, rho, rhoin, distance);
 }
 
 AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWithParkerFieldWithRotation(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& thetaRot, const double& rho, const double& rhoin, const double& distance)
 {
 	double*** B = new double** [Nrho];
-	double*** sinTheta = new double** [Nrho];
+	double*** theta = new double** [Nrho];
 	double*** phi = new double** [Nrho];
 	double*** concentration = new double** [Nrho];
 	for (int irho = 0; irho < Nrho; ++irho) {
 		B[irho] = new double* [Nz];
-		sinTheta[irho] = new double* [Nz];
+		theta[irho] = new double* [Nz];
 		phi[irho] = new double* [Nz];
 		concentration[irho] = new double* [Nz];
 		for (int iz = 0; iz < Nz; ++iz) {
 			B[irho][iz] = new double[Nphi];
-			sinTheta[irho][iz] = new double[Nphi];
+			theta[irho][iz] = new double[Nphi];
 			phi[irho][iz] = new double[Nphi];
 			concentration[irho][iz] = new double[Nphi];
 		}
 	}
 
-	initializeParkerFieldWithRotation(B, sinTheta, phi, concentration, Nrho, Nz, Nphi, B0, n0, v, d, omega, rho, thetaRot);
+	initializeParkerFieldWithRotation(B, theta, phi, concentration, Nrho, Nz, Nphi, B0, n0, v, d, omega, rho, thetaRot);
 
 	for (int irho = 0; irho < Nrho; ++irho) {
 		for (int iz = 0; iz < Nz; ++iz) {
 			delete[] B[irho][iz];
-			delete[] sinTheta[irho][iz];
+			delete[] theta[irho][iz];
 			delete[] phi[irho][iz];
 			delete[] concentration[irho][iz];
 		}
 		delete[] B[irho];
-		delete[] sinTheta[irho];
+		delete[] theta[irho];
 		delete[] phi[irho];
 		delete[] concentration[irho];
 	}
 	delete[] B;
-	delete[] sinTheta;
+	delete[] theta;
 	delete[] phi;
 	delete[] concentration;
 
-	return new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ntheta, electronDistributions, B, sinTheta, phi, concentration, rho, rhoin, distance);
+	return new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ntheta, electronDistributions, B, theta, phi, concentration, rho, rhoin, distance);
 }

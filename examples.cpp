@@ -20,7 +20,7 @@ void evaluateSimpleSynchrotron() {
 	double electronConcentration = 1.0;
 	//MassiveParticleIsotropicDistribution* distribution = new MassiveParticlePowerLawDistribution(massElectron, 3.0, me_c2, 1.0);
 	MassiveParticleIsotropicDistribution* distribution = new MassiveParticleMonoenergeticDistribution(massElectron, 1000*me_c2, me_c2, 1.0);
-	RadiationSource* source = new SimpleFlatSource(distribution, B, 1.0, parsec, parsec, 1000 * parsec);
+	RadiationSource* source = new SimpleFlatSource(distribution, B, pi/2, parsec, parsec, 1000 * parsec);
 	RadiationEvaluator* evaluator = new SynchrotronEvaluator(10000, me_c2, 10000 * me_c2, true);
 	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
 	evaluator->writeFluxFromSourceToFile("outputSynch.dat", source, 10 * hplank * cyclotronOmega, 10000000 * hplank * cyclotronOmega, 1000);
@@ -28,7 +28,7 @@ void evaluateSimpleSynchrotron() {
 
 // example 1. Evaluating inverse compton flux of powerlaw distributed electrons on CMB radiation
 void evaluateComtonWithPowerLawDistribution() {
-	double sinTheta = 1.0;
+	double theta = pi/2;
 	//double rmax = 1.3E17;
 	double rmax = 1.0 / sqrt(pi);
 	double B = 0.0;
@@ -61,7 +61,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	//initializing electrons distribution
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 	//creating radiation source
-	RadiationSource* source = new SimpleFlatSource(electrons, B, sinTheta, rmax, rmax, distance);
+	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, rmax, distance);
 	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
 	InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
@@ -147,7 +147,7 @@ void fitCSS161010withPowerLawDistribition() {
 	//creating electrons powerlaw distribution
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 	//creating radiation source
-	SimpleFlatSource* source = new SimpleFlatSource(electrons, B, 1.0, R, fraction * R, distance);
+	SimpleFlatSource* source = new SimpleFlatSource(electrons, B, pi/2, R, fraction * R, distance);
 	//number of parameters of the source
 	const int Nparams = 4;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
@@ -313,7 +313,7 @@ void fitCSS161010withTabulatedDistributions() {
 	double Emin = me_c2;
 	double Emax = 10000 * me_c2;
 	//creating synchrotron evaluator
-	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax);
+	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax, true, true);
 	//number of different distributions depending on inclination angle, wich will be read from files
 	int Ndistributions = 10;
 	//reading electron distributions from files
@@ -325,12 +325,21 @@ void fitCSS161010withTabulatedDistributions() {
 	}
 	angleDependentDistributions[4]->writeDistribution("output4.dat", 200, Emin, Emax);
 	//creating radiation source
-	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, 1.0, 0, electronConcentration, rmax, 0.5 * rmax, distance);
+	int Nrho = 20;
+	int Nz = 20;
+	int Nphi = 4;
+	double*** Bturb = create3dArray(Nrho, Nz, Nphi);
+	double*** thetaTurb = create3dArray(Nrho, Nz, Nphi);
+	double*** phiTurb = create3dArray(Nrho, Nz, Nphi);
+	double*** concentration = create3dArray(Nrho, Nz, Nphi, electronConcentration);
+	RadiationSourceFactory::initializeTurbulentField(Bturb, thetaTurb, phiTurb, Nrho, Nz, Nphi, B, pi / 2, 0, 0.1, 11.0 / 6.0, rmax, 10, rmax);
+	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, Bturb, thetaTurb, phiTurb, concentration, rmax, 0.5 * rmax, distance, 0.3*speed_of_light);
+	//AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, B, pi/2, 0, electronConcentration, rmax, 0.5 * rmax, distance);
 	//number of parameters of the source
 	const int Nparams = 4;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 1E17, 0.0001, 1000, 0.001 };
-	double maxParameters[Nparams] = { 2E17, 0.01, 2E6, 0.1 };
+	double minParameters[Nparams] = { 1.3E17, 0.0000001, 1000, 0.0001 };
+	double maxParameters[Nparams] = { 1.4E17, 0.1, 2E6, 0.5 };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, 0.001 };
 	for (int i = 0; i < Nparams; ++i) {
@@ -388,9 +397,9 @@ void fitCSS161010withTabulatedDistributions() {
 	double observedError[Nenergy1] = { 0.09 / (hplank * 1E26), 0.09 / (hplank * 1E26), 0.07 / (hplank * 1E26), 0.03 / (hplank * 1E26), 0.01 / (hplank * 1E26), 0.008 / (hplank * 1E26) };*/
 	//picking parameters to be optimized
 	bool optPar[Nparams] = { false, true, true, true };
-
+	int Niterations = 10;
 	//creating gradient descent optimizer
-	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 20);
+	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
 	//number of points per axis in gridEnumOptimizer
 	int Npoints[Nparams] = { 5,5,5,5 };
 	//creating grid enumeration optimizer
@@ -466,6 +475,11 @@ void fitCSS161010withTabulatedDistributions() {
 	delete[] angleDependentDistributions;
 	delete synchrotronOptimizer;
 	delete enumOptimizer;
+
+	delete3dArray(Bturb, Nrho, Nz, Nphi);
+	delete3dArray(thetaTurb, Nrho, Nz, Nphi);
+	delete3dArray(phiTurb, Nrho, Nz, Nphi);
+	delete3dArray(concentration, Nrho, Nz, Nphi);
 }
 
 //example 4. Fitting observed synchrotron radio fluxes from CSS161010 at 3 time moments
@@ -565,7 +579,7 @@ void fitTimeDependentCSS161010() {
 	}
 	//angleDependentDistributions[9]->writeDistribution("output1.dat", 200, Emin, Emax);
 	//creating radiation source, which does not depend on time
-	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, 1.0, 0, electronConcentration, rmax, 0.5 * rmax, distance);
+	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, pi/2, 0, electronConcentration, rmax, 0.5 * rmax, distance);
 	//creating time dependent radiation source
 	RadiationTimeDependentSource* source = new ExpandingRemnantSource(rmax, B, electronConcentration, 0.3 * speed_of_light, 0.5, angleDependentSource, times[0]);
 	
@@ -695,7 +709,7 @@ void evaluatePionDecay() {
 	double protonConcentration = 150;
 	double rmax = 55 * parsec;
 	double B = 0;
-	double sinTheta = 1.0;
+	double theta = pi/2;
 
 	//Cygnus
 	const double distance = 1400 * parsec;
@@ -707,7 +721,7 @@ void evaluatePionDecay() {
 	//MassiveParticlePowerLawDistribution* protons = new MassiveParticlePowerLawDistribution(massProton, 2.0, Emin, protonConcentration);
 	//MassiveParticlePowerLawCutoffDistribution* protons = new MassiveParticlePowerLawCutoffDistribution(massProton, 2.0, Emin, 1.0, Emax, protonConcentration);
 	//protons->writeDistribution("outputProtons.dat", 200, Emin, Emax);
-	RadiationSource* source = new SimpleFlatSource(protons, B, sinTheta, rmax, rmax, distance);
+	RadiationSource* source = new SimpleFlatSource(protons, B, theta, rmax, rmax, distance);
 	double protonAmbientConcentration = 20;
 	PionDecayEvaluator* pionDecayEvaluator = new PionDecayEvaluator(200, Emin, Emax, protonAmbientConcentration);
 
@@ -842,7 +856,7 @@ void compareComptonSynchrotron() {
 	double Emax = 1E16 * me_c2;
 	double distance = 1000 * parsec;
 	MassiveParticleIsotropicDistribution* distribution = new MassiveParticlePowerLawDistribution(massElectron, 4.0, Emin, 1.0);
-	RadiationSource* source = new SimpleFlatSource(distribution, B, 1.0, parsec, parsec, distance);
+	RadiationSource* source = new SimpleFlatSource(distribution, B, pi/2, parsec, parsec, distance);
 	RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(400, Emin, Emax, false);
 	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
 	synchrotronEvaluator->writeFluxFromSourceToFile("output1.dat", source, 0.001 * hplank * cyclotronOmega, 1000000 * hplank * cyclotronOmega, 100);

@@ -15,7 +15,7 @@
 #include "examples.h"
 
 void evaluateFluxSNRtoWind() {
-	double sinTheta = 1.0;
+	double theta = pi/2;
 	double rsource = 2.0E14;
 	double rstar = 2.0E10;
 	double B = 0.01;
@@ -49,7 +49,7 @@ void evaluateFluxSNRtoWind() {
 	MassiveParticleTabulatedIsotropicDistribution* electronsFromSmilei = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./input/Ee3.dat", "./input/Fs3.dat", 200, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 	electronsFromSmilei->addPowerLaw(20 * massElectron * speed_of_light2, 3.5);
 	//creating radiation source
-	RadiationSource* source = new SimpleFlatSource(electronsFromSmilei, B, sinTheta, rsource, rsource, distance);
+	RadiationSource* source = new SimpleFlatSource(electronsFromSmilei, B, theta, rsource, rsource, distance);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
 	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
@@ -145,8 +145,8 @@ int main() {
 	//evaluateSimpleSynchrotron();
 	//evaluateComtonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
-	//fitCSS161010withTabulatedDistributions();
-	fitTimeDependentCSS161010();
+	fitCSS161010withTabulatedDistributions();
+	//fitTimeDependentCSS161010();
 	//evaluatePionDecayWithPowerLawDistribution();
 	//evaluateBremsstrahlung();
 	//compareComptonSynchrotron();

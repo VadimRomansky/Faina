@@ -267,6 +267,7 @@ double*** create3dArray(const int N1, const int N2, const int N3, const double& 
             }
         }
     }
+    return a;
 }
 
 void delete3dArray(double*** a, const int N1, const int N2, const int N3)
