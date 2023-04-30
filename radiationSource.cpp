@@ -110,12 +110,14 @@ void SimpleFlatSource::resetParameters(const double* parameters, const double* n
 	* sigma = parameters[1]
 	* n = parameters[2]
 	* z = R*parameters[3]
+	* v = parameters[4]
 	*/
 	double sigma = parameters[1] * normalizationUnits[1];
 	my_rho = parameters[0] * normalizationUnits[0];
 	my_concentration = parameters[2] * normalizationUnits[2];
 	my_z = my_rho * parameters[3] * normalizationUnits[3];
 	my_B = sqrt(sigma * 4 * pi * massProton * my_concentration * speed_of_light2);
+	my_velocity = parameters[4] * normalizationUnits[4];
 }
 double SimpleFlatSource::getLength(int irho, int iz, int iphi) {
 	return my_z;
@@ -237,6 +239,7 @@ void TabulatedDiskSource::resetParameters(const double* parameters, const double
 		}
 	}
 	my_z = my_rho * parameters[3] * normalizationUnits[3];
+	my_velocity = parameters[4] * normalizationUnits[4];
 }
 double TabulatedDiskSource::getLength(int irho, int iz, int iphi) {
 	return my_z/my_Nz;
@@ -771,6 +774,7 @@ void TabulatedSphericalLayerSource::resetParameters(const double* parameters, co
 	}
 	my_rhoin = my_rho * (1.0 - parameters[3] * normalizationUnits[3]);
 	evaluateLengthAndArea();
+	my_velocity = parameters[4] * normalizationUnits[4];
 }
 MassiveParticleIsotropicDistribution* TabulatedSphericalLayerSource::getParticleDistribution(int irho, int iz, int iphi) {
 	my_distribution->resetConcentration(getConcentration(irho, iz, iphi));
@@ -957,11 +961,14 @@ RadiationSource* ExpandingRemnantSource::getRadiationSource(double& time, const 
 	double fracton = my_widthFraction * my_R0/R;
 	//double fracton = my_widthFraction;
 
-	double parameters[4];
+	double localV = my_v * pow(time / my_t0, my_radiusPower - 1.0);
+
+	double parameters[5];
 	parameters[0] = R / normalizationUnits[0];
 	parameters[1] = sigma / normalizationUnits[1];
 	parameters[2] = n / normalizationUnits[2];
 	parameters[3] = fracton / normalizationUnits[3];
+	parameters[4] = localV / normalizationUnits[4];
 	my_radiationSource->resetParameters(parameters, normalizationUnits);
 	return my_radiationSource;
 }
