@@ -16,9 +16,14 @@
 
 void evaluateFluxSNRtoWind() {
 	double theta = pi/2;
-	double rsource = 2.0E14;
-	double rstar = 2.0E10;
-	double B = 0.01;
+	double rsource = 1.4E17;
+	double index = 3.5;
+	double electronConcentration = 1E5;
+	double Tstar = 50 * 1000;
+	double luminosity = 510000 * 4 * 1E33;
+	double rsun = 7.5E10;
+	double rstar = rsun*sqrt(510000.0/pow(Tstar/5500,4));
+	double B = 0.6;
 
 	//SN2009bb
 	//const double distance = 40*3.08*1.0E24;
@@ -33,9 +38,9 @@ void evaluateFluxSNRtoWind() {
 	int Ne = 200;
 	int Nmu = 50;
 	int Nphi = 4;
-	double index = 3.5;
-	double electronConcentration = 1E9;
-	double Tstar = 50 * 5500;
+
+	int Nrho = 20;
+	int Nz = 20;
 
 	//initializing mean galactic photon field
 	double Ephmin = 0.01 * Tstar * kBoltzman;
@@ -43,13 +48,31 @@ void evaluateFluxSNRtoWind() {
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
 	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar/rsource));
-
+	double*** Bturb = create3dArray(Nrho, Nz, Nphi);
+	double*** thetaTurb = create3dArray(Nrho, Nz, Nphi);
+	double*** phiTurb = create3dArray(Nrho, Nz, Nphi);
+	double*** concentration = create3dArray(Nrho, Nz, Nphi, electronConcentration);
+	RadiationSourceFactory::initializeTurbulentField(Bturb, thetaTurb, phiTurb, Nrho, Nz, Nphi, B, pi / 2, 0, 0.1, 11.0 / 6.0, rsource, 10, rsource);
 	//initializing electrons distribution
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
-	MassiveParticleTabulatedIsotropicDistribution* electronsFromSmilei = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./input/Ee3.dat", "./input/Fs3.dat", 200, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
-	electronsFromSmilei->addPowerLaw(20 * massElectron * speed_of_light2, 3.5);
+	//MassiveParticleTabulatedIsotropicDistribution* electronsFromSmilei = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./input/Ee3.dat", "./input/Fs3.dat", 200, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+	//electronsFromSmilei->addPowerLaw(20 * massElectron * speed_of_light2, 3.5);
+	//electronsFromSmilei->rescaleDistribution(sqrt(18));
+	int Ndistributions = 10;
+	//reading electron distributions from files
+	MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./input/Ee", "./input/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
+	for (int i = 0; i < Ndistributions; ++i) {
+		//rescale distributions to real mp/me relation
+		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
+		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(50 * me_c2, 3.5);
+	}
+
+	
 	//creating radiation source
-	RadiationSource* source = new SimpleFlatSource(electronsFromSmilei, B, theta, rsource, rsource, distance);
+	//RadiationSource* source = new SimpleFlatSource(electronsFromSmilei, B, theta, rsource, 0.1*rsource, distance);
+	//RadiationSource* source = new TabulatedSphericalLayerSource(20, 20, 4, electronsFromSmilei, B, theta, electronConcentration, rsource, 0.9*rsource, distance);
+	//RadiationSource* source = new TabulatedSphericalLayerSource(20, 20, 4, electronsFromSmilei, Bturb, thetaTurb, concentration, rsource, 0.9*rsource, distance);
+	RadiationSource* source = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, Bturb, thetaTurb, phiTurb, concentration, rsource, 0.9*rsource, distance);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
 	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
@@ -145,14 +168,14 @@ int main() {
 	//evaluateSimpleSynchrotron();
 	//evaluateComtonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
-	fitCSS161010withTabulatedDistributions();
+	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
 	//evaluatePionDecayWithPowerLawDistribution();
 	//evaluateBremsstrahlung();
 	//compareComptonSynchrotron();
 
 
-	//evaluateFluxSNRtoWind();
+	evaluateFluxSNRtoWind();
 
 	return 0;
 }

@@ -781,7 +781,7 @@ MassiveParticleIsotropicDistribution* TabulatedSphericalLayerSource::getParticle
 	return my_distribution;
 }
 
-AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, double*** B, double*** sinTheta, double*** concentration, double*** phi, const double& rho, const double& rhoin, const double& distance, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, concentration, rho, rhoin, distance, velocity)
+AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, double*** B, double*** sinTheta, double*** phi, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, concentration, rho, rhoin, distance, velocity)
 {
 	my_Ntheta = Ntheta;
 	my_distributions = new MassiveParticleIsotropicDistribution*[my_Ntheta];
