@@ -158,6 +158,7 @@ public:
 	double getEmax();
 	void rescaleDistribution(const double& k);
 	void addPowerLaw(const double& Epower, const double& index);
+	void prolongEnergyRange(const double& Emax, int N);
 };
 
 class MassiveParticleTabulatedPolarDistribution : public MassiveParticleDistribution {

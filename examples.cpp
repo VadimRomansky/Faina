@@ -301,6 +301,7 @@ void fitCSS161010withTabulatedDistributions() {
 	double B = 0.6;
 	double rmax = 1.4E17;
 	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
+	double fraction = 0.5;
 	//sigma = 0.002;
 	//SN2009bb
 	//const double distance = 40*3.08*1.0E24;
@@ -338,10 +339,10 @@ void fitCSS161010withTabulatedDistributions() {
 	//number of parameters of the source
 	const int Nparams = 4;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 1.3E17, 0.0000001, 1000, 0.0001 };
-	double maxParameters[Nparams] = { 1.4E17, 0.1, 2E6, 0.5 };
+	double minParameters[Nparams] = { 1.3E17, 0.0000001, 100, 0.01 };
+	double maxParameters[Nparams] = { 1.4E17, 0.1, 2E6, 0.2 };
 	//starting point of optimization and normalization
-	double vector[Nparams] = { rmax, sigma, electronConcentration, 0.001 };
+	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction };
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
 	}
@@ -386,9 +387,14 @@ void fitCSS161010withTabulatedDistributions() {
 	//css1610101 t = 98
 	//observed parameters of the source in units of GHz and mJansky
 	const int Nenergy1 = 4;
-	double energy1[Nenergy1] = { 1.5E9 * hplank, 3.0E9 * hplank, 6.1E9 * hplank, 9.7E9 * hplank };
-	double observedFlux[Nenergy1] = { 1.5 / (hplank * 1E26), 4.3 / (hplank * 1E26), 6.1 / (hplank * 1E26), 4.2 / (hplank * 1E26) };
-	double observedError[Nenergy1] = { 0.1 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.3 / (hplank * 1E26), 0.2 / (hplank * 1E26) };
+	double energy1[Nenergy1] = { 1.5E9, 3.0E9 , 6.1E9, 9.7E9 };
+	double observedFlux[Nenergy1] = { 1.5, 4.3, 6.1, 4.2 };
+	double observedError[Nenergy1] = { 0.1, 0.2 , 0.3, 0.2 };
+	for (int i = 0; i < Nenergy1; ++i) {
+		energy1[i] = energy1[i] * hplank;
+		observedFlux[i] = observedFlux[i] / (hplank * 1E26);
+		observedError[i] = observedError[i] / (hplank * 1E26);
+	}
 	//css1610101 t = 357
 	//observed parameters of the source in units of GHz and mJansky
 	/*const int Nenergy1 = 6;
@@ -396,7 +402,7 @@ void fitCSS161010withTabulatedDistributions() {
 	double observedFlux[Nenergy1] = { 0.357 / (hplank * 1E26), 0.79 / (hplank * 1E26), 0.27 / (hplank * 1E26), 0.17 / (hplank * 1E26), 0.07 / (hplank * 1E26), 0.032 / (hplank * 1E26) };
 	double observedError[Nenergy1] = { 0.09 / (hplank * 1E26), 0.09 / (hplank * 1E26), 0.07 / (hplank * 1E26), 0.03 / (hplank * 1E26), 0.01 / (hplank * 1E26), 0.008 / (hplank * 1E26) };*/
 	//picking parameters to be optimized
-	bool optPar[Nparams] = { false, true, true, true };
+	bool optPar[Nparams] = { false, true, true, false };
 	int Niterations = 10;
 	//creating gradient descent optimizer
 	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);

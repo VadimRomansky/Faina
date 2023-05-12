@@ -17,4 +17,6 @@ title ('F_{E}');
 xlabel ('E эрг');
 ylabel ('F_{E} см^{-2} с^{-1}');
 
-plot(data(1:N,1),data(1:N,2),'red','LineWidth',2,'Marker','+');
+mc2 = (9.1*10^-28) * (3*10^10)^2;
+
+plot(data(1:N,1)/(mc2),data(1:N,2),'red','LineWidth',2,'Marker','+');

@@ -678,6 +678,30 @@ void MassiveParticleTabulatedIsotropicDistribution::addPowerLaw(const double& Ep
 	normalizeDistribution();
 }
 
+void MassiveParticleTabulatedIsotropicDistribution::prolongEnergyRange(const double& Emax, int N)
+{
+	double* tempEnergy = my_energy;
+	double* tempDistribution = my_distribution;
+	int tempNe = my_Ne;
+
+	my_Ne = my_Ne + N;
+	my_energy = new double[my_Ne];
+	my_distribution = new double[my_Ne];
+	for (int i = 0; i < tempNe; ++i) {
+		my_energy[i] = tempEnergy[i];
+		my_distribution[i] = tempDistribution[i];
+	}
+
+	double factor = pow(Emax / my_energy[tempNe - 1], 1.0 / N);
+	for (int i = tempNe; i < my_Ne; ++i) {
+		my_energy[i] = my_energy[i - 1] * factor;
+		my_distribution[i] = 0;
+	}
+	
+	delete[] tempEnergy;
+	delete[] tempDistribution;
+}
+
 void MassiveParticleTabulatedPolarDistribution::setDistributionAtPoint(int i, int j, const double& energy, const double& distribution)
 {
 	double m_c2 = my_mass * speed_of_light2;

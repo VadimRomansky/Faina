@@ -604,8 +604,8 @@ TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, i
 				//my_B[irho][iz][iphi] = B[irho][iz][iphi];
 				my_B[irho][iz][iphi] = B[irho][iz][iphi]*(my_rho/r);
 				my_theta[irho][iz][iphi] = theta[irho][iz][iphi];
-				//my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi];
-				my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi] * sqr(my_rho / r);
+				my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi];
+				//my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi] * sqr(my_rho / r);
 			}
 		}
 	}
