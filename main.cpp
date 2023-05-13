@@ -15,6 +15,9 @@
 #include "examples.h"
 
 void evaluateFluxSNRtoWind() {
+	FILE* logFile = fopen("log.dat", "w");
+	fclose(logFile);
+
 	double theta = pi/2;
 	double index = 3.5;
 	double Tstar = 50 * 1000;
@@ -23,8 +26,8 @@ void evaluateFluxSNRtoWind() {
 	double rstar = rsun*sqrt(510000.0/pow(Tstar/5500,4));
 	
 
-	double electronConcentration = 150;
-	double B = 0.6;
+	double electronConcentration = 25;
+	double B = 0.003;
 	double rmax = 1.4E17;
 	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
 	double fraction = 0.5;
@@ -68,9 +71,11 @@ void evaluateFluxSNRtoWind() {
 	for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
 		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
-		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(50 * me_c2, 3.5);
 		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->prolongEnergyRange(newEmax, 100);
-		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(500 * me_c2, 2);
+		if (i < 5) {
+			(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(100 * me_c2, 3.5);
+			(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(500 * me_c2, 2);
+		}
 		
 	}
 
@@ -80,20 +85,21 @@ void evaluateFluxSNRtoWind() {
 	//RadiationSource* source = new SimpleFlatSource(electronsFromSmilei, B, theta, rsource, 0.1*rsource, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(20, 20, 4, electronsFromSmilei, B, theta, electronConcentration, rsource, 0.9*rsource, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(20, 20, 4, electronsFromSmilei, Bturb, thetaTurb, concentration, rsource, 0.9*rsource, distance);
-	RadiationSource* source = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, Bturb, thetaTurb, phiTurb, concentration, rmax, 0.9*rmax, distance);
+	RadiationSource* source = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, Bturb, thetaTurb, phiTurb, concentration, rmax, 0.9*rmax, distance, 0.3*speed_of_light);
 
 	//SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true);
-	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, newEmax, true, true);
+	//SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, newEmax, true, true);
+	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne+100, Emin, newEmax, true, true);
 	//comptonEvaluator->outputDifferentialFlux("output1.dat");
 	//return;
 
 	//number of parameters of the source
-	const int Nparams = 4;
+	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 1.3E17, 0.0000001, 100, 0.01 };
-	double maxParameters[Nparams] = { 1.4E17, 0.1, 2E6, 0.2 };
+	double minParameters[Nparams] = { 1.3E17, 0.00001, 20, 0.01, 0.3*speed_of_light };
+	double maxParameters[Nparams] = { 1.5E17, 0.001, 2E5, 0.5, 0.5*speed_of_light };
 	//starting point of optimization and normalization
-	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction };
+	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, 0.3*speed_of_light };
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
 	}
@@ -108,12 +114,13 @@ void evaluateFluxSNRtoWind() {
 		observedError[i] = observedError[i] / (hplank * 1E26);
 	}
 
-	bool optPar[Nparams] = { false, true, true, false };
+	bool optPar[Nparams] = { false, true, true, true, false };
 	int Niterations = 10;
 	//creating gradient descent optimizer
-	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
+	//RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
+	RadiationOptimizer* synchrotronOptimizer = new CoordinateRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
 	//number of points per axis in gridEnumOptimizer
-	int Npoints[Nparams] = { 5,5,5,5 };
+	int Npoints[Nparams] = { 10,10,10,10,2 };
 	//creating grid enumeration optimizer
 	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
 	//grid enumeration optimization, finding best starting point for gradien descent
@@ -132,7 +139,7 @@ void evaluateFluxSNRtoWind() {
 	double* F = new double[Nnu];
 
 	double Numin = 1E8;
-	double Numax = 1E12;
+	double Numax = 1E19;
 	double factor = pow(Numax / Numin, 1.0 / (Nnu - 1));
 	Nu[0] = Numin;
 	F[0] = 0;

@@ -759,9 +759,11 @@ void TabulatedSphericalLayerSource::resetParameters(const double* parameters, co
 
 	my_rho = parameters[0] * normalizationUnits[0];
 	double sigma = parameters[1] * normalizationUnits[1];
-	double B0 = my_B[my_Nrho - 1][0][0];
-	double n0 = my_concentration[my_Nrho - 1][0][0];
-	double sigma0 = sqr(my_B[my_Nrho - 1][0][0]) / (4 * pi * massProton * my_concentration[my_Nrho - 1][0][0] * speed_of_light2);
+	//double B0 = my_B[my_Nrho - 1][0][0];
+	//double n0 = my_concentration[my_Nrho - 1][0][0];
+	double n0 = getAverageConcentration();
+	//double sigma0 = sqr(my_B[my_Nrho - 1][0][0]) / (4 * pi * massProton * my_concentration[my_Nrho - 1][0][0] * speed_of_light2);
+	double sigma0 = getAverageSigma();
 	for (int irho = 0; irho < my_Nrho; ++irho) {
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {

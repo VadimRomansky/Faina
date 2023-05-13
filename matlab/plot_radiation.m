@@ -204,6 +204,24 @@ errorbar(cssx1,cssy1,cssError1,'red','LineWidth',2);
 
 grid ;
 
+nufnuSynch(1:N)=0;
+nufnuCompt(1:N)=0;
+for i=1:N,
+    nufnuSynch(i) = radiation(i,1)*radiation(i,2)*10^-26*10^9;
+    nufnuCompt(i) = compton(i,1)*compton(i,2)*10^-26*10^9;
+end;
+
+figure(2);
+hold on;
+set(gca, 'YScale', 'log');
+set(gca, 'XScale', 'log');
+title ('\nu F_{\nu}');
+xlabel ('{\nu} GHz');
+ylabel ('\nu F_{\nu} erg cm^{-2} s^{-1}');
+
+loglog(radiation(1:N,1),nufnuSynch(1:N),'red','LineWidth',2);
+loglog(compton(1:N,1),nufnuCompt(1:N),'blue','LineWidth',2);
+
 dlmwrite('radiation.dat',radiation,'delimiter',' ');
 
 
