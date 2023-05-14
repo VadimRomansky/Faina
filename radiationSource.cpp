@@ -767,10 +767,10 @@ void TabulatedSphericalLayerSource::resetParameters(const double* parameters, co
 	for (int irho = 0; irho < my_Nrho; ++irho) {
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
-				double sigma = sqr(my_B[irho][iz][iphi]) / (4 * pi * massProton * my_concentration[irho][iz][iphi] * speed_of_light2);
-				sigma *= parameters[1] * normalizationUnits[1] / sigma0;
+				double localSigma = sqr(my_B[irho][iz][iphi]) / (4 * pi * massProton * my_concentration[irho][iz][iphi] * speed_of_light2);
+				localSigma *= sigma / sigma0;
 				my_concentration[irho][iz][iphi] *= parameters[2] * normalizationUnits[2] / n0;
-				my_B[irho][iz][iphi] = sqrt(sigma * 4 * pi * massProton * my_concentration[irho][iz][iphi] * speed_of_light2);
+				my_B[irho][iz][iphi] = sqrt(localSigma * 4 * pi * massProton * my_concentration[irho][iz][iphi] * speed_of_light2);
 			}
 		}
 	}
@@ -909,6 +909,11 @@ AngleDependentElectronsSphericalSource::~AngleDependentElectronsSphericalSource(
 }
 }*/
 
+double AngleDependentElectronsSphericalSource::getShockWaveAngle(int irho, int iz, int iphi)
+{
+	return my_shockWaveAngle[irho][iz][iphi];
+}
+
 MassiveParticleIsotropicDistribution* AngleDependentElectronsSphericalSource::getParticleDistribution(int irho, int iz, int iphi)
 {
 	double dtheta = 0.5*pi / (my_Ntheta-1);
@@ -922,8 +927,12 @@ MassiveParticleIsotropicDistribution* AngleDependentElectronsSphericalSource::ge
 		angleIndex = my_Ntheta - 1;
 	}
 
+	//for debug
+	angleIndex = 3;
+
 	my_distributions[angleIndex]->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_distributions[angleIndex];
+
 }
 
 ExpandingRemnantSource::ExpandingRemnantSource(const double& R0, const double& B0, const double& concentration0, const double& v, const double& widthFraction, RadiationSource* source, const double& t0) : RadiationTimeDependentSource(source, t0) {
@@ -990,7 +999,8 @@ void RadiationSourceFactory::normalizeTurbulenceKoef(double& turbulenceKoef, con
 			double ky = j * 2 * pi / L0;
 			for (int k = 0; k < Nmodes; ++k) {
 				double kz = k * 2 * pi / L0;
-				if (i + j + k > 0) {
+				//if (i + j + k > 0) {
+				if (i + j + k > minModeNumber) {
 					double kt = sqrt(kx * kx + ky * ky + kz * kz);
 					energy += sqr(evaluateTurbulenceAmplitude(kt, turbulenceKoef, index, L0));
 				}
@@ -1044,7 +1054,7 @@ void RadiationSourceFactory::initializeTurbulentField(double*** B, double*** the
 
 	double*** phases1 = create3dArray(Nmodes, Nmodes, Nmodes);
 	double*** phases2 = create3dArray(Nmodes, Nmodes, Nmodes);
-	srand(1234);
+	//srand(1234);
 	for (int i = 0; i < Nmodes; ++i) {
 		for (int j = 0; j < Nmodes; ++j) {
 			for (int k = 0; k < Nmodes; ++k) {
@@ -1065,7 +1075,8 @@ void RadiationSourceFactory::initializeTurbulentField(double*** B, double*** the
 			double ky = j * 2 * pi / L0;
 			for (int k = 0; k < Nmodes; ++k) {
 				double kz = k * 2 * pi / L0;
-				if (i + j + k > 0) {
+				//if (i + j + k > 0) {
+				if (i + j + k > minModeNumber) {
 					double kt = sqrt(kx * kx + ky * ky + kz * kz);
 					double cosThetat = kz / kt;
 					double sinThetat = sqrt(1.0 - cosThetat * cosThetat);

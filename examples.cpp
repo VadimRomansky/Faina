@@ -206,7 +206,7 @@ void fitCSS161010withPowerLawDistribition() {
 	//css1610101 t = 98
 	//observed parameters of the source in units of erg ana cm^-2 s^-1
 	const int Nenergy1 = 4;
-	double energy1[Nenergy1] = { 1.5E9 * hplank, 3.0E9 * hplank, 6.1E9 * hplank, 9.8E9 * hplank };
+	double energy1[Nenergy1] = { 1.5E9 * hplank, 3.0E9 * hplank, 6.1E9 * hplank, 9.87E9 * hplank };
 	double observedFlux[Nenergy1] = { 1.5 / (hplank * 1E26), 4.3 / (hplank * 1E26), 6.1 / (hplank * 1E26), 4.2 / (hplank * 1E26) };
 	double observedError[Nenergy1] = { 0.1 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.3 / (hplank * 1E26), 0.2 / (hplank * 1E26) };
 
@@ -387,7 +387,7 @@ void fitCSS161010withTabulatedDistributions() {
 	//css1610101 t = 98
 	//observed parameters of the source in units of GHz and mJansky
 	const int Nenergy1 = 4;
-	double energy1[Nenergy1] = { 1.5E9, 3.0E9 , 6.1E9, 9.7E9 };
+	double energy1[Nenergy1] = { 1.5E9, 3.0E9 , 6.1E9, 9.87E9 };
 	double observedFlux[Nenergy1] = { 1.5, 4.3, 6.1, 4.2 };
 	double observedError[Nenergy1] = { 0.1, 0.2 , 0.3, 0.2 };
 	for (int i = 0; i < Nenergy1; ++i) {

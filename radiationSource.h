@@ -170,6 +170,7 @@ public:
     virtual ~AngleDependentElectronsSphericalSource();
 
 	//void resetConcentration(const double& concentration);
+	double getShockWaveAngle(int irho, int iz, int iphi);
 	virtual MassiveParticleIsotropicDistribution* getParticleDistribution(int irho, int iz, int iphi);
 };
 
@@ -209,6 +210,7 @@ public:
 
 class RadiationSourceFactory {
 private:
+	const static int minModeNumber = 5;
 	static double evaluateTurbulenceAmplitude(const double& k, const double& turbulenceKoef, const double& index, const double& L0);
 	static void normalizeTurbulenceKoef(double& turbulenceKoef, const double& index, const double& L0, const int Nmodes, const double& fraction, const double& B0);
 public:

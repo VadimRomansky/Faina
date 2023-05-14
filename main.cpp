@@ -45,20 +45,21 @@ void evaluateFluxSNRtoWind() {
 	double Emax = 1E4 * me_c2;
 	int Ne = 200;
 	int Nmu = 50;
-	int Nphi = 4;
 
-	int Nrho = 20;
+	int Nrho = 10;
 	int Nz = 20;
+	int Nphi = 4;
 
 	//initializing mean galactic photon field
 	double Ephmin = 0.01 * Tstar * kBoltzman;
 	double Ephmax = 100 * Tstar * kBoltzman;
 	
+	srand(100);
 	double*** Bturb = create3dArray(Nrho, Nz, Nphi);
 	double*** thetaTurb = create3dArray(Nrho, Nz, Nphi);
 	double*** phiTurb = create3dArray(Nrho, Nz, Nphi);
 	double*** concentration = create3dArray(Nrho, Nz, Nphi, electronConcentration);
-	RadiationSourceFactory::initializeTurbulentField(Bturb, thetaTurb, phiTurb, Nrho, Nz, Nphi, B, pi / 2, 0, 0.1, 11.0 / 6.0, rmax, 10, rmax);
+	RadiationSourceFactory::initializeTurbulentField(Bturb, thetaTurb, phiTurb, Nrho, Nz, Nphi, B, pi / 2, 0, 0.9, 11.0 / 6.0, rmax, 10, rmax);
 	//initializing electrons distribution
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 	//MassiveParticleTabulatedIsotropicDistribution* electronsFromSmilei = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./input/Ee3.dat", "./input/Fs3.dat", 200, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
@@ -66,27 +67,41 @@ void evaluateFluxSNRtoWind() {
 	//electronsFromSmilei->rescaleDistribution(sqrt(18));
 	int Ndistributions = 10;
 	//reading electron distributions from files
-	MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./input/Ee", "./input/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
+	//MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.3_theta0-90/Ee", "./examples_data/gamma0.3_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
+	MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.5_theta0-90/Ee", "./examples_data/gamma0.5_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
 	double newEmax = 1E6 * me_c2;
 	for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
 		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
 		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->prolongEnergyRange(newEmax, 100);
-		if (i < 5) {
-			(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(100 * me_c2, 3.5);
+		if (i < 4) {
+			//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(100 * me_c2, 3.5);
+			(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(300 * me_c2, 3.5);
 			(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(500 * me_c2, 2);
 		}
 		
 	}
 
-	angleDependentDistributions[4]->writeDistribution("output4.dat", 300, Emin, newEmax);
+	angleDependentDistributions[1]->writeDistribution("dist1.dat", 300, Emin, newEmax);
+	angleDependentDistributions[4]->writeDistribution("dist4.dat", 300, Emin, newEmax);
+	angleDependentDistributions[8]->writeDistribution("dist8.dat", 300, Emin, newEmax);
 
 	//creating radiation source
 	//RadiationSource* source = new SimpleFlatSource(electronsFromSmilei, B, theta, rsource, 0.1*rsource, distance);
-	//RadiationSource* source = new TabulatedSphericalLayerSource(20, 20, 4, electronsFromSmilei, B, theta, electronConcentration, rsource, 0.9*rsource, distance);
-	//RadiationSource* source = new TabulatedSphericalLayerSource(20, 20, 4, electronsFromSmilei, Bturb, thetaTurb, concentration, rsource, 0.9*rsource, distance);
-	RadiationSource* source = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, Bturb, thetaTurb, phiTurb, concentration, rmax, 0.9*rmax, distance, 0.3*speed_of_light);
-
+	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronsFromSmilei, B, theta, electronConcentration, rsource, 0.9*rsource, distance);
+	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronsFromSmilei, Bturb, thetaTurb, concentration, rsource, 0.9*rsource, distance);
+	RadiationSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, Bturb, thetaTurb, phiTurb, concentration, rmax, 0.9*rmax, distance, 0.3*speed_of_light);
+	int nangle = 0;
+	for (int irho = 0; irho < Nrho; ++irho) {
+		for (int iz = 0; iz < Nz; ++iz) {
+			for (int iphi = 0; iphi < Nphi; ++iphi) {
+				double angle = (dynamic_cast<AngleDependentElectronsSphericalSource*>(source))->getShockWaveAngle(irho, iz, iphi);
+				if ((angle < 2*pi / 9)||(angle > 7*pi/9)) {
+					nangle++;
+				}
+			}
+		}
+	}
 	//SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true);
 	//SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, newEmax, true, true);
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne+100, Emin, newEmax, true, true);
@@ -97,7 +112,7 @@ void evaluateFluxSNRtoWind() {
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 1.3E17, 0.00001, 20, 0.01, 0.3*speed_of_light };
-	double maxParameters[Nparams] = { 1.5E17, 0.001, 2E5, 0.5, 0.5*speed_of_light };
+	double maxParameters[Nparams] = { 1.5E17, 0.05, 2E5, 0.5, 0.5*speed_of_light };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, 0.3*speed_of_light };
 	for (int i = 0; i < Nparams; ++i) {
@@ -105,7 +120,7 @@ void evaluateFluxSNRtoWind() {
 	}
 
 	const int Nenergy1 = 4;
-	double energy1[Nenergy1] = { 1.5E9, 3.0E9 , 6.1E9, 9.7E9 };
+	double energy1[Nenergy1] = { 1.5E9, 3.0E9 , 6.1E9, 9.87E9 };
 	double observedFlux[Nenergy1] = { 1.5, 4.3, 6.1, 4.2 };
 	double observedError[Nenergy1] = { 0.1, 0.2 , 0.3, 0.2 };
 	for (int i = 0; i < Nenergy1; ++i) {
@@ -124,7 +139,7 @@ void evaluateFluxSNRtoWind() {
 	//creating grid enumeration optimizer
 	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
 	//grid enumeration optimization, finding best starting point for gradien descent
-	enumOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
+	//enumOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
 	//gradient descent optimization
 	synchrotronOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
 	//reseting source parameters to found values
@@ -132,6 +147,28 @@ void evaluateFluxSNRtoWind() {
 	//evaluating resulting error
 	double error = synchrotronOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
 	printf("error = %g\n", error);
+
+	//outputing parameters
+	FILE* paramFile = fopen("parametersCSS161010.dat", "w");
+	printf("hi^2 = %g\n", error);
+	fprintf(paramFile, "hi^2 = %g\n", error);
+	printf("parameters:\n");
+	fprintf(paramFile, "parameters:\n");
+	printf("R = %g\n", vector[0] * maxParameters[0]);
+	fprintf(paramFile, "R = %g\n", vector[0] * maxParameters[0]);
+	printf("average sigma = %g\n", vector[1] * maxParameters[1]);
+	fprintf(paramFile, "average sigma = %g\n", vector[1] * maxParameters[1]);
+	printf("n = %g\n", vector[2] * maxParameters[2]);
+	fprintf(paramFile, "n = %g\n", vector[2] * maxParameters[2]);
+	printf("width fraction = %g\n", vector[3] * maxParameters[3]);
+	fprintf(paramFile, "width fraction = %g\n", vector[3] * maxParameters[3]);
+	printf("velocity/c = %g\n", vector[4] * maxParameters[4]/speed_of_light);
+	fprintf(paramFile, "celocity/c = %g\n", vector[4] * maxParameters[4]/speed_of_light);
+
+	B = sqrt(vector[1] * maxParameters[1] * 4 * pi * massProton * vector[2] * maxParameters[2] * speed_of_light2);
+	printf("average B = %g\n", B);
+	fprintf(paramFile, "average B = %g\n", B);
+	fclose(paramFile);
 
 	//initialization arrays for full synchrotron spectrum
 	const int Nnu = 200;
