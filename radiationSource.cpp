@@ -724,7 +724,13 @@ double TabulatedSphericalLayerSource::getAverageConcentration()
 		}
 	}
 
-	return concentration/volume;
+	double result =  concentration/volume;
+	if (result != result) {
+		printf("averageConcentration = NaN\n");
+		printLog("averageConcentration = NaN\n");
+		exit(0);
+	}
+	return result;
 }
 double TabulatedSphericalLayerSource::getConcentration(int irho, int iz, int iphi)
 {
@@ -758,6 +764,8 @@ void TabulatedSphericalLayerSource::resetParameters(const double* parameters, co
 	my_geometryCashed = false;
 
 	my_rho = parameters[0] * normalizationUnits[0];
+	my_rhoin = my_rho * (1.0 - parameters[3] * normalizationUnits[3]);
+	evaluateLengthAndArea();
 	double sigma = parameters[1] * normalizationUnits[1];
 	//double B0 = my_B[my_Nrho - 1][0][0];
 	//double n0 = my_concentration[my_Nrho - 1][0][0];
@@ -770,12 +778,15 @@ void TabulatedSphericalLayerSource::resetParameters(const double* parameters, co
 				double localSigma = sqr(my_B[irho][iz][iphi]) / (4 * pi * massProton * my_concentration[irho][iz][iphi] * speed_of_light2);
 				localSigma *= sigma / sigma0;
 				my_concentration[irho][iz][iphi] *= parameters[2] * normalizationUnits[2] / n0;
+				if (my_concentration[irho][iz][iphi] != my_concentration[irho][iz][iphi]) {
+					printf("my_concentration = NaN\n");
+					printLog("my_concentration = NaN\n");
+					exit(0);
+				}
 				my_B[irho][iz][iphi] = sqrt(localSigma * 4 * pi * massProton * my_concentration[irho][iz][iphi] * speed_of_light2);
 			}
 		}
 	}
-	my_rhoin = my_rho * (1.0 - parameters[3] * normalizationUnits[3]);
-	evaluateLengthAndArea();
 	my_velocity = parameters[4] * normalizationUnits[4];
 }
 MassiveParticleIsotropicDistribution* TabulatedSphericalLayerSource::getParticleDistribution(int irho, int iz, int iphi) {
