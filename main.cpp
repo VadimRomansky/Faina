@@ -129,6 +129,8 @@ void evaluateFluxSNRtoWind() {
 		observedError[i] = observedError[i] / (hplank * 1E26);
 	}
 
+	printf("start optimization\n");
+	printLog("start optimization\n");
 	bool optPar[Nparams] = { true, true, true, true, false };
 	int Niterations = 10;
 	//creating gradient descent optimizer
@@ -139,13 +141,16 @@ void evaluateFluxSNRtoWind() {
 	//creating grid enumeration optimizer
 	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
 	//grid enumeration optimization, finding best starting point for gradien descent
+	double error = synchrotronOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
+	printf("starting error = %g\n", error);
+	printLog("starting error = %g\n", error);
 	enumOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
 	//gradient descent optimization
 	synchrotronOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
 	//reseting source parameters to found values
 	source->resetParameters(vector, maxParameters);
 	//evaluating resulting error
-	double error = synchrotronOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
+	error = synchrotronOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
 	printf("error = %g\n", error);
 
 	//outputing parameters
