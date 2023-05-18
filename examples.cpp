@@ -42,7 +42,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	//const double distance = 1.0;
 
 	//double Emin = 652.317 * me_c2 * 1;
-	double Emin = 10*me_c2;
+	double Emin = 1*me_c2;
 	double Emax = 1E5 * me_c2;
 	int Ne = 200;
 	int Nmu = 20;
@@ -76,7 +76,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	electrons->addPowerLaw(100 * me_c2, 3.5);
 	//creating radiation source
 	//RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, rmax, distance);
-	RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, electronConcentration, theta, rmax, 0.9*rmax, distance);
+	RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, electronConcentration, rmax, 0.9*rmax, distance);
 	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
 	InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
