@@ -948,6 +948,6 @@ void compareComptonSynchrotron() {
 	printf("magneticEnergy/photonEnergy = %g\n", ratioEnergy);
 	printf("synchrotron / compton = %g\n", ratioFlux);
 	printf("(synchrotron/magnetic) / (compton/photon) = %g\n", ratioRatio);
-	printf("theoretical compton/ compton %g\n", ratioGhiselini * 4 * pi);
+	printf("theoretical compton/ compton %g\n", ratioGhiselini);
 	printf("Jones flux/klein-nishina flux = %g\n", ratioComptonEvaluators);
 }

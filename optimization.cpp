@@ -66,6 +66,77 @@ void RadiationOptimizer::optimize(double* vector, bool* optPar, double* energy, 
 	delete[] observedError;
 }
 
+void RadiationOptimizer::outputProfileDiagrams(const double* vector, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source, int Npoints)
+{
+	if (my_Nparams < 2) {
+		printf("cannot output error profilefor Nparams < 2\n");
+		printLog("cannot output error profilefor Nparams < 2\n");
+	}
+
+	double** paramPoints = new double* [my_Nparams];
+	for (int i = 0; i < my_Nparams; ++i) {
+		paramPoints[i] = new double[Npoints];
+		paramPoints[i][0] = my_minParameters[i];
+		paramPoints[i][Npoints-1] = my_maxParameters[i];
+		double factor = pow(my_minParameters[i] / my_maxParameters[i], 1.0 / (Npoints - 1));
+		for (int j = 1; j < Npoints-1; ++j) {
+			paramPoints[i][j] = paramPoints[i][j - 1] * factor;
+		}
+	}
+
+	for (int i = 0; i < my_Nparams; ++i) {
+		std::string fileNumber = convertIntToString(i);
+		std::string fileName = "parameter";
+		FILE* paramFile = fopen((fileName + fileNumber + ".dat").c_str(), "w");
+		for (int j = 0; j < Npoints; ++j) {
+			fprintf(paramFile, "%lf\n", paramPoints[i][j]);
+		}
+		fclose(paramFile);
+	}
+
+	double* tempVector = new double[my_Nparams];
+	for (int i = 0; i < my_Nparams; ++i) {
+		tempVector[i] = vector[i];
+	}
+
+	for (int ip1 = 0; ip1 < my_Nparams-1; ++ip1) {
+		for (int ip2 = ip1 + 1; ip2 < my_Nparams; ++ip2) {
+			std::string fileNumber1 = convertIntToString(ip1);
+			std::string fileNumber2 = convertIntToString(ip2);
+			std::string fileName = "error_";
+			FILE* errorFile = fopen((fileName + fileNumber1 +"_" + fileNumber2 + ".dat").c_str(), "w");
+
+			for (int i = 0; i < my_Nparams; ++i) {
+				tempVector[i] = vector[i];
+			}
+
+			for (int j1 = 0; j1 < Npoints; ++j1) {
+				for (int j2 = 0; j2 < Npoints; ++j2) {
+					tempVector[ip1] = paramPoints[ip1][j1];
+					tempVector[ip2] = paramPoints[ip2][j2];
+
+					double error = evaluateOptimizationFunction(tempVector, energy, observedFlux, observedError, Ne, source);
+
+					fprintf(errorFile, "%lf", error);
+					if (j2 < Npoints - 1) {
+						fprintf(errorFile, " ");
+					}
+				}
+				fprintf(errorFile, "\n");
+			}
+
+			fclose(errorFile);
+		}
+	}
+
+	delete[] tempVector;
+
+	for (int i = 0; i < my_Nparams; ++i) {
+		delete[] paramPoints[i];
+	}
+	delete[] paramPoints;
+}
+
 GradientDescentRadiationOptimizer::GradientDescentRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams) {
 	my_Niterations = Niterations;
 

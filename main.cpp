@@ -67,16 +67,16 @@ void evaluateFluxSNRtoWind() {
 	//electronsFromSmilei->rescaleDistribution(sqrt(18));
 	int Ndistributions = 10;
 	//reading electron distributions from files
-	MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.3_theta0-90/Ee", "./examples_data/gamma0.3_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
-	//MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.5_theta0-90/Ee", "./examples_data/gamma0.5_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
+	//MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.3_theta0-90/Ee", "./examples_data/gamma0.3_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
+	MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.5_theta0-90/Ee", "./examples_data/gamma0.5_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
 	double newEmax = 1E6 * me_c2;
 	for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
 		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
 		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->prolongEnergyRange(newEmax, 100);
 		if (i < 4) {
-			(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(100 * me_c2, 3.5);
-			//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(300 * me_c2, 3.5);
+			//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(100 * me_c2, 3.5);
+			(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(300 * me_c2, 3.5);
 			(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(500 * me_c2, 2);
 		}
 		
@@ -90,7 +90,7 @@ void evaluateFluxSNRtoWind() {
 	//RadiationSource* source = new SimpleFlatSource(electronsFromSmilei, B, theta, rsource, 0.1*rsource, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronsFromSmilei, B, theta, electronConcentration, rsource, 0.9*rsource, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronsFromSmilei, Bturb, thetaTurb, concentration, rsource, 0.9*rsource, distance);
-	RadiationSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, Bturb, thetaTurb, phiTurb, concentration, rmax, 0.9*rmax, distance, 0.3*speed_of_light);
+	RadiationSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, Bturb, thetaTurb, phiTurb, concentration, rmax, 0.9*rmax, distance, 0.5*speed_of_light);
 	int nangle = 0;
 	for (int irho = 0; irho < Nrho; ++irho) {
 		for (int iz = 0; iz < Nz; ++iz) {
@@ -112,9 +112,9 @@ void evaluateFluxSNRtoWind() {
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 1.0E17, 0.000001, 20, 0.001, 0.3*speed_of_light };
-	double maxParameters[Nparams] = { 1.5E17, 0.5, 2E6, 0.5, 0.5*speed_of_light };
+	double maxParameters[Nparams] = { 1.5E17, 0.05, 2E6, 0.2, 0.5*speed_of_light };
 	//starting point of optimization and normalization
-	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, 0.3*speed_of_light };
+	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, 0.5*speed_of_light };
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
 	}
@@ -137,7 +137,7 @@ void evaluateFluxSNRtoWind() {
 	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
 	//RadiationOptimizer* synchrotronOptimizer = new CoordinateRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
 	//number of points per axis in gridEnumOptimizer
-	int Npoints[Nparams] = { 20,20,20,20,2 };
+	int Npoints[Nparams] = { 5,5,5,5,2 };
 	//creating grid enumeration optimizer
 	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
 	//grid enumeration optimization, finding best starting point for gradien descent
@@ -148,6 +148,7 @@ void evaluateFluxSNRtoWind() {
 	//gradient descent optimization
 	synchrotronOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
 	//reseting source parameters to found values
+	synchrotronOptimizer->outputProfileDiagrams(vector, energy1, observedFlux, observedError, Nenergy1, source, 20);
 	source->resetParameters(vector, maxParameters);
 	//evaluating resulting error
 	error = synchrotronOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
@@ -297,13 +298,13 @@ void evaluateFluxSNRtoWind() {
 
 int main() {
 	//evaluateSimpleSynchrotron();
-	evaluateComtonWithPowerLawDistribution();
+	//evaluateComtonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
 	//evaluatePionDecayWithPowerLawDistribution();
 	//evaluateBremsstrahlung();
-	//compareComptonSynchrotron();
+	compareComptonSynchrotron();
 
 
 	//evaluateFluxSNRtoWind();
