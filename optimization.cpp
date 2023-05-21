@@ -78,7 +78,7 @@ void RadiationOptimizer::outputProfileDiagrams(const double* vector, double* ene
 		paramPoints[i] = new double[Npoints];
 		paramPoints[i][0] = my_minParameters[i];
 		paramPoints[i][Npoints-1] = my_maxParameters[i];
-		double factor = pow(my_minParameters[i] / my_maxParameters[i], 1.0 / (Npoints - 1));
+		double factor = pow(my_maxParameters[i] / my_minParameters[i], 1.0 / (Npoints - 1));
 		for (int j = 1; j < Npoints-1; ++j) {
 			paramPoints[i][j] = paramPoints[i][j - 1] * factor;
 		}
