@@ -23,6 +23,7 @@ public:
 	virtual void optimize(double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source) = 0;
 	void optimize(double* vector, bool* optPar, double* energy, double* observedFlux, int Ne, RadiationSource* source);
 	void outputProfileDiagrams(const double* vector, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source, int Npoints);
+	void outputOptimizedProfileDiagram(const double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source, int Npoints, int Nparam1, int Nparam2);
 };
 
 class GradientDescentRadiationOptimizer:public RadiationOptimizer{

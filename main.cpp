@@ -132,7 +132,7 @@ void evaluateFluxSNRtoWind() {
 	printf("start optimization\n");
 	printLog("start optimization\n");
 	bool optPar[Nparams] = { true, true, true, true, false };
-	int Niterations = 10;
+	int Niterations = 2;
 	//creating gradient descent optimizer
 	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
 	//RadiationOptimizer* synchrotronOptimizer = new CoordinateRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
@@ -144,11 +144,12 @@ void evaluateFluxSNRtoWind() {
 	double error = synchrotronOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
 	printf("starting error = %g\n", error);
 	printLog("starting error = %g\n", error);
-	enumOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
+	//enumOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
 	//gradient descent optimization
 	synchrotronOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
 	//reseting source parameters to found values
-	synchrotronOptimizer->outputProfileDiagrams(vector, energy1, observedFlux, observedError, Nenergy1, source, 20);
+	//synchrotronOptimizer->outputProfileDiagrams(vector, energy1, observedFlux, observedError, Nenergy1, source, 10);
+	synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source, 10, 1, 2);
 	source->resetParameters(vector, maxParameters);
 	//evaluating resulting error
 	error = synchrotronOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
@@ -304,10 +305,10 @@ int main() {
 	//fitTimeDependentCSS161010();
 	//evaluatePionDecayWithPowerLawDistribution();
 	//evaluateBremsstrahlung();
-	compareComptonSynchrotron();
+	//compareComptonSynchrotron();
 
 
-	//evaluateFluxSNRtoWind();
+	evaluateFluxSNRtoWind();
 
 	return 0;
 }
