@@ -79,6 +79,7 @@ double BremsstrahlungThermalEvaluator::evaluateFluxFromSource(const double& phot
 	int Nphi = source->getNphi();
 
 	double result = 0;
+#pragma omp parallel for shared(result, photonFinalEnergy, source, Nrho, Nz, Nphi, photonFinalFrequency)	
 
 	for (int irho = 0; irho < Nrho; ++irho) {
 		for (int iz = 0; iz < Nz; ++iz) {

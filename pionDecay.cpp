@@ -363,6 +363,7 @@ double PionDecayEvaluator::evaluateFluxFromSource(const double& photonFinalEnerg
 
 	double result = 0;
 
+#pragma omp parallel for shared(result, photonFinalEnergy, source, Nrho, Nz, Nphi, photonFinalFrequency)	
 	for (int irho = 0; irho < Nrho; ++irho) {
 		for (int iz = 0; iz < Nz; ++iz) {
 			for (int iphi = 0; iphi < Nphi; ++iphi) {
