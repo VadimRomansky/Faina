@@ -234,9 +234,10 @@ double SynchrotronEvaluator::evaluateFluxFromSource(const double& photonFinalEne
 
 
 	double result = 0;
+	int irho = 0;
+#pragma omp parallel for private(irho) shared(photonFinalEnergy, source, Nrho, Nz, Nphi, photonFinalFrequency) reduction(+:result)
 
-#pragma omp parallel for shared(result, photonFinalEnergy, source, Nrho, Nz, Nphi, photonFinalFrequency)	
-	for (int irho = 0; irho < Nrho; ++irho) {
+	for (irho = 0; irho < Nrho; ++irho) {
 		for (int iphi = 0; iphi < Nphi; ++iphi) {
 			double localI = 0;
 			for (int iz = 0; iz < Nz; ++iz) {

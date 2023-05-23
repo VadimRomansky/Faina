@@ -362,9 +362,10 @@ double PionDecayEvaluator::evaluateFluxFromSource(const double& photonFinalEnerg
 	int Nphi = source->getNphi();
 
 	double result = 0;
+	int irho = 0;
+#pragma omp parallel for private(irho) shared(photonFinalEnergy, source, Nrho, Nz, Nphi) reduction(+:result)
 
-#pragma omp parallel for shared(result, photonFinalEnergy, source, Nrho, Nz, Nphi, photonFinalFrequency)	
-	for (int irho = 0; irho < Nrho; ++irho) {
+	for (irho = 0; irho < Nrho; ++irho) {
 		for (int iz = 0; iz < Nz; ++iz) {
 			for (int iphi = 0; iphi < Nphi; ++iphi) {
                 result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
