@@ -139,6 +139,7 @@ void evaluateFluxSNRtoWind() {
 	//number of points per axis in gridEnumOptimizer
 	int Npoints[Nparams] = { 5,5,5,5,2 };
 	//creating grid enumeration optimizer
+	RadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints);
 	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
 	//grid enumeration optimization, finding best starting point for gradien descent
 	double error = synchrotronOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
@@ -146,10 +147,12 @@ void evaluateFluxSNRtoWind() {
 	printLog("starting error = %g\n", error);
 	//enumOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
 	//gradient descent optimization
-	synchrotronOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
+	//synchrotronOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
 	//reseting source parameters to found values
 	//synchrotronOptimizer->outputProfileDiagrams(vector, energy1, observedFlux, observedError, Nenergy1, source, 10);
-	synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source, 10, 1, 2);
+	//synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source, 10, 1, 2);
+	combinedOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
+	combinedOptimizer->outputOptimizedProfileDiagram(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source, 10, 1, 2);
 	source->resetParameters(vector, maxParameters);
 	//evaluating resulting error
 	error = synchrotronOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
