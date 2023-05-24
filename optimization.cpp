@@ -166,6 +166,8 @@ void RadiationOptimizer::outputOptimizedProfileDiagram(const double* vector, boo
 		tempVector[i] = vector[i];
 		tempOptPar[i] = optPar[i];
 	}
+	tempOptPar[Nparam1] = false;
+	tempOptPar[Nparam2] = false;
 
 
 			std::string fileNumber1 = convertIntToString(Nparam1);
