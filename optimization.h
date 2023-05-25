@@ -67,6 +67,17 @@ public:
 	virtual void optimize(double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source);
 };
 
+class CombinedRadiationOptimizer : public RadiationOptimizer {
+protected:
+	GradientDescentRadiationOptimizer* my_GradientOptimzer;
+	GridEnumRadiationOptimizer* my_EnumOptimizer;
+public:
+	CombinedRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, const int* Npoints);
+	//CombinedRadiationOptimizer(GridEnumRadiationOptimizer* enumOptimizer, GradientDescentRadiationOptimizer* gradientOptimizer);
+	virtual ~CombinedRadiationOptimizer();
+	virtual void optimize(double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source);
+};
+
 class RadiationTimeOptimizer {
 protected:
 	int my_Nparams;

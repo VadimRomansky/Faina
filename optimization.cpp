@@ -166,6 +166,8 @@ void RadiationOptimizer::outputOptimizedProfileDiagram(const double* vector, boo
 		tempVector[i] = vector[i];
 		tempOptPar[i] = optPar[i];
 	}
+	tempOptPar[Nparam1] = false;
+	tempOptPar[Nparam2] = false;
 
 
 			std::string fileNumber1 = convertIntToString(Nparam1);
@@ -1544,4 +1546,40 @@ CoordinateRadiationOptimizer::CoordinateRadiationOptimizer(RadiationEvaluator* e
 }
 CoordinateRadiationOptimizer::~CoordinateRadiationOptimizer(){
 
+}
+
+CombinedRadiationOptimizer::CombinedRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, const int* Npoints) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams)
+{
+	my_EnumOptimizer = new GridEnumRadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, Npoints);
+	my_GradientOptimzer = new GradientDescentRadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, Niterations);
+
+}
+
+/*CombinedRadiationOptimizer::CombinedRadiationOptimizer(GridEnumRadiationOptimizer* enumOptimizer, GradientDescentRadiationOptimizer* gradientOptimizer)
+{
+	my_EnumOptimizer = enumOptimizer;
+	my_GradientOptimzer = gradientOptimizer;
+
+	my_evaluator = enumOptimizer->my_evaluator;
+	my_Nparams = Nparams;
+	my_minParameters = new double[my_Nparams];
+	my_maxParameters = new double[my_Nparams];
+	my_minVector = new double[my_Nparams];
+	for (int i = 0; i < my_Nparams; ++i) {
+		my_minParameters[i] = minParameters[i];
+		my_maxParameters[i] = maxParameters[i];
+		my_minVector[i] = my_minParameters[i] / my_maxParameters[i];
+	}
+}*/
+
+CombinedRadiationOptimizer::~CombinedRadiationOptimizer()
+{
+	delete my_EnumOptimizer;
+	delete my_GradientOptimzer;
+}
+
+void CombinedRadiationOptimizer::optimize(double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source)
+{
+	my_EnumOptimizer->optimize(vector, optPar, energy, observedFlux, observedError, Ne, source);
+	my_GradientOptimzer->optimize(vector, optPar, energy, observedFlux, observedError, Ne, source);
 }
