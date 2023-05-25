@@ -259,6 +259,7 @@ void GradientDescentRadiationOptimizer::findMinParametersAtDirection(double* vec
 			tempVector1[i] = vector[i] - grad[i] * step;
 			if (tempVector1[i] != tempVector1[i]) {
 				printf("tempvector[i] != tempVector[i]\n");
+				printLog("tempvector[i] != tempVector[i]\n");
 				exit(0);
 			}
 		}
@@ -279,6 +280,7 @@ void GradientDescentRadiationOptimizer::findMinParametersAtDirection(double* vec
 					tempVector1[i] = vector[i] - grad[i] * step;
 					if (tempVector1[i] != tempVector1[i]) {
 						printf("tempvector[i] != tempVector[i]\n");
+						printLog("tempvector[i] != tempVector[i]\n");
 						exit(0);
 					}
 				}
@@ -456,6 +458,7 @@ void GradientDescentRadiationOptimizer::gradientStep(int iterationNumber, const 
 			grad[i] = (f - f1) / (2 * dx);
 			if (grad[i] != grad[i]) {
 				printf("grad[i] = NaN\n");
+				printLog("grad[i] = NaN\n");
 				exit(0);
 			}
 			if (grad[i] > 0) {
@@ -484,6 +487,7 @@ void GradientDescentRadiationOptimizer::gradientStep(int iterationNumber, const 
 	}
 	if (gradNorm != gradNorm) {
 		printf("gradNorm = NaN\n");
+		printLog("gradNorm = NaN\n");
 		exit(0);
 	}
 	for (int i = 0; i < my_Nparams; ++i) {
@@ -539,6 +543,7 @@ void GradientDescentRadiationOptimizer::optimize(double* vector, bool* optPar, d
 					vector[i] = tempVector[i];
 				}
 				printf("optimization function = %g\n", currentF);
+				printLog("optimization function = %g\n", currentF);
 				printf("random search succeed\n");
 				printLog("random search succeed\n");
 			}
@@ -552,6 +557,7 @@ void GradientDescentRadiationOptimizer::optimize(double* vector, bool* optPar, d
 		}
 
 		printf("optimization k = %d\n", k);
+		printLog("optimization k = %d\n", k);
 
 		gradientStep(k, currentF, vector, optPar, energy, observedFlux, observedError, Ne, source);
 
@@ -610,15 +616,20 @@ void GradientDescentRadiationOptimizer::optimize(double* vector, bool* optPar, d
 			currentVector[i] = vector[i];
 		}
 		printf("optimization function = %g\n", currentF);
+		printLog("optimization function = %g\n", currentF);
 		for (int i = 0; i < my_Nparams; ++i) {
 			printf("parameter[%d] = %g\n", i, vector[i] * my_maxParameters[i]);
+			printLog("parameter[%d] = %g\n", i, vector[i] * my_maxParameters[i]);
 		}
 	}
 	printf("GradientDescentOptimizer: final optimization function = %g\n", currentF);
+	printLog("GradientDescentOptimizer: final optimization function = %g\n", currentF);
 	for (int i = 0; i < my_Nparams; ++i) {
 		printf("parameter[%d] = %g\n", i, vector[i] * my_maxParameters[i]);
+		printLog("parameter[%d] = %g\n", i, vector[i] * my_maxParameters[i]);
 	}
 	printf("finish optimization\n");
+	printLog("finish optimization\n");
 }
 
 GridEnumRadiationOptimizer::GridEnumRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams)
@@ -684,13 +695,18 @@ void GridEnumRadiationOptimizer::optimize(double* vector, bool* optPar, double* 
 				}
 			}
 			printf("optimization function = %g\n", tempF);
+			printLog("optimization function = %g\n", tempF);
 		}
 	}
 
 	printf("GridENumOptimizer: final optimization function = %g\n", currentF);
+	printLog("GridENumOptimizer: final optimization function = %g\n", currentF);
 	for (int i = 0; i < my_Nparams; ++i) {
 		printf("parameter[%d] = %g\n", i, vector[i] * my_maxParameters[i]);
+		printLog("parameter[%d] = %g\n", i, vector[i] * my_maxParameters[i]);
 	}
+	printf("finish optimization\n");
+	printLog("finish optimization\n");
 
 	delete[] index;
 	delete[] tempVector;
@@ -1334,6 +1350,7 @@ void CoordinateRadiationOptimizer::findMinParametersAtCoordinate(double* vector,
 	tempVector1[ncoord] = vector[ncoord] - der * step;
 	if (tempVector1[ncoord] != tempVector1[ncoord]) {
 		printf("tempvector[i] != tempVector[i]\n");
+		printLog("tempvector[i] != tempVector[i]\n");
 		exit(0);
 	}
 
@@ -1510,6 +1527,7 @@ void CoordinateRadiationOptimizer::gradientStep(int iterationNumber, const doubl
 			}
 			if (gradNorm != gradNorm) {
 				printf("gradNorm = NaN\n");
+				printLog("gradNorm = NaN\n");
 				exit(0);
 			}
 
