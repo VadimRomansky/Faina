@@ -32,7 +32,10 @@ double evaluateMcDonaldIntegral(const double& nu) {
 	//double result = (UvarovValue[rightIndex]*(nu - UvarovX[leftIndex]) + UvarovValue[leftIndex]*(UvarovX[rightIndex] - nu))/(UvarovX[rightIndex] - UvarovX[leftIndex]);
 	double result = UvarovValue[leftIndex] * exp(log(UvarovValue[rightIndex] / UvarovValue[leftIndex]) * ((nu - UvarovX[leftIndex]) / (UvarovX[rightIndex] - UvarovX[leftIndex])));
 	if (result < 0) {
+		printf("evaluateMcDonaldIntegral\n");
+		printLog("evaluateMcDonaldIntegral\n");
 		printf("result < 0\n");
+		printLog("result < 0\n");
 	}
 	return result;
 }
@@ -61,7 +64,10 @@ double evaluateMcDonaldFunction5_3(const double& nu) {
 	//double result = McDonaldValue[curIndex - 1] * exp(
 	//	log(McDonaldValue[curIndex] / McDonaldValue[curIndex - 1]) * ((nu - UvarovX[curIndex - 1]) / (UvarovX[curIndex] - UvarovX[curIndex - 1])));
 	if (result < 0) {
+		printf("evaluateMcDonaldFunction5_3\n");
+		printLog("evaluateMcDonaldFunction5_3\n");
 		printf("result < 0\n");
+		printLog("result < 0\n");
 	}
 	return result;
 }
@@ -160,8 +166,18 @@ void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFre
             //todo h?
             I = I + emissivityCoef * dFe * B * sinhi * mcDonaldIntegral/hplank;
 			if (I < 0) {
+				printf("evaluateSynchrotronIandA\n");
+				printLog("evaluateSynchrotronIandA\n");
 				printf("I < 0\n");
+				printLog("I < 0\n");
 				printf("dFe[j] = %g\n", dFe);
+				printLog("dFe[j] = %g\n", dFe);
+				printf("B = %g\n", B);
+				printLog("B = %g\n", B);
+				printf("sinhi = %g\n", sinhi);
+				printLog("sinhi = %g\n", sinhi);
+				printf("mcDonaldIntegral = %g\n", mcDonaldIntegral);
+				printLog("mcDonaldIntegral = %g\n", mcDonaldIntegral);
 				exit(0);
 			}
 			if (my_selfAbsorption) {
@@ -177,13 +193,38 @@ void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFre
 
 
 				A = A + (1.0 / (2 * m * photonFinalFrequency * photonFinalFrequency)) * dFe * Pder / (gamma * gamma);
+
+				if (A != A) {
+					printf("evaluateSynchrotronIandA\n");
+					printLog("evaluateSynchrotronIandA\n");
+					printf("A = NaN\n");
+					printLog("A = NaN\n");
+					printf("dFe[j] = %g\n", dFe);
+					printLog("dFe[j] = %g\n", dFe);
+					printf("B = %g\n", B);
+					printLog("B = %g\n", B);
+					printf("sinhi = %g\n", sinhi);
+					printLog("sinhi = %g\n", sinhi);
+					printf("mcDonaldIntegral = %g\n", mcDonaldIntegral);
+					printLog("mcDonaldIntegral = %g\n", mcDonaldIntegral);
+					printf("Pder = %g\n", Pder);
+					printLog("Pder = %g\n", Pder);
+					exit(0);
+				}
 			}
 			if (I != I) {
-				printf("I NaN\n");
-				exit(0);
-			}
-			if (A != A) {
-				printf("A Nan\n");
+				printf("evaluateSynchrotronIandA\n");
+				printLog("evaluateSynchrotronIandA\n");
+				printf("I = NaN\n");
+				printLog("I = NaN\n");
+				printf("dFe[j] = %g\n", dFe);
+				printLog("dFe[j] = %g\n", dFe);
+				printf("B = %g\n", B);
+				printLog("B = %g\n", B);
+				printf("sinhi = %g\n", sinhi);
+				printLog("sinhi = %g\n", sinhi);
+				printf("mcDonaldIntegral = %g\n", mcDonaldIntegral);
+				printLog("mcDonaldIntegral = %g\n", mcDonaldIntegral);
 				exit(0);
 			}
 		}

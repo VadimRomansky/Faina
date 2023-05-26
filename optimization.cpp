@@ -181,6 +181,9 @@ void RadiationOptimizer::outputOptimizedProfileDiagram(const double* vector, boo
 
 			for (int j1 = 0; j1 < Npoints; ++j1) {
 				for (int j2 = 0; j2 < Npoints; ++j2) {
+					for (int i = 0; i < my_Nparams; ++i) {
+						tempVector[i] = vector[i];
+					}
 					tempVector[Nparam1] = paramPoints[Nparam1][j1] / my_maxParameters[Nparam1];
 					tempVector[Nparam2] = paramPoints[Nparam2][j2] / my_maxParameters[Nparam2];
 

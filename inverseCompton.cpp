@@ -263,12 +263,28 @@ double InverseComptonEvaluator::evaluateDifferentialFlux(const double& photonFin
 	if (result < 0) {
 		printf("dI[i] <  0\n");
 		printLog("dI[i] < 0\n");
+		printf("numenator = %g\n", numenator);
+		printLog("numenator = %g\n", numenator);
+		printf("denom = %g\n", denom);
+		printLog("denom = %g\n", denom);
+		printf("Xidelta = %g\n", Xidelta);
+		printLog("Xidelta = %g\n", Xidelta);
+		printf("photon final energy primed = %g\n", photonFinalEnergyPrimed);
+		printLog("photon final energy primed = %g\n", photonFinalEnergyPrimed);
 		//exit(0);
 	}
 
 	if (result != result) {
 		printf("I[i] = NaN\n");
 		printLog("I[i] = NaN\n");
+		printf("numenator = %g\n", numenator);
+		printLog("numenator = %g\n", numenator);
+		printf("denom = %g\n", denom);
+		printLog("denom = %g\n", denom);
+		printf("Xidelta = %g\n", Xidelta);
+		printLog("Xidelta = %g\n", Xidelta);
+		printf("photon final energy primed = %g\n", photonFinalEnergyPrimed);
+		printLog("photon final energy primed = %g\n", photonFinalEnergyPrimed);
 		exit(0);
 	}
 
@@ -295,12 +311,36 @@ double InverseComptonEvaluator::evaluateDifferentialFluxJones(const double& phot
 		if (I < 0) {
 			printf("I < 0\n");
 			printLog("I < 0\n");
+			printf("electronInitialEnergy = %g\n", electronInitialEnergy);
+			printLog("electronInitialEnergy = %g\n", electronInitialEnergy);
+			printf("electron distribution = %g\n", electronDistribution->distributionNormalized(electronInitialEnergy));
+			printLog("electron distribution = %g\n", electronDistribution->distributionNormalized(electronInitialEnergy));
+			printf("photonInitialEnergy = %g\n", photonInitialEnergy);
+			printLog("photonInitialEnergy = %g\n", photonInitialEnergy);
+			printf("photon distribution = %g\n", photonDistribution->distributionNormalized(photonInitialEnergy));
+			printLog("photon distribution = %g\n", photonDistribution->distributionNormalized(photonInitialEnergy));
+			printf("photon final energy = %g\n", photonFinalEnergy);
+			printLog("photon final energy = %g\n", photonFinalEnergy);
+			printf("electron initial beta = %g\n", electronInitialBeta);
+			printLog("electron initial beta = %g\n", electronInitialBeta);
 			exit(0);
 		}
 
 		if (I != I) {
 			printf("I = NaN\n");
 			printLog("I = NaN\n");
+			printf("electronInitialEnergy = %g\n", electronInitialEnergy);
+			printLog("electronInitialEnergy = %g\n", electronInitialEnergy);
+			printf("electron distribution = %g\n", electronDistribution->distributionNormalized(electronInitialEnergy));
+			printLog("electron distribution = %g\n", electronDistribution->distributionNormalized(electronInitialEnergy));
+			printf("photonInitialEnergy = %g\n", photonInitialEnergy);
+			printLog("photonInitialEnergy = %g\n", photonInitialEnergy);
+			printf("photon distribution = %g\n", photonDistribution->distributionNormalized(photonInitialEnergy));
+			printLog("photon distribution = %g\n", photonDistribution->distributionNormalized(photonInitialEnergy));
+			printf("photon final energy = %g\n", photonFinalEnergy);
+			printLog("photon final energy = %g\n", photonFinalEnergy);
+			printf("electron initial beta = %g\n", electronInitialBeta);
+			printLog("electron initial beta = %g\n", electronInitialBeta);
 			exit(0);
 		}
 		return I;
@@ -426,12 +466,52 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 					if (I < 0) {
 						printf("I < 0\n");
 						printLog("I < 0\n");
+						printf("sigma = %g\n", sigma);
+						printLog("sigma = %g\n", sigma);
+						printf("photonFinalEnergy = %g\n", photonFinalEnergy);
+						printLog("photonFinalEnergy = %g\n", photonFinalEnergy);
+						printf("electronInitialEnergy = %g\n", electronInitialEnergy);
+						printLog("electronInitialEnergy = %g\n", electronInitialEnergy);
+						printf("electron distribution = %g\n", electronDistribution->distribution(electronInitialEnergy));
+						printLog("electron distribution = %g\n", electronDistribution->distribution(electronInitialEnergy));
+						printf("volume = %g\n", volume);
+						printLog("volume = %g\n", volume);
+						printf("photon initial energy = %g\n", photonInitialEnergy);
+						printLog("photon initial energy = %g\n", photonInitialEnergy);
+						printf("photon distrinution = %g\n", photonDistribution->distribution(photonInitialEnergy));
+						printLog("photon distrinution = %g\n", photonDistribution->distribution(photonInitialEnergy));
+						printf("electron initial beta = %g\n", electronInitialBeta);
+						printLog("electron initial beta = %g\n", electronInitialBeta);
+						printf("delectronEnergy = %g\n", delectronEnergy);
+						printLog("delectronEnergy = %g\n", delectronEnergy);
+						printf("dphotonInitialEnergy = %g\n", dphotonInitialEnergy);
+						printLog("dphotonInitialEnergy = %g\n", dphotonInitialEnergy);
 						exit(0);
 					}
 
 					if (I != I) {
 						printf("I = NaN\n");
 						printLog("I = NaN\n");
+						printf("sigma = %g\n", sigma);
+						printLog("sigma = %g\n", sigma);
+						printf("photonFinalEnergy = %g\n", photonFinalEnergy);
+						printLog("photonFinalEnergy = %g\n", photonFinalEnergy);
+						printf("electronInitialEnergy = %g\n", electronInitialEnergy);
+						printLog("electronInitialEnergy = %g\n", electronInitialEnergy);
+						printf("electron distribution = %g\n", electronDistribution->distribution(electronInitialEnergy));
+						printLog("electron distribution = %g\n", electronDistribution->distribution(electronInitialEnergy));
+						printf("volume = %g\n", volume);
+						printLog("volume = %g\n", volume);
+						printf("photon initial energy = %g\n", photonInitialEnergy);
+						printLog("photon initial energy = %g\n", photonInitialEnergy);
+						printf("photon distrinution = %g\n", photonDistribution->distribution(photonInitialEnergy));
+						printLog("photon distrinution = %g\n", photonDistribution->distribution(photonInitialEnergy));
+						printf("electron initial beta = %g\n", electronInitialBeta);
+						printLog("electron initial beta = %g\n", electronInitialBeta);
+						printf("delectronEnergy = %g\n", delectronEnergy);
+						printLog("delectronEnergy = %g\n", delectronEnergy);
+						printf("dphotonInitialEnergy = %g\n", dphotonInitialEnergy);
+						printLog("dphotonInitialEnergy = %g\n", dphotonInitialEnergy);
 						exit(0);
 					}
 				}
@@ -636,12 +716,48 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic1(const 
 						if (dI < 0) {
 							printf("dI[i] <  0\n");
 							printLog("dI[i] < 0\n");
+							printf("volume = %g\n", volume);
+							printLog("volume = %g\n", volume);
+							printf("electron distribution = %g\n", electronDist);
+							printLog("electron distribution = %g\n", electronDist);
+							printf("numenator = %g\n", numenator);
+							printLog("numenator = %g\n", numenator);
+							printf("denom = %g\n", denom);
+							printLog("denom = %g\n", denom);
+							printf("Xidelta = %g\n", Xidelta);
+							printLog("Xidelta = %g\n", Xidelta);
+							printf("photon final energy primed = %g\n", photonFinalEnergyPrimed);
+							printLog("photon final energy primed = %g\n", photonFinalEnergyPrimed);
+							printf("photon initial energy = %g\n", photonInitialEnergy);
+							printLog("photon initial energy = %g\n", photonInitialEnergy);
+							printf("photon initial sin theta primed = %g\n", photonInitialSinThetaPrimed);
+							printLog("photon initial sin theta primed = %g\n", photonInitialSinThetaPrimed);
+							printf("sintheta_e = %g\n", sintheta_e);
+							printLog("sintheta_e = %g\n", sintheta_e);
 							exit(0);
 						}
 
 						if (dI != dI) {
 							printf("I[i] = NaN\n");
 							printLog("I[i] = NaN\n");
+							printf("volume = %g\n", volume);
+							printLog("volume = %g\n", volume);
+							printf("electron distribution = %g\n", electronDist);
+							printLog("electron distribution = %g\n", electronDist);
+							printf("numenator = %g\n", numenator);
+							printLog("numenator = %g\n", numenator);
+							printf("denom = %g\n", denom);
+							printLog("denom = %g\n", denom);
+							printf("Xidelta = %g\n", Xidelta);
+							printLog("Xidelta = %g\n", Xidelta);
+							printf("photon final energy primed = %g\n", photonFinalEnergyPrimed);
+							printLog("photon final energy primed = %g\n", photonFinalEnergyPrimed);
+							printf("photon initial energy = %g\n", photonInitialEnergy);
+							printLog("photon initial energy = %g\n", photonInitialEnergy);
+							printf("photon initial sin theta primed = %g\n", photonInitialSinThetaPrimed);
+							printLog("photon initial sin theta primed = %g\n", photonInitialSinThetaPrimed);
+							printf("sintheta_e = %g\n", sintheta_e);
+							printLog("sintheta_e = %g\n", sintheta_e);
 							exit(0);
 						}
 
@@ -812,12 +928,44 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 					if (dI < 0) {
 						printf("dI[i] <  0\n");
 						printLog("dI[i] < 0\n");
+						printf("volume = %g\n", volume);
+						printLog("volume = %g\n", volume);
+						printf("electron distribution = %g\n", electronDist);
+						printLog("electron distribution = %g\n", electronDist);
+						printf("numenator = %g\n", numenator);
+						printLog("numenator = %g\n", numenator);
+						printf("denom = %g\n", denom);
+						printLog("denom = %g\n", denom);
+						printf("Xidelta = %g\n", Xidelta);
+						printLog("Xidelta = %g\n", Xidelta);
+						printf("photon final energy primed = %g\n", photonFinalEnergyPrimed);
+						printLog("photon final energy primed = %g\n", photonFinalEnergyPrimed);
+						printf("photon initial energy = %g\n", photonInitialEnergy);
+						printLog("photon initial energy = %g\n", photonInitialEnergy);
+						printf("photon initial sin theta primed = %g\n", photonInitialSinThetaPrimed);
+						printLog("photon initial sin theta primed = %g\n", photonInitialSinThetaPrimed);
 						exit(0);
 					}
 
 					if (dI != dI) {
 						printf("I[i] = NaN\n");
 						printLog("I[i] = NaN\n");
+						printf("volume = %g\n", volume);
+						printLog("volume = %g\n", volume);
+						printf("electron distribution = %g\n", electronDist);
+						printLog("electron distribution = %g\n", electronDist);
+						printf("numenator = %g\n", numenator);
+						printLog("numenator = %g\n", numenator);
+						printf("denom = %g\n", denom);
+						printLog("denom = %g\n", denom);
+						printf("Xidelta = %g\n", Xidelta);
+						printLog("Xidelta = %g\n", Xidelta);
+						printf("photon final energy primed = %g\n", photonFinalEnergyPrimed);
+						printLog("photon final energy primed = %g\n", photonFinalEnergyPrimed);
+						printf("photon initial energy = %g\n", photonInitialEnergy);
+						printLog("photon initial energy = %g\n", photonInitialEnergy);
+						printf("photon initial sin theta primed = %g\n", photonInitialSinThetaPrimed);
+						printLog("photon initial sin theta primed = %g\n", photonInitialSinThetaPrimed);
 						exit(0);
 					}
 
@@ -928,6 +1076,24 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const
 						if (dI < 0) {
 							printf("dI <  0\n");
 							printLog("dI < 0\n");
+							printf("volume = %g\n", volume);
+							printLog("volume = %g\n", volume);
+							printf("electron distribution = %g\n", electronDist);
+							printLog("electron distribution = %g\n", electronDist);
+							printf("photonInitialCosThetaRotated = %g\n", photonInitialCosThetaRotated);
+							printLog("photonInitialCosThetaRotated = %g\n", photonInitialCosThetaRotated);
+							printf("photonFinalCosThetaRotated = %g\n", photonFinalCosThetaRotated);
+							printLog("photonFinalCosThetaRotated = %g\n", photonFinalCosThetaRotated);
+							printf("cosXiPrimed = %g\n", cosXiPrimed);
+							printLog("cosXiPrimed = %g\n", cosXiPrimed);
+							printf("photon final energy primed = %g\n", photonFinalEnergyPrimed);
+							printLog("photon final energy primed = %g\n", photonFinalEnergyPrimed);
+							printf("photon initial energy = %g\n", photonInitialEnergy);
+							printLog("photon initial energy = %g\n", photonInitialEnergy);
+							printf("photon initial sin theta primed = %g\n", photonInitialSinThetaPrimed);
+							printLog("photon initial sin theta primed = %g\n", photonInitialSinThetaPrimed);
+							printf("electronInitialBeta = %g\n", electronInitialBeta);
+							printLog("electronInitialBeta = %g\n", electronInitialBeta);
 							exit(0);
 						}
 
@@ -935,6 +1101,25 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const
 						if (I != I) {
 							printf("I = NaN\n");
 							printLog("I = NaN\n");
+							printf("volume = %g\n", volume);
+							printLog("volume = %g\n", volume);
+							printf("electron distribution = %g\n", electronDist);
+							printLog("electron distribution = %g\n", electronDist);
+							printf("photonInitialCosThetaRotated = %g\n", photonInitialCosThetaRotated);
+							printLog("photonInitialCosThetaRotated = %g\n", photonInitialCosThetaRotated);
+							printf("photonFinalCosThetaRotated = %g\n", photonFinalCosThetaRotated);
+							printLog("photonFinalCosThetaRotated = %g\n", photonFinalCosThetaRotated);
+							printf("cosXiPrimed = %g\n", cosXiPrimed);
+							printLog("cosXiPrimed = %g\n", cosXiPrimed);
+							printf("photon final energy primed = %g\n", photonFinalEnergyPrimed);
+							printLog("photon final energy primed = %g\n", photonFinalEnergyPrimed);
+							printf("photon initial energy = %g\n", photonInitialEnergy);
+							printLog("photon initial energy = %g\n", photonInitialEnergy);
+							printf("photon initial sin theta primed = %g\n", photonInitialSinThetaPrimed);
+							printLog("photon initial sin theta primed = %g\n", photonInitialSinThetaPrimed);
+							printf("electronInitialBeta = %g\n", electronInitialBeta);
+							printLog("electronInitialBeta = %g\n", electronInitialBeta);
+							printLog("electronInitialBeta = %g\n", electronInitialBeta);
 							exit(0);
 						}
 					}
