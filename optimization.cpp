@@ -678,16 +678,18 @@ void GridEnumRadiationOptimizer::optimize(double* vector, bool* optPar, double* 
 	double currentF = evaluateOptimizationFunction(vector, energy, observedFlux, observedError, Ne, source);
 	int N = 1;
 	for (int i = 0; i < my_Nparams; ++i) {
-		N *= my_Npoints[i];
+		if (optPar[i]) {
+			N *= my_Npoints[i];
+		}
 	}
 
 	int* index = new int[my_Nparams];
 	for (int i = 0; i < N; ++i) {
 		int tempN = i;
 		for (int j = 0; j < my_Nparams; ++j) {
-			index[j] = tempN % my_Npoints[j];
-			tempN = tempN / my_Npoints[j];
 			if (optPar[j]) {
+				index[j] = tempN % my_Npoints[j];
+				tempN = tempN / my_Npoints[j];
 				tempVector[j] = my_points[j][index[j]];
 			}
 		}
@@ -1294,16 +1296,18 @@ void GridEnumRadiationTimeOptimizer::optimize(double* vector, bool* optPar, doub
 	printLog("Grid Enum Optimizer: start \noptimization function = %g\n", currentF);
 	int N = 1;
 	for (int i = 0; i < my_Nparams; ++i) {
-		N *= my_Npoints[i];
+		if (optPar[i]) {
+			N *= my_Npoints[i];
+		}
 	}
 
 	int* index = new int[my_Nparams];
 	for (int i = 0; i < N; ++i) {
 		int tempN = i;
 		for (int j = 0; j < my_Nparams; ++j) {
-			index[j] = tempN % my_Npoints[j];
-			tempN = tempN / my_Npoints[j];
-			if (optPar[j]) {
+			if(optPar[j]){
+				index[j] = tempN % my_Npoints[j];
+				tempN = tempN / my_Npoints[j];
 				tempVector[j] = my_points[j][index[j]];
 			}
 		}
