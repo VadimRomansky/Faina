@@ -1,5 +1,6 @@
 #include "stdio.h"
 #include "math.h"
+#include <omp.h>
 
 #include "constants.h"
 #include "util.h"

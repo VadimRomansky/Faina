@@ -152,7 +152,7 @@ void evaluateFluxSNRtoWind() {
 	//reseting source parameters to found values
 	//synchrotronOptimizer->outputProfileDiagrams(vector, energy1, observedFlux, observedError, Nenergy1, source, 10);
 	//synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source, 10, 1, 2);
-	combinedOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
+	//combinedOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
     //combinedOptimizer->outputProfileDiagrams(vector, energy1, observedFlux, observedError, Nenergy1, source, 10);
 	//combinedOptimizer->outputOptimizedProfileDiagram(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source, 20, 1, 2);
 	source->resetParameters(vector, maxParameters);

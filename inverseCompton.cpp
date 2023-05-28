@@ -1,5 +1,6 @@
 #include "stdio.h"
 #include "math.h"
+#include <omp.h>
 
 #include "constants.h"
 #include "util.h"
@@ -402,6 +403,7 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 
 	double photonFinalCosTheta = 1.0;
 	double photonFinalPhi = 0.0;
+	double* Ee = new double[my_Ne];
 	for (int l = 0; l < Nph; ++l) {
 		double photonInitialEnergy = Eph[l];
 		double dphotonInitialEnergy;
@@ -427,23 +429,23 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 		int linearN = my_Ne / 2;
 		int logN = my_Ne - linearN;
 		double delta = (Eetran - Eemin) / linearN;
-		my_Ee[0] = Eemin;
-		for (int i = 0; i < linearN; ++i) {
-			my_Ee[i] = Eemin + delta * i;
+		Ee[0] = Eemin;
+ 		for (int i = 0; i < linearN; ++i) {
+			Ee[i] = Eemin + delta * i;
 		}
 		double factor = pow(Eemax / Eetran, 1.0 / (logN - 1));
-		my_Ee[linearN] = Eetran;
+		Ee[linearN] = Eetran;
 		for (int i = linearN+1; i < my_Ne; ++i) {
-			my_Ee[i] = my_Ee[i - 1] * factor;
+			Ee[i] = Ee[i - 1] * factor;
 		}
 
 
 
 		
 		for (int k = 0; k < my_Ne; ++k) {
-			double electronInitialEnergy = my_Ee[k];
+			double electronInitialEnergy = Ee[k];
 			if (k > 0) {
-				electronInitialEnergy = 0.5 * (my_Ee[k] + my_Ee[k - 1]);
+				electronInitialEnergy = 0.5 * (Ee[k] + Ee[k - 1]);
 			}
 			double electronInitialGamma = electronInitialEnergy / m_c2;
 			if (electronInitialGamma < photonFinalEnergy / m_c2) {
@@ -452,10 +454,10 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 			double delectronEnergy;
 			double electronInitialBeta = sqrt(1.0 - 1.0 / (electronInitialGamma * electronInitialGamma));
 			if (k == 0) {
-				delectronEnergy = my_Ee[1] - my_Ee[0];
+				delectronEnergy = Ee[1] - Ee[0];
 			}
 			else {
-				delectronEnergy = my_Ee[k] - my_Ee[k - 1];
+				delectronEnergy = Ee[k] - Ee[k - 1];
 			}
 			if (delectronEnergy < 0) {
 				omp_set_lock(&my_lock);
@@ -558,6 +560,7 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 
 	}
 
+	delete[] Ee;
 	delete[] Eph;
 	return I / (distance * distance);
 }
