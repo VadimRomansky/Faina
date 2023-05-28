@@ -80,6 +80,9 @@ double BremsstrahlungThermalEvaluator::evaluateFluxFromSource(const double& phot
 
 	double result = 0;
 	int irho = 0;
+
+	omp_init_lock(&my_lock);
+
 #pragma omp parallel for private(irho) shared(photonFinalEnergy, source, Nrho, Nz, Nphi) reduction(+:result)
 
 	for (irho = 0; irho < Nrho; ++irho) {
@@ -89,6 +92,8 @@ double BremsstrahlungThermalEvaluator::evaluateFluxFromSource(const double& phot
 			}
 		}
 	}
+
+	omp_destroy_lock(&my_lock);
 
 	return result;
 }

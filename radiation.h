@@ -2,6 +2,7 @@
 #define RADIATION_H
 
 #include "math.h"
+#include <omp.h>
 
 #include "massiveParticleDistribution.h"
 #include "photonDistribution.h"
@@ -9,6 +10,8 @@
 
 class RadiationEvaluator{
 protected:
+    omp_lock_t my_lock;
+
     int my_Ne;
     double my_Emin;
     double my_Emax;

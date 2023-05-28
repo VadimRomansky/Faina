@@ -2,6 +2,7 @@
 #define UTIL_H
 
 #include <string>
+#include <omp.h>
 
 double uniformDistribution();
 double sqr(const double& a);

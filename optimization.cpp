@@ -181,6 +181,8 @@ void RadiationOptimizer::outputOptimizedProfileDiagram(const double* vector, boo
 
 			for (int j1 = 0; j1 < Npoints; ++j1) {
 				for (int j2 = 0; j2 < Npoints; ++j2) {
+					printf("outputOptimizedProfile j1 = %d j2 = %d\n", j1, j2);
+					printLog("outputOptimizedProfile j1 = %d j2 = %d\n", j1, j2);
 					for (int i = 0; i < my_Nparams; ++i) {
 						tempVector[i] = vector[i];
 					}

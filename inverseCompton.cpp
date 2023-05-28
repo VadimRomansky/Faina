@@ -172,6 +172,7 @@ void InverseComptonEvaluator::outputDifferentialFluxJones(const char* fileName, 
 }
 
 double InverseComptonEvaluator::evaluateDifferentialFlux(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, const double& electronInitialEnergy, const double& theta_e, const double& phi_e, const double& photonInitialThetaPrimed, const double& photonInitialPhiRotated) {
+	
 	double m = massElectron;
 	double m_c2 = m * speed_of_light2;
 	double fraction = 0.5 / my_Nmu;
@@ -296,6 +297,7 @@ double InverseComptonEvaluator::evaluateDifferentialFlux(const double& photonFin
 
 double InverseComptonEvaluator::evaluateDifferentialFluxJones(const double& photonFinalEnergy, const double& electronInitialEnergy, const double& photonInitialEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution)
 {
+	
 	double electronInitialGamma = electronInitialEnergy / me_c2;
 	if (electronInitialGamma < photonFinalEnergy / me_c2) {
 		return 0;
@@ -380,6 +382,7 @@ double InverseComptonEvaluator::evaluateComptonFluxThomsonIsotropic(const double
 }
 
 double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+	
 	double m = electronDistribution->getMass();
 	double m_c2 = m * speed_of_light2;
 	double r2 = sqr(electron_charge * electron_charge / m_c2);
@@ -416,9 +419,9 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 		double Eemax = my_Emax;
 		double Eetran = 2 * Eemin;
 		if (Eemax < Eemin) {
-			Eemax = 2 * Eemin;
+			Eemax = 4 * Eemin;
 		}
-		if (Eemax < Eetran) {
+		if (Eemax <= Eetran) {
 			Eetran = (Eemax + Eemin) / 2;
 		}
 		int linearN = my_Ne / 2;
@@ -454,6 +457,31 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 			else {
 				delectronEnergy = my_Ee[k] - my_Ee[k - 1];
 			}
+			if (delectronEnergy < 0) {
+				omp_set_lock(&my_lock);
+				printf("evaluateComptonFluxJonesIsotropic\n");
+				printLog("evaluateComptonFluxJonesIsotropic\n");
+				printf("delectron energy = %g < 0\n", delectronEnergy);
+				printLog("delectron energy = %g < 0\n", delectronEnergy);
+				printf("l photon energy = %d\n", l);
+				printLog("l photon energy = %d\n", l);
+				printf("k electron energy = %d\n", k);
+				printLog("k electron energy = %d\n", k);
+				printf("photon energy = %g\n", photonFinalEnergy);
+				printLog("photon energy = %g\n", photonFinalEnergy);
+				printf("electron energy min = %g\n", Eemin);
+				printLog("electron energy min = %g\n", Eemin);
+				printf("electron energy tran = %g\n", Eetran);
+				printLog("electron energy tran = %g\n", Eetran);
+				printf("electron energy max = %g\n", Eemax);
+				printLog("electron energy max = %g\n", Eemax);
+				for (int i = 0; i < my_Ne; ++i) {
+					printf("electron energy[%d] = %g\n", i, my_Ee[i]);
+					printLog("electron energy[%d] = %g\n", i, my_Ee[i]);
+				}
+				omp_unset_lock(&my_lock);
+				exit(0);
+			}
 
 			if (electronInitialGamma > photonFinalEnergy / (m_c2)) {
 				double G = 4 * electronInitialGamma * photonInitialEnergy / (m_c2);
@@ -464,8 +492,15 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 					//I += electronDistribution->distribution(electronInitialEnergy) * volume * sigma * photonDistribution->distribution(photonInitialEnergy)  * speed_of_light * electronInitialBeta * delectronEnergy * dphotonInitialEnergy / (massElectron * speed_of_light2);
 					I += photonFinalEnergy * 4 * pi * electronDistribution->distribution(electronInitialEnergy) * volume * sigma * photonDistribution->distribution(photonInitialEnergy) * speed_of_light * electronInitialBeta * delectronEnergy * dphotonInitialEnergy / m_c2;
 					if (I < 0) {
+						omp_set_lock(&my_lock);
+						printf("evaluateComptonFluxJonesIsotropic\n");
+						printLog("evaluateComptonFluxJonesIsotropic\n");
 						printf("I < 0\n");
 						printLog("I < 0\n");
+						printf("l photon energy = %d\n", l);
+						printLog("l photon energy = %d\n", l);
+						printf("k electron energy = %d\n", k);
+						printLog("k electron energy = %d\n", k);
 						printf("sigma = %g\n", sigma);
 						printLog("sigma = %g\n", sigma);
 						printf("photonFinalEnergy = %g\n", photonFinalEnergy);
@@ -486,10 +521,12 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 						printLog("delectronEnergy = %g\n", delectronEnergy);
 						printf("dphotonInitialEnergy = %g\n", dphotonInitialEnergy);
 						printLog("dphotonInitialEnergy = %g\n", dphotonInitialEnergy);
+						omp_unset_lock(&my_lock);
 						exit(0);
 					}
 
 					if (I != I) {
+						omp_set_lock(&my_lock);
 						printf("I = NaN\n");
 						printLog("I = NaN\n");
 						printf("sigma = %g\n", sigma);
@@ -512,6 +549,7 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 						printLog("delectronEnergy = %g\n", delectronEnergy);
 						printf("dphotonInitialEnergy = %g\n", dphotonInitialEnergy);
 						printLog("dphotonInitialEnergy = %g\n", dphotonInitialEnergy);
+						omp_unset_lock(&my_lock);
 						exit(0);
 					}
 				}
@@ -525,6 +563,7 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 }
 
 double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic1(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+	
 	double m = electronDistribution->getMass();
 	double m_c2 = m * speed_of_light2;
 	double r2 = sqr(electron_charge * electron_charge / m_c2);
@@ -714,6 +753,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic1(const 
 							//photonFinalEnergy*2*pi * dphi_ph * my_dcosTheta[imue] * my_dcosTheta[imuph] * delectronEnergy;
 							photonFinalEnergy*2*pi * dphi_ph * photonInitialSinThetaPrimed * dthetaph * sintheta_e * dthetae * delectronEnergy;
 						if (dI < 0) {
+							omp_set_lock(&my_lock);
 							printf("dI[i] <  0\n");
 							printLog("dI[i] < 0\n");
 							printf("volume = %g\n", volume);
@@ -734,10 +774,12 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic1(const 
 							printLog("photon initial sin theta primed = %g\n", photonInitialSinThetaPrimed);
 							printf("sintheta_e = %g\n", sintheta_e);
 							printLog("sintheta_e = %g\n", sintheta_e);
+							omp_unset_lock(&my_lock);
 							exit(0);
 						}
 
 						if (dI != dI) {
+							omp_set_lock(&my_lock);
 							printf("I[i] = NaN\n");
 							printLog("I[i] = NaN\n");
 							printf("volume = %g\n", volume);
@@ -758,6 +800,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic1(const 
 							printLog("photon initial sin theta primed = %g\n", photonInitialSinThetaPrimed);
 							printf("sintheta_e = %g\n", sintheta_e);
 							printLog("sintheta_e = %g\n", sintheta_e);
+							omp_unset_lock(&my_lock);
 							exit(0);
 						}
 
@@ -773,6 +816,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic1(const 
 }
 
 double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+	
 	double m = electronDistribution->getMass();
 	double m_c2 = m * speed_of_light2;
 	double r2 = sqr(electron_charge * electron_charge / m_c2);
@@ -926,6 +970,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 						photonDistribution->distribution(photonInitialEnergy) *
 						photonFinalEnergy * 2 * pi * dphi_ph * my_dcosTheta[imue] * my_dcosTheta[imuph] * delectronEnergy;
 					if (dI < 0) {
+						omp_set_lock(&my_lock);
 						printf("dI[i] <  0\n");
 						printLog("dI[i] < 0\n");
 						printf("volume = %g\n", volume);
@@ -944,10 +989,12 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 						printLog("photon initial energy = %g\n", photonInitialEnergy);
 						printf("photon initial sin theta primed = %g\n", photonInitialSinThetaPrimed);
 						printLog("photon initial sin theta primed = %g\n", photonInitialSinThetaPrimed);
+						omp_unset_lock(&my_lock);
 						exit(0);
 					}
 
 					if (dI != dI) {
+						omp_set_lock(&my_lock);
 						printf("I[i] = NaN\n");
 						printLog("I[i] = NaN\n");
 						printf("volume = %g\n", volume);
@@ -966,6 +1013,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 						printLog("photon initial energy = %g\n", photonInitialEnergy);
 						printf("photon initial sin theta primed = %g\n", photonInitialSinThetaPrimed);
 						printLog("photon initial sin theta primed = %g\n", photonInitialSinThetaPrimed);
+						omp_unset_lock(&my_lock);
 						exit(0);
 					}
 
@@ -981,6 +1029,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 }
 
 double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& volume, const double& distance) {
+	
 	double I = 0;
 	double m = electronDistribution->getMass();
 	double m_c2 = m * speed_of_light2;
@@ -1074,6 +1123,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const
 							dphi_e * dphi_ph * my_dcosTheta[imue] * my_dcosTheta[imuph] * delectronEnergy;
 
 						if (dI < 0) {
+							omp_set_lock(&my_lock);
 							printf("dI <  0\n");
 							printLog("dI < 0\n");
 							printf("volume = %g\n", volume);
@@ -1094,11 +1144,13 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const
 							printLog("photon initial sin theta primed = %g\n", photonInitialSinThetaPrimed);
 							printf("electronInitialBeta = %g\n", electronInitialBeta);
 							printLog("electronInitialBeta = %g\n", electronInitialBeta);
+							omp_unset_lock(&my_lock);
 							exit(0);
 						}
 
 						I += dI;
 						if (I != I) {
+							omp_set_lock(&my_lock);
 							printf("I = NaN\n");
 							printLog("I = NaN\n");
 							printf("volume = %g\n", volume);
@@ -1120,6 +1172,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const
 							printf("electronInitialBeta = %g\n", electronInitialBeta);
 							printLog("electronInitialBeta = %g\n", electronInitialBeta);
 							printLog("electronInitialBeta = %g\n", electronInitialBeta);
+							omp_unset_lock(&my_lock);
 							exit(0);
 						}
 					}
@@ -1164,6 +1217,9 @@ double InverseComptonEvaluator::evaluateFluxFromSource(const double& photonFinal
 
 	double result = 0;
 	int irho = 0;
+
+	omp_init_lock(&my_lock);
+
 #pragma omp parallel for private(irho) shared(photonFinalEnergy, source, Nrho, Nz, Nphi) reduction(+:result)
 
 	for (irho = 0; irho < Nrho; ++irho) {
@@ -1174,6 +1230,8 @@ double InverseComptonEvaluator::evaluateFluxFromSource(const double& photonFinal
 		}
 	}
 
+	omp_destroy_lock(&my_lock);
+
 	return result;
 }
 
@@ -1183,14 +1241,21 @@ double InverseComptonEvaluator::evaluateFluxFromSourceAnisotropic(const double& 
 	int Nphi = source->getNphi();
 
 	double result = 0;
+	int irho = 0;
 
-	for (int irho = 0; irho < Nrho; ++irho) {
+	omp_init_lock(&my_lock);
+
+#pragma omp parallel for private(irho) shared(photonFinalEnergy, source, Nrho, Nz, Nphi) reduction(+:result)
+
+	for (irho = 0; irho < Nrho; ++irho) {
 		for (int iz = 0; iz < Nz; ++iz) {
 			for (int iphi = 0; iphi < Nphi; ++iphi) {
 				result += evaluateComptonFluxKleinNishinaAnisotropic(photonFinalEnergy, photonFinalTheta, photonFinalPhi, photonDistribution, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
 			}
 		}
 	}
+
+	omp_destroy_lock(&my_lock);
 
 	return result;
 }

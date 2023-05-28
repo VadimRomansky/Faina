@@ -1,5 +1,6 @@
 #include "stdio.h"
 #include "math.h"
+#include <omp.h>
 
 #include "constants.h"
 #include "massiveParticleDistribution.h"
@@ -111,8 +112,8 @@ void evaluateFluxSNRtoWind() {
 	//number of parameters of the source
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 1.0E17, 0.000001, 20, 0.001, 0.3*speed_of_light };
-	double maxParameters[Nparams] = { 1.5E17, 0.05, 2E6, 0.2, 0.5*speed_of_light };
+	double minParameters[Nparams] = { 1.0E17, 0.00000001, 0.02, 0.001, 0.3*speed_of_light };
+	double maxParameters[Nparams] = { 2.5E17, 50000.0, 2E6, 0.5, 0.5*speed_of_light };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, 0.5*speed_of_light };
 	for (int i = 0; i < Nparams; ++i) {
@@ -132,12 +133,12 @@ void evaluateFluxSNRtoWind() {
 	printf("start optimization\n");
 	printLog("start optimization\n");
 	bool optPar[Nparams] = { true, true, true, true, false };
-	int Niterations = 2;
+	int Niterations = 5;
 	//creating gradient descent optimizer
 	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
 	//RadiationOptimizer* synchrotronOptimizer = new CoordinateRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
 	//number of points per axis in gridEnumOptimizer
-	int Npoints[Nparams] = { 3,3,3,3,2 };
+	int Npoints[Nparams] = { 5,5,5,5,2 };
 	//creating grid enumeration optimizer
 	RadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints);
 	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
@@ -152,7 +153,8 @@ void evaluateFluxSNRtoWind() {
 	//synchrotronOptimizer->outputProfileDiagrams(vector, energy1, observedFlux, observedError, Nenergy1, source, 10);
 	//synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source, 10, 1, 2);
 	combinedOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
-	combinedOptimizer->outputOptimizedProfileDiagram(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source, 5, 1, 2);
+    //combinedOptimizer->outputProfileDiagrams(vector, energy1, observedFlux, observedError, Nenergy1, source, 10);
+	//combinedOptimizer->outputOptimizedProfileDiagram(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source, 20, 1, 2);
 	source->resetParameters(vector, maxParameters);
 	//evaluating resulting error
 	error = synchrotronOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
