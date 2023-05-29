@@ -89,7 +89,7 @@ void RadiationOptimizer::outputProfileDiagrams(const double* vector, double* ene
 		std::string fileName = "parameter";
 		FILE* paramFile = fopen((fileName + fileNumber + ".dat").c_str(), "w");
 		for (int j = 0; j < Npoints; ++j) {
-			fprintf(paramFile, "%lf\n", paramPoints[i][j]);
+			fprintf(paramFile, "%g\n", paramPoints[i][j]);
 		}
 		fclose(paramFile);
 	}
@@ -117,7 +117,7 @@ void RadiationOptimizer::outputProfileDiagrams(const double* vector, double* ene
 
 					double error = evaluateOptimizationFunction(tempVector, energy, observedFlux, observedError, Ne, source);
 
-					fprintf(errorFile, "%lf", error);
+					fprintf(errorFile, "%g", error);
 					if (j2 < Npoints - 1) {
 						fprintf(errorFile, " ");
 					}
@@ -155,7 +155,7 @@ void RadiationOptimizer::outputOptimizedProfileDiagram(const double* vector, boo
 		std::string fileName = "parameter";
 		FILE* paramFile = fopen((fileName + fileNumber + ".dat").c_str(), "w");
 		for (int j = 0; j < Npoints; ++j) {
-			fprintf(paramFile, "%lf\n", paramPoints[i][j]);
+			fprintf(paramFile, "%g\n", paramPoints[i][j]);
 		}
 		fclose(paramFile);
 	}
@@ -193,7 +193,7 @@ void RadiationOptimizer::outputOptimizedProfileDiagram(const double* vector, boo
 
 					double error = evaluateOptimizationFunction(tempVector, energy, observedFlux, observedError, Ne, source);
 
-					fprintf(errorFile, "%lf", error);
+					fprintf(errorFile, "%g", error);
 					if (j2 < Npoints - 1) {
 						fprintf(errorFile, " ");
 					}
