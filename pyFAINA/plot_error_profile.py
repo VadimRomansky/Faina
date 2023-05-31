@@ -29,16 +29,18 @@ def plot_error_profile(Np1, Np2):
     minErr = np.amin(error)
     maxErr = np.amax(error)
 
-    plt.rcParams.update({'font.size': 20})
+    plt.rcParams.update({'font.size': 40})
     plt.rcParams['text.usetex'] = True
     f1 = plt.figure(figsize=[10, 10])
     ax = f1.add_subplot(111)
     cax2 = f1.add_axes([0.125, 0.97, 0.775, 0.03])
     #fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-    ax.set_xlabel(r'$n~cm^{-3}$', fontsize=30)
-    ax.set_ylabel(r'$\sigma$', fontsize=30)
+    ax.set_xlabel(r'$n~cm^{-3}$', fontsize=40,fontweight='bold')
+    ax.set_ylabel(r'$\sigma$', fontsize=40,fontweight='bold')
     ax.set_yscale("log")
     ax.set_xscale("log")
+    ax.tick_params(axis='x', size=10, width=4)
+    ax.tick_params(axis='y', size=10, width=4)
     ax.minorticks_on()
     #x,y = np.meshgrid(parameter1, parameter2)
     #x = np.log10(parameter1)
@@ -47,7 +49,7 @@ def plot_error_profile(Np1, Np2):
     #im2 = ax.imshow(error,origin='lower', norm=colors.LogNorm(vmin=5, vmax=1E5), aspect='auto',
     #          extent=[parameter1[0], parameter1[N-1],parameter2[0],parameter2[N-1]], cmap='jet', interpolation='gaussian')
 
-    im2 = ax.pcolormesh(parameter2, parameter1, error, cmap='jet', norm=colors.LogNorm(vmin=5, vmax=1E5))
+    im2 = ax.pcolormesh(parameter2, parameter1, error, cmap='jet', norm=colors.LogNorm(vmin=1, vmax=2E4), shading='gouraud')
     plt.colorbar(im2, cax=cax2, orientation='horizontal')
-    plt.show()
-    #plt.savefig('error.png')
+    #plt.show()
+    plt.savefig('error.png', bbox_inches='tight')

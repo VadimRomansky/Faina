@@ -45,21 +45,29 @@ def plot_distributions():
         for j in range(3):
             F[j][i] = F[j][i]/norm[j]
 
-    plt.rcParams.update({'font.size': 20})
+    plt.rcParams.update({'font.size': 40})
     plt.rcParams['text.usetex'] = True
+    plt.rcParams['axes.linewidth'] = 4
     f1 = plt.figure(figsize=[10, 10])
     ax = f1.add_subplot(111)
-    ax.set_xlabel('$E/m_e c^2$', fontsize=30)
-    ax.set_ylabel('$F(E)$', fontsize=30)
+    #plt.subplots_adjust(bottom=0.12)
+    #ax.tick_params(axis='both', which='major', labelsize=10)
+    #ax.tick_params(axis='both', which='minor', labelsize=8)
+    ax.set_xlabel('$E/m_e c^2$', fontsize=40,fontweight='bold')
+    ax.set_ylabel('$F(E)$', fontsize=40,fontweight='bold')
     ax.set_yscale("log")
     #ax.set_xlim([1E15, 1E17])
     ax.set_xscale("log")
+    extraticks=[1,100]
+    plt.xticks(list(plt.xticks()[0]) + extraticks)
+    ax.tick_params(axis='x', size=10, width=4)
+    ax.tick_params(axis='y', size=10, width=4)
     ax.minorticks_on()
     # plt.axis([0.0,1.0,0.0,1.0])
     plt.plot(E[0], F[0], 'b', linewidth=4)
     plt.plot(E[1], F[1], 'r', linewidth=4)
     plt.plot(E[2], F[2], 'g', linewidth=4)
-    ax.legend([r'$\theta = 10^{\circ}$', r'$\theta = 30^{\circ}$', r'$\theta = 80^{\circ}$'], fontsize="20")
+    ax.legend([r'$\theta = 10^{\circ}$', r'$\theta = 30^{\circ}$', r'$\theta = 80^{\circ}$'], fontsize="40")
 
     #plt.show()
-    plt.savefig('electrons.png')
+    plt.savefig('electrons.png', bbox_inches='tight')
