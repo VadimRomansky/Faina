@@ -839,6 +839,7 @@ AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(i
 				}
 
 				my_shockWaveAngle[irho][iz][iphi] = acos(cosTheta);
+				//my_shockWaveAngle[irho][iz][iphi] = pi*4/9;
 			}
 		}
 	}
@@ -889,6 +890,7 @@ AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(i
 				}
 
 				my_shockWaveAngle[irho][iz][iphi] = acos(cosTheta);
+				//my_shockWaveAngle[irho][iz][iphi] = pi*4/9;
 			}
 		}
 	}
@@ -939,7 +941,7 @@ MassiveParticleIsotropicDistribution* AngleDependentElectronsSphericalSource::ge
 	}
 
 	//for debug
-	angleIndex = 3;
+	//angleIndex = 3;
 
 	my_distributions[angleIndex]->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_distributions[angleIndex];
