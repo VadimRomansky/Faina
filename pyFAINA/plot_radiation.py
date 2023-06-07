@@ -39,4 +39,4 @@ def plot_radiation():
     plt.errorbar(cssx1, cssy1, cssError1, ecolor = 'b', elinewidth = 4, linewidth=0, capsize = 5, capthick = 4)
 
     #plt.show()
-    plt.savefig('radiation2.png', bbox_inches='tight')
+    plt.savefig('radiation.png', bbox_inches='tight')
