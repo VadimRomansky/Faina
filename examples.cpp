@@ -919,9 +919,10 @@ void compareComptonSynchrotron() {
 		double dE = currentE * (factor - 1);
 		double gamma = currentE / (me_c2);
 		double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
-		double correction = (1.0 - 63.0 * gamma * meanE2 / (me_c2 * photons->getMeanEnergy()));
-		correction = 1.0;
-		meanFactor += gamma * gamma * beta * beta * distribution->distributionNormalized(currentE) * dE * correction;
+		//double correction = (1.0 - 63.0 * gamma * meanE2 / (me_c2 * photons->getMeanEnergy()));
+		double correction = 1.0/(1 + 4*pi*gamma*photons->getMeanEnergy()/me_c2);
+		//correction = 1.0;
+		meanFactor += 4*pi*gamma * gamma * beta * beta * distribution->distributionNormalized(currentE) * dE * correction;
 		currentE *= factor;
 	}
 
