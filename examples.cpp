@@ -899,7 +899,7 @@ void compareComptonSynchrotron() {
 	//PhotonIsotropicDistribution* photons = PhotonPlankDistribution::getCMBradiation();
 	PhotonIsotropicDistribution* photons = new PhotonPlankDistribution(T, 1.0);
 	RadiationEvaluator* inverseComptonEvaluator = new InverseComptonEvaluator(100, 50, 4, Emin, Emax, Ephmin, Ephmax, photons, ComptonSolverType::ISOTROPIC_JONES);
-	RadiationEvaluator* inverseComptonEvaluator2 = new InverseComptonEvaluator(100, 50, 4, Emin, Emax, Ephmin, Ephmax, photons, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+	RadiationEvaluator* inverseComptonEvaluator2 = new InverseComptonEvaluator(100, 50, 4, Emin, Emax, Ephmin, Ephmax, photons, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA1);
 	double EminCompton = 0.1*kBoltzman*T;
 	double EmaxCompton = 20*sqrt(kBoltzman * T * Emax);
 	inverseComptonEvaluator->writeFluxFromSourceToFile("output2.dat", source, EminCompton, EmaxCompton, 100);

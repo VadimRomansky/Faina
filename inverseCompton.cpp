@@ -662,7 +662,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic1(const 
 					double photonInitialPhiRotated = phi_ph;
 					if (photonFinalEnergyPrimed / m_c2 > 0.5) {
 						//break;
-						double a = photonFinalCosThetaPrimed * cos(photonFinalPhiRotated - photonInitialPhiRotated);
+						/*double a = photonFinalCosThetaPrimed * cos(photonFinalPhiRotated - photonInitialPhiRotated);
 						double b = 1.0 -  m_c2 / photonFinalEnergyPrimed;
 						double D = a * a * a * a - b * b * a * a + a * a * photonFinalCosThetaPrimed * photonFinalCosThetaPrimed;
 						if (D < 0) {
@@ -676,7 +676,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic1(const 
 							double x3 = (x1 + x2) / 2.0;
 							double f3 = photonFinalCosThetaPrimed * x3 - a * sqrt(1.0 - x3 * x3);
 							//printf("x1 = %g x2 =  %g f1 = %g f2 = %g f3 = %g b = %g\n", x1, x2, f1, f2, f3, b);
-						}
+						}*/
 					}
 
 					for (int imuph = 0; imuph < my_Nmu; ++imuph) {

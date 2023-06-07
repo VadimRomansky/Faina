@@ -310,10 +310,10 @@ int main() {
 	//fitTimeDependentCSS161010();
 	//evaluatePionDecayWithPowerLawDistribution();
 	//evaluateBremsstrahlung();
-	compareComptonSynchrotron();
+	//compareComptonSynchrotron();
 
 
-	//evaluateFluxSNRtoWind();
+	evaluateFluxSNRtoWind();
 
 	return 0;
 }
