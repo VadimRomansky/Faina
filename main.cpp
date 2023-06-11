@@ -301,6 +301,121 @@ void evaluateFluxSNRtoWind() {
 	delete comptonEvaluator;
 }
 
+void evaluateComtonFromWind() {
+	double theta = pi / 2;
+	double rmax = 2E14;
+	//double rmax = 1.0 / sqrt(pi);
+	double B = 0.01;
+
+	//SN2009bb
+	//const double distance = 40*3.08*1.0E24;
+	//AT2018
+	//const double distance = 60*3.08*1.0E24;
+	//CSS161010
+	const double distance = 150 * 1000000 * parsec;
+	//const double distance = 1.0;
+
+	//double Emin = 652.317 * me_c2 * 1;
+	double Emin = 1 * me_c2;
+	double Emax = 1E5 * me_c2;
+	int Ne = 200;
+	int Nmu = 20;
+	int Nrho = 20;
+	int Nz = 20;
+	int Nphi = 4;
+	double index = 3.5;
+	//double KK = 24990.8;
+	//double electronConcentration = KK / (pow(652.317, index - 1) * (index - 1));
+	double electronConcentration = 1E8;
+
+	double Tstar = 50 * 1000;
+	double Ephmin = 0.01 * Tstar * kBoltzman;
+	double Ephmax = 100 * Tstar * kBoltzman;
+	double luminosity = 510000 * 4 * 1E33;
+	double rsun = 7.5E10;
+	double rstar = rsun * sqrt(510000.0 / pow(Tstar / 5500, 4));
+	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rmax));
+
+	//initializing electrons distribution
+	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
+	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/v0.02_theta30/Ee3.dat", "./examples_data/v0.02_theta30/Fs3.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
+	electrons->rescaleDistribution(sqrt(18));
+	//electrons->addPowerLaw(100 * me_c2, 3.5);
+	//creating radiation source
+	//RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, rmax, distance);
+	RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, electronConcentration, rmax, 0.8 * rmax, distance);
+	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
+	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator2 = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA1);
+	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
+
+	comptonEvaluator2->outputDifferentialFlux("output3.dat");
+	//comptonEvaluator->outputDifferentialFluxJones("output2.dat", photonDistribution, electrons);
+	//return;
+
+	double minEev = 0.3 * 1000 * 1.6E-12;
+	double maxEev = 10 * 1000 * 1.6E-12;
+	double kevFlux = comptonEvaluator->evaluateTotalFluxInEnergyRange(minEev, maxEev, 10, source);
+	double totalLuminosity = kevFlux * 4 * pi * distance * distance;
+	FILE* outFile = fopen("SNRtoWindData.dat", "w");
+	printf("total luminosity = %g erg/s \n", totalLuminosity);
+	fprintf(outFile, "total luminosity = %g erg/s \n", totalLuminosity);
+	printf("total flux = %g erg/s cm^2 \n", kevFlux);
+	printf("99 days F = 1.33+-0.76 10^-15 L = 3.4+-1.9 10^39\n");
+	fprintf(outFile, "99 days F = 1.33+-0.76 10^-15 L = 3.4+-1.9 10^39\n");
+	fclose(outFile);
+
+	//initializing photon energy grid for output
+	int Nnu = 200;
+	double* E = new double[Nnu];
+	double* F = new double[Nnu];
+
+	double EphFinalmin = 0.0001 * kBoltzman * Tstar;
+	double EphFinalmax = 10 * Emax + Emin;
+	//photonDistribution->writeDistribution("output3.dat", 200, Ephmin, Ephmax);
+	double factor = pow(EphFinalmax / EphFinalmin, 1.0 / (Nnu - 1));
+	E[0] = EphFinalmin;
+	F[0] = 0;
+	for (int i = 1; i < Nnu; ++i) {
+		E[i] = E[i - 1] * factor;
+		F[i] = 0;
+	}
+
+	//evaluating radiation flux
+	printLog("evaluating\n");
+	/*for (int i = 0; i < Nnu; ++i) {
+		printf("%d\n", i);
+		printLog("%d\n", i);
+		F[i] = comptonEvaluator->evaluateFluxFromSource(E[i], source);
+		//F[i] = comptonEvaluator->evaluateFluxFromSourceAnisotropic(E[i], 0, 0, CMBradiation, source);
+	}*/
+
+	//outputing
+	FILE* output_ev_EFE = fopen("output.dat", "w");
+	FILE* output_ev_EFE1 = fopen("output1.dat", "w");
+	FILE* output_ev_EFE2 = fopen("output2.dat", "w");
+	//FILE* output_GHz_Jansky = fopen("output.dat", "w");
+	for (int i = 0; i < Nnu; ++i) {
+		printf("%d\n", i);
+		double nu = E[i] / hplank;
+		fprintf(output_ev_EFE, "%g %g\n", E[i] / (1.6E-9), E[i] * comptonEvaluator->evaluateFluxFromSource(E[i], source));
+		//fprintf(output_ev_EFE1, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator1->evaluateFluxFromSource(E[i], source));
+		//fprintf(output_ev_EFE2, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator2->evaluateFluxFromSource(E[i], source));
+		//fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * F[i]);
+	}
+	fclose(output_ev_EFE);
+	fclose(output_ev_EFE1);
+	fclose(output_ev_EFE2);
+	//fclose(output_GHz_Jansky);
+
+	delete[] E;
+	delete[] F;
+	delete electrons;
+	delete source;
+	delete comptonEvaluator;
+}
+
 
 int main() {
 	//evaluateSimpleSynchrotron();
@@ -310,10 +425,11 @@ int main() {
 	//fitTimeDependentCSS161010();
 	//evaluatePionDecayWithPowerLawDistribution();
 	//evaluateBremsstrahlung();
-	compareComptonSynchrotron();
+	//compareComptonSynchrotron();
 
 
 	//evaluateFluxSNRtoWind();
+	evaluateComtonFromWind();
 
 	return 0;
 }
