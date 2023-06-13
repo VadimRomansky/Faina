@@ -486,6 +486,9 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 			}
 
 			if (electronInitialGamma > photonFinalEnergy / (m_c2)) {
+				//if (electronInitialGamma < 0.1 * m_c2 / (4 * photonFinalEnergy)) {
+
+				//} else {
 				double G = 4 * electronInitialGamma * photonInitialEnergy / (m_c2);
 				double q = (photonFinalEnergy / (m_c2)) / ((electronInitialGamma - photonFinalEnergy / (m_c2)) * G);
 				if (q <= 1.0) {

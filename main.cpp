@@ -337,10 +337,12 @@ void evaluateComtonFromWind() {
 	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rmax));
 
 	//initializing electrons distribution
-	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
-	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/v0.02_theta30/Ee3.dat", "./examples_data/v0.02_theta30/Fs3.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
-	electrons->rescaleDistribution(sqrt(18));
+	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
+	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/v0.02_theta30/Ee3.dat", "./examples_data/v0.02_theta30/Fs3.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
+	//electrons->addPowerLaw(1.02 * me_c2, 3);
+	//electrons->rescaleDistribution(sqrt(18));
 	//electrons->addPowerLaw(100 * me_c2, 3.5);
+	electrons->writeDistribution("dist1.dat", 2000, Emin, Emax);
 	//creating radiation source
 	//RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, rmax, distance);
 	RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, electronConcentration, rmax, 0.8 * rmax, distance);
@@ -356,7 +358,7 @@ void evaluateComtonFromWind() {
 
 	double minEev = 0.3 * 1000 * 1.6E-12;
 	double maxEev = 10 * 1000 * 1.6E-12;
-	double kevFlux = comptonEvaluator->evaluateTotalFluxInEnergyRange(minEev, maxEev, 10, source);
+	double kevFlux = comptonEvaluator->evaluateTotalFluxInEnergyRange(minEev, maxEev, 20, source);
 	double totalLuminosity = kevFlux * 4 * pi * distance * distance;
 	FILE* outFile = fopen("SNRtoWindData.dat", "w");
 	printf("total luminosity = %g erg/s \n", totalLuminosity);

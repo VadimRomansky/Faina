@@ -1045,7 +1045,7 @@ void MassiveParticleTabulatedPolarDistribution::rescaleDistribution(const double
 {
 	double m_c2 = my_mass * speed_of_light2;
 	for (int i = 0; i < my_Ne; ++i) {
-		my_energy[i] = m_c2 + (my_energy[i] - m_c2);
+		my_energy[i] = m_c2 + (my_energy[i] - m_c2)*k;
 	}
 	normalizeDistribution();
 }
