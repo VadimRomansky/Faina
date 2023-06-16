@@ -1228,12 +1228,13 @@ AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWith
 
 	initializeTurbulentField(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, fraction, index, L0, Nmodes, rho);
 
+	AngleDependentElectronsSphericalSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ntheta, electronDistributions, B, theta, phi, concentration, rho, rhoin, distance);
+
 	delete3dArray(B, Nrho, Nz, Nphi);
 	delete3dArray(theta, Nrho, Nz, Nphi);
 	delete3dArray(phi, Nrho, Nz, Nphi);
 	delete3dArray(concentration, Nrho, Nz, Nphi);
-
-	return new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ntheta, electronDistributions, B, theta, phi, concentration, rho, rhoin, distance);
+	return source;
 }
 
 AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWithParkerField(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& rho, const double& rhoin, const double& distance)
