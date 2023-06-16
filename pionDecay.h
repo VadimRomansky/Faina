@@ -26,7 +26,6 @@ public:
     double sigmaGamma(const double& photonEnergy, const double& protonEnergy);
     void resetParameters(const double *parameters, const double *normalizationUnits);
     double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& volume, const double& distance);
-    double evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source);
     virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
 };
 
@@ -38,7 +37,6 @@ public:
     ~PionDecayEvaluatorKelner();
     void resetParameters(const double *parameters, const double *normalizationUnits);
     double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& volume, const double& distance);
-    double evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source);
     virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
 };
 

@@ -1216,7 +1216,7 @@ double InverseComptonEvaluator::evaluateFluxFromIsotropicFunction(const double& 
 	}
 }
 
-double InverseComptonEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource * source) {
+/*double InverseComptonEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source) {
 	int Nrho = source->getNrho();
 	int Nz = source->getNz();
 	int Nphi = source->getNphi();
@@ -1233,13 +1233,14 @@ double InverseComptonEvaluator::evaluateFluxFromSource(const double& photonFinal
 			for (int iz = 0; iz < Nz; ++iz) {
                 result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
 			}
+			result += evaluateFluxFromSourceAtPoint(photonFinalEnergy, source, irho, iphi);
 		}
 	}
 
 	omp_destroy_lock(&my_lock);
 
 	return result;
-}
+}*/
 
 double InverseComptonEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi) {
 	int Nrho = source->getNrho();

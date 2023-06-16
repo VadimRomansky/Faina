@@ -267,7 +267,7 @@ double SynchrotronEvaluator::evaluateFluxFromIsotropicFunction(const double &pho
     return localI/sqr(distance);
 }
 
-double SynchrotronEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)
+/*double SynchrotronEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)
 {
 	int Nrho = source->getNrho();
 	int Nz = source->getNz();
@@ -336,7 +336,7 @@ double SynchrotronEvaluator::evaluateFluxFromSource(const double& photonFinalEne
 	omp_destroy_lock(&my_lock);
 
 	return result / sqr(source->getDistance());
-}
+}*/
 
 double SynchrotronEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi) {
 	int Nrho = source->getNrho();

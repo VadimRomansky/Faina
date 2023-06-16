@@ -356,7 +356,7 @@ double PionDecayEvaluator::evaluateFluxFromIsotropicFunction(const double& photo
 	return result;
 }
 
-double PionDecayEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)
+/*double PionDecayEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)
 {
 	int Nrho = source->getNrho();
 	int Nz = source->getNz();
@@ -380,7 +380,7 @@ double PionDecayEvaluator::evaluateFluxFromSource(const double& photonFinalEnerg
 	omp_destroy_lock(&my_lock);
 
 	return result;
-}
+}*/
 
 double PionDecayEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi) {
 	int Nrho = source->getNrho();
@@ -453,7 +453,7 @@ double PionDecayEvaluatorKelner::evaluateFluxFromIsotropicFunction(const double&
 	return result;
 }
 
-double PionDecayEvaluatorKelner::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)
+/*double PionDecayEvaluatorKelner::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)
 {
 	int Nrho = source->getNrho();
 	int Nz = source->getNz();
@@ -476,7 +476,7 @@ double PionDecayEvaluatorKelner::evaluateFluxFromSource(const double& photonFina
 	omp_destroy_lock(&my_lock);
 
 	return result;
-}
+}*/
 
 double PionDecayEvaluatorKelner::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi) {
 	int Nrho = source->getNrho();

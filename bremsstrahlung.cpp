@@ -73,7 +73,7 @@ double BremsstrahlungThermalEvaluator::evaluateFluxFromIsotropicFunction(const d
 	return result;
 }
 
-double BremsstrahlungThermalEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)
+/*double BremsstrahlungThermalEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)
 {
 	int Nrho = source->getNrho();
 	int Nz = source->getNz();
@@ -97,7 +97,7 @@ double BremsstrahlungThermalEvaluator::evaluateFluxFromSource(const double& phot
 	omp_destroy_lock(&my_lock);
 
 	return result;
-}
+}*/
 
 double BremsstrahlungThermalEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi) {
 	int Nrho = source->getNrho();
