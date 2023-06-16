@@ -25,6 +25,9 @@ void evaluateBremsstrahlung();
 //example 7 compare compton and synchrotron
 void compareComptonSynchrotron();
 
+//example 8 evaluation synchrotron Image
+void evaluateSynchrotronImage();
+
 
 
 #endif

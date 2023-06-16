@@ -76,14 +76,40 @@ void RadiationEvaluator::writeFluxFromSourceToFile(const char* fileName, Radiati
 }
 
 void RadiationEvaluator::writeImageFromSourceToFile(const char* fileName, RadiationSource* source, const double& Ephmin, const double& Ephmax, const int Nph) {
-    double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
-    double currentE = Ephmin;
     FILE* outFile = fopen(fileName, "w");
-    for (int i = 0; i < Nph; ++i) {
-        printf("%d\n", i);
-        double flux = evaluateFluxFromSource(currentE, source);
-        fprintf(outFile, "%g %g\n", currentE, flux);
-        currentE = currentE * factor;
+
+    int Nrho = source->getNrho();
+    int Nz = source->getNz();
+    int Nphi = source->getNphi();
+    for (int irho = 0; irho < Nrho; ++irho) {
+        for (int iphi = 0; iphi < Nphi; ++iphi) {
+            double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+            double currentE = Ephmin;
+            double localFlux = 0;
+            for (int ie = 0; ie < Nph; ++ie) {
+                double dE = currentE * (factor - 1.0);
+                localFlux += evaluateFluxFromSourceAtPoint(currentE, source, irho, iphi)*dE;
+                currentE = currentE * factor;
+            }
+            fprintf(outFile, "%g ", localFlux);
+        }
+        fprintf(outFile, "\n");
+    }
+    fclose(outFile);
+}
+
+void RadiationEvaluator::writeImageFromSourceAtEToFile(const double& photonFinalEnergy, const char* fileName, RadiationSource* source) {
+    FILE* outFile = fopen(fileName, "w");
+
+    int Nrho = source->getNrho();
+    int Nz = source->getNz();
+    int Nphi = source->getNphi();
+    for (int irho = 0; irho < Nrho; ++irho) {
+        for (int iphi = 0; iphi < Nphi; ++iphi) {
+            double localFlux =  evaluateFluxFromSourceAtPoint(photonFinalEnergy, source, irho, iphi);
+            fprintf(outFile, "%g\n", localFlux);
+        }
+        fprintf(outFile, "\n");
     }
     fclose(outFile);
 }

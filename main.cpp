@@ -428,10 +428,11 @@ int main() {
 	//evaluatePionDecayWithPowerLawDistribution();
 	//evaluateBremsstrahlung();
 	//compareComptonSynchrotron();
+	evaluateSynchrotronImage();
 
 
 	//evaluateFluxSNRtoWind();
-	evaluateComtonFromWind();
+	//evaluateComtonFromWind();
 
 	return 0;
 }

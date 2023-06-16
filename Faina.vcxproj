@@ -137,6 +137,7 @@
     <ClCompile Include="optimization.cpp" />
     <ClCompile Include="photonDistribution.cpp" />
     <ClCompile Include="pionDecay.cpp" />
+    <ClCompile Include="radiation.cpp" />
     <ClCompile Include="radiationSource.cpp" />
     <ClCompile Include="synchrotron.cpp" />
     <ClCompile Include="util.cpp" />

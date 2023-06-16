@@ -958,3 +958,25 @@ void compareComptonSynchrotron() {
 	printf("theoretical synchrotron/ synchrotron = %g\n", PsynchTheor/synchrotronFlux);
 	printf("Jones flux/klein-nishina flux = %g\n", ratioComptonEvaluators);
 }
+
+//example 8 evaluation synchrotron Image
+void evaluateSynchrotronImage() {
+	double B = 1.0;
+	double electronConcentration = 1.0;
+	int Nrho = 20;
+	int Nz = 20;
+	int Nphi = 20;
+	int Ne = 200;
+	double R = 1.4E17;
+	double Rin = 0.8 * R;
+	const double distance = 150 * 3.08 * 1.0E24;
+	double Emin = me_c2;
+	double Emax = 10000 * me_c2;
+	MassiveParticleIsotropicDistribution* distribution = new MassiveParticlePowerLawDistribution(massElectron, 3.0, me_c2, 1.0);
+	//MassiveParticleIsotropicDistribution* distribution = new MassiveParticleMonoenergeticDistribution(massElectron, 1000 * me_c2, me_c2, 1.0);
+	RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, distribution, B, electronConcentration, pi / 2, R, Rin, distance);
+	RadiationEvaluator* evaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true);
+	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
+	//evaluator->writeFluxFromSourceToFile("outputSynch.dat", source, 10 * hplank * cyclotronOmega, 10000000 * hplank * cyclotronOmega, 1000);
+	evaluator->writeImageFromSourceToFile("image.dat", source, 10 * hplank * cyclotronOmega, 1000000 * hplank * cyclotronOmega, 100);
+}
