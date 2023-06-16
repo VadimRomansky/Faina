@@ -87,14 +87,28 @@ double BremsstrahlungThermalEvaluator::evaluateFluxFromSource(const double& phot
 #pragma omp parallel for private(irho) shared(photonFinalEnergy, source, Nrho, Nz, Nphi) reduction(+:result)
 
 	for (irho = 0; irho < Nrho; ++irho) {
-		for (int iz = 0; iz < Nz; ++iz) {
-			for (int iphi = 0; iphi < Nphi; ++iphi) {
+		for (int iphi = 0; iphi < Nphi; ++iphi) {
+			for (int iz = 0; iz < Nz; ++iz) {
 				result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
 			}
 		}
 	}
 
 	omp_destroy_lock(&my_lock);
+
+	return result;
+}
+
+double BremsstrahlungThermalEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi) {
+	int Nrho = source->getNrho();
+	int Nz = source->getNz();
+	int Nphi = source->getNphi();
+
+	double result = 0;
+
+	for (int iz = 0; iz < Nz; ++iz) {
+		result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
+	}
 
 	return result;
 }

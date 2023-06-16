@@ -15,6 +15,7 @@ public:
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
 	virtual double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
 	virtual double evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source);
+	virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
 };
 
 #endif

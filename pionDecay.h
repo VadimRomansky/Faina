@@ -27,6 +27,7 @@ public:
     void resetParameters(const double *parameters, const double *normalizationUnits);
     double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& volume, const double& distance);
     double evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source);
+    virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
 };
 
 class PionDecayEvaluatorKelner : public PionDecayEvaluatorBase{
@@ -38,6 +39,7 @@ public:
     void resetParameters(const double *parameters, const double *normalizationUnits);
     double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& volume, const double& distance);
     double evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source);
+    virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
 };
 
 #endif

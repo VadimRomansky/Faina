@@ -337,3 +337,57 @@ double SynchrotronEvaluator::evaluateFluxFromSource(const double& photonFinalEne
 
 	return result / sqr(source->getDistance());
 }
+
+double SynchrotronEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi) {
+	int Nrho = source->getNrho();
+	int Nz = source->getNz();
+	int Nphi = source->getNphi();
+	double photonFinalFrequency = photonFinalEnergy / hplank;
+	double localI = 0;
+	for (int iz = 0; iz < Nz; ++iz) {
+		double area = source->getArea(irho, iz, iphi);
+		double A = 0;
+		double I = 0;
+		double v;
+		double theta;
+		double phi;
+		source->getVelocity(irho, iz, iphi, v, theta, phi);
+		if (!my_doppler) {
+			v = 0;
+		}
+		double beta = v / speed_of_light;
+		double gamma = 1.0 / sqrt(1 - beta * beta);
+		double mu = cos(theta);
+
+		double D = gamma * (1.0 - beta * mu);
+		double photonFinalFrequencyPrimed = photonFinalFrequency * D;
+		//evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), source->getParticleDistribution(irho, iz, iphi), I, A);
+		evaluateSynchrotronIandA(photonFinalFrequencyPrimed, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), source->getParticleDistribution(irho, iz, iphi), I, A);
+		double length = source->getLength(irho, iz, iphi);
+		if (length > 0) {
+			if (my_selfAbsorption) {
+				double I0 = localI * D * D;
+				double Q = I * area;
+				//todo lorentz length
+				double lnorm = fabs(length * sin(theta));
+				double lpar = fabs(length * cos(theta));
+				double lengthPrimed = sqrt(lnorm * lnorm + lpar * lpar * gamma * gamma);
+				double tau = A * lengthPrimed;
+				double S = 0;
+				if (A > 0) {
+					S = Q / A;
+				}
+				if (fabs(tau) < 1E-10) {
+					localI = (I0 * (1.0 - tau) + S * tau) / (D * D);
+				}
+				else {
+					localI = (S + (I0 - S) * exp(-tau)) / (D * D);
+				}
+			}
+			else {
+				localI = localI + I * area * length / (D * D);
+			}
+		}
+	}
+	return localI;
+}
