@@ -7,21 +7,36 @@ Nphi = size(data,2);
 set(0,'DefaultAxesFontSize',14,'DefaultAxesFontName','Times New Roman');
 set(0,'DefaultTextFontSize',20,'DefaultTextFontName','Times New Roman'); 
 
-Az(1:Nphi*Nr) = 0;
-Rd(1:Nphi*Nr) = 0;
-data2(1:Nphi*Nr) = 0;
-sz(1:Nphi*Nr) = 1;
+image(1:Nphi+1,1:Nr) = 0;
 for i = 1:Nr,
     for j = 1:Nphi,
-        Az((i-1)*Nphi + j) = (j+0.5)*2*pi/Nphi;
-        Rd((i-1)*Nphi + j) = (i+0.5)*R/Nr;
-        data2((i-1)*Nphi + j) = data(i,j);
+        image(j,i) = data(i,j);
     end;
+    image(Nphi+1,i) = data(i,1);
 end;
 
-cn = 100;                                             % Number Of Colors
-cm = colormap(jet(cn));
+
 figure(1)
-%polarscatter(Az, Rd, sz, cm(fix(data2),:), 'filled')
-polarscatter(Az, Rd, sz, 'red', 'filled')
-grid on
+[r,t] = meshgrid(1:Nr,pi/Nphi:2*pi/Nphi:2*pi+pi/Nphi);
+x = r.*cos(t);
+y = r.*sin(t);
+contourf(x,y,image);
+hold on
+%plot([zeros(1,13); 90*cosd(0:30:360)], [zeros(1,13); 90*sind(0:30:360)],'k')
+%plot(90*((0:0.33:1)'*cosd(0:10:360))', 90*((0:0.33:1)'*sind(0:10:360))','k')
+colorbar
+set(colorbar,'FontSize',16)
+axis equal
+%set(gca, 'Box','off', 'XColor','none', 'YColor','none',  'Color','none')
+hold off
+
+r(1:Nr) = 0;
+data1(1:Nr)=0;
+phipoint = 1;
+for i = 1:Nr,
+    r(i) = (i+0.5)*R/Nr;
+    data1(i) = data(i, phipoint);
+end;
+figure(2)
+plot(r(1:Nr),data1(1:Nr));
+hold on;
