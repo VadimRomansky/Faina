@@ -2,6 +2,7 @@
 #include "math.h"
 #include <omp.h>
 
+#include "constants.h"
 #include "massiveParticleDistribution.h"
 #include "photonDistribution.h"
 #include "radiationSource.h"
@@ -86,9 +87,12 @@ void RadiationEvaluator::writeImageFromSourceToFile(const char* fileName, Radiat
             double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
             double currentE = Ephmin;
             double localFlux = 0;
+            double rho0 = irho * source->getMaxRho() / Nrho;
+            double rho1 = (irho + 1) * source->getMaxRho() / Nrho;
+            double s = 2 * pi * (rho1 * rho1 - rho0 * rho0) / Nphi;
             for (int ie = 0; ie < Nph; ++ie) {
                 double dE = currentE * (factor - 1.0);
-                localFlux += evaluateFluxFromSourceAtPoint(currentE, source, irho, iphi)*dE;
+                localFlux += evaluateFluxFromSourceAtPoint(currentE, source, irho, iphi)*dE/s;
                 currentE = currentE * factor;
             }
             fprintf(outFile, "%g ", localFlux);
@@ -106,7 +110,10 @@ void RadiationEvaluator::writeImageFromSourceAtEToFile(const double& photonFinal
     int Nphi = source->getNphi();
     for (int irho = 0; irho < Nrho; ++irho) {
         for (int iphi = 0; iphi < Nphi; ++iphi) {
-            double localFlux =  evaluateFluxFromSourceAtPoint(photonFinalEnergy, source, irho, iphi);
+            double rho0 = irho * source->getMaxRho() / Nrho;
+            double rho1 = (irho + 1) * source->getMaxRho() / Nrho;
+            double s = 2 * pi * (rho1 * rho1 - rho0 * rho0) / Nphi;
+            double localFlux =  evaluateFluxFromSourceAtPoint(photonFinalEnergy, source, irho, iphi)/s;
             fprintf(outFile, "%g\n", localFlux);
         }
         fprintf(outFile, "\n");

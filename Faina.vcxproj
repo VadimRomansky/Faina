@@ -128,38 +128,38 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="bremsstrahlung.cpp" />
-    <ClCompile Include="coordinateTransform.cpp" />
-    <ClCompile Include="examples.cpp" />
-    <ClCompile Include="massiveParticleDistribution.cpp" />
-    <ClCompile Include="inverseCompton.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="optimization.cpp" />
-    <ClCompile Include="photonDistribution.cpp" />
-    <ClCompile Include="pionDecay.cpp" />
-    <ClCompile Include="radiation.cpp" />
-    <ClCompile Include="radiationSource.cpp" />
-    <ClCompile Include="synchrotron.cpp" />
-    <ClCompile Include="util.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="bremsstrahlung.h" />
-    <ClInclude Include="constants.h" />
-    <ClInclude Include="coordinateTransform.h" />
-    <ClInclude Include="examples.h" />
-    <ClInclude Include="massiveParticleDistribution.h" />
-    <ClInclude Include="inverseCompton.h" />
-    <ClInclude Include="optimization.h" />
-    <ClInclude Include="particleDistribution.h" />
-    <ClInclude Include="photonDistribution.h" />
-    <ClInclude Include="pionDecay.h" />
-    <ClInclude Include="radiation.h" />
-    <ClInclude Include="radiationSource.h" />
-    <ClInclude Include="synchrotron.h" />
-    <ClInclude Include="util.h" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="ClassDiagram.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Src\bremsstrahlung.cpp" />
+    <ClCompile Include="Src\coordinateTransform.cpp" />
+    <ClCompile Include="Src\examples.cpp" />
+    <ClCompile Include="Src\inverseCompton.cpp" />
+    <ClCompile Include="Src\main.cpp" />
+    <ClCompile Include="Src\massiveParticleDistribution.cpp" />
+    <ClCompile Include="Src\optimization.cpp" />
+    <ClCompile Include="Src\photonDistribution.cpp" />
+    <ClCompile Include="Src\pionDecay.cpp" />
+    <ClCompile Include="Src\radiation.cpp" />
+    <ClCompile Include="Src\radiationSource.cpp" />
+    <ClCompile Include="Src\synchrotron.cpp" />
+    <ClCompile Include="Src\util.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Src\bremsstrahlung.h" />
+    <ClInclude Include="Src\constants.h" />
+    <ClInclude Include="Src\coordinateTransform.h" />
+    <ClInclude Include="Src\examples.h" />
+    <ClInclude Include="Src\inverseCompton.h" />
+    <ClInclude Include="Src\massiveParticleDistribution.h" />
+    <ClInclude Include="Src\optimization.h" />
+    <ClInclude Include="Src\particleDistribution.h" />
+    <ClInclude Include="Src\photonDistribution.h" />
+    <ClInclude Include="Src\pionDecay.h" />
+    <ClInclude Include="Src\radiation.h" />
+    <ClInclude Include="Src\radiationSource.h" />
+    <ClInclude Include="Src\synchrotron.h" />
+    <ClInclude Include="Src\util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
