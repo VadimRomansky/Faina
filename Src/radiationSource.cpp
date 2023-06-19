@@ -1149,6 +1149,99 @@ void RadiationSourceFactory::initializeTurbulentField(double*** B, double*** the
 	delete3dArray(phases2, Nmodes, Nmodes, Nmodes);
 }
 
+void RadiationSourceFactory::initializeAnisotropicTurbulentField(double*** B, double*** theta, double*** phi, int Nrho, int Nz, int Nphi, const double& B0, const double& theta0, const double& phi0, const double& fraction, const double& index, const double& L0, int Nmodes, const double& R, const double& thetaN, const double& phiN, const double& anisotropy)
+{
+	double cosTheta0 = cos(theta0);
+	double sinTheta0 = sin(theta0);
+
+	double*** Bx = create3dArray(Nrho, Nz, Nphi, B0 * sinTheta0 * cos(phi0));
+	double*** By = create3dArray(Nrho, Nz, Nphi, B0 * sinTheta0 * sin(phi0));
+	double*** Bz = create3dArray(Nrho, Nz, Nphi, B0 * cosTheta0);
+
+	double*** phases1 = create3dArray(Nmodes, Nmodes, Nmodes);
+	double*** phases2 = create3dArray(Nmodes, Nmodes, Nmodes);
+	//srand(1234);
+	for (int i = 0; i < Nmodes; ++i) {
+		for (int j = 0; j < Nmodes; ++j) {
+			for (int k = 0; k < Nmodes; ++k) {
+				phases1[i][j][k] = 2 * pi * uniformDistribution();
+				phases2[i][j][k] = 2 * pi * uniformDistribution();
+			}
+		}
+	}
+
+	double turbulenceKoef = 1.0;
+
+	normalizeAnisotropicTurbulenceKoef(turbulenceKoef, index, L0, Nmodes, fraction, B0, thetaN, phiN, anisotropy);
+
+
+	for (int i = 0; i < Nmodes; ++i) {
+		double kx = i * 2 * pi / L0;
+		for (int j = 0; j < Nmodes; ++j) {
+			double ky = j * 2 * pi / L0;
+			for (int k = 0; k < Nmodes; ++k) {
+				double kz = k * 2 * pi / L0;
+				//if (i + j + k > 0) {
+				if (i + j + k > minModeNumber) {
+					double kt = sqrt(kx * kx + ky * ky + kz * kz);
+					double cosThetat = kz / kt;
+					double sinThetat = sqrt(1.0 - cosThetat * cosThetat);
+					double phit = 0;
+					if (i + j > 0) {
+						phit = atan2(ky, kx);
+					}
+					double B = evaluateAnisotropicTurbulenceAmplitude(kx, ky, kz, turbulenceKoef, index, L0, thetaN, phiN, anisotropy);
+					for (int irho = 0; irho < Nrho; ++irho) {
+						double rho = (irho + 0.5) * R / Nrho;
+						for (int iz = 0; iz < Nz; ++iz) {
+							double z = 2 * (iz + 0.5) * R / Nz - R;
+
+							for (int iphi = 0; iphi < Nphi; ++iphi) {
+								double hi = 2 * pi * (iphi + 0.5) / Nphi;
+
+								double x = rho * cos(hi);
+								double y = rho * sin(hi);
+
+								double B1 = B * cos(kx * x + ky * y + kz * z + phases1[i][j][k]);
+								double B2 = B * cos(kx * x + ky * y + kz * z + phases2[i][j][k]);
+
+								Bx[irho][iz][iphi] += -B1 * cosThetat * cos(phit) - B2 * sin(phit);
+								By[irho][iz][iphi] += -B1 * cosThetat * sin(phit) + B2 * cos(phit);
+								Bz[irho][iz][iphi] += B1 * sinThetat;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	for (int irho = 0; irho < Nrho; ++irho) {
+		double rho = (irho + 0.5) * R / Nrho;
+		for (int iz = 0; iz < Nz; ++iz) {
+			double z = 2 * (iz + 0.5) * R / Nz - R;
+
+			for (int iphi = 0; iphi < Nphi; ++iphi) {
+				double hi = 2 * pi * (iphi + 0.5) / Nphi;
+
+				double Blocal = sqrt(Bx[irho][iz][iphi] * Bx[irho][iz][iphi] + By[irho][iz][iphi] * By[irho][iz][iphi] + Bz[irho][iz][iphi] * Bz[irho][iz][iphi]);
+				double Bxy = sqrt(Bx[irho][iz][iphi] * Bx[irho][iz][iphi] + By[irho][iz][iphi] * By[irho][iz][iphi]);
+
+				B[irho][iz][iphi] = Blocal;
+				theta[irho][iz][iphi] = acos(Bz[irho][iz][iphi] / Blocal);
+				phi[irho][iz][iphi] = atan2(By[irho][iz][iphi], Bx[irho][iz][iphi]);
+			}
+		}
+	}
+
+	delete3dArray(Bx, Nrho, Nz, Nphi);
+	delete3dArray(By, Nrho, Nz, Nphi);
+	delete3dArray(Bz, Nrho, Nz, Nphi);
+
+	delete3dArray(phases1, Nmodes, Nmodes, Nmodes);
+	delete3dArray(phases2, Nmodes, Nmodes, Nmodes);
+}
+
 void RadiationSourceFactory::initializeParkerField(double*** B, double*** theta, double*** phi , double*** concentration, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& R) {
 	for (int irho = 0; irho < Nrho; ++irho) {
 		double rho = (irho + 0.5) * R / Nrho;
