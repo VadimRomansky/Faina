@@ -11,6 +11,7 @@
 #include "optimization.h"
 #include "pionDecay.h"
 #include "bremsstrahlung.h"
+#include "radiationSourceFactory.h"
 
 #include "examples.h"
 

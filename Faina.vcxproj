@@ -142,6 +142,7 @@
     <ClCompile Include="Src\pionDecay.cpp" />
     <ClCompile Include="Src\radiation.cpp" />
     <ClCompile Include="Src\radiationSource.cpp" />
+    <ClCompile Include="Src\radiationSourceFactory.cpp" />
     <ClCompile Include="Src\synchrotron.cpp" />
     <ClCompile Include="Src\util.cpp" />
   </ItemGroup>
@@ -158,6 +159,7 @@
     <ClInclude Include="Src\pionDecay.h" />
     <ClInclude Include="Src\radiation.h" />
     <ClInclude Include="Src\radiationSource.h" />
+    <ClInclude Include="Src\radiationSourceFactory.h" />
     <ClInclude Include="Src\synchrotron.h" />
     <ClInclude Include="Src\util.h" />
   </ItemGroup>

@@ -13,6 +13,7 @@
 #include "pionDecay.h"
 #include "bremsstrahlung.h"
 #include "coordinateTransform.h"
+#include "radiationSourceFactory.h"
 #include "examples.h"
 
 void evaluateFluxSNRtoWind() {
@@ -418,6 +419,31 @@ void evaluateComtonFromWind() {
 	delete comptonEvaluator;
 }
 
+void evaluateTychoProfile() {
+	int Nrho = 200;
+	int Nphi = 4;
+	int Nz = 200;
+	double*** B = create3dArray(Nrho, Nz, Nphi);
+	double*** theta = create3dArray(Nrho, Nz, Nphi);
+	double*** phi = create3dArray(Nrho, Nz, Nphi);
+
+	double B0 = 1.0;
+	double theta0 = pi / 2;
+	double phi0 = 0;
+	double fraction = 100;
+	double index = 11.0 / 6.0;
+	double R = 1.4E17;
+	double lturb = R / 5;
+	int Nmodes = 20;
+	double anisotropy = 0.5;
+
+	RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInDiskSource(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, fraction, index, lturb, Nmodes, R, anisotropy);
+
+	delete3dArray(B, Nrho, Nz, Nphi);
+	delete3dArray(theta, Nrho, Nz, Nphi);
+	delete3dArray(phi, Nrho, Nz, Nphi);
+}
+
 
 int main() {
 	//evaluateSimpleSynchrotron();
@@ -428,11 +454,12 @@ int main() {
 	//evaluatePionDecayWithPowerLawDistribution();
 	//evaluateBremsstrahlung();
 	//compareComptonSynchrotron();
-	evaluateSynchrotronImage();
+	//evaluateSynchrotronImage();
 
 
 	//evaluateFluxSNRtoWind();
 	//evaluateComtonFromWind();
+	evaluateTychoProfile();
 
 	return 0;
 }

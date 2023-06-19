@@ -280,3 +280,18 @@ void delete3dArray(double*** a, const int N1, const int N2, const int N3)
     }
     delete[] a;
 }
+
+void write3dArrayToFile(double*** a, const int N1, const int N2, const int N3, const char* fileName)
+{
+    FILE* outFile = fopen(fileName, "w");
+
+    for (int i = 0; i < N1; ++i) {
+        for (int j = 0; j < N2; ++j) {
+            for (int k = 0; k < N3; ++k) {
+                fprintf(outFile, "%g\n", a[i][j][k]);
+            }
+        }
+    }
+
+    fclose(outFile);
+}
