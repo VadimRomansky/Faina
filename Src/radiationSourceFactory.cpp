@@ -213,6 +213,9 @@ void RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInSpherical
 	double A2 = 0.27;
 	double A3 = -2E16;
 
+	int irho;
+
+#pragma omp parallel for private(irho) shared(Nrho, Nz, Nphi, Bx, By, Bz, A0, A1, A2, A3, phases1, phases2, index, L0, Nmodes, fraction, B0, anisotropy)
 	for (int irho = 0; irho < Nrho; ++irho) {
 		printf("irho = %d\n", irho);
 		double rho = (irho + 0.5) * R / Nrho;
