@@ -208,17 +208,22 @@ void RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInSpherical
 		}
 	}
 
-
+	double A0 = 280;
+	double A1 = 8.8E15;
+	double A2 = 0.27;
+	double A3 = -2E16;
 
 	for (int irho = 0; irho < Nrho; ++irho) {
+		printf("irho = %d\n", irho);
 		double rho = (irho + 0.5) * R / Nrho;
 		for (int iz = 0; iz < Nz; ++iz) {
 			double z = 2 * (iz + 0.5) * R / Nz - R;
-
+			double r = sqrt(rho * rho + z * z);
 			for (int iphi = 0; iphi < Nphi; ++iphi) {
 				double turbulenceKoef = 1.0;
+				double correction = sqrt(A0 / pow(1 + sqr((R - (r - A3)) / A1), A2));
 
-				normalizeAnisotropicTurbulenceKoef(turbulenceKoef, index, L0, Nmodes, fraction, B0, anisotropy);
+				normalizeAnisotropicTurbulenceKoef(turbulenceKoef, index, L0, Nmodes, fraction, correction*B0, anisotropy);
 
 				double hi = 2 * pi * (iphi + 0.5) / Nphi;
 
@@ -238,8 +243,8 @@ void RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInSpherical
 						for (int k = 0; k < Nmodes; ++k) {
 							double kz = k * 2 * pi / L0;
 							//if (i + j + k > 0) {
-							phases1[i][j][k] = 2 * pi * uniformDistribution();
-							phases2[i][j][k] = 2 * pi * uniformDistribution();
+							//phases1[i][j][k] = 2 * pi * uniformDistribution();
+							//phases2[i][j][k] = 2 * pi * uniformDistribution();
 
 							if (i + j + k > minModeNumber) {
 								double kt = sqrt(kx * kx + ky * ky + kz * kz);
@@ -250,9 +255,10 @@ void RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInSpherical
 									phit = atan2(ky, kx);
 								}
 								double B = evaluateAnisotropicTurbulenceAmplitude(kx, ky, kz, turbulenceKoef, index, L0, anisotropy);
+								double phase = kz * r + kx*rho*hi + ky*r*acos(cosThetar);
 
-								double B1 = B * cos(kx * x + ky * y + kz * z + phases1[i][j][k]);
-								double B2 = B * cos(kx * x + ky * y + kz * z + phases2[i][j][k]);
+								double B1 = B * cos(phase + phases1[i][j][k]);
+								double B2 = B * cos(phase + phases2[i][j][k]);
 
 								Bxprimed += -B1 * cosThetat * cos(phit) - B2 * sin(phit);
 								Byprimed += -B1 * cosThetat * sin(phit) + B2 * cos(phit);
@@ -381,9 +387,9 @@ void RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInDiskSourc
 		}
 	}
 
-	write3dArrayToFile(Bx, Nrho, Nz, Nphi, "Bx.dat");
-	write3dArrayToFile(By, Nrho, Nz, Nphi, "By.dat");
-	write3dArrayToFile(Bz, Nrho, Nz, Nphi, "Bz.dat");
+	//write3dArrayToFile(Bx, Nrho, Nz, Nphi, "Bx.dat");
+	//write3dArrayToFile(By, Nrho, Nz, Nphi, "By.dat");
+	//write3dArrayToFile(Bz, Nrho, Nz, Nphi, "Bz.dat");
 
 	delete3dArray(Bx, Nrho, Nz, Nphi);
 	delete3dArray(By, Nrho, Nz, Nphi);

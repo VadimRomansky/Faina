@@ -81,6 +81,7 @@ public:
 	virtual double distributionNormalized(const double& energy);
 	virtual double getMeanEnergy();
 	virtual void resetConcentration(const double& concentration);
+	virtual void resetEcut(const double& Ecut);
 	double getIndex();
 	double getBeta();
 	double getE0();

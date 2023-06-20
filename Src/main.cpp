@@ -420,24 +420,55 @@ void evaluateComtonFromWind() {
 }
 
 void evaluateTychoProfile() {
-	int Nrho = 200;
-	int Nphi = 4;
-	int Nz = 200;
+	int Nrho = 20;
+	int Nphi = 8;
+	int Nz = 4;
 	double*** B = create3dArray(Nrho, Nz, Nphi);
 	double*** theta = create3dArray(Nrho, Nz, Nphi);
 	double*** phi = create3dArray(Nrho, Nz, Nphi);
 
-	double B0 = 1.0;
+	double B0 = 3E-6;
+	double magneticEnergy = B0 * B0 / (8 * pi);
 	double theta0 = pi / 2;
 	double phi0 = 0;
-	double fraction = 100;
+	double turbulentEnergy = ((280 + 2 * 218)*1E-12)/(8*pi);
+	double fraction = turbulentEnergy/magneticEnergy;
 	double index = 11.0 / 6.0;
-	double R = 1.4E17;
-	double lturb = R / 5;
 	int Nmodes = 20;
-	double anisotropy = 0.5;
+	double anisotropy = 0.75; //0.75 to Bx^2/By^2 = 281/218 as uvarov fit
+	double concentration = 1000;
+	double*** concentrations = create3dArray(Nrho, Nz, Nphi, concentration);
+	double Emin = me_c2;
+	double Emax = me_c2 * 1E9;
+	int Ne = 200;
+	double distance = 2500 * parsec;
+	double R = distance*258*pi/(180*60*60);
+	double widthFraction = 0.1;
+	double lturb = R / 5;
 
-	RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInDiskSource(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, fraction, index, lturb, Nmodes, R, anisotropy);
+	double Uupstream = 4E8;
+	double Udownstream = 0.25 * Uupstream;
+	double meanB = sqrt(8 * pi * (magneticEnergy + turbulentEnergy));
+
+	double nuph = (5000 * 1.6E-12) / hplank;
+	double Energy = sqrt(4 * pi * nuph * cube(massElectron) * speed_of_light * speed_of_light4 / (0.29 * 3 * electron_charge * meanB));
+	double gamma = Energy / me_c2;
+	double Rlosses = (2.0 / 3.0) * sqr(electron_charge * electron_charge / me_c2) * speed_of_light * (4.0 / 9.0) * meanB * meanB * sqr(Energy / me_c2);
+	double tau = Energy / Rlosses;
+	double L = tau * Udownstream;
+
+	//RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInDiskSource(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, fraction, index, lturb, Nmodes, R, anisotropy);
+	RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInSphericalSource(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, fraction, index, lturb, Nmodes, R, anisotropy);
+	write3dArrayToFile(B, Nrho, Nz, Nphi, "B.dat");
+
+	MassiveParticleIsotropicDistribution* electrons = new MassiveParticlePowerLawCutoffDistribution(massElectron, 2.0, me_c2, 2.0, 100*Energy, concentration);
+
+	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, concentrations, R, (1.0 - widthFraction) * R, distance);
+	RadiationSource* source = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electrons, B, theta, concentrations, R, (1.0 - widthFraction) * R, distance, Udownstream);
+
+	SynchrotronEvaluator* evaluator = new SynchrotronEvaluator(Ne, Emin, Emax, false);
+
+	evaluator->writeImageFromSourceToFile("image.dat", source, 1000*1.6E-12, 10000*1.6E-12, 20);
 
 	delete3dArray(B, Nrho, Nz, Nphi);
 	delete3dArray(theta, Nrho, Nz, Nphi);

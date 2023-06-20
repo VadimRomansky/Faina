@@ -710,6 +710,23 @@ double TabulatedSphericalLayerSource::getAverageSigma()
 
 	return magneticEnergy/restEnergy;
 }
+double TabulatedSphericalLayerSource::getAverageBsquared()
+{
+	double magneticEnergy = 0;
+	double volume = 0;
+
+
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				magneticEnergy += my_B[irho][iz][iphi] * my_B[irho][iz][iphi] * getVolume(irho, iz, iphi);
+				volume += getVolume(irho, iz, iphi);
+			}
+		}
+	}
+
+	return sqrt(magneticEnergy / volume);
+}
 double TabulatedSphericalLayerSource::getAverageConcentration()
 {
 	double concentration = 0;
@@ -995,4 +1012,97 @@ RadiationSource* ExpandingRemnantSource::getRadiationSource(double& time, const 
 	parameters[4] = localV / normalizationUnits[4];
 	my_radiationSource->resetParameters(parameters, normalizationUnits);
 	return my_radiationSource;
+}
+
+TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, rhoin, distance, velocity)
+{
+	my_cutoffDistribution = dynamic_cast<MassiveParticlePowerLawCutoffDistribution*>(electronDistribution);
+	if (my_cutoffDistribution == NULL) {
+		printf("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticlePowerLawCutoffDistribution\n");
+		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticlePowerLawCutoffDistribution\n");
+		exit(0);
+	}
+	my_downstreamVelocity = downstreamVelocity;
+	my_meanB = getAverageBsquared();
+	my_defaultCutoff = my_cutoffDistribution->getEcutoff();
+}
+
+TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, rhoin, distance, velocity)
+{
+	my_cutoffDistribution = dynamic_cast<MassiveParticlePowerLawCutoffDistribution*>(electronDistribution);
+	if (my_cutoffDistribution == NULL) {
+		printf("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticlePowerLawCutoffDistribution\n");
+		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticlePowerLawCutoffDistribution\n");
+		exit(0);
+	}
+	my_downstreamVelocity = downstreamVelocity;
+	my_meanB = getAverageBsquared();
+	my_defaultCutoff = my_cutoffDistribution->getEcutoff();
+}
+
+TabulatedSLSourceWithSynchCutoff::~TabulatedSLSourceWithSynchCutoff()
+{
+}
+
+void TabulatedSLSourceWithSynchCutoff::resetParameters(const double* parameters, const double* normalizationUnits)
+{
+	/*parameters must be
+* R = parameters[0]
+* B[i][j][k] ~ parameters[1]
+* n[i][j][k] ~ parameters[2]
+* where B[Nrho-1][0][0] = parameters[1]
+* Rin = R*(1 - parameters[3])
+*/
+	my_geometryCashed = false;
+
+	my_rho = parameters[0] * normalizationUnits[0];
+	my_rhoin = my_rho * (1.0 - parameters[3] * normalizationUnits[3]);
+	evaluateLengthAndArea();
+	double sigma = parameters[1] * normalizationUnits[1];
+	//double B0 = my_B[my_Nrho - 1][0][0];
+	//double n0 = my_concentration[my_Nrho - 1][0][0];
+	double n0 = getAverageConcentration();
+	//double sigma0 = sqr(my_B[my_Nrho - 1][0][0]) / (4 * pi * massProton * my_concentration[my_Nrho - 1][0][0] * speed_of_light2);
+	double sigma0 = getAverageSigma();
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				double localSigma = sqr(my_B[irho][iz][iphi]) / (4 * pi * massProton * my_concentration[irho][iz][iphi] * speed_of_light2);
+				localSigma *= sigma / sigma0;
+				my_concentration[irho][iz][iphi] *= parameters[2] * normalizationUnits[2] / n0;
+				if (my_concentration[irho][iz][iphi] != my_concentration[irho][iz][iphi]) {
+					printf("my_concentration = NaN\n");
+					printLog("my_concentration = NaN\n");
+					exit(0);
+				}
+				my_B[irho][iz][iphi] = sqrt(localSigma * 4 * pi * massProton * my_concentration[irho][iz][iphi] * speed_of_light2);
+			}
+		}
+	}
+	my_velocity = parameters[4] * normalizationUnits[4];
+	my_meanB = getAverageBsquared();
+}
+
+MassiveParticleIsotropicDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistribution(int irho, int iz, int iphi)
+{
+	my_cutoffDistribution->resetEcut(my_defaultCutoff);
+	double rho = (irho + 0.5) * my_rho / my_Nrho;
+	double z = (iz + 0.5) * 2 * my_rho / my_Nz - my_rho;
+	double r = sqrt(rho * rho + z * z);
+	double l = my_rho - r;
+	/*if (l <= 0) {
+		printf("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution\n");
+		printLog("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution\n");
+		//exit(0);
+	}*/
+	if (l > 0) {
+		double mass = my_cutoffDistribution->getMass();
+		double Ecut = 9.0 * mass * mass * mass * mass * pow(speed_of_light, 7) * my_downstreamVelocity / (electron_charge * electron_charge * my_meanB * my_meanB * l);
+		if (Ecut < mass * speed_of_light2) {
+			//todo
+			Ecut = mass * speed_of_light2 * 1.1;
+		}
+		my_cutoffDistribution->resetEcut(Ecut);
+	}
+	return my_cutoffDistribution;
 }

@@ -153,6 +153,9 @@ double MassiveParticlePowerLawCutoffDistribution::distributionNormalized(const d
 	if (energy < my_E0) {
 		return 0;
 	}
+	if (pow(energy / my_Ecut, my_beta) > 300) {
+		return 0;
+	}
 	return (my_A / pow(energy / my_E0, my_index))*exp(-pow(energy/my_Ecut, my_beta));
 }
 
@@ -176,6 +179,17 @@ double MassiveParticlePowerLawCutoffDistribution::getMeanEnergy()
 void MassiveParticlePowerLawCutoffDistribution::resetConcentration(const double& concentration)
 {
 	my_concentration = concentration;
+}
+
+void MassiveParticlePowerLawCutoffDistribution::resetEcut(const double& Ecut)
+{
+	//todo need to renorm?
+	my_Ecut = Ecut;
+	if (my_Ecut < my_E0) {
+		printf("Ecutoff < E0\n");
+		printLog("Ecutoff < E0\n");
+		exit(0);
+	}
 }
 
 double MassiveParticlePowerLawCutoffDistribution::getIndex()

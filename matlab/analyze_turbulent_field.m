@@ -37,4 +37,6 @@ Bxmean = Bxmean/volume;
 Bymean = Bymean/volume;
 Bzmean = Bzmean/volume;
 
+relation = 2*Bzmean/(Bxmean + Bymean);
+
 

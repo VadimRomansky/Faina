@@ -77,12 +77,24 @@ void RadiationEvaluator::writeFluxFromSourceToFile(const char* fileName, Radiati
 }
 
 void RadiationEvaluator::writeImageFromSourceToFile(const char* fileName, RadiationSource* source, const double& Ephmin, const double& Ephmax, const int Nph) {
-    FILE* outFile = fopen(fileName, "w");
-
     int Nrho = source->getNrho();
     int Nz = source->getNz();
     int Nphi = source->getNphi();
+
+    double** image = new double*[Nrho];
     for (int irho = 0; irho < Nrho; ++irho) {
+        image[irho] = new double[Nphi];
+        for (int iphi = 0; iphi < Nphi; ++iphi) {
+            image[irho][iphi] = 0;
+        }
+    }
+
+    omp_init_lock(&my_lock);
+
+    int irho;
+#pragma omp parallel for private(irho) shared(Ephmin, Ephmax, source, Nrho, Nz, Nphi, image)
+    for (irho = 0; irho < Nrho; ++irho) {
+        printf("evaluating image irho = %d\n", irho);
         for (int iphi = 0; iphi < Nphi; ++iphi) {
             double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
             double currentE = Ephmin;
@@ -95,7 +107,16 @@ void RadiationEvaluator::writeImageFromSourceToFile(const char* fileName, Radiat
                 localFlux += evaluateFluxFromSourceAtPoint(currentE, source, irho, iphi)*dE/s;
                 currentE = currentE * factor;
             }
-            fprintf(outFile, "%g ", localFlux);
+            image[irho][iphi] = localFlux;
+        }
+    }
+
+    omp_destroy_lock(&my_lock);
+
+    FILE* outFile = fopen(fileName, "w");
+    for (int irho = 0; irho < Nrho; ++irho) {
+        for (int iphi = 0; iphi < Nphi; ++iphi) {
+            fprintf(outFile, "%g ", image[irho][iphi]);
         }
         fprintf(outFile, "\n");
     }
@@ -103,18 +124,38 @@ void RadiationEvaluator::writeImageFromSourceToFile(const char* fileName, Radiat
 }
 
 void RadiationEvaluator::writeImageFromSourceAtEToFile(const double& photonFinalEnergy, const char* fileName, RadiationSource* source) {
-    FILE* outFile = fopen(fileName, "w");
-
     int Nrho = source->getNrho();
     int Nz = source->getNz();
     int Nphi = source->getNphi();
+
+    double** image = new double* [Nrho];
     for (int irho = 0; irho < Nrho; ++irho) {
+        image[irho] = new double[Nphi];
+        for (int iphi = 0; iphi < Nphi; ++iphi) {
+            image[irho][iphi] = 0;
+        }
+    }
+
+    omp_init_lock(&my_lock);
+
+    int irho;
+#pragma omp parallel for private(irho) shared(photonFinalEnergy, source, Nrho, Nz, Nphi, image)
+    for (irho = 0; irho < Nrho; ++irho) {
         for (int iphi = 0; iphi < Nphi; ++iphi) {
             double rho0 = irho * source->getMaxRho() / Nrho;
             double rho1 = (irho + 1) * source->getMaxRho() / Nrho;
             double s = 2 * pi * (rho1 * rho1 - rho0 * rho0) / Nphi;
             double localFlux =  evaluateFluxFromSourceAtPoint(photonFinalEnergy, source, irho, iphi)/s;
-            fprintf(outFile, "%g\n", localFlux);
+            image[irho][iphi] = localFlux;
+        }
+    }
+
+    omp_destroy_lock(&my_lock);
+
+    FILE* outFile = fopen(fileName, "w");
+    for (int irho = 0; irho < Nrho; ++irho) {
+        for (int iphi = 0; iphi < Nphi; ++iphi) {
+            fprintf(outFile, "%g ", image[irho][iphi]);
         }
         fprintf(outFile, "\n");
     }
