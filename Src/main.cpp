@@ -443,7 +443,7 @@ void evaluateTychoProfile() {
 	int Ne = 200;
 	double distance = 2500 * parsec;
 	double R = distance*258*pi/(180*60*60);
-	double widthFraction = 0.1;
+	double widthFraction = 0.2;
 	double lturb = R / 5;
 
 	double Uupstream = 4E8;

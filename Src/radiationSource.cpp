@@ -1090,17 +1090,19 @@ MassiveParticleIsotropicDistribution* TabulatedSLSourceWithSynchCutoff::getParti
 	double z = (iz + 0.5) * 2 * my_rho / my_Nz - my_rho;
 	double r = sqrt(rho * rho + z * z);
 	double l = my_rho - r;
-	/*if (l <= 0) {
-		printf("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution\n");
-		printLog("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution\n");
+	if (l <= 0) {
+		printf("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
+		printf("rho = %g z = %g r = %g R = %g\n", rho, z, r, my_rho);
+		printLog("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
+		printLog("rho = %g z = %g r = %g R = %g\n", rho, z, r, my_rho);
 		//exit(0);
-	}*/
+	}
 	if (l > 0) {
 		double mass = my_cutoffDistribution->getMass();
-		double Ecut = 9.0 * mass * mass * mass * mass * pow(speed_of_light, 7) * my_downstreamVelocity / (electron_charge * electron_charge * my_meanB * my_meanB * l);
+		double Ecut = 9.0 * mass * mass * mass * mass * pow(speed_of_light, 7) * my_downstreamVelocity / (electron_charge * electron_charge * electron_charge * electron_charge * my_meanB * my_meanB * l);
 		if (Ecut < mass * speed_of_light2) {
 			//todo
-			Ecut = mass * speed_of_light2 * 1.1;
+			Ecut = mass * speed_of_light2 * 2.0;
 		}
 		my_cutoffDistribution->resetEcut(Ecut);
 	}

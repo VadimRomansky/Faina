@@ -12,7 +12,7 @@ for i = 1:Nr,
     for j = 1:Nphi,
         image(j,i) = data(i,j);
     end;
-    image(Nphi+1,i) = data(i,1);
+    image(Nphi+1,i) = data(i,j);
 end;
 
 
@@ -34,7 +34,7 @@ r(1:Nr) = 0;
 data1(1:Nr)=0;
 phipoint = 1;
 for i = 1:Nr,
-    r(i) = (i+0.5)*R/Nr;
+    r(i) = (i-0.5)*R/Nr;
     data1(i) = data(i, phipoint);
 end;
 figure(2)
