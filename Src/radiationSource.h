@@ -94,14 +94,34 @@ public:
 	TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& z, const double& distance, const double& velocity = 0);
 	TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& theta, const double& concentration , const double& rho, const double& z, const double& distance, const double& velocity = 0);
     virtual ~TabulatedDiskSource();
-	double getLength(int irho, int iz, int iphi);
-	double getB(int irho, int iz, int iphi);
-	double getConcentration(int irho, int iz, int iphi);
+	virtual double getMaxB();
+	virtual double getMaxOuterB();
+	virtual double getAverageSigma();
+	virtual double getAverageConcentration();
+	virtual double getAverageBsquared();
+	virtual double getLength(int irho, int iz, int iphi);
+	virtual double getB(int irho, int iz, int iphi);
+	virtual double getConcentration(int irho, int iz, int iphi);
 	virtual void getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi);
-	double getSinTheta(int irho, int iz, int iphi);
+	virtual double getSinTheta(int irho, int iz, int iphi);
 	//void resetConcentration(const double& concentration);
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
-	MassiveParticleIsotropicDistribution* getParticleDistribution(int irho, int iz, int iphi);
+	virtual MassiveParticleIsotropicDistribution* getParticleDistribution(int irho, int iz, int iphi);
+};
+
+class TabulatedDiskSourceWithSynchCutoff : public TabulatedDiskSource {
+protected:
+	double my_downstreamVelocity;
+	double my_meanB;
+	double my_defaultCutoff;
+	MassiveParticlePowerLawCutoffDistribution* my_cutoffDistribution;
+public:
+	TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
+	TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
+	virtual ~TabulatedDiskSourceWithSynchCutoff();
+
+	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
+	virtual MassiveParticleIsotropicDistribution* getParticleDistribution(int irho, int iz, int iphi);
 };
 
 class SphericalLayerSource : public RadiationSource {

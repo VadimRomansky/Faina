@@ -190,6 +190,23 @@ TabulatedDiskSource::~TabulatedDiskSource()
 	delete[] my_theta;
 	delete[] my_concentration;
 }
+double TabulatedDiskSource::getAverageBsquared()
+{
+	double magneticEnergy = 0;
+	double volume = 0;
+
+
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				magneticEnergy += my_B[irho][iz][iphi] * my_B[irho][iz][iphi] * getVolume(irho, iz, iphi);
+				volume += getVolume(irho, iz, iphi);
+			}
+		}
+	}
+
+	return sqrt(magneticEnergy / volume);
+}
 double TabulatedDiskSource::getB(int irho, int iz, int iphi)
 {
 	return my_B[irho][iz][iphi];
@@ -243,6 +260,88 @@ void TabulatedDiskSource::resetParameters(const double* parameters, const double
 }
 double TabulatedDiskSource::getLength(int irho, int iz, int iphi) {
 	return my_z/my_Nz;
+}
+double TabulatedDiskSource::getMaxB()
+{
+	double Bmax = 0;
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				if (my_B[irho][iz][iphi] > Bmax) {
+					Bmax = my_B[irho][iz][iphi];
+				}
+			}
+		}
+	}
+	return Bmax;
+}
+double TabulatedDiskSource::getMaxOuterB()
+{
+	double Bmax = 0;
+	int irho = my_Nrho - 1;
+	int iz = 0;
+	for (iz = 0; iz < my_Nz; ++iz) {
+		for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+			if (my_B[irho][iz][iphi] > Bmax) {
+				Bmax = my_B[irho][iz][iphi];
+			}
+		}
+	}
+
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+			iz = 0;
+			if (my_B[irho][iz][iphi] > Bmax) {
+				Bmax = my_B[irho][iz][iphi];
+			}
+
+			iz = my_Nz - 1;
+			if (my_B[irho][iz][iphi] > Bmax) {
+				Bmax = my_B[irho][iz][iphi];
+			}
+		}
+	}
+
+	return Bmax;
+}
+double TabulatedDiskSource::getAverageSigma()
+{
+	double magneticEnergy = 0;
+	double restEnergy = 0;
+
+
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				magneticEnergy += my_B[irho][iz][iphi] * my_B[irho][iz][iphi] * getVolume(irho, iz, iphi) / (4 * pi);
+				restEnergy += my_concentration[irho][iz][iphi] * massProton * speed_of_light2 * getVolume(irho, iz, iphi);
+			}
+		}
+	}
+
+	return magneticEnergy / restEnergy;
+}
+double TabulatedDiskSource::getAverageConcentration()
+{
+	double concentration = 0;
+	double volume = 0;
+
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				concentration += my_concentration[irho][iz][iphi] * getVolume(irho, iz, iphi);
+				volume += getVolume(irho, iz, iphi);
+			}
+		}
+	}
+
+	double result = concentration / volume;
+	if (result != result) {
+		printf("averageConcentration = NaN\n");
+		printLog("averageConcentration = NaN\n");
+		exit(0);
+	}
+	return result;
 }
 MassiveParticleIsotropicDistribution* TabulatedDiskSource::getParticleDistribution(int irho, int iz, int iphi) {
 	my_distribution->resetConcentration(getConcentration(irho, iz, iphi));
@@ -1090,6 +1189,91 @@ MassiveParticleIsotropicDistribution* TabulatedSLSourceWithSynchCutoff::getParti
 	double z = (iz + 0.5) * 2 * my_rho / my_Nz - my_rho;
 	double r = sqrt(rho * rho + z * z);
 	double l = my_rho - r;
+	if (l <= 0) {
+		/*printf("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
+		printf("rho = %g z = %g r = %g R = %g\n", rho, z, r, my_rho);
+		printLog("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
+		printLog("rho = %g z = %g r = %g R = %g\n", rho, z, r, my_rho);*/
+		//exit(0);
+	}
+	if (l > 0) {
+		double mass = my_cutoffDistribution->getMass();
+		double Ecut = 9.0 * mass * mass * mass * mass * pow(speed_of_light, 7) * my_downstreamVelocity / (electron_charge * electron_charge * electron_charge * electron_charge * my_meanB * my_meanB * l);
+		if (Ecut < mass * speed_of_light2) {
+			//todo
+			Ecut = mass * speed_of_light2 * 2.0;
+		}
+		my_cutoffDistribution->resetEcut(Ecut);
+	}
+	return my_cutoffDistribution;
+}
+
+TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, z, distance, velocity)
+{
+	my_cutoffDistribution = dynamic_cast<MassiveParticlePowerLawCutoffDistribution*>(electronDistribution);
+	if (my_cutoffDistribution == NULL) {
+		printf("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticlePowerLawCutoffDistribution\n");
+		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticlePowerLawCutoffDistribution\n");
+		exit(0);
+	}
+	my_downstreamVelocity = downstreamVelocity;
+	my_meanB = getAverageBsquared();
+	my_defaultCutoff = my_cutoffDistribution->getEcutoff();
+}
+
+TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, z, distance, velocity)
+{
+	my_cutoffDistribution = dynamic_cast<MassiveParticlePowerLawCutoffDistribution*>(electronDistribution);
+	if (my_cutoffDistribution == NULL) {
+		printf("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticlePowerLawCutoffDistribution\n");
+		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticlePowerLawCutoffDistribution\n");
+		exit(0);
+	}
+	my_downstreamVelocity = downstreamVelocity;
+	my_meanB = getAverageBsquared();
+	my_defaultCutoff = my_cutoffDistribution->getEcutoff();
+}
+
+TabulatedDiskSourceWithSynchCutoff::~TabulatedDiskSourceWithSynchCutoff()
+{
+}
+
+void TabulatedDiskSourceWithSynchCutoff::resetParameters(const double* parameters, const double* normalizationUnits)
+{
+	/*parameters must be
+* R = parameters[0]
+* sigma[i][j][k] ~ parameters[1]
+* n[i][j][k] ~ parameters[2]
+* where B[Nrho-1][0][0] = parameters[1]
+* z = R*parameters[3]
+*/
+	my_rho = parameters[0] * normalizationUnits[0];
+	double sigma = parameters[1] * normalizationUnits[1];
+	//double B0 = my_B[my_Nrho - 1][0][0];
+	//double n0 = my_concentration[my_Nrho - 1][0][0];
+	double n0 = getAverageConcentration();
+	//double sigma0 = sqr(my_B[my_Nrho - 1][0][0]) / (4 * pi * massProton * my_concentration[my_Nrho - 1][0][0] * speed_of_light2);
+	double sigma0 = getAverageSigma();
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				double sigma = sqr(my_B[irho][iz][iphi]) / (4 * pi * massProton * my_concentration[irho][iz][iphi] * speed_of_light2);
+				sigma *= parameters[1] * normalizationUnits[1] / sigma0;
+				my_concentration[irho][iz][iphi] *= parameters[2] * normalizationUnits[2] / n0;
+				my_B[irho][iz][iphi] = sqrt(sigma * 4 * pi * massProton * my_concentration[irho][iz][iphi] * speed_of_light2);
+			}
+		}
+	}
+	my_z = my_rho * parameters[3] * normalizationUnits[3];
+	my_velocity = parameters[4] * normalizationUnits[4];
+	my_meanB = getAverageBsquared();
+}
+
+MassiveParticleIsotropicDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDistribution(int irho, int iz, int iphi)
+{
+	my_cutoffDistribution->resetEcut(my_defaultCutoff);
+	double rho = (irho + 0.5) * my_rho / my_Nrho;
+	double l = my_rho - rho;
 	if (l <= 0) {
 		/*printf("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
 		printf("rho = %g z = %g r = %g R = %g\n", rho, z, r, my_rho);
