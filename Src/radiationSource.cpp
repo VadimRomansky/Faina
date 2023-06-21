@@ -1091,10 +1091,10 @@ MassiveParticleIsotropicDistribution* TabulatedSLSourceWithSynchCutoff::getParti
 	double r = sqrt(rho * rho + z * z);
 	double l = my_rho - r;
 	if (l <= 0) {
-		printf("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
+		/*printf("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
 		printf("rho = %g z = %g r = %g R = %g\n", rho, z, r, my_rho);
 		printLog("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
-		printLog("rho = %g z = %g r = %g R = %g\n", rho, z, r, my_rho);
+		printLog("rho = %g z = %g r = %g R = %g\n", rho, z, r, my_rho);*/
 		//exit(0);
 	}
 	if (l > 0) {

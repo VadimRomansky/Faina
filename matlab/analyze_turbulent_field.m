@@ -1,7 +1,7 @@
 clear;
-Bxdata = importdata("../Bx.dat");
-Bydata = importdata("../By.dat");
-Bzdata = importdata("../Bz.dat");
+Bxdata = importdata('../Bx.dat');
+Bydata = importdata('../By.dat');
+Bzdata = importdata('../Bz.dat');
 
 Nr = 200;
 Nz = 200;
