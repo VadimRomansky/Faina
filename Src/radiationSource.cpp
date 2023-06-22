@@ -751,6 +751,14 @@ bool TabulatedSphericalLayerSource::rayTraceToNextCell(const double& rho0, const
 	double dz = 2 * my_rho / my_Nz;
 	int irho = floor(rho0 / drho);
 
+	double r = sqrt(rho0 * rho0 + z0 * z0);
+	if (r >= my_rho) {
+		rho1 = rho0;
+		z1 = z0;
+		lB2 = 0;
+		return true;
+	}
+
 	double cosTheta = cos(theta);
 	double sinTheta = sin(theta);
 
