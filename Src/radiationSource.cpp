@@ -750,18 +750,28 @@ bool TabulatedSphericalLayerSource::rayTraceToNextCell(const double& rho0, const
 	double drho = my_rho / my_Nrho;
 	double dz = 2 * my_rho / my_Nz;
 	int irho = floor(rho0 / drho);
-	int iz = floor((z0 + my_rho) / dz);
-	double B2 = sqr(getB(irho, iz, iphi));
 
 	double cosTheta = cos(theta);
 	double sinTheta = sin(theta);
 
 	double nextRho = drho * (irho + 1);
 	double deltaRho = nextRho - rho0;
+	if (deltaRho <= 0) {
+		irho = irho + 1;
+		nextRho = drho * (irho + 1);
+		deltaRho = nextRho - rho0;
+	}
 
 	if (cosTheta > 0) {
+		int iz = floor((z0 + my_rho) / dz);
+		double B2 = sqr(getB(irho, iz, iphi));
 		double nextZ = dz * (iz + 1) - my_rho;
 		double deltaZ = nextZ - z0;
+		if (deltaZ <= 0) {
+			nextZ = dz * (iz + 2) - my_rho;
+			deltaZ = dz;
+			B2 = sqr(getB(irho, iz + 1, iphi));
+		}
 
 		double rterm = cosTheta * deltaRho;
 		double zterm = sinTheta * deltaZ;
@@ -801,8 +811,15 @@ bool TabulatedSphericalLayerSource::rayTraceToNextCell(const double& rho0, const
 		lB2 = l * B2;
 		return false;
 	} if (cosTheta < 0) {
+		int iz = my_Nz/2 - floor(fabs((z0) / dz));
+		double B2 = sqr(getB(irho, iz, iphi));
 		double nextZ = dz * (iz - 1) - my_rho;
 		double deltaZ = -(nextZ - z0);
+		if (deltaZ <= 0) {
+			nextZ = dz * (iz - 2) - my_rho;
+			deltaZ = dz;
+			B2 = sqr(getB(irho, iz-1, iphi));
+		}
 
 		double rterm = -cosTheta * deltaRho;
 		double zterm = sinTheta * deltaZ;
@@ -846,7 +863,8 @@ bool TabulatedSphericalLayerSource::rayTraceToNextCell(const double& rho0, const
 		z1 = z0;
 		rho1 = rho0;
 		double l = deltaRho;
-
+		//todo
+		double B2 = sqr(getB(irho, my_Nz, iphi));
 		double nextR = sqrt(rho1 * rho1 + z1 * z1);
 		if (nextR > my_rho) {
 			l = l - (nextR - my_rho);
@@ -878,6 +896,9 @@ double TabulatedSphericalLayerSource::evaluateTotalLB2fromPoint(const double& rh
 	double tempZ = z0;
 	int numberOfIteration = 0;
 	while (!reachedSurface) {
+		if (numberOfIteration > 1.5 * (my_Nrho + my_Nz)) {
+			printf("aaa\n");
+		}
 		reachedSurface = rayTraceToNextCell(tempRho, tempZ, iphi, theta, rho1, z1, lB2);
 		totalLB2 += lB2;
 		tempRho = rho1;

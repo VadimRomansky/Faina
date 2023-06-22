@@ -420,9 +420,9 @@ void evaluateComtonFromWind() {
 }
 
 void evaluateTychoProfile() {
-	int Nrho = 20;
-	int Nphi = 8;
-	int Nz = 20;
+	int Nrho = 25;
+	int Nphi = 4;
+	int Nz = 50;
 	double*** B = create3dArray(Nrho, Nz, Nphi);
 	double*** theta = create3dArray(Nrho, Nz, Nphi);
 	double*** phi = create3dArray(Nrho, Nz, Nphi);
