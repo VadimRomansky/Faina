@@ -746,6 +746,152 @@ TabulatedSphericalLayerSource::~TabulatedSphericalLayerSource() {
 	delete[] my_theta;
 }
 
+bool TabulatedSphericalLayerSource::rayTraceToNextCell(const double& rho0, const double& z0, int iphi, const double& theta, double& rho1, double& z1, double& lB2) {
+	double drho = my_rho / my_Nrho;
+	double dz = 2 * my_rho / my_Nz;
+	int irho = floor(rho0 / drho);
+	int iz = floor((z0 + my_rho) / dz);
+	double B2 = sqr(getB(irho, iz, iphi));
+
+	double cosTheta = cos(theta);
+	double sinTheta = sin(theta);
+
+	double nextRho = drho * (irho + 1);
+	double deltaRho = nextRho - rho0;
+
+	if (cosTheta > 0) {
+		double nextZ = dz * (iz + 1) - my_rho;
+		double deltaZ = nextZ - z0;
+
+		double rterm = cosTheta * deltaRho;
+		double zterm = sinTheta * deltaZ;
+
+		double l = 0;
+
+		if (rterm > zterm) {
+			//sin can be = 0;
+			
+			l = deltaZ / cosTheta;
+			z1 = nextZ;
+			rho1 = rho0 + sqrt(l * l - deltaZ * deltaZ);
+		}
+		else if (zterm > rterm) {
+			//cos can be = 0;
+			l = deltaRho / sinTheta;
+			rho1 = nextRho;
+			z1 = z0 + sqrt(l * l - deltaRho * deltaRho);
+		}
+		else {
+			z1 = nextZ;
+			rho1 = nextRho;
+			l = sqrt(deltaRho * deltaRho + deltaZ * deltaZ);
+		}
+		double nextR = sqrt(rho1 * rho1 + z1 * z1);
+		if (nextR > my_rho) {
+			l = l - (nextR - my_rho);
+			if (l < 0) {
+				printf("l < 0 in rayTraceToNextCell\n");
+				printLog("l < 0 in rayTraceToNextCell\n");
+				exit(0);
+			}
+			//todo change rgo1 and z1
+			lB2 = l * B2;
+			return true;
+		}
+		lB2 = l * B2;
+		return false;
+	} if (cosTheta < 0) {
+		double nextZ = dz * (iz - 1) - my_rho;
+		double deltaZ = -(nextZ - z0);
+
+		double rterm = -cosTheta * deltaRho;
+		double zterm = sinTheta * deltaZ;
+
+		double l = 0;
+
+		if (rterm > zterm) {
+			//sin can be = 0;
+
+			l = - deltaZ / cosTheta;
+			z1 = nextZ;
+			rho1 = rho0 + sqrt(l * l - deltaZ * deltaZ);
+		}
+		else if (zterm > rterm) {
+			//cos can be = 0;
+			l = deltaRho / sinTheta;
+			rho1 = nextRho;
+			z1 = z0 + sqrt(l * l - deltaRho * deltaRho);
+		}
+		else {
+			z1 = nextZ;
+			rho1 = nextRho;
+			l = sqrt(deltaRho*deltaRho + deltaZ*deltaZ);
+		}
+		double nextR = sqrt(rho1*rho1 + z1*z1);
+		if (nextR > my_rho) {
+			l = l - (nextR - my_rho);
+			if (l < 0) {
+				printf("l < 0 in rayTraceToNextCell\n");
+				printLog("l < 0 in rayTraceToNextCell\n");
+				exit(0);
+			}
+			//todo change rgo1 and z1
+			lB2 = l * B2;
+			return true;
+		}
+		lB2 = l * B2;
+		return false;
+	}
+	else {
+		z1 = z0;
+		rho1 = rho0;
+		double l = deltaRho;
+
+		double nextR = sqrt(rho1 * rho1 + z1 * z1);
+		if (nextR > my_rho) {
+			l = l - (nextR - my_rho);
+			if (l < 0) {
+				printf("l < 0 in rayTraceToNextCell\n");
+				printLog("l < 0 in rayTraceToNextCell\n");
+				exit(0);
+			}
+			//todo change rgo1 and z1
+			lB2 = l * B2;
+			return true;
+		}
+		lB2 = l * B2;
+		return false;
+	}
+}
+
+double TabulatedSphericalLayerSource::evaluateTotalLB2fromPoint(const double& rho0, const double& z0, int iphi, const double& theta) {
+	double r = sqrt(rho0 * rho0 + z0 * z0);
+	if (r > my_rho) {
+		return -1.0;
+	}
+	double rho1;
+	double z1;
+	bool reachedSurface = false;
+	double totalLB2 = 0;
+	double lB2 = 0;
+	double tempRho = rho0;
+	double tempZ = z0;
+	int numberOfIteration = 0;
+	while (!reachedSurface) {
+		reachedSurface = rayTraceToNextCell(tempRho, tempZ, iphi, theta, rho1, z1, lB2);
+		totalLB2 += lB2;
+		tempRho = rho1;
+		tempZ = z1;
+		numberOfIteration++;
+		if (numberOfIteration > 2 * (my_Nrho + my_Nz)) {
+			printf("infinite number of iterations in evaluateTotalLB2fromPoint\n");
+			printLog("infinite number of iterations in evaluateTotalLB2fromPoint\n");
+			exit(0);
+		}
+	}
+	return totalLB2;
+}
+
 double TabulatedSphericalLayerSource::getB(int irho, int iz, int iphi) {
 	return my_B[irho][iz][iphi];
 }
@@ -1124,6 +1270,9 @@ TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int
 	my_downstreamVelocity = downstreamVelocity;
 	my_meanB = getAverageBsquared();
 	my_defaultCutoff = my_cutoffDistribution->getEcutoff();
+
+	my_LB2 = create3dArray(my_Nrho, my_Nz, my_Nphi);
+	updateLB2();
 }
 
 TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, rhoin, distance, velocity)
@@ -1137,10 +1286,29 @@ TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int
 	my_downstreamVelocity = downstreamVelocity;
 	my_meanB = getAverageBsquared();
 	my_defaultCutoff = my_cutoffDistribution->getEcutoff();
+
+	my_LB2 = create3dArray(my_Nrho, my_Nz, my_Nphi);
+	updateLB2();
 }
 
 TabulatedSLSourceWithSynchCutoff::~TabulatedSLSourceWithSynchCutoff()
 {
+	delete3dArray(my_LB2, my_Nrho, my_Nz, my_Nphi);
+}
+
+void TabulatedSLSourceWithSynchCutoff::updateLB2() {
+	double drho = my_rho / my_Nrho;
+	double dz = 2 * my_rho / my_Nz;
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				double rho = (irho + 0.5) * drho;
+				double z = (iz + 0.5) * dz - my_rho;
+				double theta = acos(z / sqrt(rho * rho + z * z));
+				my_LB2[irho][iz][iphi] = evaluateTotalLB2fromPoint(rho, z, iphi, theta);
+			}
+		}
+	}
 }
 
 void TabulatedSLSourceWithSynchCutoff::resetParameters(const double* parameters, const double* normalizationUnits)
@@ -1180,25 +1348,23 @@ void TabulatedSLSourceWithSynchCutoff::resetParameters(const double* parameters,
 	}
 	my_velocity = parameters[4] * normalizationUnits[4];
 	my_meanB = getAverageBsquared();
+	updateLB2();
 }
 
 MassiveParticleIsotropicDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistribution(int irho, int iz, int iphi)
 {
 	my_cutoffDistribution->resetEcut(my_defaultCutoff);
-	double rho = (irho + 0.5) * my_rho / my_Nrho;
-	double z = (iz + 0.5) * 2 * my_rho / my_Nz - my_rho;
-	double r = sqrt(rho * rho + z * z);
-	double l = my_rho - r;
-	if (l <= 0) {
+	double LB2 = my_LB2[irho][iz][iphi];
+	if (LB2 <= 0) {
 		/*printf("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
 		printf("rho = %g z = %g r = %g R = %g\n", rho, z, r, my_rho);
 		printLog("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
 		printLog("rho = %g z = %g r = %g R = %g\n", rho, z, r, my_rho);*/
 		//exit(0);
 	}
-	if (l > 0) {
+	if (LB2 > 0) {
 		double mass = my_cutoffDistribution->getMass();
-		double Ecut = 9.0 * mass * mass * mass * mass * pow(speed_of_light, 7) * my_downstreamVelocity / (electron_charge * electron_charge * electron_charge * electron_charge * my_meanB * my_meanB * l);
+		double Ecut = 9.0 * mass * mass * mass * mass * pow(speed_of_light, 7) * my_downstreamVelocity / (electron_charge * electron_charge * electron_charge * electron_charge * LB2);
 		if (Ecut < mass * speed_of_light2) {
 			//todo
 			Ecut = mass * speed_of_light2 * 2.0;
@@ -1273,7 +1439,11 @@ MassiveParticleIsotropicDistribution* TabulatedDiskSourceWithSynchCutoff::getPar
 {
 	my_cutoffDistribution->resetEcut(my_defaultCutoff);
 	double rho = (irho + 0.5) * my_rho / my_Nrho;
-	double l = my_rho - rho;
+	double z = (iz + 0.5) * my_z / my_Nz;
+	double l1 = my_rho - rho;
+	double l2 = my_z - z;
+	double l3 = z;
+	double l = min3(l1, l2, l3);
 	if (l <= 0) {
 		/*printf("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
 		printf("rho = %g z = %g r = %g R = %g\n", rho, z, r, my_rho);

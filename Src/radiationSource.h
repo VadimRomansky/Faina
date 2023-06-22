@@ -159,6 +159,9 @@ protected:
 	double*** my_concentration;
 	double my_velocity;
 	MassiveParticleIsotropicDistribution* my_distribution;
+
+	bool rayTraceToNextCell(const double& rho0, const double& z0, int iphi, const double& theta, double& rho1, double& z1, double& lB2);
+	double evaluateTotalLB2fromPoint(const double& rho0, const double& z0, int iphi, const double& theta);
 public:
 	TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity = 0);
 	TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& distance, const double& velocity = 0);
@@ -201,6 +204,8 @@ protected:
 	double my_meanB;
 	double my_defaultCutoff;
 	MassiveParticlePowerLawCutoffDistribution* my_cutoffDistribution;
+	double*** my_LB2;
+	void updateLB2();
 public:
 	TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
 	TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
