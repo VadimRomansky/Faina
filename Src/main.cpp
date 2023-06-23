@@ -324,7 +324,7 @@ void evaluateComtonFromWind() {
 	int Nrho = 20;
 	int Nz = 20;
 	int Nphi = 4;
-	double index = 3.5;
+	double index = 2.3;
 	//double KK = 24990.8;
 	//double electronConcentration = KK / (pow(652.317, index - 1) * (index - 1));
 	double electronConcentration = 1E8;
@@ -338,22 +338,22 @@ void evaluateComtonFromWind() {
 	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rmax));
 
 	//initializing electrons distribution
-	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
-	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/v0.02_theta30/Ee3.dat", "./examples_data/v0.02_theta30/Fs3.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
-	electrons->addPowerLaw(1.02 * me_c2, 3);
-	electrons->rescaleDistribution(sqrt(18));
+	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
+	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/v0.02_theta30/Ee3.dat", "./examples_data/v0.02_theta30/Fs3.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
+	//electrons->addPowerLaw(1.02 * me_c2, 3);
+	//electrons->rescaleDistribution(sqrt(18));
 	//electrons->addPowerLaw(100 * me_c2, 3.5);
 	electrons->writeDistribution("dist1.dat", 2000, Emin, Emax);
 	//creating radiation source
-	//RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, rmax, distance);
-	RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, electronConcentration, rmax, 0.8 * rmax, distance);
+	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, 0.2*rmax, distance);
+	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, electronConcentration, rmax, 0.8 * rmax, distance);
 	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
 	InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
 	InverseComptonEvaluator* comptonEvaluator2 = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA1);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
 
-	comptonEvaluator2->outputDifferentialFlux("output3.dat");
+	//comptonEvaluator2->outputDifferentialFlux("output3.dat");
 	//comptonEvaluator->outputDifferentialFluxJones("output2.dat", photonDistribution, electrons);
 	//return;
 
@@ -420,17 +420,17 @@ void evaluateComtonFromWind() {
 }
 
 void evaluateTychoProfile() {
-	int Nrho = 25;
+	int Nrho = 100;
 	int Nphi = 4;
-	int Nz = 50;
-	double*** B = create3dArray(Nrho, Nz, Nphi);
-	double*** theta = create3dArray(Nrho, Nz, Nphi);
-	double*** phi = create3dArray(Nrho, Nz, Nphi);
+	int Nz = 200;
 
 	double B0 = 3E-6;
 	double magneticEnergy = B0 * B0 / (8 * pi);
 	double theta0 = pi / 2;
 	double phi0 = 0;
+	double*** B = create3dArray(Nrho, Nz, Nphi, 50*B0);
+	double*** theta = create3dArray(Nrho, Nz, Nphi, theta0);
+	double*** phi = create3dArray(Nrho, Nz, Nphi, phi0);
 	double turbulentEnergy = ((280 + 2 * 218)*1E-12)/(8*pi);
 	double fraction = turbulentEnergy/magneticEnergy;
 	double index = 11.0 / 6.0;
@@ -458,7 +458,7 @@ void evaluateTychoProfile() {
 	double L = tau * Udownstream;
 
 	//RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInDiskSource(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, fraction, index, lturb, Nmodes, R, anisotropy);
-	RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInSphericalSource(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, fraction, index, lturb, Nmodes, R, anisotropy);
+	//RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInSphericalSource(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, fraction, index, lturb, Nmodes, R, anisotropy);
 	write3dArrayToFile(B, Nrho, Nz, Nphi, "B.dat");
 
 	MassiveParticleIsotropicDistribution* electrons = new MassiveParticlePowerLawCutoffDistribution(massElectron, 2.0, me_c2, 2.0, 100*Energy, concentration);

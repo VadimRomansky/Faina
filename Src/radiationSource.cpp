@@ -1302,6 +1302,7 @@ TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int
 
 	my_LB2 = create3dArray(my_Nrho, my_Nz, my_Nphi);
 	updateLB2();
+	write3dArrayToFile(my_LB2, my_Nrho, my_Nz, my_Nphi, "LB2.dat");
 }
 
 TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, rhoin, distance, velocity)
@@ -1318,6 +1319,7 @@ TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int
 
 	my_LB2 = create3dArray(my_Nrho, my_Nz, my_Nphi);
 	updateLB2();
+	write3dArrayToFile(my_LB2, my_Nrho, my_Nz, my_Nphi, "LB2.dat");
 }
 
 TabulatedSLSourceWithSynchCutoff::~TabulatedSLSourceWithSynchCutoff()
