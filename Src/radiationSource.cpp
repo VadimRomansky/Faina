@@ -893,7 +893,7 @@ bool TabulatedSphericalLayerSource::rayTraceToNextCell(const double& rho0, const
 double TabulatedSphericalLayerSource::evaluateTotalLB2fromPoint(const double& rho0, const double& z0, int iphi, const double& theta) {
 	double r = sqrt(rho0 * rho0 + z0 * z0);
 	if (r > my_rho) {
-		return -1.0;
+		return 0.0;
 	}
 	double rho1;
 	double z1;

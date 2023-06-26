@@ -304,7 +304,7 @@ void evaluateFluxSNRtoWind() {
 
 void evaluateComtonFromWind() {
 	double theta = pi / 2;
-	double rmax = 2E14;
+	double rmax = 5E16;
 	//double rmax = 1.0 / sqrt(pi);
 	double B = 0.01;
 
@@ -327,7 +327,7 @@ void evaluateComtonFromWind() {
 	double index = 2.3;
 	//double KK = 24990.8;
 	//double electronConcentration = KK / (pow(652.317, index - 1) * (index - 1));
-	double electronConcentration = 1E8;
+	double electronConcentration = 1E6;
 
 	double Tstar = 50 * 1000;
 	double Ephmin = 0.01 * Tstar * kBoltzman;
@@ -338,11 +338,11 @@ void evaluateComtonFromWind() {
 	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rmax));
 
 	//initializing electrons distribution
-	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
-	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/v0.02_theta30/Ee3.dat", "./examples_data/v0.02_theta30/Fs3.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
+	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
+	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.3_theta0-90/Ee3.dat", "./examples_data/gamma0.3_theta0-90/Fs3.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
 	//electrons->addPowerLaw(1.02 * me_c2, 3);
-	//electrons->rescaleDistribution(sqrt(18));
-	//electrons->addPowerLaw(100 * me_c2, 3.5);
+	electrons->rescaleDistribution(sqrt(18));
+	electrons->addPowerLaw(100 * me_c2, 3.5);
 	electrons->writeDistribution("dist1.dat", 2000, Emin, Emax);
 	//creating radiation source
 	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, 0.2*rmax, distance);
@@ -490,8 +490,8 @@ int main() {
 
 
 	//evaluateFluxSNRtoWind();
-	//evaluateComtonFromWind();
-	evaluateTychoProfile();
+	evaluateComtonFromWind();
+	//evaluateTychoProfile();
 
 	return 0;
 }
