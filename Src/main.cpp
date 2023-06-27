@@ -93,7 +93,8 @@ void evaluateFluxSNRtoWind() {
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronsFromSmilei, B, theta, electronConcentration, rsource, 0.9*rsource, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronsFromSmilei, Bturb, thetaTurb, concentration, rsource, 0.9*rsource, distance);
 	RadiationSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, Bturb, thetaTurb, phiTurb, concentration, rmax, 0.9*rmax, distance, 0.5*speed_of_light);
-	int nangle = 0;
+	//counting of quai parallel
+	/*int nangle = 0;
 	for (int irho = 0; irho < Nrho; ++irho) {
 		for (int iz = 0; iz < Nz; ++iz) {
 			for (int iphi = 0; iphi < Nphi; ++iphi) {
@@ -103,7 +104,8 @@ void evaluateFluxSNRtoWind() {
 				}
 			}
 		}
-	}
+	}*/
+
 	//SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true);
 	//SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, newEmax, true, true);
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne+100, Emin, newEmax, true, true);
@@ -177,6 +179,17 @@ void evaluateFluxSNRtoWind() {
 	fprintf(paramFile, "width fraction = %g\n", vector[3] * maxParameters[3]);
 	printf("velocity/c = %g\n", vector[4] * maxParameters[4]/speed_of_light);
 	fprintf(paramFile, "celocity/c = %g\n", vector[4] * maxParameters[4]/speed_of_light);
+
+	rmax = vector[0] * maxParameters[0];
+	electronConcentration = vector[2] * maxParameters[0];
+	fraction = vector[3] * maxParameters[3];
+	double velocity = vector[4] * maxParameters[4] / speed_of_light;
+	double gamma = 1.0 / sqrt(1.0 - velocity * velocity);
+
+	double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0)*(4*pi*rmax*rmax*rmax/3)*(1.0 - cube(1.0 - fraction));
+
+	printf("total kinetik energy = %g\n", totalEnergy);
+	printLog("total kinetik energy = %g\n", totalEnergy);
 
 	B = sqrt(vector[1] * maxParameters[1] * 4 * pi * massProton * vector[2] * maxParameters[2] * speed_of_light2);
 	printf("average B = %g\n", B);
@@ -341,11 +354,11 @@ void evaluateComtonFromWind() {
 
 	//initializing electrons distribution
 	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
-	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.3_theta0-90/Ee3.dat", "./examples_data/gamma0.3_theta0-90/Fs3.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
-	MassiveParticleIsotropicDistribution* electrons = new MassiveParticleMonoenergeticDistribution(massElectron, 20 * me_c2, me_c2 / 2, electronConcentration);
+	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.3_theta0-90/Ee3.dat", "./examples_data/gamma0.3_theta0-90/Fs3.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
+	//MassiveParticleIsotropicDistribution* electrons = new MassiveParticleMonoenergeticDistribution(massElectron, 20 * me_c2, me_c2 / 2, electronConcentration);
 	//electrons->addPowerLaw(1.02 * me_c2, 3);
-	//electrons->rescaleDistribution(sqrt(18));
-	//electrons->addPowerLaw(100 * me_c2, 3.5);
+	electrons->rescaleDistribution(sqrt(18));
+	electrons->addPowerLaw(100 * me_c2, 3.5);
 	electrons->writeDistribution("dist1.dat", 2000, Emin, Emax);
 	double electronsEnergy = electrons->getConcentration() * (electrons->getMeanEnergy() - me_c2);
 	double v = 0.5 * speed_of_light;
