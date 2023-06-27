@@ -304,7 +304,8 @@ void evaluateFluxSNRtoWind() {
 
 void evaluateComtonFromWind() {
 	double theta = pi / 2;
-	double rmax = 5E16;
+	double rmax = 3E16;
+	double rtotal = 1.4E17;
 	//double rmax = 1.0 / sqrt(pi);
 	double B = 0.01;
 
@@ -327,7 +328,8 @@ void evaluateComtonFromWind() {
 	double index = 2.3;
 	//double KK = 24990.8;
 	//double electronConcentration = KK / (pow(652.317, index - 1) * (index - 1));
-	double electronConcentration = 1E6;
+	double electronConcentration = 5E6;
+	double protonBulkConcentration = 1E4;
 
 	double Tstar = 50 * 1000;
 	double Ephmin = 0.01 * Tstar * kBoltzman;
@@ -339,11 +341,33 @@ void evaluateComtonFromWind() {
 
 	//initializing electrons distribution
 	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
-	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.3_theta0-90/Ee3.dat", "./examples_data/gamma0.3_theta0-90/Fs3.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
+	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.3_theta0-90/Ee3.dat", "./examples_data/gamma0.3_theta0-90/Fs3.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
+	MassiveParticleIsotropicDistribution* electrons = new MassiveParticleMonoenergeticDistribution(massElectron, 20 * me_c2, me_c2 / 2, electronConcentration);
 	//electrons->addPowerLaw(1.02 * me_c2, 3);
-	electrons->rescaleDistribution(sqrt(18));
-	electrons->addPowerLaw(100 * me_c2, 3.5);
+	//electrons->rescaleDistribution(sqrt(18));
+	//electrons->addPowerLaw(100 * me_c2, 3.5);
 	electrons->writeDistribution("dist1.dat", 2000, Emin, Emax);
+	double electronsEnergy = electrons->getConcentration() * (electrons->getMeanEnergy() - me_c2);
+	double v = 0.5 * speed_of_light;
+	double gam = 1.0 / sqrt(1 - v * v / speed_of_light2);
+	double ramPressure = protonBulkConcentration * massProton * speed_of_light2 * (gam - 1);
+	double Etotal = ramPressure * 4 * pi * rtotal * rtotal * 0.01 * rtotal;
+	double EtotalElectrons = electronsEnergy * pi * rmax * rmax * 0.2 * rmax;
+	double availableEnergyFraction = rmax * rmax / (4 * rtotal * rtotal);
+	printf("electronsEnergyDensity/ramPressure = %g\n", electronsEnergy / ramPressure);
+	printLog("electronsEnergyDensity/ramPressure = %g\n", electronsEnergy / ramPressure);
+
+	printf("total Energy = %g\n", Etotal);
+	printLog("total Energy = %g\n", Etotal);
+
+	printf("total electrons Energy = %g\n", EtotalElectrons);
+	printLog("total electrons Energy = %g\n", EtotalElectrons);
+
+	printf("total electrons/bulk = %g\n", EtotalElectrons/Etotal);
+	printLog("total electrons/bulk = %g\n", EtotalElectrons/Etotal);
+
+	printf("available fraction = %g\n", availableEnergyFraction);
+	printLog("tavailable fraction = %g\n", availableEnergyFraction);
 	//creating radiation source
 	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, 0.2*rmax, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, electronConcentration, rmax, 0.8 * rmax, distance);
