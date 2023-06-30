@@ -28,6 +28,7 @@ public:
 	int getNz();
 	int getNphi();
 	double getDistance();
+	virtual bool isSource(int irho, int iphi) = 0;
 	virtual double getArea(int irho, int iz, int iphi)=0;
 	virtual double getVolume(int irho, int iz, int iphi);
 	virtual void getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi) = 0;
@@ -69,6 +70,7 @@ protected:
 	MassiveParticleIsotropicDistribution* my_distribution;
 public:
 	SimpleFlatSource(MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& theta, const double& rho, const double& z, const double& distance, const double& velocity = 0);
+	virtual bool isSource(int irho, int iphi);
 	double getLength(int irho, int iz, int iphi);
 	double getB(int irho, int iz, int iphi);
 	double getMaxB();
@@ -89,11 +91,14 @@ protected:
 	double*** my_theta;
 	double*** my_concentration;
 	double my_velocity;
+	bool** my_isSource;
 	MassiveParticleIsotropicDistribution* my_distribution;
 public:
 	TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& z, const double& distance, const double& velocity = 0);
 	TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& theta, const double& concentration , const double& rho, const double& z, const double& distance, const double& velocity = 0);
     virtual ~TabulatedDiskSource();
+	virtual void setMask(bool** mask);
+	virtual bool isSource(int irho, int iphi);
 	virtual double getMaxB();
 	virtual double getMaxOuterB();
 	virtual double getAverageSigma();
@@ -158,6 +163,7 @@ protected:
 	double*** my_theta;
 	double*** my_concentration;
 	double my_velocity;
+	bool** my_isSource;
 	MassiveParticleIsotropicDistribution* my_distribution;
 
 	bool rayTraceToNextCell(const double& rho0, const double& z0, int iphi, const double& theta, double& rho1, double& z1, double& lB2);
@@ -168,6 +174,8 @@ public:
     virtual ~TabulatedSphericalLayerSource();
 
 	//virtual double getLength(int irho, int iz, int iphi);
+	virtual void setMask(bool** mask);
+	virtual bool isSource(int irho, int iphi);
 	virtual double getB(int irho, int iz, int iphi);
 	virtual double getMaxB();
 	virtual double getMaxOuterB();
