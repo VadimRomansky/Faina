@@ -21,6 +21,10 @@ public:
 	static void initializeParkerField(double*** B, double*** theta, double*** phi, double*** concentration, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& R);
 	static void initializeParkerFieldWithRotation(double*** B, double*** theta, double*** phi, double*** concentration, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& R, const double& thetaRot);
 
+	static void initializeAngularMask(bool** mask, int Nrho, int Nphi, const double& angle);
+	static void initialize3dAngularMask(bool** mask, int Nrho, int Nphi, const double& angle);
+	static void initializeRhoMask(bool** mask, int Nrho, int Nphi, const double& fraction);
+
 	static AngleDependentElectronsSphericalSource* createSourceWithTurbulentField(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& theta0, const double& phi0, const double n0, const double& fraction, const double& index, const double& L0, int Nmodes, const double& rho, const double& rhoin, const double& distance);
 
 	static AngleDependentElectronsSphericalSource* createSourceWithParkerField(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& rho, const double& rhoin, const double& distance);

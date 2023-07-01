@@ -41,7 +41,9 @@ double RadiationEvaluator::evaluateFluxFromSource(const double& photonFinalEnerg
             /*for (int iz = 0; iz < Nz; ++iz) {
                 result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
             }*/
-            result += evaluateFluxFromSourceAtPoint(photonFinalEnergy, source, irho, iphi);
+            if (source->isSource(irho, iphi)) {
+                result += evaluateFluxFromSourceAtPoint(photonFinalEnergy, source, irho, iphi);
+            }
         }
     }
 

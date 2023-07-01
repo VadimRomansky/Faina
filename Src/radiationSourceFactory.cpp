@@ -471,6 +471,67 @@ void RadiationSourceFactory::initializeParkerFieldWithRotation(double*** B, doub
 	}
 }
 
+void RadiationSourceFactory::initializeAngularMask(bool** mask, int Nrho, int Nphi, const double& angle) {
+	if (angle < 0) {
+		printf("angle in mask < 0\n");
+		printLog("angle in mask < 0\n");
+		exit(0);
+	}
+	if (angle > pi / 2) {
+		printf("angle in mask greater than pi/2\n");
+		printLog("angle in mask greater than pi/2\n");
+		exit(0);
+	}
+	for (int iphi = 0; iphi < Nphi; ++iphi) {
+		double phi = 2 * pi * (iphi + 0.5) / Nphi;
+		bool value = true;
+		if (((phi > angle) && (phi < pi - angle)) || ((phi > pi + angle) && (phi < 2 * pi - angle))) {
+			value = false;
+		}
+		for (int irho = 0; irho < Nrho; ++irho) {
+			mask[irho][iphi] = value;
+		}
+	}
+}
+
+void RadiationSourceFactory::initialize3dAngularMask(bool** mask, int Nrho, int Nphi, const double& angle) {
+	if (angle < 0) {
+		printf("angle in mask < 0\n");
+		printLog("angle in mask < 0\n");
+		exit(0);
+	}
+	if (angle > pi / 2) {
+		printf("angle in mask greater than pi/2\n");
+		printLog("angle in mask greater than pi/2\n");
+		exit(0);
+	}
+	for (int iphi = 0; iphi < Nphi; ++iphi) {
+		double phi = 2 * pi * (iphi + 0.5) / Nphi;
+		bool value = true;
+		if (((phi > angle) && (phi < pi - angle)) || ((phi > pi + angle) && (phi < 2 * pi - angle))) {
+			value = false;
+		}
+		for (int irho = 0; irho < Nrho; ++irho) {
+			double rho = (irho + 0.5) / Nrho;
+			if (rho < tan(angle)) {
+				mask[irho][iphi] = false;
+			}
+			else {
+				mask[irho][iphi] = value;
+			}
+		}
+	}
+}
+
+void RadiationSourceFactory::initializeRhoMask(bool** mask, int Nrho, int Nphi, const double& fraction) {
+	for (int irho = 0; irho < Nrho; ++irho) {
+		bool value = ((irho + 0.5) / Nrho > fraction);
+		for (int iphi = 0; iphi < Nphi; ++iphi) {
+			mask[irho][iphi] = value;
+		}
+	}
+}
+
 AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWithTurbulentField(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& theta0, const double& phi0, const double n0, const double& fraction, const double& index, const double& L0, int Nmodes, const double& rho, const double& rhoin, const double& distance)
 {
 	double*** B = create3dArray(Nrho, Nz, Nphi, B0);

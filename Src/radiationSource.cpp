@@ -65,6 +65,11 @@ SimpleFlatSource::SimpleFlatSource(MassiveParticleIsotropicDistribution* electro
 	my_concentration = my_distribution->getConcentration();
 	my_velocity = velocity;
 }
+
+bool SimpleFlatSource::isSource(int irho, int iphi) {
+	return true;
+}
+
 double SimpleFlatSource::getB(int irho, int iz, int iphi)
 {
 	return my_B;
@@ -148,6 +153,14 @@ TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassivePart
 			}
 		}
 	}
+
+	my_isSource = new bool* [my_Nrho];
+	for (int i = 0; i < my_Nrho; ++i) {
+		my_isSource[i] = new bool[my_Nphi];
+		for (int j = 0; j < my_Nphi; ++j) {
+			my_isSource[i][j] = true;
+		}
+	}
 }
 
 TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& theta, const double& concentration, const double& rho, const double& z, const double& distance, const double& velocity) : DiskSource(Nrho, Nz, Nphi, rho, z, distance)
@@ -173,6 +186,14 @@ TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassivePart
 			}
 		}
 	}
+
+	my_isSource = new bool*[my_Nrho];
+	for (int i = 0; i < my_Nrho; ++i) {
+		my_isSource[i] = new bool[my_Nphi];
+		for (int j = 0; j < my_Nphi; ++j) {
+			my_isSource[i][j] = true;
+		}
+	}
 }
 TabulatedDiskSource::~TabulatedDiskSource()
 {
@@ -185,11 +206,26 @@ TabulatedDiskSource::~TabulatedDiskSource()
 		delete[] my_B[irho];
 		delete[] my_theta[irho];
 		delete[] my_concentration[irho];
+		delete[] my_isSource[irho];
 	}
 	delete[] my_B;
 	delete[] my_theta;
 	delete[] my_concentration;
+	delete[] my_isSource;
 }
+
+void TabulatedDiskSource::setMask(bool** mask) {
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+			my_isSource[irho][iphi] = mask[irho][iphi];
+		}
+	}
+}
+
+bool TabulatedDiskSource::isSource(int irho, int iphi) {
+	return my_isSource[irho][iphi];
+}
+
 double TabulatedDiskSource::getAverageBsquared()
 {
 	double magneticEnergy = 0;
@@ -708,6 +744,14 @@ TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, i
 			}
 		}
 	}
+
+	my_isSource = new bool* [my_Nrho];
+	for (int i = 0; i < my_Nrho; ++i) {
+		my_isSource[i] = new bool[my_Nphi];
+		for (int j = 0; j < my_Nphi; ++j) {
+			my_isSource[i][j] = true;
+		}
+	}
 }
 TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& theta, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance) {
 	my_distribution = electronDistribution;
@@ -731,6 +775,14 @@ TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, i
 			}
 		}
 	}
+
+	my_isSource = new bool* [my_Nrho];
+	for (int i = 0; i < my_Nrho; ++i) {
+		my_isSource[i] = new bool[my_Nphi];
+		for (int j = 0; j < my_Nphi; ++j) {
+			my_isSource[i][j] = true;
+		}
+	}
 }
 
 TabulatedSphericalLayerSource::~TabulatedSphericalLayerSource() {
@@ -741,9 +793,11 @@ TabulatedSphericalLayerSource::~TabulatedSphericalLayerSource() {
 		}
 		delete[] my_B[irho];
 		delete[] my_theta[irho];
+		delete[] my_isSource[irho];
 	}
 	delete[] my_B;
 	delete[] my_theta;
+	delete[] my_isSource;
 }
 
 bool TabulatedSphericalLayerSource::rayTraceToNextCell(const double& rho0, const double& z0, int iphi, const double& theta, double& rho1, double& z1, double& lB2) {
@@ -919,6 +973,18 @@ double TabulatedSphericalLayerSource::evaluateTotalLB2fromPoint(const double& rh
 		}
 	}
 	return totalLB2;
+}
+
+void TabulatedSphericalLayerSource::setMask(bool** mask) {
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+			my_isSource[irho][iphi] = mask[irho][iphi];
+		}
+	}
+}
+
+bool TabulatedSphericalLayerSource::isSource(int irho, int iphi) {
+	return my_isSource[irho][iphi];
 }
 
 double TabulatedSphericalLayerSource::getB(int irho, int iz, int iphi) {
