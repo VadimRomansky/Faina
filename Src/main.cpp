@@ -48,9 +48,9 @@ void evaluateFluxSNRtoWind() {
 	int Ne = 200;
 	int Nmu = 50;
 
-	int Nrho = 10;
-	int Nz = 20;
-	int Nphi = 4;
+	int Nrho = 50;
+	int Nz = 50;
+	int Nphi = 40;
 
 	//initializing mean galactic photon field
 	double Ephmin = 0.01 * Tstar * kBoltzman;
@@ -92,7 +92,7 @@ void evaluateFluxSNRtoWind() {
 	//RadiationSource* source = new SimpleFlatSource(electronsFromSmilei, B, theta, rsource, 0.1*rsource, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronsFromSmilei, B, theta, electronConcentration, rsource, 0.9*rsource, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronsFromSmilei, Bturb, thetaTurb, concentration, rsource, 0.9*rsource, distance);
-	RadiationSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, Bturb, thetaTurb, phiTurb, concentration, rmax, 0.9*rmax, distance, 0.5*speed_of_light);
+	AngleDependentElectronsSphericalSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, Bturb, thetaTurb, phiTurb, concentration, rmax, 0.9*rmax, distance, 0.5*speed_of_light);
 	//counting of quai parallel
 	/*int nangle = 0;
 	for (int irho = 0; irho < Nrho; ++irho) {
@@ -105,6 +105,22 @@ void evaluateFluxSNRtoWind() {
 			}
 		}
 	}*/
+
+	/*bool** mask = new bool* [Nrho];
+	for (int irho = 0; irho < Nrho; ++irho) {
+		mask[irho] = new bool[Nphi];
+		for (int iphi = 0; iphi < Nphi; ++iphi) {
+			mask[irho][iphi] = true;
+		}
+	}
+
+	//RadiationSourceFactory::initialize3dAngularMask(mask, Nrho, Nphi, pi / 10);
+	RadiationSourceFactory::initializeRhoMask(mask, Nrho, Nphi, sin(pi/10));
+	source->setMask(mask);
+	for (int irho = 0; irho < Nrho; ++irho) {
+		delete[] mask[irho];
+	}
+	delete[] mask;*/
 
 	//SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true);
 	//SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, newEmax, true, true);
@@ -135,7 +151,7 @@ void evaluateFluxSNRtoWind() {
 
 	printf("start optimization\n");
 	printLog("start optimization\n");
-	bool optPar[Nparams] = { true, true, true, true, false };
+	bool optPar[Nparams] = { false, false, true, true, false };
 	int Niterations = 5;
 	//creating gradient descent optimizer
 	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
@@ -155,7 +171,7 @@ void evaluateFluxSNRtoWind() {
 	//reseting source parameters to found values
 	//synchrotronOptimizer->outputProfileDiagrams(vector, energy1, observedFlux, observedError, Nenergy1, source, 10);
 	//synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source, 10, 1, 2);
-	//combinedOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
+	combinedOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
     //combinedOptimizer->outputProfileDiagrams(vector, energy1, observedFlux, observedError, Nenergy1, source, 10);
 	//combinedOptimizer->outputOptimizedProfileDiagram(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source, 20, 1, 2);
 	source->resetParameters(vector, maxParameters);
@@ -526,8 +542,8 @@ int main() {
 	//evaluateSynchrotronImage();
 
 
-	//evaluateFluxSNRtoWind();
-	evaluateComtonFromWind();
+	evaluateFluxSNRtoWind();
+	//evaluateComtonFromWind();
 	//evaluateTychoProfile();
 
 	return 0;
