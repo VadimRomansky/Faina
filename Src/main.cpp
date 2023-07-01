@@ -63,8 +63,8 @@ void evaluateFluxSNRtoWind() {
 	double*** concentration = create3dArray(Nrho, Nz, Nphi, electronConcentration);
 	RadiationSourceFactory::initializeTurbulentField(Bturb, thetaTurb, phiTurb, Nrho, Nz, Nphi, B, pi / 2, 0, 0.9, 11.0 / 6.0, rmax, 10, rmax);
 	//initializing electrons distribution
-	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
-	//MassiveParticleTabulatedIsotropicDistribution* electronsFromSmilei = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./input/Ee3.dat", "./input/Fs3.dat", 200, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
+	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee3.dat", "./examples_data/gamma0.5_theta0-90/Fs3.dat", 200, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 	//electronsFromSmilei->addPowerLaw(20 * massElectron * speed_of_light2, 3.5);
 	//electronsFromSmilei->rescaleDistribution(sqrt(18));
 	int Ndistributions = 10;
@@ -72,7 +72,7 @@ void evaluateFluxSNRtoWind() {
 	//MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.3_theta0-90/Ee", "./examples_data/gamma0.3_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
 	MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.5_theta0-90/Ee", "./examples_data/gamma0.5_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
 	double newEmax = 1E6 * me_c2;
-	for (int i = 0; i < Ndistributions; ++i) {
+	/*for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
 		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
 		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->prolongEnergyRange(newEmax, 100);
@@ -82,17 +82,17 @@ void evaluateFluxSNRtoWind() {
 			(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(500 * me_c2, 2);
 		}
 		
-	}
+	}*/
 
 	angleDependentDistributions[1]->writeDistribution("dist1.dat", 300, Emin, newEmax);
 	angleDependentDistributions[4]->writeDistribution("dist4.dat", 300, Emin, newEmax);
 	angleDependentDistributions[8]->writeDistribution("dist8.dat", 300, Emin, newEmax);
 
 	//creating radiation source
-	//RadiationSource* source = new SimpleFlatSource(electronsFromSmilei, B, theta, rsource, 0.1*rsource, distance);
+	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, 0.2*rmax, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronsFromSmilei, B, theta, electronConcentration, rsource, 0.9*rsource, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronsFromSmilei, Bturb, thetaTurb, concentration, rsource, 0.9*rsource, distance);
-	RadiationSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, Bturb, thetaTurb, phiTurb, concentration, rmax, 0.9*rmax, distance, 0.5*speed_of_light);
+	//RadiationSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, Bturb, thetaTurb, phiTurb, concentration, rmax, 0.9*rmax, distance, 0.5*speed_of_light);
 	//counting of quai parallel
 	/*int nangle = 0;
 	for (int irho = 0; irho < Nrho; ++irho) {
@@ -108,7 +108,7 @@ void evaluateFluxSNRtoWind() {
 
 	//SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true);
 	//SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, newEmax, true, true);
-	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne+100, Emin, newEmax, true, true);
+	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne+100, Emin, newEmax, false, false);
 	//comptonEvaluator->outputDifferentialFlux("output1.dat");
 	//return;
 
@@ -526,8 +526,8 @@ int main() {
 	//evaluateSynchrotronImage();
 
 
-	//evaluateFluxSNRtoWind();
-	evaluateComtonFromWind();
+	evaluateFluxSNRtoWind();
+	//evaluateComtonFromWind();
 	//evaluateTychoProfile();
 
 	return 0;

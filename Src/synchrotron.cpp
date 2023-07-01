@@ -389,5 +389,6 @@ double SynchrotronEvaluator::evaluateFluxFromSourceAtPoint(const double& photonF
 			}
 		}
 	}
-	return localI;
+	double distance = source->getDistance();
+	return localI/ (distance * distance);
 }
