@@ -303,6 +303,123 @@ void RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInSpherical
 	delete3dArray(phases2, Nmodes, Nmodes, Nmodes);
 }
 
+void RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInSectoralSphericalSource(double*** B, double*** theta, double*** phi, int Nrho, int Nz, int Nphi, const double& B0, const double& theta0, const double& phi0, const double& fraction, const double& index, const double& L0, int Nmodes, const double& R, const double& Rmin, const double& phiR, const double& anisotropy)
+{
+	double cosTheta0 = cos(theta0);
+	double sinTheta0 = sin(theta0);
+
+	double*** Bx = create3dArray(Nrho, Nz, Nphi, B0 * sinTheta0 * cos(phi0));
+	double*** By = create3dArray(Nrho, Nz, Nphi, B0 * sinTheta0 * sin(phi0));
+	double*** Bz = create3dArray(Nrho, Nz, Nphi, B0 * cosTheta0);
+
+	double*** phases1 = create3dArray(Nmodes, Nmodes, Nmodes);
+	double*** phases2 = create3dArray(Nmodes, Nmodes, Nmodes);
+	//srand(1234);
+	for (int i = 0; i < Nmodes; ++i) {
+		for (int j = 0; j < Nmodes; ++j) {
+			for (int k = 0; k < Nmodes; ++k) {
+				phases1[i][j][k] = 2 * pi * uniformDistribution();
+				phases2[i][j][k] = 2 * pi * uniformDistribution();
+			}
+		}
+	}
+
+	double A0 = 280;
+	double A1 = 8.8E15;
+	double A2 = 0.27;
+	double A3 = -2E16;
+
+	int irho;
+
+#pragma omp parallel for private(irho) shared(Nrho, Nz, Nphi, Bx, By, Bz, A0, A1, A2, A3, phases1, phases2, index, L0, Nmodes, fraction, B0, anisotropy)
+	for (int irho = 0; irho < Nrho; ++irho) {
+		printf("irho = %d\n", irho);
+		double rho = Rmin + (irho + 0.5) * (R - Rmin) / Nrho;
+		for (int iz = 0; iz < Nz; ++iz) {
+			double z = 2 * (iz + 0.5) * R / Nz - R;
+			double r = sqrt(rho * rho + z * z);
+			for (int iphi = 0; iphi < Nphi; ++iphi) {
+				double turbulenceKoef = 1.0;
+				//double correction = sqrt(A0 / pow(1 + sqr((R - (r - A3)) / A1), A2));
+				double correction = sqrt(1.0 / pow(1 + sqr((R - (r - A3)) / A1), A2));
+
+				normalizeAnisotropicTurbulenceKoef(turbulenceKoef, index, L0, Nmodes, fraction, correction * B0, anisotropy);
+
+				double hi = phiR * (iphi + 0.5) / Nphi;
+
+				double x = rho * cos(hi);
+				double y = rho * sin(hi);
+
+				double Bxprimed = 0;
+				double Byprimed = 0;
+				double Bzprimed = 0;
+
+				double cosThetar = z / sqrt(rho * rho + z * z);
+				double sinThetar = sqrt(1.0 - cosThetar * cosThetar);
+				for (int i = 0; i < Nmodes; ++i) {
+					double kx = i * 2 * pi / L0;
+					for (int j = 0; j < Nmodes; ++j) {
+						double ky = j * 2 * pi / L0;
+						for (int k = 0; k < Nmodes; ++k) {
+							double kz = k * 2 * pi / L0;
+							//if (i + j + k > 0) {
+							//phases1[i][j][k] = 2 * pi * uniformDistribution();
+							//phases2[i][j][k] = 2 * pi * uniformDistribution();
+
+							if (i + j + k > minModeNumber) {
+								double kt = sqrt(kx * kx + ky * ky + kz * kz);
+								double cosThetat = kz / kt;
+								double sinThetat = sqrt(1.0 - cosThetat * cosThetat);
+								double phit = 0;
+								if (i + j > 0) {
+									phit = atan2(ky, kx);
+								}
+								double B = evaluateAnisotropicTurbulenceAmplitude(kx, ky, kz, turbulenceKoef, index, L0, anisotropy);
+								double phase = kz * r + kx * rho * hi + ky * r * acos(cosThetar);
+
+								double B1 = B * cos(phase + phases1[i][j][k]);
+								double B2 = B * cos(phase + phases2[i][j][k]);
+
+								Bxprimed += -B1 * cosThetat * cos(phit) - B2 * sin(phit);
+								Byprimed += -B1 * cosThetat * sin(phit) + B2 * cos(phit);
+								Bzprimed += B1 * sinThetat;
+							}
+						}
+					}
+				}
+				Bx[irho][iz][iphi] = Bxprimed * cos(hi) - sin(hi) * (Bzprimed * sinThetar - Byprimed * cosThetar);
+				By[irho][iz][iphi] = (Byprimed * cosThetar + Bzprimed * sinThetar) * cos(hi) + sin(hi) * Bxprimed;
+				Bz[irho][iz][iphi] = Bzprimed * cosThetar - Byprimed * sinThetar;
+			}
+		}
+	}
+
+	for (int irho = 0; irho < Nrho; ++irho) {
+		double rho = Rmin + (irho + 0.5) * (R-Rmin) / Nrho;
+		for (int iz = 0; iz < Nz; ++iz) {
+			double z = 2 * (iz + 0.5) * R / Nz - R;
+
+			for (int iphi = 0; iphi < Nphi; ++iphi) {
+				double hi = phiR * (iphi + 0.5) / Nphi;
+
+				double Blocal = sqrt(Bx[irho][iz][iphi] * Bx[irho][iz][iphi] + By[irho][iz][iphi] * By[irho][iz][iphi] + Bz[irho][iz][iphi] * Bz[irho][iz][iphi]);
+				double Bxy = sqrt(Bx[irho][iz][iphi] * Bx[irho][iz][iphi] + By[irho][iz][iphi] * By[irho][iz][iphi]);
+
+				B[irho][iz][iphi] = Blocal;
+				theta[irho][iz][iphi] = acos(Bz[irho][iz][iphi] / Blocal);
+				phi[irho][iz][iphi] = atan2(By[irho][iz][iphi], Bx[irho][iz][iphi]);
+			}
+		}
+	}
+
+	delete3dArray(Bx, Nrho, Nz, Nphi);
+	delete3dArray(By, Nrho, Nz, Nphi);
+	delete3dArray(Bz, Nrho, Nz, Nphi);
+
+	delete3dArray(phases1, Nmodes, Nmodes, Nmodes);
+	delete3dArray(phases2, Nmodes, Nmodes, Nmodes);
+}
+
 void RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInDiskSource(double*** B, double*** theta, double*** phi, int Nrho, int Nz, int Nphi, const double& B0, const double& theta0, const double& phi0, const double& fraction, const double& index, const double& L0, int Nmodes, const double& R, const double& anisotropy)
 {
 	double cosTheta0 = cos(theta0);

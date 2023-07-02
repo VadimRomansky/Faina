@@ -41,12 +41,19 @@ DiskSource::DiskSource(int Nrho, int Nz, int Nphi, const double& rho, const doub
 double DiskSource::getArea(int irho, int iz, int iphi) {
 	double rho0 = irho * getMaxRho() / my_Nrho;
 	double rho1 = (irho + 1) * getMaxRho() / my_Nrho;
-	return 2 * pi * (rho1 * rho1 - rho0 * rho0) / my_Nphi;
+	return pi * (rho1 * rho1 - rho0 * rho0) / my_Nphi;
+}
+
+double DiskSource::getCrossSectionArea(int irho, int iphi)
+{
+	double rho1 = (irho + 1) * my_rho / my_Nrho;
+	double rho0 = irho*my_rho / my_Nrho;
+	return (pi/my_Nphi)*(rho1*rho1 - rho0*rho0);
 }
 
 double DiskSource::getTotalVolume()
 {
-	return 2 * pi * my_z * my_rho * my_rho;;
+	return pi * my_z * my_rho * my_rho;
 }
 double DiskSource::getMaxRho() {
 	return my_rho;
@@ -697,6 +704,13 @@ double SphericalLayerSource::getArea(int irho, int iz, int iphi)
 	}
 	return my_area[irho][iz][iphi];
 	//return evaluateArea(irho, iz, iphi);
+}
+
+double SphericalLayerSource::getCrossSectionArea(int irho, int iphi)
+{
+	double rho1 = (irho + 1) * my_rho / my_Nrho;
+	double rho0 = irho * my_rho / my_Nrho;
+	return (pi/my_Nphi)*(rho1*rho1 - rho0*rho0);
 }
 
 double SphericalLayerSource::getMaxRho() {
@@ -1551,6 +1565,843 @@ MassiveParticleIsotropicDistribution* TabulatedDiskSourceWithSynchCutoff::getPar
 	if (l > 0) {
 		double mass = my_cutoffDistribution->getMass();
 		double Ecut = 9.0 * mass * mass * mass * mass * pow(speed_of_light, 7) * my_downstreamVelocity / (electron_charge * electron_charge * electron_charge * electron_charge * my_meanB * my_meanB * l);
+		if (Ecut < mass * speed_of_light2) {
+			//todo
+			Ecut = mass * speed_of_light2 * 2.0;
+		}
+		my_cutoffDistribution->resetEcut(Ecut);
+	}
+	return my_cutoffDistribution;
+}
+
+SectoralSphericalLayerSource::SectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance) : RadiationSource(Nrho, Nz, Nphi, distance)
+{
+	my_rho = rho;
+	my_rhoin = rhoin;
+	my_minrho = minrho;
+	my_phi = phi;
+	my_drho = (my_rho - my_minrho) / my_Nrho;
+	my_dz = 2*my_rho / my_Nz;
+	my_dphi = phi / my_Nphi;
+
+	my_geometryCashed = false;
+	my_area = new double** [my_Nrho];
+	my_length = new double** [my_Nrho];
+	for (int i = 0; i < my_Nrho; ++i) {
+		my_area[i] = new double* [my_Nz];
+		my_length[i] = new double* [my_Nz];
+		for (int j = 0; j < my_Nz; ++j) {
+			my_area[i][j] = new double[my_Nphi];
+			my_length[i][j] = new double[my_Nphi];
+			for (int k = 0; k < my_Nphi; ++k) {
+				my_area[i][j][k] = 0;
+				my_length[i][j][k] = 0;
+			}
+		}
+	}
+}
+
+SectoralSphericalLayerSource::~SectoralSphericalLayerSource()
+{
+	for (int i = 0; i < my_Nrho; ++i) {
+		for (int j = 0; j < my_Nz; ++j) {
+			delete[] my_area[i][j];
+			delete[] my_length[i][j];
+		}
+		delete[] my_area[i];
+		delete[] my_length[i];
+	}
+	delete[] my_area;
+	delete[] my_length;
+}
+
+double SectoralSphericalLayerSource::getMaxRho()
+{
+	return my_rho;
+}
+
+double SectoralSphericalLayerSource::getRhoin()
+{
+	return my_rhoin;
+}
+
+double SectoralSphericalLayerSource::getMinRho()
+{
+	return my_minrho;
+}
+
+double SectoralSphericalLayerSource::getMinZ()
+{
+	return -my_rho;
+}
+
+double SectoralSphericalLayerSource::getMaxZ()
+{
+	return my_rho;
+}
+
+double SectoralSphericalLayerSource::getPhi()
+{
+	return my_phi;
+}
+
+double SectoralSphericalLayerSource::getTotalVolume()
+{
+	if (my_minrho >= my_rhoin) {
+		return (2*my_phi / 3) * (my_rho - my_minrho) * (my_rho - my_minrho) * (my_rho - my_minrho);
+	}
+	else {
+		double a = (2 * my_phi / 3) * (my_rho - my_minrho) * (my_rho - my_minrho) * (my_rho - my_minrho);
+		double b = (2 * my_phi / 3) * (my_rhoin - my_minrho) * (my_rhoin - my_minrho) * (my_rhoin - my_minrho);
+		return a - b;
+	}
+}
+
+double SectoralSphericalLayerSource::getArea(int irho, int iz, int iphi)
+{
+	if (!my_geometryCashed) {
+		evaluateLengthAndArea();
+	}
+	return my_area[irho][iz][iphi];
+	//return evaluateArea(irho, iz, iphi);
+}
+
+double SectoralSphericalLayerSource::getLength(int irho, int iz, int iphi)
+{
+	if (!my_geometryCashed) {
+		evaluateLengthAndArea();
+	}
+	return my_length[irho][iz][iphi];
+	//return evaluateLength(irho, iz, iphi);
+}
+
+double SectoralSphericalLayerSource::getCrossSectionArea(int irho, int iphi)
+{
+	double rho1 = my_minrho + (irho + 1) * my_drho;
+	double rho0 = my_minrho + irho * my_drho;
+	return (0.5*my_dphi)*(rho1*rho1 - rho0*rho0);
+}
+
+double SectoralSphericalLayerSource::evaluateLength(int irho, int iz, int iphi) {
+	double length = 0;
+	double r = my_minrho + (irho + 0.5) * my_drho;
+	double z1 = -sqrt(my_rho * my_rho - r * r);
+	double z2 = 0;
+	if (my_rhoin > r) {
+		z2 = -sqrt(my_rhoin * my_rhoin - r * r);
+	}
+	double z3 = -z2;
+	double z4 = -z1;
+	double zmin = -my_rho + iz * my_dz;
+	double zmax = zmin + my_dz;
+	if (zmin >= 0) {
+		if (z3 > zmax) {
+			length = 0;
+		}
+		else
+			if (z4 < zmin) {
+				length = 0;
+			}
+			else {
+				double lowz = max(zmin, z3);
+				double topz = min(zmax, z4);
+				length = topz - lowz;
+			}
+	}
+	else {
+		if (z1 > zmax) {
+			length = 0;
+		}
+		else if (z2 < zmin) {
+			length = 0;
+		}
+		else {
+			double lowz = max(zmin, z1);
+			double topz = min(zmax, z2);
+			length = topz - lowz;
+		}
+	}
+	return length;
+}
+
+double SectoralSphericalLayerSource::evaluateArea(int irho, int iz, int iphi) {
+	double area = 0;
+	double rho0 = my_minrho + irho * my_drho;
+	double rho1 = my_minrho + (irho+1) * my_drho;
+	double rmin = rho0;
+	double rmax = rho1;
+	if (iz >= my_Nz / 2) {
+		//upper hemisphere
+		double zmax = (iz + 1 - my_Nz / 2) * my_dz;
+		double zmin = (iz - my_Nz / 2) * my_dz;
+		rmin = rho0;
+		if (zmax < my_rhoin) {
+			rmin = max(rho0, sqrt(my_rhoin * my_rhoin - zmax * zmax));
+		}
+		rmax = rho1;
+		rmax = min(rho1, sqrt(my_rho * my_rho - zmin * zmin));
+	}
+	else {
+		//lower hemisphere, z inversed
+		double zmax = fabs((iz - my_Nz / 2) * (2 * my_rho / my_Nz));
+		double zmin = fabs((iz + 1 - my_Nz / 2) * (2 * my_rho / my_Nz));
+
+		rmin = rho0;
+		if (zmax < my_rhoin) {
+			rmin = max(rho0, sqrt(my_rhoin * my_rhoin - zmax * zmax));
+		}
+		rmax = rho1;
+		rmax = min(rho1, sqrt(my_rho * my_rho - zmin * zmin));
+	}
+	if (rmax < rho0 || rmin > rho1 || rmax < rmin) {
+		area = 0;
+	}
+	else {
+		area = (rmax * rmax - rmin * rmin) * my_dphi;
+	}
+
+	return area;
+}
+
+void SectoralSphericalLayerSource::evaluateLengthAndArea()
+{
+	//length
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		double r = my_minrho + (irho + 0.5) * my_drho;
+		double z1 = -sqrt(my_rho * my_rho - r * r);
+		double z2 = 0;
+		if (my_rhoin > r) {
+			z2 = -sqrt(my_rhoin * my_rhoin - r * r);
+		}
+		double z3 = -z2;
+		double z4 = -z1;
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			double zmin = -my_rho + iz * my_dz;
+			double zmax = zmin + my_dz;
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				if (zmin >= 0) {
+					if (z3 > zmax) {
+						my_length[irho][iz][iphi] = 0;
+					}
+					else
+						if (z4 < zmin) {
+							my_length[irho][iz][iphi] = 0;
+						}
+						else {
+							double lowz = max(zmin, z3);
+							double topz = min(zmax, z4);
+							my_length[irho][iz][iphi] = topz - lowz;
+						}
+				}
+				else {
+					if (z1 > zmax) {
+						my_length[irho][iz][iphi] = 0;
+					}
+					else if (z2 < zmin) {
+						my_length[irho][iz][iphi] = 0;
+					}
+					else {
+						double lowz = max(zmin, z1);
+						double topz = min(zmax, z2);
+						my_length[irho][iz][iphi] = topz - lowz;
+					}
+				}
+			}
+		}
+	}
+
+	//area
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		double rho0 = my_minrho + irho * my_drho;
+		double rho1 = my_minrho + (irho + 1) * my_drho;
+		double rmin = rho0;
+		double rmax = rho1;
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			if (iz >= my_Nz / 2) {
+				//upper hemisphere
+				double zmin = -my_rho + iz * my_dz;
+				double zmax = zmin + my_dz;
+				rmin = rho0;
+				if (zmax < my_rhoin) {
+					rmin = max(rho0, sqrt(my_rhoin * my_rhoin - zmax * zmax));
+				}
+				rmax = rho1;
+				rmax = min(rho1, sqrt(my_rho * my_rho - zmin * zmin));
+			}
+			else {
+				//lower hemisphere, z inversed
+				double zmax = fabs(-my_rho + iz * my_dz);
+				double zmin = zmax - my_dz;
+
+				rmin = rho0;
+				if (zmax < my_rhoin) {
+					rmin = max(rho0, sqrt(my_rhoin * my_rhoin - zmax * zmax));
+				}
+				rmax = rho1;
+				rmax = min(rho1, sqrt(my_rho * my_rho - zmin * zmin));
+			}
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				if (rmax < rho0 || rmin > rho1 || rmax < rmin) {
+					my_area[irho][iz][iphi] = 0;
+				}
+				else {
+					my_area[irho][iz][iphi] = (rmax * rmax - rmin * rmin) * my_dphi;
+				}
+			}
+		}
+	}
+
+	my_geometryCashed = true;
+}
+
+bool TabulatedSectoralSphericalLayerSource::rayTraceToNextCell(const double& rho0, const double& z0, int iphi, const double& theta, double& rho1, double& z1, double& lB2)
+{
+	int irho = floor((rho0 - my_minrho) / my_drho);
+
+	double r = sqrt(rho0 * rho0 + z0 * z0);
+	if (r >= my_rho) {
+		rho1 = rho0;
+		z1 = z0;
+		lB2 = 0;
+		return true;
+	}
+
+	double cosTheta = cos(theta);
+	double sinTheta = sin(theta);
+
+	double nextRho = my_minrho + my_drho * (irho + 1);
+	double deltaRho = nextRho - rho0;
+	if (deltaRho <= 0) {
+		irho = irho + 1;
+		nextRho = my_minrho + my_drho * (irho + 1);
+		deltaRho = nextRho - rho0;
+	}
+
+	if (cosTheta > 0) {
+		int iz = floor((z0 + my_rho) / my_dz);
+		double B2 = sqr(getB(irho, iz, iphi));
+		double nextZ = my_dz * (iz + 1) - my_rho;
+		double deltaZ = nextZ - z0;
+		if (deltaZ <= 0) {
+			nextZ = my_dz * (iz + 2) - my_rho;
+			deltaZ = my_dz;
+			B2 = sqr(getB(irho, iz + 1, iphi));
+		}
+
+		double rterm = cosTheta * deltaRho;
+		double zterm = sinTheta * deltaZ;
+
+		double l = 0;
+
+		if (rterm > zterm) {
+			//sin can be = 0;
+
+			l = deltaZ / cosTheta;
+			z1 = nextZ;
+			rho1 = rho0 + sqrt(l * l - deltaZ * deltaZ);
+		}
+		else if (zterm > rterm) {
+			//cos can be = 0;
+			l = deltaRho / sinTheta;
+			rho1 = nextRho;
+			z1 = z0 + sqrt(l * l - deltaRho * deltaRho);
+		}
+		else {
+			z1 = nextZ;
+			rho1 = nextRho;
+			l = sqrt(deltaRho * deltaRho + deltaZ * deltaZ);
+		}
+		double nextR = sqrt(rho1 * rho1 + z1 * z1);
+		if (nextR > my_rho) {
+			l = l - (nextR - my_rho);
+			if (l < 0) {
+				printf("l < 0 in rayTraceToNextCell\n");
+				printLog("l < 0 in rayTraceToNextCell\n");
+				exit(0);
+			}
+			//todo change rgo1 and z1
+			lB2 = l * B2;
+			return true;
+		}
+		lB2 = l * B2;
+		return false;
+	} if (cosTheta < 0) {
+		int iz = my_Nz / 2 - floor(fabs((z0) / my_dz));
+		double B2 = sqr(getB(irho, iz, iphi));
+		double nextZ = my_dz * (iz - 1) - my_rho;
+		double deltaZ = -(nextZ - z0);
+		if (deltaZ <= 0) {
+			nextZ = my_dz * (iz - 2) - my_rho;
+			deltaZ = my_dz;
+			B2 = sqr(getB(irho, iz - 1, iphi));
+		}
+
+		double rterm = -cosTheta * deltaRho;
+		double zterm = sinTheta * deltaZ;
+
+		double l = 0;
+
+		if (rterm > zterm) {
+			//sin can be = 0;
+
+			l = -deltaZ / cosTheta;
+			z1 = nextZ;
+			rho1 = rho0 + sqrt(l * l - deltaZ * deltaZ);
+		}
+		else if (zterm > rterm) {
+			//cos can be = 0;
+			l = deltaRho / sinTheta;
+			rho1 = nextRho;
+			z1 = z0 + sqrt(l * l - deltaRho * deltaRho);
+		}
+		else {
+			z1 = nextZ;
+			rho1 = nextRho;
+			l = sqrt(deltaRho * deltaRho + deltaZ * deltaZ);
+		}
+		double nextR = sqrt(rho1 * rho1 + z1 * z1);
+		if (nextR > my_rho) {
+			l = l - (nextR - my_rho);
+			if (l < 0) {
+				printf("l < 0 in rayTraceToNextCell\n");
+				printLog("l < 0 in rayTraceToNextCell\n");
+				exit(0);
+			}
+			//todo change rgo1 and z1
+			lB2 = l * B2;
+			return true;
+		}
+		lB2 = l * B2;
+		return false;
+	}
+	else {
+		z1 = z0;
+		rho1 = rho0;
+		double l = deltaRho;
+		//todo
+		double B2 = sqr(getB(irho, my_Nz, iphi));
+		double nextR = sqrt(rho1 * rho1 + z1 * z1);
+		if (nextR > my_rho) {
+			l = l - (nextR - my_rho);
+			if (l < 0) {
+				printf("l < 0 in rayTraceToNextCell\n");
+				printLog("l < 0 in rayTraceToNextCell\n");
+				exit(0);
+			}
+			//todo change rgo1 and z1
+			lB2 = l * B2;
+			return true;
+		}
+		lB2 = l * B2;
+		return false;
+	}
+}
+
+double TabulatedSectoralSphericalLayerSource::evaluateTotalLB2fromPoint(const double& rho0, const double& z0, int iphi, const double& theta)
+{
+	double r = sqrt(rho0 * rho0 + z0 * z0);
+	if (r > my_rho) {
+		return 0.0;
+	}
+	double rho1;
+	double z1;
+	bool reachedSurface = false;
+	double totalLB2 = 0;
+	double lB2 = 0;
+	double tempRho = rho0;
+	double tempZ = z0;
+	int numberOfIteration = 0;
+	while (!reachedSurface) {
+		if (numberOfIteration > 1.5 * (my_Nrho + my_Nz)) {
+			printf("aaa\n");
+		}
+		reachedSurface = rayTraceToNextCell(tempRho, tempZ, iphi, theta, rho1, z1, lB2);
+		totalLB2 += lB2;
+		tempRho = rho1;
+		tempZ = z1;
+		numberOfIteration++;
+		if (numberOfIteration > 2 * (my_Nrho + my_Nz)) {
+			printf("infinite number of iterations in evaluateTotalLB2fromPoint\n");
+			printLog("infinite number of iterations in evaluateTotalLB2fromPoint\n");
+			exit(0);
+		}
+	}
+	return totalLB2;
+}
+
+TabulatedSectoralSphericalLayerSource::TabulatedSectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& velocity) : SectoralSphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, minrho, phi, distance)
+{
+	my_distribution = electronDistribution;
+	my_velocity = velocity;
+
+	my_B = new double** [my_Nrho];
+	my_theta = new double** [my_Nrho];
+	my_concentration = new double** [my_Nrho];
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		my_B[irho] = new double* [my_Nz];
+		my_theta[irho] = new double* [my_Nz];
+		my_concentration[irho] = new double* [my_Nz];
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			my_B[irho][iz] = new double[my_Nphi];
+			my_theta[irho][iz] = new double[my_Nphi];
+			my_concentration[irho][iz] = new double[my_Nphi];
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				my_B[irho][iz][iphi] = B;
+				my_theta[irho][iz][iphi] = theta;
+				my_concentration[irho][iz][iphi] = concentration;
+			}
+		}
+	}
+
+	my_isSource = new bool* [my_Nrho];
+	for (int i = 0; i < my_Nrho; ++i) {
+		my_isSource[i] = new bool[my_Nphi];
+		for (int j = 0; j < my_Nphi; ++j) {
+			my_isSource[i][j] = true;
+		}
+	}
+}
+
+TabulatedSectoralSphericalLayerSource::TabulatedSectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& velocity) : SectoralSphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, minrho, phi, distance)
+{
+	my_distribution = electronDistribution;
+	my_velocity = velocity;
+
+	my_B = new double** [my_Nrho];
+	my_theta = new double** [my_Nrho];
+	my_concentration = new double** [my_Nrho];
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		my_B[irho] = new double* [my_Nz];
+		my_theta[irho] = new double* [my_Nz];
+		my_concentration[irho] = new double* [my_Nz];
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			double rho1 = (irho + 0.5) * my_rho / my_Nrho;
+			double z = -my_rho + (iz + 0.5) * 2 * my_rho / my_Nz;
+
+			double r = sqrt(z * z + rho1 * rho1);
+
+			my_B[irho][iz] = new double[my_Nphi];
+			my_theta[irho][iz] = new double[my_Nphi];
+			my_concentration[irho][iz] = new double[my_Nphi];
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				//my_B[irho][iz][iphi] = B[irho][iz][iphi];
+				my_B[irho][iz][iphi] = B[irho][iz][iphi] * (my_rho / r);
+				my_theta[irho][iz][iphi] = theta[irho][iz][iphi];
+				my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi];
+				//my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi] * sqr(my_rho / r);
+			}
+		}
+	}
+
+	my_isSource = new bool* [my_Nrho];
+	for (int i = 0; i < my_Nrho; ++i) {
+		my_isSource[i] = new bool[my_Nphi];
+		for (int j = 0; j < my_Nphi; ++j) {
+			my_isSource[i][j] = true;
+		}
+	}
+}
+
+TabulatedSectoralSphericalLayerSource::~TabulatedSectoralSphericalLayerSource()
+{
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			delete[] my_B[irho][iz];
+			delete[] my_theta[irho][iz];
+		}
+		delete[] my_B[irho];
+		delete[] my_theta[irho];
+		delete[] my_isSource[irho];
+	}
+	delete[] my_B;
+	delete[] my_theta;
+	delete[] my_isSource;
+}
+
+void TabulatedSectoralSphericalLayerSource::setMask(bool** mask)
+{
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+			my_isSource[irho][iphi] = mask[irho][iphi];
+		}
+	}
+}
+
+bool TabulatedSectoralSphericalLayerSource::isSource(int irho, int iphi)
+{
+	return my_isSource[irho][iphi];
+}
+
+double TabulatedSectoralSphericalLayerSource::getB(int irho, int iz, int iphi)
+{
+	return my_B[irho][iz][iphi];
+}
+
+double TabulatedSectoralSphericalLayerSource::getMaxB()
+{
+	double Bmax = 0;
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				if (my_B[irho][iz][iphi] > Bmax) {
+					Bmax = my_B[irho][iz][iphi];
+				}
+			}
+		}
+	}
+	return Bmax;
+}
+
+double TabulatedSectoralSphericalLayerSource::getMaxOuterB()
+{
+	double Bmax = 0;
+	int irho = my_Nrho - 1;
+	int iz = 0;
+	for (iz = 0; iz < my_Nz; ++iz) {
+		for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+			if (my_B[irho][iz][iphi] > Bmax) {
+				Bmax = my_B[irho][iz][iphi];
+			}
+		}
+	}
+
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+			iz = 0;
+			if (my_B[irho][iz][iphi] > Bmax) {
+				Bmax = my_B[irho][iz][iphi];
+			}
+
+			iz = my_Nz - 1;
+			if (my_B[irho][iz][iphi] > Bmax) {
+				Bmax = my_B[irho][iz][iphi];
+			}
+		}
+	}
+
+	return Bmax;
+}
+double TabulatedSectoralSphericalLayerSource::getAverageSigma()
+{
+	double magneticEnergy = 0;
+	double restEnergy = 0;
+
+
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				magneticEnergy += my_B[irho][iz][iphi] * my_B[irho][iz][iphi] * getVolume(irho, iz, iphi) / (4 * pi);
+				restEnergy += my_concentration[irho][iz][iphi] * massProton * speed_of_light2 * getVolume(irho, iz, iphi);
+			}
+		}
+	}
+
+	return magneticEnergy / restEnergy;
+}
+double TabulatedSectoralSphericalLayerSource::getAverageBsquared()
+{
+	double magneticEnergy = 0;
+	double volume = 0;
+
+
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				magneticEnergy += my_B[irho][iz][iphi] * my_B[irho][iz][iphi] * getVolume(irho, iz, iphi);
+				volume += getVolume(irho, iz, iphi);
+			}
+		}
+	}
+
+	return sqrt(magneticEnergy / volume);
+}
+double TabulatedSectoralSphericalLayerSource::getAverageConcentration()
+{
+	double concentration = 0;
+	double volume = 0;
+
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				concentration += my_concentration[irho][iz][iphi] * getVolume(irho, iz, iphi);
+				volume += getVolume(irho, iz, iphi);
+			}
+		}
+	}
+
+	double result = concentration / volume;
+	if (result != result) {
+		printf("averageConcentration = NaN\n");
+		printLog("averageConcentration = NaN\n");
+		exit(0);
+	}
+	return result;
+}
+double TabulatedSectoralSphericalLayerSource::getConcentration(int irho, int iz, int iphi)
+{
+	return my_concentration[irho][iz][iphi];
+}
+void TabulatedSectoralSphericalLayerSource::getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi)
+{
+	velocity = my_velocity;
+	double rho = my_minrho + (irho + 0.5) * my_drho;
+	double z = -my_rho + (iz + 0.5) * my_dz;
+	double r = sqrt(z * z + rho * rho);
+	theta = acos(z / r);
+	phi = (iphi + 0.5) * my_dphi;
+}
+double TabulatedSectoralSphericalLayerSource::getSinTheta(int irho, int iz, int iphi) {
+	return sin(my_theta[irho][iz][iphi]);
+}
+
+void TabulatedSectoralSphericalLayerSource::resetParameters(const double* parameters, const double* normalizationUnits)
+{
+	/*parameters must be
+* R = parameters[0]
+* B[i][j][k] ~ parameters[1]
+* n[i][j][k] ~ parameters[2]
+* where B[Nrho-1][0][0] = parameters[1]
+* Rin = R*(1 - parameters[3])
+*/
+	my_geometryCashed = false;
+
+	my_rho = parameters[0] * normalizationUnits[0];
+	my_rhoin = my_rho * (1.0 - parameters[3] * normalizationUnits[3]);
+	evaluateLengthAndArea();
+	double sigma = parameters[1] * normalizationUnits[1];
+	//double B0 = my_B[my_Nrho - 1][0][0];
+	//double n0 = my_concentration[my_Nrho - 1][0][0];
+	double n0 = getAverageConcentration();
+	//double sigma0 = sqr(my_B[my_Nrho - 1][0][0]) / (4 * pi * massProton * my_concentration[my_Nrho - 1][0][0] * speed_of_light2);
+	double sigma0 = getAverageSigma();
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				double localSigma = sqr(my_B[irho][iz][iphi]) / (4 * pi * massProton * my_concentration[irho][iz][iphi] * speed_of_light2);
+				localSigma *= sigma / sigma0;
+				my_concentration[irho][iz][iphi] *= parameters[2] * normalizationUnits[2] / n0;
+				if (my_concentration[irho][iz][iphi] != my_concentration[irho][iz][iphi]) {
+					printf("my_concentration = NaN\n");
+					printLog("my_concentration = NaN\n");
+					exit(0);
+				}
+				my_B[irho][iz][iphi] = sqrt(localSigma * 4 * pi * massProton * my_concentration[irho][iz][iphi] * speed_of_light2);
+			}
+		}
+	}
+	my_velocity = parameters[4] * normalizationUnits[4];
+}
+MassiveParticleIsotropicDistribution* TabulatedSectoralSphericalLayerSource::getParticleDistribution(int irho, int iz, int iphi) {
+	my_distribution->resetConcentration(getConcentration(irho, iz, iphi));
+	return my_distribution;
+}
+
+TabulatedSectoralSLSourceWithSynchCutoff::TabulatedSectoralSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSectoralSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, rhoin, minrho, phi, distance, velocity)
+{
+	my_cutoffDistribution = dynamic_cast<MassiveParticlePowerLawCutoffDistribution*>(electronDistribution);
+	if (my_cutoffDistribution == NULL) {
+		printf("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticlePowerLawCutoffDistribution\n");
+		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticlePowerLawCutoffDistribution\n");
+		exit(0);
+	}
+	my_downstreamVelocity = downstreamVelocity;
+	my_meanB = getAverageBsquared();
+	my_defaultCutoff = my_cutoffDistribution->getEcutoff();
+
+	my_LB2 = create3dArray(my_Nrho, my_Nz, my_Nphi);
+	updateLB2();
+	write3dArrayToFile(my_LB2, my_Nrho, my_Nz, my_Nphi, "LB2.dat");
+}
+
+TabulatedSectoralSLSourceWithSynchCutoff::TabulatedSectoralSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSectoralSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, rhoin, minrho, phi, distance, velocity)
+{
+	my_cutoffDistribution = dynamic_cast<MassiveParticlePowerLawCutoffDistribution*>(electronDistribution);
+	if (my_cutoffDistribution == NULL) {
+		printf("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticlePowerLawCutoffDistribution\n");
+		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticlePowerLawCutoffDistribution\n");
+		exit(0);
+	}
+	my_downstreamVelocity = downstreamVelocity;
+	my_meanB = getAverageBsquared();
+	my_defaultCutoff = my_cutoffDistribution->getEcutoff();
+
+	my_LB2 = create3dArray(my_Nrho, my_Nz, my_Nphi);
+	updateLB2();
+	write3dArrayToFile(my_LB2, my_Nrho, my_Nz, my_Nphi, "LB2.dat");
+}
+
+TabulatedSectoralSLSourceWithSynchCutoff::~TabulatedSectoralSLSourceWithSynchCutoff()
+{
+	delete3dArray(my_LB2, my_Nrho, my_Nz, my_Nphi);
+}
+
+void TabulatedSectoralSLSourceWithSynchCutoff::updateLB2() {
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				double rho = my_minrho + (irho + 0.5) * my_drho;
+				double z = (iz + 0.5) * my_dz - my_rho;
+				double theta = acos(z / sqrt(rho * rho + z * z));
+				my_LB2[irho][iz][iphi] = evaluateTotalLB2fromPoint(rho, z, iphi, theta);
+			}
+		}
+	}
+}
+
+void TabulatedSectoralSLSourceWithSynchCutoff::resetParameters(const double* parameters, const double* normalizationUnits)
+{
+	/*parameters must be
+* R = parameters[0]
+* B[i][j][k] ~ parameters[1]
+* n[i][j][k] ~ parameters[2]
+* where B[Nrho-1][0][0] = parameters[1]
+* Rin = R*(1 - parameters[3])
+*/
+	my_geometryCashed = false;
+
+	my_rho = parameters[0] * normalizationUnits[0];
+	my_rhoin = my_rho * (1.0 - parameters[3] * normalizationUnits[3]);
+	evaluateLengthAndArea();
+	double sigma = parameters[1] * normalizationUnits[1];
+	//double B0 = my_B[my_Nrho - 1][0][0];
+	//double n0 = my_concentration[my_Nrho - 1][0][0];
+	double n0 = getAverageConcentration();
+	//double sigma0 = sqr(my_B[my_Nrho - 1][0][0]) / (4 * pi * massProton * my_concentration[my_Nrho - 1][0][0] * speed_of_light2);
+	double sigma0 = getAverageSigma();
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				double localSigma = sqr(my_B[irho][iz][iphi]) / (4 * pi * massProton * my_concentration[irho][iz][iphi] * speed_of_light2);
+				localSigma *= sigma / sigma0;
+				my_concentration[irho][iz][iphi] *= parameters[2] * normalizationUnits[2] / n0;
+				if (my_concentration[irho][iz][iphi] != my_concentration[irho][iz][iphi]) {
+					printf("my_concentration = NaN\n");
+					printLog("my_concentration = NaN\n");
+					exit(0);
+				}
+				my_B[irho][iz][iphi] = sqrt(localSigma * 4 * pi * massProton * my_concentration[irho][iz][iphi] * speed_of_light2);
+			}
+		}
+	}
+	my_velocity = parameters[4] * normalizationUnits[4];
+	my_meanB = getAverageBsquared();
+	updateLB2();
+}
+
+MassiveParticleIsotropicDistribution* TabulatedSectoralSLSourceWithSynchCutoff::getParticleDistribution(int irho, int iz, int iphi)
+{
+	my_cutoffDistribution->resetEcut(my_defaultCutoff);
+	double LB2 = my_LB2[irho][iz][iphi];
+	if (LB2 <= 0) {
+		/*printf("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
+		printf("rho = %g z = %g r = %g R = %g\n", rho, z, r, my_rho);
+		printLog("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
+		printLog("rho = %g z = %g r = %g R = %g\n", rho, z, r, my_rho);*/
+		//exit(0);
+	}
+	if (LB2 > 0) {
+		double mass = my_cutoffDistribution->getMass();
+		double Ecut = 9.0 * mass * mass * mass * mass * pow(speed_of_light, 7) * my_downstreamVelocity / (electron_charge * electron_charge * electron_charge * electron_charge * LB2);
 		if (Ecut < mass * speed_of_light2) {
 			//todo
 			Ecut = mass * speed_of_light2 * 2.0;

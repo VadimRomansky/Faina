@@ -106,7 +106,7 @@ void evaluateFluxSNRtoWind() {
 		}
 	}*/
 
-	/*bool** mask = new bool* [Nrho];
+	bool** mask = new bool* [Nrho];
 	for (int irho = 0; irho < Nrho; ++irho) {
 		mask[irho] = new bool[Nphi];
 		for (int iphi = 0; iphi < Nphi; ++iphi) {
@@ -120,7 +120,7 @@ void evaluateFluxSNRtoWind() {
 	for (int irho = 0; irho < Nrho; ++irho) {
 		delete[] mask[irho];
 	}
-	delete[] mask;*/
+	delete[] mask;
 
 	//SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true);
 	//SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, newEmax, true, true);
@@ -473,15 +473,15 @@ void evaluateComtonFromWind() {
 }
 
 void evaluateTychoProfile() {
-	int Nrho = 100;
-	int Nphi = 4;
-	int Nz = 200;
+	int Nrho = 200;
+	int Nphi = 8;
+	int Nz = 400;
 
 	double B0 = 3E-6;
 	double magneticEnergy = B0 * B0 / (8 * pi);
 	double theta0 = pi / 2;
 	double phi0 = 0;
-	double*** B = create3dArray(Nrho, Nz, Nphi, 50*B0);
+	double*** B = create3dArray(Nrho, Nz, Nphi, B0);
 	double*** theta = create3dArray(Nrho, Nz, Nphi, theta0);
 	double*** phi = create3dArray(Nrho, Nz, Nphi, phi0);
 	double turbulentEnergy = ((280 + 2 * 218)*1E-12)/(8*pi);
@@ -496,8 +496,10 @@ void evaluateTychoProfile() {
 	int Ne = 200;
 	double distance = 2500 * parsec;
 	double R = distance*258*pi/(180*60*60);
-	double widthFraction = 0.2;
-	double lturb = R / 5;
+	double widthFraction = 0.25;
+	double Rin = R * (1 - widthFraction);
+	double Rmin = R * (1 - 2 * widthFraction);
+	double lturb = 1E17;
 
 	double Uupstream = 4E8;
 	double Udownstream = 0.25 * Uupstream;
@@ -512,12 +514,14 @@ void evaluateTychoProfile() {
 
 	//RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInDiskSource(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, fraction, index, lturb, Nmodes, R, anisotropy);
 	//RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInSphericalSource(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, fraction, index, lturb, Nmodes, R, anisotropy);
+	RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInSectoralSphericalSource(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, fraction, index, lturb, Nmodes, R, Rmin, 2*pi, anisotropy);
 	write3dArrayToFile(B, Nrho, Nz, Nphi, "B.dat");
 
 	MassiveParticleIsotropicDistribution* electrons = new MassiveParticlePowerLawCutoffDistribution(massElectron, 2.0, me_c2, 2.0, 100*Energy, concentration);
 
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, concentrations, R, (1.0 - widthFraction) * R, distance);
-	RadiationSource* source = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electrons, B, theta, concentrations, R, (1.0 - widthFraction) * R, distance, Udownstream);
+	//RadiationSource* source = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electrons, B, theta, concentrations, R, (1.0 - widthFraction) * R, distance, Udownstream);
+	RadiationSource* source = new TabulatedSectoralSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electrons, B, theta, concentrations, R, Rin,Rmin, 2*pi, distance, Udownstream);
 	//RadiationSource* source = new TabulatedDiskSourceWithSynchCutoff(Nrho, Nz, Nphi, electrons, B, theta, concentrations, R, R, distance, Udownstream);
 
 	SynchrotronEvaluator* evaluator = new SynchrotronEvaluator(Ne, Emin, Emax, false);
@@ -542,9 +546,9 @@ int main() {
 	//evaluateSynchrotronImage();
 
 
-	evaluateFluxSNRtoWind();
+	//evaluateFluxSNRtoWind();
 	//evaluateComtonFromWind();
-	//evaluateTychoProfile();
+	evaluateTychoProfile();
 
 	return 0;
 }

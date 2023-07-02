@@ -31,6 +31,7 @@ public:
 	virtual bool isSource(int irho, int iphi) = 0;
 	virtual double getArea(int irho, int iz, int iphi)=0;
 	virtual double getVolume(int irho, int iz, int iphi);
+	virtual double getCrossSectionArea(int irhi, int iphi)=0;
 	virtual void getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi) = 0;
 
 	virtual double getB(int irho, int iz, int iphi) = 0;
@@ -56,6 +57,7 @@ public:
 
 	virtual double getArea(int irho, int iz, int iphi);
 	virtual double getLength(int irho, int iz, int iphi) = 0;
+	virtual double getCrossSectionArea(int irho, int iphi);
 	virtual double getB(int irho, int iz, int iphi) = 0;
 	virtual double getSinTheta(int irho, int iz, int iphi) = 0;
 	virtual MassiveParticleIsotropicDistribution* getParticleDistribution(int irho, int iz, int iphi) = 0;
@@ -152,6 +154,7 @@ public:
 
 	virtual double getLength(int irho, int iz, int iphi);
 	virtual double getArea(int irho, int iz, int iphi);
+	virtual double getCrossSectionArea(int irho, int iphi);
 	virtual double getB(int irho, int iz, int iphi) = 0;
 	virtual double getSinTheta(int irho, int iz, int iphi) = 0;
 	virtual MassiveParticleIsotropicDistribution* getParticleDistribution(int irho, int iz, int iphi) = 0;
@@ -218,6 +221,94 @@ public:
 	TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
 	TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
 	virtual ~TabulatedSLSourceWithSynchCutoff();
+
+	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
+	virtual MassiveParticleIsotropicDistribution* getParticleDistribution(int irho, int iz, int iphi);
+};
+
+class SectoralSphericalLayerSource : public RadiationSource {
+protected:
+	double my_rho;
+	double my_rhoin;
+	double my_minrho;
+	double my_phi;
+
+	double my_drho;
+	double my_dz;
+	double my_dphi;
+
+	double*** my_area;
+	double*** my_length;
+	bool my_geometryCashed;
+
+	virtual double evaluateLength(int irho, int iz, int iphi);
+	virtual double evaluateArea(int irho, int iz, int iphi);
+	virtual void evaluateLengthAndArea();
+public:
+	SectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance);
+	~SectoralSphericalLayerSource();
+	double getMaxRho();
+	double getRhoin();
+	double getMinRho();
+	double getMinZ();
+	double getMaxZ();
+	double getPhi();
+	double getTotalVolume();
+
+	virtual double getArea(int irho, int iz, int iphi);
+	virtual double getLength(int irho, int iz, int iphi);
+	virtual double getCrossSectionArea(int irho, int iphi);
+	virtual double getB(int irho, int iz, int iphi) = 0;
+	virtual double getSinTheta(int irho, int iz, int iphi) = 0;
+	virtual MassiveParticleIsotropicDistribution* getParticleDistribution(int irho, int iz, int iphi) = 0;
+
+};
+
+class TabulatedSectoralSphericalLayerSource : public SectoralSphericalLayerSource {
+protected:
+	double*** my_B;
+	double*** my_theta;
+	double*** my_concentration;
+	double my_velocity;
+	bool** my_isSource;
+	MassiveParticleIsotropicDistribution* my_distribution;
+
+	bool rayTraceToNextCell(const double& rho0, const double& z0, int iphi, const double& theta, double& rho1, double& z1, double& lB2);
+	double evaluateTotalLB2fromPoint(const double& rho0, const double& z0, int iphi, const double& theta);
+public:
+	TabulatedSectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& velocity = 0);
+	TabulatedSectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& velocity = 0);
+	virtual ~TabulatedSectoralSphericalLayerSource();
+
+	//virtual double getLength(int irho, int iz, int iphi);
+	virtual void setMask(bool** mask);
+	virtual bool isSource(int irho, int iphi);
+	virtual double getB(int irho, int iz, int iphi);
+	virtual double getMaxB();
+	virtual double getMaxOuterB();
+	virtual double getAverageSigma();
+	virtual double getAverageBsquared();
+	virtual double getAverageConcentration();
+	double getConcentration(int irho, int iz, int iphi);
+	virtual void getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi);
+	virtual double getSinTheta(int irho, int iz, int iphi);
+	//void resetConcentration(const double& concentration);
+	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
+	virtual MassiveParticleIsotropicDistribution* getParticleDistribution(int irho, int iz, int iphi);
+};
+
+class TabulatedSectoralSLSourceWithSynchCutoff : public TabulatedSectoralSphericalLayerSource {
+protected:
+	double my_downstreamVelocity;
+	double my_meanB;
+	double my_defaultCutoff;
+	MassiveParticlePowerLawCutoffDistribution* my_cutoffDistribution;
+	double*** my_LB2;
+	void updateLB2();
+public:
+	TabulatedSectoralSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
+	TabulatedSectoralSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
+	virtual ~TabulatedSectoralSLSourceWithSynchCutoff();
 
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
 	virtual MassiveParticleIsotropicDistribution* getParticleDistribution(int irho, int iz, int iphi);
