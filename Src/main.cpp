@@ -477,14 +477,14 @@ void evaluateTychoProfile() {
 	int Nphi = 8;
 	int Nz = 400;
 
-	double B0 = 3E-6;
+	double B0 = 30*3E-6;
 	double magneticEnergy = B0 * B0 / (8 * pi);
 	double theta0 = pi / 2;
 	double phi0 = 0;
 	double*** B = create3dArray(Nrho, Nz, Nphi, B0);
 	double*** theta = create3dArray(Nrho, Nz, Nphi, theta0);
 	double*** phi = create3dArray(Nrho, Nz, Nphi, phi0);
-	double turbulentEnergy = ((280 + 2 * 218)*1E-12)/(8*pi);
+	double turbulentEnergy = 150*((280 + 2 * 218)*1E-12)/(8*pi);
 	double fraction = turbulentEnergy/magneticEnergy;
 	double index = 11.0 / 6.0;
 	int Nmodes = 20;
@@ -511,6 +511,12 @@ void evaluateTychoProfile() {
 	double Rlosses = (2.0 / 3.0) * sqr(electron_charge * electron_charge / me_c2) * speed_of_light * (4.0 / 9.0) * meanB * meanB * sqr(Energy / me_c2);
 	double tau = Energy / Rlosses;
 	double L = tau * Udownstream;
+
+	printf("Tycho profile\n");
+	printLog("Tycho profile\n");
+
+	printf("Turbulent energy fraction = %g\n", fraction);
+	printLog("Turbulent energy fraction = %g\n", fraction);
 
 	//RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInDiskSource(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, fraction, index, lturb, Nmodes, R, anisotropy);
 	//RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInSphericalSource(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, fraction, index, lturb, Nmodes, R, anisotropy);

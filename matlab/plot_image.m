@@ -1,7 +1,7 @@
 clear;
 data = importdata('../image.dat');
 R = 258;
-R0 = R*(1 - 2*0.25);
+R0 = R*(1 - 2*0.05);
 %R0=0;
 Nr = size(data,1);
 Nphi = size(data,2);
