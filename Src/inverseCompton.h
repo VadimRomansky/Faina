@@ -30,9 +30,11 @@ protected:
 	double evaluateComptonFluxKleinNishinaIsotropic(const double& photonFinalEnergyi, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
 	double evaluateComptonFluxKleinNishinaIsotropic1(const double& photonFinalEnergyi, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
 	double evaluateComptonFluxKleinNishinaAnisotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
+
+	virtual PhotonIsotropicDistribution* getPhotonIsotropicDistribution(const double& rho, const double& z, const double& phi);
 public:
     InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonIsotropicDistribution* photonDistribution, ComptonSolverType solverType);
-	~InverseComptonEvaluator();
+	virtual ~InverseComptonEvaluator();
     void resetParameters(const double *parameters, const double *normalizationUnits);
 
 	void outputDifferentialFlux(const char* fileName);
@@ -44,10 +46,20 @@ public:
 	double evaluateComptonFluxKleinNishinaAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& volume, const double& distance);
 
 	//double evaluateComptonFlux(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& volume, const double& distance);
-    double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
+    double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance, PhotonIsotropicDistribution* photonDistribution);
 	double evaluateFluxFromSourceAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, RadiationSource* source);
 
 	virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
+};
+
+class InverseComptonEvaluatorWithSource : public InverseComptonEvaluator {
+protected:
+	double my_sourceR;
+	double my_defaultPhotonConcentration;
+	virtual PhotonIsotropicDistribution* getPhotonIsotropicDistribution(const double& rho, const double& z, const double& phi);
+public:
+	InverseComptonEvaluatorWithSource(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonIsotropicDistribution* photonDistribution, ComptonSolverType solverType, const double& sourceR);
+	virtual ~InverseComptonEvaluatorWithSource();
 };
 
 #endif

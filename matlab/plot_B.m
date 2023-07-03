@@ -1,5 +1,5 @@
 clear;
-Bdata = importdata("../B.dat");
+Bdata = importdata('../B.dat');
 
 R = 258;
 R0 = R*(1 - 2*0.25);

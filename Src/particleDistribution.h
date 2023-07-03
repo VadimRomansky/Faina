@@ -16,6 +16,9 @@ public:
 	double getConcentration() {
 		return my_concentration;
 	};
+	virtual void resetConcentration(const double& concentration) {
+		my_concentration = concentration;
+	}
 };
 
 #endif

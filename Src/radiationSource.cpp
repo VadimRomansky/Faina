@@ -73,6 +73,16 @@ SimpleFlatSource::SimpleFlatSource(MassiveParticleIsotropicDistribution* electro
 	my_velocity = velocity;
 }
 
+double SimpleFlatSource::getRho(int irho) {
+	return 0;
+}
+double SimpleFlatSource::getZ(int iz) {
+	return 0;
+}
+double SimpleFlatSource::getPhi(int iphi) {
+	return 0;
+}
+
 bool SimpleFlatSource::isSource(int irho, int iphi) {
 	return true;
 }
@@ -219,6 +229,16 @@ TabulatedDiskSource::~TabulatedDiskSource()
 	delete[] my_theta;
 	delete[] my_concentration;
 	delete[] my_isSource;
+}
+
+double TabulatedDiskSource::getRho(int irho) {
+	return (irho + 0.5) * my_rho / my_Nrho;
+}
+double TabulatedDiskSource::getZ(int iz) {
+	return (iz + 0.5) * my_z / my_Nz;
+}
+double TabulatedDiskSource::getPhi(int iphi) {
+	return (iphi + 0.5) * 2 * pi / my_Nphi;
 }
 
 void TabulatedDiskSource::setMask(bool** mask) {
@@ -688,6 +708,16 @@ double SphericalLayerSource::getArea(int irho, int iz, int iphi)
 
 	return 2 * pi * (rmax * rmax - rmin * rmin) / my_Nphi;
 }*/
+
+double SphericalLayerSource::getRho(int irho) {
+	return (irho + 0.5) * my_rho / my_Nrho;
+}
+double SphericalLayerSource::getZ(int iz) {
+	return -my_rho + (iz + 0.5) * 2 * my_rho / my_Nz;
+}
+double SphericalLayerSource::getPhi(int iphi) {
+	return iphi * 2 * pi / my_Nphi;
+}
 
 double SphericalLayerSource::getLength(int irho, int iz, int iphi) {
 	if (!my_geometryCashed) {
@@ -1614,6 +1644,16 @@ SectoralSphericalLayerSource::~SectoralSphericalLayerSource()
 	}
 	delete[] my_area;
 	delete[] my_length;
+}
+
+double SectoralSphericalLayerSource::getRho(int irho) {
+	return my_minrho + (irho + 0.5) * my_drho;
+}
+double SectoralSphericalLayerSource::getZ(int iz) {
+	return -my_z + (iz + 0.5) * my_dz;
+}
+double SectoralSphericalLayerSource::getPhi(int iphi) {
+	return iphi * my_dphi;
 }
 
 double SectoralSphericalLayerSource::getMaxRho()

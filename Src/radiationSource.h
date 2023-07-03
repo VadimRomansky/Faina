@@ -27,6 +27,9 @@ public:
 	int getNrho();
 	int getNz();
 	int getNphi();
+	virtual double getRho(int irho) = 0;
+	virtual double getZ(int iz) = 0;
+	virtual double getPhi(int iphi) = 0;
 	double getDistance();
 	virtual bool isSource(int irho, int iphi) = 0;
 	virtual double getArea(int irho, int iz, int iphi)=0;
@@ -72,6 +75,10 @@ protected:
 	MassiveParticleIsotropicDistribution* my_distribution;
 public:
 	SimpleFlatSource(MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& theta, const double& rho, const double& z, const double& distance, const double& velocity = 0);
+	virtual double getRho(int irho);
+	virtual double getZ(int iz);
+	virtual double getPhi(int iphi);
+	
 	virtual bool isSource(int irho, int iphi);
 	double getLength(int irho, int iz, int iphi);
 	double getB(int irho, int iz, int iphi);
@@ -99,6 +106,10 @@ public:
 	TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& z, const double& distance, const double& velocity = 0);
 	TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& theta, const double& concentration , const double& rho, const double& z, const double& distance, const double& velocity = 0);
     virtual ~TabulatedDiskSource();
+
+	virtual double getRho(int irho);
+	virtual double getZ(int iz);
+	virtual double getPhi(int iphi);
 	virtual void setMask(bool** mask);
 	virtual bool isSource(int irho, int iphi);
 	virtual double getMaxB();
@@ -146,6 +157,10 @@ protected:
 public:
 	SphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& distance);
 	virtual ~SphericalLayerSource();
+
+	virtual double getRho(int irho);
+	virtual double getZ(int iz);
+	virtual double getPhi(int iphi);
 	double getMaxRho();
 	double getMinZ();
 	double getMaxZ();
@@ -249,6 +264,10 @@ protected:
 public:
 	SectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance);
 	~SectoralSphericalLayerSource();
+
+	virtual double getRho(int irho);
+	virtual double getZ(int iz);
+	virtual double getPhi(int iphi);
 	double getMaxRho();
 	double getRhoin();
 	double getMinRho();

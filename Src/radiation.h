@@ -24,7 +24,7 @@ public:
     virtual void resetParameters(const double* parameters, const double* normalizationUnits) = 0;
 
     //returns fluxes in cm^-2 s^-1 = d energy flux/ d energy
-    virtual double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) = 0;
+    //virtual double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) = 0;
 
     virtual double evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source);
 
