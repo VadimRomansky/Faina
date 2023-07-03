@@ -48,9 +48,9 @@ void evaluateFluxSNRtoWind() {
 	int Ne = 200;
 	int Nmu = 50;
 
-	int Nrho = 20;
-	int Nz = 40;
-	int Nphi = 4;
+	int Nrho = 100;
+	int Nz = 50;
+	int Nphi = 20;
 
 	//initializing mean galactic photon field
 	double Ephmin = 0.01 * Tstar * kBoltzman;
@@ -115,7 +115,7 @@ void evaluateFluxSNRtoWind() {
 		}
 	}
 
-	//RadiationSourceFactory::initialize3dAngularMask(mask, Nrho, Nphi, pi / 10);
+	RadiationSourceFactory::initialize3dAngularMask(mask, Nrho, Nphi, pi / 10);
 	//RadiationSourceFactory::initializeRhoMask(mask, Nrho, Nphi, sin(pi/10));
 	source->setMask(mask);
 	for (int irho = 0; irho < Nrho; ++irho) {
@@ -132,7 +132,7 @@ void evaluateFluxSNRtoWind() {
 	//number of parameters of the source
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 1.0E17, 0.00001, 0.02, 0.01, 0.3*speed_of_light };
+	double minParameters[Nparams] = { 1.0E17, 0.00001, 0.02, 0.001, 0.3*speed_of_light };
 	double maxParameters[Nparams] = { 2.5E17, 1E-3, 2E6, 0.5, 0.5*speed_of_light };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, 0.5*speed_of_light };
@@ -158,7 +158,7 @@ void evaluateFluxSNRtoWind() {
 	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
 	//RadiationOptimizer* synchrotronOptimizer = new CoordinateRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
 	//number of points per axis in gridEnumOptimizer
-	int Npoints[Nparams] = { 5,5,5,5,2 };
+	int Npoints[Nparams] = { 5,10,10,10,2 };
 	//creating grid enumeration optimizer
 	RadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints);
 	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
@@ -247,13 +247,13 @@ void evaluateFluxSNRtoWind() {
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
 	double rcompton = 2E16;
-	rcompton = rmax;
+	rcompton = rmax + 2E16;
 	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rcompton));
 
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
 //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, newEmax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
-	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluatorWithSource(Ne, Nmu, Nphi, Emin, newEmax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES, rmax + 2E16);
+	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluatorWithSource(Ne, Nmu, Nphi, Emin, newEmax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES, rmax + 2E16, 0, 0);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
 	//initializing photon energy grid for output
 
@@ -271,14 +271,14 @@ void evaluateFluxSNRtoWind() {
 	}
 	electrons->resetConcentration(electronConcentration);
 	RadiationSource* source2 = new SimpleFlatSource(electrons, B, pi / 2, rcompton, rmax*fraction, distance);
-	double energyInComptonElectrons = electronConcentration * pi * sqr(rcompton) * (rmax*fraction) * (electrons->getMeanEnergy() - me_c2);
+	double energyInComptonElectrons = electronConcentration * pi * rmax*rmax * (rmax*fraction) * (electrons->getMeanEnergy() - me_c2);
 
 	printf("energy in compton electrons = %g\n", energyInComptonElectrons);
 	printLog("energy in compton electrons = %g\n", energyInComptonElectrons);
 
 	double minEev = 0.3 * 1000 * 1.6E-12;
 	double maxEev = 10 * 1000 * 1.6E-12;
-	double kevFlux = comptonEvaluator->evaluateTotalFluxInEnergyRange(minEev, maxEev, 10, source2);
+	double kevFlux = comptonEvaluator->evaluateTotalFluxInEnergyRange(minEev, maxEev, 10, source);
 	double totalLuminosity = kevFlux * 4 * pi * distance * distance;
 	double synchrotronKevFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(minEev, maxEev, 10, source);
 	double synchrotronFluxGHz3 = synchrotronEvaluator->evaluateFluxFromSource(3E9 * hplank, source)*1E26*hplank;

@@ -632,7 +632,7 @@ void RadiationSourceFactory::initialize3dAngularMask(bool** mask, int Nrho, int 
 		}
 		for (int irho = 0; irho < Nrho; ++irho) {
 			double rho = (irho + 0.5) / Nrho;
-			if (rho < tan(angle)) {
+			if (rho < cos(angle)) {
 				mask[irho][iphi] = false;
 			}
 			else {

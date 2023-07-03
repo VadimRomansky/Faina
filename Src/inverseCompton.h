@@ -55,10 +55,12 @@ public:
 class InverseComptonEvaluatorWithSource : public InverseComptonEvaluator {
 protected:
 	double my_sourceR;
+	double my_sourceZ;
+	double my_sourcePhi;
 	double my_defaultPhotonConcentration;
 	virtual PhotonIsotropicDistribution* getPhotonIsotropicDistribution(const double& rho, const double& z, const double& phi);
 public:
-	InverseComptonEvaluatorWithSource(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonIsotropicDistribution* photonDistribution, ComptonSolverType solverType, const double& sourceR);
+	InverseComptonEvaluatorWithSource(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonIsotropicDistribution* photonDistribution, ComptonSolverType solverType, const double& sourceR, const double& sourceZ, const double& sourcePhi);
 	virtual ~InverseComptonEvaluatorWithSource();
 };
 

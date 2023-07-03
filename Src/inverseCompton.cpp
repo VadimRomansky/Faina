@@ -1287,8 +1287,10 @@ double InverseComptonEvaluator::evaluateFluxFromSourceAnisotropic(const double& 
 	return result;
 }
 
-InverseComptonEvaluatorWithSource::InverseComptonEvaluatorWithSource(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonIsotropicDistribution* photonDistribution, ComptonSolverType solverType, const double& sourceR) : InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, solverType) {
+InverseComptonEvaluatorWithSource::InverseComptonEvaluatorWithSource(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonIsotropicDistribution* photonDistribution, ComptonSolverType solverType, const double& sourceR, const double& sourceZ, const double& sourcePhi) : InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, solverType) {
 	my_sourceR = sourceR;
+	my_sourceZ = sourceZ;
+	my_sourcePhi = sourcePhi;
 	my_defaultPhotonConcentration = photonDistribution->getConcentration();
 }
 InverseComptonEvaluatorWithSource::~InverseComptonEvaluatorWithSource() {
@@ -1299,8 +1301,10 @@ PhotonIsotropicDistribution* InverseComptonEvaluatorWithSource::getPhotonIsotrop
 
 	double x = rho * cos(phi);
 	double y = rho * sin(phi);
-	double r = sqrt(sqr(x - my_sourceR) + y * y + z * z);
-	double r0 = fabs(x - my_sourceR);
+	double sourceX = my_sourceR * cos(my_sourcePhi);
+	double sourceY = my_sourceR * sin(my_sourcePhi);
+	double r = sqrt(sqr(x - sourceX) + sqr(y - sourceY) + sqr(z - my_sourceZ));
+	double r0 = sqrt(my_sourceR * my_sourceR + my_sourceZ * my_sourceZ);
 
 	double newConcentration = my_defaultPhotonConcentration * sqr(r0 / r);
 	my_photonDistribution->resetConcentration(newConcentration);
