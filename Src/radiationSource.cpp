@@ -1581,7 +1581,8 @@ SectoralSphericalLayerSource::SectoralSphericalLayerSource(int Nrho, int Nz, int
 	my_minrho = minrho;
 	my_phi = phi;
 	my_drho = (my_rho - my_minrho) / my_Nrho;
-	my_dz = 2*my_rho / my_Nz;
+	my_z = sqrt(my_rho * my_rho - my_minrho * my_minrho);
+	my_dz = 2*my_z / my_Nz;
 	my_dphi = phi / my_Nphi;
 
 	my_geometryCashed = false;
@@ -1632,12 +1633,12 @@ double SectoralSphericalLayerSource::getMinRho()
 
 double SectoralSphericalLayerSource::getMinZ()
 {
-	return -my_rho;
+	return -my_z;
 }
 
 double SectoralSphericalLayerSource::getMaxZ()
 {
-	return my_rho;
+	return my_z;
 }
 
 double SectoralSphericalLayerSource::getPhi()
@@ -1692,7 +1693,7 @@ double SectoralSphericalLayerSource::evaluateLength(int irho, int iz, int iphi) 
 	}
 	double z3 = -z2;
 	double z4 = -z1;
-	double zmin = -my_rho + iz * my_dz;
+	double zmin = -my_z + iz * my_dz;
 	double zmax = zmin + my_dz;
 	if (zmin >= 0) {
 		if (z3 > zmax) {
@@ -1743,8 +1744,8 @@ double SectoralSphericalLayerSource::evaluateArea(int irho, int iz, int iphi) {
 	}
 	else {
 		//lower hemisphere, z inversed
-		double zmax = fabs((iz - my_Nz / 2) * (2 * my_rho / my_Nz));
-		double zmin = fabs((iz + 1 - my_Nz / 2) * (2 * my_rho / my_Nz));
+		double zmax = fabs((iz - my_Nz / 2) * (2 * my_z / my_Nz));
+		double zmin = fabs((iz + 1 - my_Nz / 2) * (2 * my_z / my_Nz));
 
 		rmin = rho0;
 		if (zmax < my_rhoin) {
@@ -1776,7 +1777,7 @@ void SectoralSphericalLayerSource::evaluateLengthAndArea()
 		double z3 = -z2;
 		double z4 = -z1;
 		for (int iz = 0; iz < my_Nz; ++iz) {
-			double zmin = -my_rho + iz * my_dz;
+			double zmin = -my_z + iz * my_dz;
 			double zmax = zmin + my_dz;
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
 				if (zmin >= 0) {
@@ -1819,7 +1820,7 @@ void SectoralSphericalLayerSource::evaluateLengthAndArea()
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			if (iz >= my_Nz / 2) {
 				//upper hemisphere
-				double zmin = -my_rho + iz * my_dz;
+				double zmin = -my_z + iz * my_dz;
 				double zmax = zmin + my_dz;
 				rmin = rho0;
 				if (zmax < my_rhoin) {
@@ -1830,7 +1831,7 @@ void SectoralSphericalLayerSource::evaluateLengthAndArea()
 			}
 			else {
 				//lower hemisphere, z inversed
-				double zmax = fabs(-my_rho + iz * my_dz);
+				double zmax = fabs(-my_z + iz * my_dz);
 				double zmin = zmax - my_dz;
 
 				rmin = rho0;
@@ -1878,12 +1879,12 @@ bool TabulatedSectoralSphericalLayerSource::rayTraceToNextCell(const double& rho
 	}
 
 	if (cosTheta > 0) {
-		int iz = floor((z0 + my_rho) / my_dz);
+		int iz = floor((z0 + my_z) / my_dz);
 		double B2 = sqr(getB(irho, iz, iphi));
-		double nextZ = my_dz * (iz + 1) - my_rho;
+		double nextZ = my_dz * (iz + 1) - my_z;
 		double deltaZ = nextZ - z0;
 		if (deltaZ <= 0) {
-			nextZ = my_dz * (iz + 2) - my_rho;
+			nextZ = my_dz * (iz + 2) - my_z;
 			deltaZ = my_dz;
 			B2 = sqr(getB(irho, iz + 1, iphi));
 		}
@@ -1928,10 +1929,10 @@ bool TabulatedSectoralSphericalLayerSource::rayTraceToNextCell(const double& rho
 	} if (cosTheta < 0) {
 		int iz = my_Nz / 2 - floor(fabs((z0) / my_dz));
 		double B2 = sqr(getB(irho, iz, iphi));
-		double nextZ = my_dz * (iz - 1) - my_rho;
+		double nextZ = my_dz * (iz - 1) - my_z;
 		double deltaZ = -(nextZ - z0);
 		if (deltaZ <= 0) {
-			nextZ = my_dz * (iz - 2) - my_rho;
+			nextZ = my_dz * (iz - 2) - my_z;
 			deltaZ = my_dz;
 			B2 = sqr(getB(irho, iz - 1, iphi));
 		}
@@ -2076,7 +2077,7 @@ TabulatedSectoralSphericalLayerSource::TabulatedSectoralSphericalLayerSource(int
 		my_concentration[irho] = new double* [my_Nz];
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			double rho1 = (irho + 0.5) * my_rho / my_Nrho;
-			double z = -my_rho + (iz + 0.5) * 2 * my_rho / my_Nz;
+			double z = -my_z + (iz + 0.5) * 2 * my_rho / my_Nz;
 
 			double r = sqrt(z * z + rho1 * rho1);
 
@@ -2245,7 +2246,7 @@ void TabulatedSectoralSphericalLayerSource::getVelocity(int irho, int iz, int ip
 {
 	velocity = my_velocity;
 	double rho = my_minrho + (irho + 0.5) * my_drho;
-	double z = -my_rho + (iz + 0.5) * my_dz;
+	double z = -my_z + (iz + 0.5) * my_dz;
 	double r = sqrt(z * z + rho * rho);
 	theta = acos(z / r);
 	phi = (iphi + 0.5) * my_dphi;
@@ -2340,7 +2341,7 @@ void TabulatedSectoralSLSourceWithSynchCutoff::updateLB2() {
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
 				double rho = my_minrho + (irho + 0.5) * my_drho;
-				double z = (iz + 0.5) * my_dz - my_rho;
+				double z = (iz + 0.5) * my_dz - my_z;
 				double theta = acos(z / sqrt(rho * rho + z * z));
 				my_LB2[irho][iz][iphi] = evaluateTotalLB2fromPoint(rho, z, iphi, theta);
 			}

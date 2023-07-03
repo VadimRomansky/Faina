@@ -473,9 +473,9 @@ void evaluateComtonFromWind() {
 }
 
 void evaluateTychoProfile() {
-	int Nrho = 200;
+	int Nrho = 20;
 	int Nphi = 8;
-	int Nz = 400;
+	int Nz = 40;
 
 	double B0 = 30*3E-6;
 	double magneticEnergy = B0 * B0 / (8 * pi);

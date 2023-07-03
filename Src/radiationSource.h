@@ -233,6 +233,8 @@ protected:
 	double my_minrho;
 	double my_phi;
 
+	double my_z;
+
 	double my_drho;
 	double my_dz;
 	double my_dphi;

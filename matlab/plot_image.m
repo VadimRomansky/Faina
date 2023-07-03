@@ -39,13 +39,11 @@ axis equal
 %set(gca, 'Box','off', 'XColor','none', 'YColor','none',  'Color','none')
 hold off
 
-r(1:Nr) = 0;
 data1(1:Nr)=0;
 phipoint = 1;
 for i = 1:Nr,
-    r(i) = R0 + (R-R0)*(i-0.5)/Nr;
     data1(i) = data(i, phipoint);
 end;
 figure(2)
-plot(r(1:Nr),data1(1:Nr));
+plot(radius(1:Nr),data1(1:Nr));
 hold on;

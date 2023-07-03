@@ -331,12 +331,14 @@ void RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInSectoralS
 
 	int irho;
 
+	double Z = sqrt(R * R - Rmin * Rmin);
+
 #pragma omp parallel for private(irho) shared(Nrho, Nz, Nphi, Bx, By, Bz, A0, A1, A2, A3, phases1, phases2, index, L0, Nmodes, fraction, B0, anisotropy)
 	for (int irho = 0; irho < Nrho; ++irho) {
 		printf("irho = %d\n", irho);
 		double rho = Rmin + (irho + 0.5) * (R - Rmin) / Nrho;
 		for (int iz = 0; iz < Nz; ++iz) {
-			double z = 2 * (iz + 0.5) * R / Nz - R;
+			double z = 2 * (iz + 0.5) * Z / Nz - Z;
 			double r = sqrt(rho * rho + z * z);
 			for (int iphi = 0; iphi < Nphi; ++iphi) {
 				double turbulenceKoef = 1.0;
@@ -397,7 +399,7 @@ void RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInSectoralS
 	for (int irho = 0; irho < Nrho; ++irho) {
 		double rho = Rmin + (irho + 0.5) * (R-Rmin) / Nrho;
 		for (int iz = 0; iz < Nz; ++iz) {
-			double z = 2 * (iz + 0.5) * R / Nz - R;
+			double z = 2 * (iz + 0.5) * Z / Nz - Z;
 
 			for (int iphi = 0; iphi < Nphi; ++iphi) {
 				double hi = phiR * (iphi + 0.5) / Nphi;
