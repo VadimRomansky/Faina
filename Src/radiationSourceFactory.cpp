@@ -389,9 +389,9 @@ void RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInSectoralS
 						}
 					}
 				}
-				Bx[irho][iz][iphi] = Bxprimed * cos(hi) - sin(hi) * (Bzprimed * sinThetar - Byprimed * cosThetar);
-				By[irho][iz][iphi] = (Byprimed * cosThetar + Bzprimed * sinThetar) * cos(hi) + sin(hi) * Bxprimed;
-				Bz[irho][iz][iphi] = Bzprimed * cosThetar - Byprimed * sinThetar;
+				Bx[irho][iz][iphi] += Bxprimed * cos(hi) - sin(hi) * (Bzprimed * sinThetar - Byprimed * cosThetar);
+				By[irho][iz][iphi] += (Byprimed * cosThetar + Bzprimed * sinThetar) * cos(hi) + sin(hi) * Bxprimed;
+				Bz[irho][iz][iphi] += Bzprimed * cosThetar - Byprimed * sinThetar;
 			}
 		}
 	}

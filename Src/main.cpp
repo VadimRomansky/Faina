@@ -560,14 +560,14 @@ void fitTychoProfile() {
 	int Nphi = 8;
 	int Nz = 40;
 
-	double B0 = 30 * 3E-6;
+	double B0 = 20*3E-6;
 	double magneticEnergy = B0 * B0 / (8 * pi);
 	double theta0 = pi / 2;
 	double phi0 = 0;
 	double*** B = create3dArray(Nrho, Nz, Nphi, B0);
 	double*** theta = create3dArray(Nrho, Nz, Nphi, theta0);
 	double*** phi = create3dArray(Nrho, Nz, Nphi, phi0);
-	double turbulentEnergy = 150 * ((280 + 2 * 218) * 1E-12) / (8 * pi);
+	double turbulentEnergy = 1E-20*((280 + 2 * 218) * 1E-12) / (8 * pi);
 	double turbulentFraction = turbulentEnergy / magneticEnergy;
 	double index = 11.0 / 6.0;
 	int Nmodes = 20;
@@ -579,7 +579,7 @@ void fitTychoProfile() {
 	int Ne = 200;
 	double distance = 2500 * parsec;
 	double R = distance * 258 * pi / (180 * 60 * 60);
-	double widthFraction = 0.25;
+	double widthFraction = 0.05;
 	double Rin = R * (1 - widthFraction);
 	double Rmin = R * (1 - 2 * widthFraction);
 	double lturb = 1E17;
@@ -606,8 +606,8 @@ void fitTychoProfile() {
 		observedError[irho] = 0.1;
 		energyPoints[irho] = 1000 * 1.6 * 1E-12;
 
-		observedFlux[irho] = observedFlux[irho] * 1E-38;
-		observedError[irho] = observedError[irho] * 1E-38;
+		observedFlux[irho] = observedFlux[irho] * 1E-32;
+		observedError[irho] = observedError[irho] * 1E-32;
 	}
 
 	printf("Tycho profile\n");
@@ -618,7 +618,7 @@ void fitTychoProfile() {
 
 	//RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInDiskSource(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, fraction, index, lturb, Nmodes, R, anisotropy);
 	//RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInSphericalSource(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, fraction, index, lturb, Nmodes, R, anisotropy);
-	RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInSectoralSphericalSource(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, turbulentFraction, index, lturb, Nmodes, R, Rmin, 2 * pi, anisotropy);
+	//RadiationSourceFactory::initializeAnisotropicLocalTurbulentFieldInSectoralSphericalSource(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, turbulentFraction, index, lturb, Nmodes, R, Rmin, 2 * pi, anisotropy);
 	write3dArrayToFile(B, Nrho, Nz, Nphi, "B.dat");
 
 	MassiveParticleIsotropicDistribution* electrons = new MassiveParticlePowerLawCutoffDistribution(massElectron, 2.0, me_c2, 2.0, 100 * Energy, concentration);
@@ -631,7 +631,7 @@ void fitTychoProfile() {
 	//number of parameters of the source
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 9E18, 1E-11, 0.02, 0.001, 0.3 * speed_of_light };
+	double minParameters[Nparams] = { distance * 250.5 * pi / (180 * 60 * 60), 1E-20, 2E-10, 0.001, 0.3 * speed_of_light };
 	double maxParameters[Nparams] = { 1E19, 1E-3, 2E6, 0.5, 0.5 * speed_of_light };
 	//starting point of optimization and normalization
 	double sigma = source->getAverageSigma();
@@ -643,15 +643,40 @@ void fitTychoProfile() {
 
 	SynchrotronEvaluator* evaluator = new SynchrotronEvaluator(Ne, Emin, Emax, false);
 
-	bool optPar[Nparams] = { false, true, true, false, false };
+	bool optPar[Nparams] = { true, true, true, false, false };
 	int Niterations = 5;
 	RadialProfileGradientDescentOptimizer* optimizer = new RadialProfileGradientDescentOptimizer(evaluator, minParameters, maxParameters, Nparams, Niterations, rhoPoints, Ndata);
 
 	optimizer->optimize(vector, optPar, energyPoints, observedFlux, observedError, Ndata, source);
 
+	R = vector[0] * maxParameters[0];
+	sigma = vector[1] * maxParameters[1];
+	concentration = vector[2] * maxParameters[2];
+	widthFraction = vector[3] * maxParameters[3];
+	Rin = R * (1 - widthFraction);
+	Rmin = R * (1 - 2 * widthFraction);
+	double arcR = R * 180 * 60 * 60 / (pi * distance);
+	double arcMinR = Rmin * 180 * 60 * 60 / (pi * distance);
+
+
+	printf("R = %g\n", R);
+	printLog("R = %g\n", R);
+	printf("sigma = %g\n", sigma);
+	printLog("sigma = %g\n", sigma);
+	printf("concentration = %g\n", sigma);
+	printLog("concentration = %g\n", sigma);
+	printf("width fraction = %g\n", widthFraction);
+	printLog("width fraction = %g\n", widthFraction);
+	printf("Rmin = %g\n", Rmin);
+	printLog("Rmin = %g\n", Rmin);
+	printf("arcR = %g\n", arcR);
+	printLog("arcR = %g\n", arcR);
+	printf("arcMinR = %g\n", arcMinR);
+	printLog("arcMinR = %g\n", arcMinR);
+
 	source->resetParameters(vector, maxParameters);
 	
-	evaluator->writeImageFromSourceToFile("image.dat", source, 1000 * 1.6E-12, 10000 * 1.6E-12, 20);
+	evaluator->writeImageFromSourceAtEToFile(energyPoints[0], "image.dat", source);
 
 	delete3dArray(B, Nrho, Nz, Nphi);
 	delete3dArray(theta, Nrho, Nz, Nphi);

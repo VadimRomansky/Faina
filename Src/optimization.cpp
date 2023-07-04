@@ -469,7 +469,7 @@ void GradientDescentRadiationOptimizer::gradientStep(int iterationNumber, const 
 				exit(0);
 			}
 			if (grad[i] > 0) {
-				if (vector[i] - my_minVector[i] < 0.000001) {
+				if (vector[i] - my_minVector[i] < 0.000001* my_minVector[i]) {
 					grad[i] = 0;
 				}
 			}
@@ -1612,9 +1612,14 @@ double RadialProfileGradientDescentOptimizer::evaluateOptimizationFunction(const
 	my_evaluator->resetParameters(vector, my_maxParameters);
 
 	for (int i = 0; i < Ne; ++i) {
-		int irho = source->getRhoIndex(my_RhoPoints[i]);
-		int iphi = 0;
-		totalInu[i] = my_evaluator->evaluateFluxFromSourceAtPoint(energy[i], source, irho, iphi)/source->getCrossSectionArea(irho, iphi);
+		if (my_RhoPoints[i] > source->getMaxRho()) {
+			totalInu[i] = 0;
+		}
+		else {
+			int irho = source->getRhoIndex(my_RhoPoints[i]);
+			int iphi = 0;
+			totalInu[i] = my_evaluator->evaluateFluxFromSourceAtPoint(energy[i], source, irho, iphi) / source->getCrossSectionArea(irho, iphi);
+		}
 	}
 	double err = 0;
 	//for debug only

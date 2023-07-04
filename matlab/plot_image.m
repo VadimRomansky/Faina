@@ -1,6 +1,6 @@
 clear;
 data = importdata('../image.dat');
-R = 260;
+R = 258;
 R0 = R*(1 - 2*0.05);
 %R0=0;
 Nr = size(data,1);
@@ -47,7 +47,7 @@ hold off
 data1(1:Nr)=0;
 phipoint = 1;
 for i = 1:Nr,
-    data1(i) = data(i, phipoint)*10^38;
+    data1(i) = data(i, phipoint)*10^32;
 end;
 figure(2)
 hold on;

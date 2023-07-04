@@ -558,6 +558,11 @@ void SphericalLayerSource::evaluateLengthAndArea()
 						double lowz = max(zmin, z3);
 						double topz = min(zmax, z4);
 						my_length[irho][iz][iphi] = topz - lowz;
+						if (my_length[irho][iz][iphi] != my_length[irho][iz][iphi]) {
+							printf("my_length = NaN\n");
+							printLog("my_length = NaN\n");
+							exit(0);
+						}
 					}
 				}
 				else {
@@ -570,6 +575,11 @@ void SphericalLayerSource::evaluateLengthAndArea()
 						double lowz = max(zmin, z1);
 						double topz = min(zmax, z2);
 						my_length[irho][iz][iphi] = topz - lowz;
+						if (my_length[irho][iz][iphi] != my_length[irho][iz][iphi]) {
+							printf("my_length = NaN\n");
+							printLog("my_length = NaN\n");
+							exit(0);
+						}
 					}
 				}
 			}
@@ -612,6 +622,11 @@ void SphericalLayerSource::evaluateLengthAndArea()
 				}
 				else {
 					my_area[irho][iz][iphi] = 2 * pi * (rmax * rmax - rmin * rmin) / my_Nphi;
+					if (my_area[irho][iz][iphi] != my_area[irho][iz][iphi]) {
+						printf("my_area = NaN\n");
+						printLog("my_area = NaN\n");
+						exit(0);
+					}
 				}
 			}
 		}
@@ -1722,7 +1737,7 @@ int SectoralSphericalLayerSource::getRhoIndex(const double& rho) {
 		return my_Nrho - 1;
 	}
 
-	return floor((rho-my_minrho) / my_rho);
+	return floor((rho-my_minrho) / my_drho);
 }
 
 double SectoralSphericalLayerSource::getMaxRho()
@@ -1901,6 +1916,11 @@ void SectoralSphericalLayerSource::evaluateLengthAndArea()
 							double lowz = max(zmin, z3);
 							double topz = min(zmax, z4);
 							my_length[irho][iz][iphi] = topz - lowz;
+							if (my_length[irho][iz][iphi] != my_length[irho][iz][iphi]) {
+								printf("my_length = NaN\n");
+								printLog("my_length = NaN\n");
+								exit(0);
+							}
 						}
 				}
 				else {
@@ -1914,6 +1934,11 @@ void SectoralSphericalLayerSource::evaluateLengthAndArea()
 						double lowz = max(zmin, z1);
 						double topz = min(zmax, z2);
 						my_length[irho][iz][iphi] = topz - lowz;
+						if (my_length[irho][iz][iphi] != my_length[irho][iz][iphi]) {
+							printf("my_length = NaN\n");
+							printLog("my_length = NaN\n");
+							exit(0);
+						}
 					}
 				}
 			}
@@ -1956,6 +1981,11 @@ void SectoralSphericalLayerSource::evaluateLengthAndArea()
 				}
 				else {
 					my_area[irho][iz][iphi] = (rmax * rmax - rmin * rmin) * my_dphi;
+					if (my_area[irho][iz][iphi] != my_area[irho][iz][iphi]) {
+						printf("my_area = NaN\n");
+						printLog("my_area = NaN\n");
+						exit(0);
+					}
 				}
 			}
 		}
@@ -2377,6 +2407,12 @@ void TabulatedSectoralSphericalLayerSource::resetParameters(const double* parame
 
 	my_rho = parameters[0] * normalizationUnits[0];
 	my_rhoin = my_rho * (1.0 - parameters[3] * normalizationUnits[3]);
+	//todo
+	my_minrho = my_rho * (1.0 - 2*parameters[3] * normalizationUnits[3]);
+	my_drho = (my_rho - my_minrho) / my_Nrho;
+	my_z = sqrt(my_rho * my_rho - my_minrho * my_minrho);
+	my_dz = 2 * my_z / my_Nz;
+
 	evaluateLengthAndArea();
 	double sigma = parameters[1] * normalizationUnits[1];
 	//double B0 = my_B[my_Nrho - 1][0][0];
@@ -2471,6 +2507,11 @@ void TabulatedSectoralSLSourceWithSynchCutoff::resetParameters(const double* par
 
 	my_rho = parameters[0] * normalizationUnits[0];
 	my_rhoin = my_rho * (1.0 - parameters[3] * normalizationUnits[3]);
+	//todo
+	my_minrho = my_rho * (1.0 - 2 * parameters[3] * normalizationUnits[3]);
+	my_drho = (my_rho - my_minrho) / my_Nrho;
+	my_z = sqrt(my_rho * my_rho - my_minrho * my_minrho);
+	my_dz = 2 * my_z / my_Nz;
 	evaluateLengthAndArea();
 	double sigma = parameters[1] * normalizationUnits[1];
 	//double B0 = my_B[my_Nrho - 1][0][0];
