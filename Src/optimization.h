@@ -19,7 +19,7 @@ protected:
 public:
     RadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams);
     virtual ~RadiationOptimizer();
-	double evaluateOptimizationFunction(const double* vector, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source);
+	virtual double evaluateOptimizationFunction(const double* vector, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source);
 	virtual void optimize(double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source) = 0;
 	void optimize(double* vector, bool* optPar, double* energy, double* observedFlux, int Ne, RadiationSource* source);
 	void outputProfileDiagrams(const double* vector, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source, int Npoints);
@@ -122,6 +122,17 @@ public:
     GridEnumRadiationTimeOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints);
     virtual ~GridEnumRadiationTimeOptimizer();
 	virtual void optimize(double* vector, bool* optPar, double** energy, double** observedFlux, double** observedError, int* Ne, int Ntimes, double* times, RadiationTimeDependentSource* source);
+};
+
+class RadialProfileGradientDescentOptimizer : public GradientDescentRadiationOptimizer {
+protected:
+	int my_NrhoPoints;
+	double* my_RhoPoints;
+public:
+	RadialProfileGradientDescentOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, const double* rhoPoints, int NrhoPoints);
+	virtual ~RadialProfileGradientDescentOptimizer();
+	virtual double evaluateOptimizationFunction(const double* vector, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source);
+
 };
 
 #endif

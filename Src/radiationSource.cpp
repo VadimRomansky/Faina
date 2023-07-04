@@ -83,6 +83,21 @@ double SimpleFlatSource::getPhi(int iphi) {
 	return 0;
 }
 
+int SimpleFlatSource::getRhoIndex(const double& rho) {
+	if (rho < 0) {
+		printf("rho < 0 in get rhoIndex\n");
+		printLog("rho < 0 in get rhoIndex\n");
+		exit(0);
+	}
+	if (rho > my_rho) {
+		printf("rho = %g > my_rho = %g in getRhoIndex\n", rho, my_rho);
+		printLog("rho = %g > my_rho = %g in getRhoIndex\n", rho, my_rho);
+		exit(0);
+	}
+
+	return 0;
+}
+
 bool SimpleFlatSource::isSource(int irho, int iphi) {
 	return true;
 }
@@ -239,6 +254,24 @@ double TabulatedDiskSource::getZ(int iz) {
 }
 double TabulatedDiskSource::getPhi(int iphi) {
 	return (iphi + 0.5) * 2 * pi / my_Nphi;
+}
+
+int TabulatedDiskSource::getRhoIndex(const double& rho) {
+	if (rho < 0) {
+		printf("rho < 0 in get rhoIndex\n");
+		printLog("rho < 0 in get rhoIndex\n");
+		exit(0);
+	}
+	if (rho > my_rho) {
+		printf("rho = %g > my_rho = %g in getRhoIndex\n", rho, my_rho);
+		printLog("rho = %g > my_rho = %g in getRhoIndex\n", rho, my_rho);
+		exit(0);
+	}
+	if (rho == my_rho) {
+		return my_Nrho - 1;
+	}
+	double drho = my_rho / my_Nrho;
+	return floor(rho / drho);
 }
 
 void TabulatedDiskSource::setMask(bool** mask) {
@@ -717,6 +750,24 @@ double SphericalLayerSource::getZ(int iz) {
 }
 double SphericalLayerSource::getPhi(int iphi) {
 	return iphi * 2 * pi / my_Nphi;
+}
+
+int SphericalLayerSource::getRhoIndex(const double& rho) {
+	if (rho < 0) {
+		printf("rho < 0 in get rhoIndex\n");
+		printLog("rho < 0 in get rhoIndex\n");
+		exit(0);
+	}
+	if (rho > my_rho) {
+		printf("rho = %g > my_rho = %g in getRhoIndex\n", rho, my_rho);
+		printLog("rho = %g > my_rho = %g in getRhoIndex\n", rho, my_rho);
+		exit(0);
+	}
+	if (rho == my_rho) {
+		return my_Nrho - 1;
+	}
+	double drho = my_rho / my_Nrho;
+	return floor(rho / drho);
 }
 
 double SphericalLayerSource::getLength(int irho, int iz, int iphi) {
@@ -1654,6 +1705,24 @@ double SectoralSphericalLayerSource::getZ(int iz) {
 }
 double SectoralSphericalLayerSource::getPhi(int iphi) {
 	return iphi * my_dphi;
+}
+
+int SectoralSphericalLayerSource::getRhoIndex(const double& rho) {
+	if (rho < my_minrho) {
+		printf("rho = %g < my_minrho = %g in get rhoIndex\n", rho, my_minrho);
+		printLog("rho = %g < my_minrho = %g in get rhoIndex\n", rho, my_minrho);
+		exit(0);
+	}
+	if (rho > my_rho) {
+		printf("rho = %g > my_rho = %g in getRhoIndex\n", rho, my_rho);
+		printLog("rho = %g > my_rho = %g in getRhoIndex\n", rho, my_rho);
+		exit(0);
+	}
+	if (rho == my_rho) {
+		return my_Nrho - 1;
+	}
+
+	return floor((rho-my_minrho) / my_rho);
 }
 
 double SectoralSphericalLayerSource::getMaxRho()

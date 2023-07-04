@@ -30,6 +30,7 @@ public:
 	virtual double getRho(int irho) = 0;
 	virtual double getZ(int iz) = 0;
 	virtual double getPhi(int iphi) = 0;
+	virtual int getRhoIndex(const double& rho) = 0;
 	double getDistance();
 	virtual bool isSource(int irho, int iphi) = 0;
 	virtual double getArea(int irho, int iz, int iphi)=0;
@@ -78,6 +79,8 @@ public:
 	virtual double getRho(int irho);
 	virtual double getZ(int iz);
 	virtual double getPhi(int iphi);
+
+	virtual int getRhoIndex(const double& rho);
 	
 	virtual bool isSource(int irho, int iphi);
 	double getLength(int irho, int iz, int iphi);
@@ -110,6 +113,7 @@ public:
 	virtual double getRho(int irho);
 	virtual double getZ(int iz);
 	virtual double getPhi(int iphi);
+	virtual int getRhoIndex(const double& rho);
 	virtual void setMask(bool** mask);
 	virtual bool isSource(int irho, int iphi);
 	virtual double getMaxB();
@@ -161,6 +165,7 @@ public:
 	virtual double getRho(int irho);
 	virtual double getZ(int iz);
 	virtual double getPhi(int iphi);
+	virtual int getRhoIndex(const double& rho);
 	double getMaxRho();
 	double getMinZ();
 	double getMaxZ();
@@ -268,6 +273,7 @@ public:
 	virtual double getRho(int irho);
 	virtual double getZ(int iz);
 	virtual double getPhi(int iphi);
+	virtual int getRhoIndex(const double& rho);
 	double getMaxRho();
 	double getRhoin();
 	double getMinRho();

@@ -1592,3 +1592,42 @@ void CombinedRadiationOptimizer::optimize(double* vector, bool* optPar, double* 
 	my_EnumOptimizer->optimize(vector, optPar, energy, observedFlux, observedError, Ne, source);
 	my_GradientOptimzer->optimize(vector, optPar, energy, observedFlux, observedError, Ne, source);
 }
+
+RadialProfileGradientDescentOptimizer::RadialProfileGradientDescentOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, const double* rhoPoints, int NrhoPoints) : GradientDescentRadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, Niterations) {
+	my_NrhoPoints = NrhoPoints;
+	my_RhoPoints = new double [my_NrhoPoints];
+	for (int irho = 0; irho < my_NrhoPoints; ++irho) {
+		my_RhoPoints[irho] = rhoPoints[irho];
+	}
+}
+
+RadialProfileGradientDescentOptimizer::~RadialProfileGradientDescentOptimizer() {
+	delete[] my_RhoPoints;
+}
+
+double RadialProfileGradientDescentOptimizer::evaluateOptimizationFunction(const double* vector, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source) {
+	double* totalInu = new double[Ne];
+
+	source->resetParameters(vector, my_maxParameters);
+	my_evaluator->resetParameters(vector, my_maxParameters);
+
+	for (int i = 0; i < Ne; ++i) {
+		int irho = source->getRhoIndex(my_RhoPoints[i]);
+		int iphi = 0;
+		totalInu[i] = my_evaluator->evaluateFluxFromSourceAtPoint(energy[i], source, irho, iphi)/source->getCrossSectionArea(irho, iphi);
+	}
+	double err = 0;
+	//for debug only
+	//err = sqr(vector[0] * my_maxParameters[0] - 1.4E17)/1E30 + sqr(vector[1] * my_maxParameters[1] - 0.6) + sqr(vector[2] * my_maxParameters[2] - 10) + sqr(vector[3] * my_maxParameters[3] - 0.5);
+	//err = sqr(vector[0] * my_maxParameters[0] - 1.4E17) / 1E30 + sqr(vector[1] * my_maxParameters[1] - 0.6 + vector[2] * my_maxParameters[2] - 10) + sqr(vector[3] * my_maxParameters[3] - 0.5);
+	for (int j = 0; j < Ne; ++j) {
+		double err1 = 0;
+		err1 = sqr(totalInu[j] - observedFlux[j]) / sqr(observedError[j]);
+
+		err = err + err1;
+	}
+
+	delete[] totalInu;
+
+	return err;
+}
