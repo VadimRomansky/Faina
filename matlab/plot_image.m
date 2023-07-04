@@ -1,10 +1,15 @@
 clear;
 data = importdata('../image.dat');
-R = 258;
+R = 260;
 R0 = R*(1 - 2*0.05);
 %R0=0;
 Nr = size(data,1);
 Nphi = size(data,2);
+
+Ndata = 20;
+observedR(1:Ndata) = [250, 250.5, 251, 251.5, 252, 252.5, 253, 253.5, 254, 254.5, 255, 255.5, 256, 256.5, 257, 257.5, 258, 258.5, 259, 259.5];
+observedFlux(1:Ndata) = [0.35, 0.32, 0.35, 0.37, 0.4, 0.45, 0.5, 0.6, 0.75, 0.8, 0.9, 1.0, 0.95, 0.8, 0.55, 0.45, 0.25, 0.2, 0.15, 0.15 ];
+observedError(1:Ndata) = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1];
 
 set(0,'DefaultAxesFontSize',14,'DefaultAxesFontName','Times New Roman');
 set(0,'DefaultTextFontSize',20,'DefaultTextFontName','Times New Roman'); 
@@ -42,8 +47,9 @@ hold off
 data1(1:Nr)=0;
 phipoint = 1;
 for i = 1:Nr,
-    data1(i) = data(i, phipoint);
+    data1(i) = data(i, phipoint)*10^38;
 end;
 figure(2)
-plot(radius(1:Nr),data1(1:Nr));
 hold on;
+plot(radius(1:Nr),data1(1:Nr));
+errorbar(observedR(1:Ndata),observedFlux(1:Ndata),observedError(1:Ndata),'red','LineWidth',2);
