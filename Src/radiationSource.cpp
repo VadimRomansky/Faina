@@ -58,6 +58,9 @@ double DiskSource::getTotalVolume()
 double DiskSource::getMaxRho() {
 	return my_rho;
 }
+double DiskSource::getMinRho() {
+	return 0;
+}
 double DiskSource::getMinZ() {
 	return 0;
 }
@@ -811,6 +814,9 @@ double SphericalLayerSource::getCrossSectionArea(int irho, int iphi)
 
 double SphericalLayerSource::getMaxRho() {
 	return my_rho;
+}
+double SphericalLayerSource::getMinRho() {
+	return 0;
 }
 double SphericalLayerSource::getMinZ() {
 	return -my_rho;
@@ -1745,14 +1751,13 @@ double SectoralSphericalLayerSource::getMaxRho()
 	return my_rho;
 }
 
+double SectoralSphericalLayerSource::getMinRho() {
+	return my_minrho;
+}
+
 double SectoralSphericalLayerSource::getRhoin()
 {
 	return my_rhoin;
-}
-
-double SectoralSphericalLayerSource::getMinRho()
-{
-	return my_minrho;
 }
 
 double SectoralSphericalLayerSource::getMinZ()
@@ -2456,7 +2461,17 @@ TabulatedSectoralSLSourceWithSynchCutoff::TabulatedSectoralSLSourceWithSynchCuto
 
 	my_LB2 = create3dArray(my_Nrho, my_Nz, my_Nphi);
 	updateLB2();
+	double*** Ecutoff = create3dArray(my_Nrho, my_Nz, my_Nphi, 2);
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				Ecutoff[irho][iz][iphi] = (9.0 * massElectron * massElectron * massElectron * massElectron * pow(speed_of_light, 7) * my_downstreamVelocity / (electron_charge * electron_charge * electron_charge * electron_charge * my_LB2[irho][iz][iphi])) / me_c2;
+			}
+		}
+	}
 	write3dArrayToFile(my_LB2, my_Nrho, my_Nz, my_Nphi, "LB2.dat");
+	write3dArrayToFile(Ecutoff, my_Nrho, my_Nz, my_Nphi, "Ecutoff.dat");
+	delete3dArray(Ecutoff, my_Nrho, my_Nz, my_Nphi);
 }
 
 TabulatedSectoralSLSourceWithSynchCutoff::TabulatedSectoralSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSectoralSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, rhoin, minrho, phi, distance, velocity)
@@ -2473,7 +2488,17 @@ TabulatedSectoralSLSourceWithSynchCutoff::TabulatedSectoralSLSourceWithSynchCuto
 
 	my_LB2 = create3dArray(my_Nrho, my_Nz, my_Nphi);
 	updateLB2();
+	double*** Ecutoff = create3dArray(my_Nrho, my_Nz, my_Nphi, 2);
+	for (int irho = 0; irho < my_Nrho; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				Ecutoff[irho][iz][iphi] = (9.0 * massElectron * massElectron * massElectron * massElectron * pow(speed_of_light, 7) * my_downstreamVelocity / (electron_charge * electron_charge * electron_charge * electron_charge * my_LB2[irho][iz][iphi]))/me_c2;
+			}
+		}
+	}
 	write3dArrayToFile(my_LB2, my_Nrho, my_Nz, my_Nphi, "LB2.dat");
+	write3dArrayToFile(Ecutoff, my_Nrho, my_Nz, my_Nphi, "Ecutoff.dat");
+	delete3dArray(Ecutoff, my_Nrho, my_Nz, my_Nphi);
 }
 
 TabulatedSectoralSLSourceWithSynchCutoff::~TabulatedSectoralSLSourceWithSynchCutoff()

@@ -18,6 +18,7 @@ public:
     }
 
 	virtual double getMaxRho()=0;
+	virtual double getMinRho()=0;
 	virtual double getMinZ()=0;
 	virtual double getMaxZ()=0;
 	virtual double getMaxB() = 0;
@@ -55,6 +56,7 @@ protected:
 public:
 	DiskSource(int Nrho, int Nz, int Nphi, const double& rho, const double& z, const double& distance);
 	double getMaxRho();
+	double getMinRho();
 	double getMinZ();
 	double getMaxZ();
 	double getTotalVolume();
@@ -167,6 +169,7 @@ public:
 	virtual double getPhi(int iphi);
 	virtual int getRhoIndex(const double& rho);
 	double getMaxRho();
+	double getMinRho();
 	double getMinZ();
 	double getMaxZ();
 	double getTotalVolume();
@@ -275,8 +278,8 @@ public:
 	virtual double getPhi(int iphi);
 	virtual int getRhoIndex(const double& rho);
 	double getMaxRho();
-	double getRhoin();
 	double getMinRho();
+	double getRhoin();
 	double getMinZ();
 	double getMaxZ();
 	double getPhi();

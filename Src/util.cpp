@@ -96,6 +96,11 @@ void printLog (const char *fmt, ...)
     fclose(logFile);
 }
 
+void resetLog() {
+    FILE* logFile = fopen("log.dat", "w");
+    fclose(logFile);
+}
+
 double McDonaldFunction(double index, double x) {
     //todo approximation with small x!!!
     if (x < 0) {

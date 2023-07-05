@@ -528,6 +528,8 @@ void evaluateTychoProfile() {
 	double tau = Energy / Rlosses;
 	double L = tau * Udownstream;
 
+	resetLog();
+
 	printf("Tycho profile\n");
 	printLog("Tycho profile\n");
 
@@ -556,11 +558,11 @@ void evaluateTychoProfile() {
 }
 
 void fitTychoProfile() {
-	int Nrho = 20;
+	int Nrho = 200;
 	int Nphi = 8;
-	int Nz = 40;
+	int Nz = 400;
 
-	double B0 = 20*3E-6;
+	double B0 = 100*3E-6;
 	double magneticEnergy = B0 * B0 / (8 * pi);
 	double theta0 = pi / 2;
 	double phi0 = 0;
@@ -575,11 +577,11 @@ void fitTychoProfile() {
 	double concentration = 1000;
 	double*** concentrations = create3dArray(Nrho, Nz, Nphi, concentration);
 	double Emin = me_c2;
-	double Emax = me_c2 * 1E9;
+	double Emax = me_c2 * 1E10;
 	int Ne = 200;
 	double distance = 2500 * parsec;
 	double R = distance * 258 * pi / (180 * 60 * 60);
-	double widthFraction = 0.05;
+	double widthFraction = 0.1;
 	double Rin = R * (1 - widthFraction);
 	double Rmin = R * (1 - 2 * widthFraction);
 	double lturb = 1E17;
@@ -594,10 +596,12 @@ void fitTychoProfile() {
 	double Rlosses = (2.0 / 3.0) * sqr(electron_charge * electron_charge / me_c2) * speed_of_light * (4.0 / 9.0) * meanB * meanB * sqr(Energy / me_c2);
 	double tau = Energy / Rlosses;
 	double L = tau * Udownstream;
+	
+	resetLog();
 
-	const int Ndata = 16;
+	const int Ndata = 20;
 	double rhoPoints[Ndata];
-	double observedFlux[Ndata] = { 0.35, 0.32, 0.35, 0.37, 0.4, 0.45, 0.5, 0.6, 0.75, 0.8, 0.9, 1.0, 0.95, 0.8, 0.55, 0.45};
+	double observedFlux[Ndata] = { 0.35, 0.32, 0.35, 0.37, 0.4, 0.45, 0.5, 0.6, 0.75, 0.8, 0.9, 1.0, 0.95, 0.8, 0.55, 0.45, 0.25, 0.2, 0.15, 0.15 };
 	double observedError[Ndata];
 	double energyPoints[Ndata];
 
@@ -606,8 +610,8 @@ void fitTychoProfile() {
 		observedError[irho] = 0.1;
 		energyPoints[irho] = 1000 * 1.6 * 1E-12;
 
-		observedFlux[irho] = observedFlux[irho] * 1E-32;
-		observedError[irho] = observedError[irho] * 1E-32;
+		observedFlux[irho] = observedFlux[irho] * 1E-30;
+		observedError[irho] = observedError[irho] * 1E-30;
 	}
 
 	printf("Tycho profile\n");
@@ -631,8 +635,8 @@ void fitTychoProfile() {
 	//number of parameters of the source
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { distance * 250.5 * pi / (180 * 60 * 60), 1E-20, 2E-10, 0.001, 0.3 * speed_of_light };
-	double maxParameters[Nparams] = { 1E19, 1E-3, 2E6, 0.5, 0.5 * speed_of_light };
+	double minParameters[Nparams] = { distance * 250.5 * pi / (180 * 60 * 60), 1E-22, 2E-12, 0.001, 0.3 * speed_of_light };
+	double maxParameters[Nparams] = { 1.2E19, 1E-3, 2E10, 0.5, 0.5 * speed_of_light };
 	//starting point of optimization and normalization
 	double sigma = source->getAverageSigma();
 
@@ -646,8 +650,14 @@ void fitTychoProfile() {
 	bool optPar[Nparams] = { true, true, true, false, false };
 	int Niterations = 5;
 	RadialProfileGradientDescentOptimizer* optimizer = new RadialProfileGradientDescentOptimizer(evaluator, minParameters, maxParameters, Nparams, Niterations, rhoPoints, Ndata);
+	int Npoints[Nparams] = { 5,5,5,10,2 };
+	RadialProfileGridEnumOptimizer* gridOptimizer = new RadialProfileGridEnumOptimizer(evaluator, minParameters, maxParameters, Nparams, Npoints, rhoPoints, Ndata);
 
+	gridOptimizer->optimize(vector, optPar, energyPoints, observedFlux, observedError, Ndata, source);
 	optimizer->optimize(vector, optPar, energyPoints, observedFlux, observedError, Ndata, source);
+
+	source->resetParameters(vector, maxParameters);
+	double error = optimizer->evaluateOptimizationFunction(vector, energyPoints, observedFlux, observedError, Ndata, source);
 
 	R = vector[0] * maxParameters[0];
 	sigma = vector[1] * maxParameters[1];
@@ -658,13 +668,14 @@ void fitTychoProfile() {
 	double arcR = R * 180 * 60 * 60 / (pi * distance);
 	double arcMinR = Rmin * 180 * 60 * 60 / (pi * distance);
 
-
+	printf("optimization function = %g\n", error);
+	printLog("optimization function = %g\n", error);
 	printf("R = %g\n", R);
 	printLog("R = %g\n", R);
 	printf("sigma = %g\n", sigma);
 	printLog("sigma = %g\n", sigma);
-	printf("concentration = %g\n", sigma);
-	printLog("concentration = %g\n", sigma);
+	printf("concentration = %g\n", concentration);
+	printLog("concentration = %g\n", concentration);
 	printf("width fraction = %g\n", widthFraction);
 	printLog("width fraction = %g\n", widthFraction);
 	printf("Rmin = %g\n", Rmin);
@@ -674,9 +685,27 @@ void fitTychoProfile() {
 	printf("arcMinR = %g\n", arcMinR);
 	printLog("arcMinR = %g\n", arcMinR);
 
-	source->resetParameters(vector, maxParameters);
+	B0 = sqrt(sigma * 4 * pi * massProton * speed_of_light2 * concentration);
+	printf("B = %g", B0);
+	printLog("B = %g", B0);
+
+
 	
 	evaluator->writeImageFromSourceAtEToFile(energyPoints[0], "image.dat", source);
+
+	FILE* outFile = fopen("outputRadial.dat", "w");
+	for (int i = 0; i < Ndata; ++i) {
+		double I = 0;
+		double rho = rhoPoints[i];
+		if (rho < source->getMaxRho() && rho > Rmin) {
+			int irho = source->getRhoIndex(rho);
+			int iphi = 0;
+			double s = source->getCrossSectionArea(irho, iphi);
+			I = evaluator->evaluateFluxFromSourceAtPoint(energyPoints[0], source, irho, iphi) / s;
+		}
+		fprintf(outFile, "%g, %g\n", rho*180*60*60/(pi*distance), I);
+	}
+	fclose(outFile);
 
 	delete3dArray(B, Nrho, Nz, Nphi);
 	delete3dArray(theta, Nrho, Nz, Nphi);

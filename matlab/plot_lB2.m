@@ -1,12 +1,12 @@
 clear;
-lBdata = importdata("../lB2.dat");
+lBdata = importdata('../Ecutoff.dat');
 
 R = 258;
-R0 = R*(1 - 2*0.25);
+R0 = R*(1 - 2*0.1);
 %R0=0;
 
 Nr = 200;
-Nz = 400;
+Nz = 40;
 Nphi = 8;
 
 lB(1:Nr, 1:Nz, 1:Nphi)=0;

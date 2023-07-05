@@ -135,4 +135,15 @@ public:
 
 };
 
+class RadialProfileGridEnumOptimizer : public GridEnumRadiationOptimizer {
+protected:
+	int my_NrhoPoints;
+	double* my_RhoPoints;
+public:
+	RadialProfileGridEnumOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints, const double* rhoPoints, int NrhoPoints);
+	virtual ~RadialProfileGridEnumOptimizer();
+	virtual double evaluateOptimizationFunction(const double* vector, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source);
+
+};
+
 #endif

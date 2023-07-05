@@ -13,6 +13,7 @@ double min4(const double& a, const double& b, const double& c, const double& d);
 double max(const double& a, const double& b);
 std::string convertIntToString(int a);
 void printLog (const char *fmt, ...);
+void resetLog();
 double McDonaldFunction(double index, double x);
 double versin(const double& x);
 double relativisticDelta(const double& gamma);
