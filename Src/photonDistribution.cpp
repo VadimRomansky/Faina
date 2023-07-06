@@ -231,3 +231,62 @@ double CompoundPhotonDistribution::getMeanEnergy()
 	}
 	return result / my_concentration;
 }
+
+PhotonPlankDirectedDistribution::PhotonPlankDirectedDistribution(const double& temperature, const double& amplitude, const double& theta0, const double& phi0, const double& deltaTheta)
+{
+	my_temperature = temperature;
+
+	my_theta0 = theta0;
+	my_phi0 = phi0;
+	my_deltaTheta = deltaTheta;
+
+	double sphericalFraction = 0.5 * (1.0 - cos(my_deltaTheta));
+	my_A = amplitude/sphericalFraction;
+
+	double dzeta3 = 1.202056903;
+	double intPlank2 = 2 * dzeta3;
+
+	my_concentration = my_A * intPlank2 * (8 * pi / cube(hplank * speed_of_light)) * cube(kBoltzman * my_temperature)*sphericalFraction;
+}
+
+double PhotonPlankDirectedDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
+{
+	//for debug
+	/*if (energy > 10 * kBoltzman * my_temperature) {
+		return 0;
+	}*/
+
+	double sinTheta = sin(acos(mu));
+
+	double cosDelta = mu * cos(my_theta0) + sinTheta * sin(my_theta0) * cos(phi - my_phi0);
+
+	if (cosDelta < cos(my_deltaTheta)) {
+		return 0;
+	}
+
+
+	double theta = energy / (kBoltzman * my_temperature);
+	if (theta < 1E-12) {
+		return my_A * (2 * kBoltzman * my_temperature * energy / cube(hplank * speed_of_light)) / my_concentration;
+	}
+	return my_A * (2 * energy * energy / cube(hplank * speed_of_light)) / (exp(theta) - 1.0) / my_concentration;
+}
+
+double PhotonPlankDirectedDistribution::getMeanEnergy()
+{
+	double dzeta3 = 1.202056903;
+	double intPlank2 = 2 * dzeta3;
+	double intPlank3 = pi*pi*pi*pi/15;
+	return kBoltzman*my_temperature*intPlank3/intPlank2;
+}
+
+double PhotonPlankDirectedDistribution::getTemperature()
+{
+	return my_temperature;
+}
+
+PhotonPlankDirectedDistribution::~PhotonPlankDirectedDistribution() {
+
+}
+
+

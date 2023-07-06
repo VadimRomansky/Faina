@@ -68,7 +68,7 @@ hold on;
 set(gca, 'YScale', 'log');
 set(gca, 'XScale', 'log');
 for i = 1:N2,
-    radiationMine1(i,2) = 4*3.14*radiationMine1(i,2)*radiationMine1(i,1);
+    %radiationMine1(i,2) = radiationMine1(i,2)*4*3.14*radiationMine1(i,1);
 end;
 plot(radiationUvarov(1:N1,1), radiationUvarov(1:N1,2)/(4*3.14),'cyan','LineWidth',2);
 plot(radiationMineJones(1:N2,1), radiationMineJones(1:N2,2),'blue','LineWidth',2);

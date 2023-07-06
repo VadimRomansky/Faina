@@ -314,13 +314,13 @@ void inverseRotationSphericalCoordinates(const double& thetar, const double& phi
 
 	double cosTempPhi = coshi / sinTheta0;
 	if (cosTempPhi > 1.0 && cosTempPhi < 1.00001) {
-		printf("cosTempPhi = %g > 1.0 reduced to 1.0\n", cosTempPhi);
-		printLog("cosTempPhi = %g > 1.0 reduced to 1.0\n", cosTempPhi);
+		//printf("cosTempPhi = %g > 1.0 reduced to 1.0\n", cosTempPhi);
+		//printLog("cosTempPhi = %g > 1.0 reduced to 1.0\n", cosTempPhi);
 		cosTempPhi = 1.0;
 	}
 	if (cosTempPhi < -1.0 && cosTempPhi > -1.00001) {
-		printf("cosTempPhi = %g < -1.0 reduced to -1.0\n", cosTempPhi);
-		printLog("cosTempPhi = %g < -1.0 reduced to -1.0\n", cosTempPhi);
+		//printf("cosTempPhi = %g < -1.0 reduced to -1.0\n", cosTempPhi);
+		//printLog("cosTempPhi = %g < -1.0 reduced to -1.0\n", cosTempPhi);
 		cosTempPhi = -1.0;
 	}
 	if (cosTempPhi > 1.0) {

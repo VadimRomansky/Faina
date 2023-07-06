@@ -96,4 +96,24 @@ public:
 	virtual double getMeanEnergy();
 };
 
+class PhotonPlankDirectedDistribution : public PhotonDistribution {
+private:
+	double my_temperature;
+	double my_A;
+
+	double my_theta0;
+	double my_phi0;
+	double my_deltaTheta;
+public:
+
+	PhotonPlankDirectedDistribution(const double& temperature, const double& amplitude, const double& theta0, const double& phi0, const double& deltaTheta);
+	virtual ~PhotonPlankDirectedDistribution() {
+
+	}
+	double distributionNormalized(const double& energy, const double& mu, const double& phi);
+	virtual double getMeanEnergy();
+
+	double getTemperature();
+};
+
 #endif
