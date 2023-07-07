@@ -1,9 +1,9 @@
 clear;
 data = importdata('../image.dat');
 profile = importdata('../outputRadial.dat');
-R = 266;
+R = 259.5;
 R0 = R*(1 - 2*0.05);
-%R0=0;
+R0=0;
 Nr = size(data,1);
 Nphi = size(data,2);
 Nprofile = size(profile,1);

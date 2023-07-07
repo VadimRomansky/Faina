@@ -107,9 +107,7 @@ private:
 public:
 
 	PhotonPlankDirectedDistribution(const double& temperature, const double& amplitude, const double& theta0, const double& phi0, const double& deltaTheta);
-	virtual ~PhotonPlankDirectedDistribution() {
-
-	}
+	virtual ~PhotonPlankDirectedDistribution();
 	double distributionNormalized(const double& energy, const double& mu, const double& phi);
 	virtual double getMeanEnergy();
 
