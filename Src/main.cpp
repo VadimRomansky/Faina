@@ -132,8 +132,8 @@ void evaluateFluxSNRtoWind() {
 	//number of parameters of the source
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 1.0E17, 0.00001, 0.02, 0.001, 0.3*speed_of_light };
-	double maxParameters[Nparams] = { 2.5E17, 1E-3, 2E6, 0.5, 0.5*speed_of_light };
+	double minParameters[Nparams] = { 1.0E17, 0.00001, 0.02, 0.0001, 0.3*speed_of_light };
+	double maxParameters[Nparams] = { 2.5E17, 1E-2, 2E6, 0.5, 0.5*speed_of_light };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, 0.5*speed_of_light };
 	for (int i = 0; i < Nparams; ++i) {
@@ -172,9 +172,14 @@ void evaluateFluxSNRtoWind() {
 	//reseting source parameters to found values
 	//synchrotronOptimizer->outputProfileDiagrams(vector, energy1, observedFlux, observedError, Nenergy1, source, 10);
 	//synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source, 10, 1, 2);
-	combinedOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
+	//combinedOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
     //combinedOptimizer->outputProfileDiagrams(vector, energy1, observedFlux, observedError, Nenergy1, source, 10);
 	//combinedOptimizer->outputOptimizedProfileDiagram(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source, 20, 1, 2);
+	vector[0] = 1.4E17 / maxParameters[0];
+	vector[1] = 0.001 / maxParameters[1];
+	vector[2] = 4089.98 / maxParameters[2];
+	vector[3] = 0.001 / maxParameters[3];
+	vector[4] = 1.49896E10 / maxParameters[4];
 	source->resetParameters(vector, maxParameters);
 	//evaluating resulting error
 	error = synchrotronOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
@@ -197,6 +202,8 @@ void evaluateFluxSNRtoWind() {
 	printf("velocity/c = %g\n", vector[4] * maxParameters[4]/speed_of_light);
 	fprintf(paramFile, "celocity/c = %g\n", vector[4] * maxParameters[4]/speed_of_light);
 
+
+
 	rmax = vector[0] * maxParameters[0];
 	electronConcentration = vector[2] * maxParameters[2];
 	fraction = vector[3] * maxParameters[3];
@@ -214,7 +221,7 @@ void evaluateFluxSNRtoWind() {
 	fclose(paramFile);
 
 	//initialization arrays for full synchrotron spectrum
-	const int Nnu = 200;
+	const int Nnu = 20;
 	double* Nu = new double[Nnu];
 	double* F = new double[Nnu];
 
