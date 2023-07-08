@@ -28,6 +28,8 @@ void compareComptonSynchrotron();
 //example 8 evaluation synchrotron Image
 void evaluateSynchrotronImage();
 
+//example 9 test rotation
+void testRotation();
 
 
 #endif

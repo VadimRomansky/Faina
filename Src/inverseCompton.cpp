@@ -1226,6 +1226,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const
 					//}
 					//LorentzTransformationPhotonReverseZ(electronInitialGamma, photonFinalEnergyPrimed, photonInitialThetaPrimed, photonInitialEnergy, photonInitialThetaRotated);
 					LorentzTransformationPhotonZ(electronInitialGamma, photonFinalEnergyPrimed, photonInitialAlphaPrimed, photonInitialEnergy, photonInitialAlphaRotated);
+					photonInitialThetaRotated = pi - photonInitialAlphaRotated;
 					//LorentzTransformationPhotonReverseZalpha(electronInitialGamma, photonFinalEnergyPrimed, photonInitialAlphaPrimed, photonInitialEnergy, photonInitialAlphaRotated);
 					//double photonInitialCosThetaRotated = cos(photonInitialThetaRotated);
 					//double photonInitialVersinThetaRotated = versin(photonInitialThetaRotated);
@@ -1233,6 +1234,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const
 					double photonInitialTheta;
 					double photonInitialPhi;
 					inverseRotationSphericalCoordinates(theta_e, phi_e, photonInitialThetaRotated, photonInitialPhiRotated, photonInitialTheta, photonInitialPhi);
+					//rotationSphericalCoordinates(pi - theta_e, -phi_e, photonInitialThetaRotated, photonInitialPhiRotated, photonInitialTheta, photonInitialPhi);
 
 
 					double denom = electronInitialDelta + photonFinalVersinThetaRotated - electronInitialDelta * photonFinalVersinThetaRotated;

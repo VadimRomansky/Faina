@@ -248,7 +248,7 @@ void evaluateFluxSNRtoWind() {
 	}
 	fclose(output_GZ_Jansky);
 
-	double synchrotronFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(hplank * 1E8, hplank * 1E11, 100, source);
+	double synchrotronFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(hplank * 1E8, hplank * 1E11, 20, source);
 	printf("total synchrotron flux = %g erg/cm^2 s\n", synchrotronFlux);
 
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
@@ -738,7 +738,7 @@ void fitTychoProfile() {
 
 int main() {
 	//evaluateSimpleSynchrotron();
-	//evaluateComtonWithPowerLawDistribution();
+	evaluateComtonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
@@ -746,9 +746,10 @@ int main() {
 	//evaluateBremsstrahlung();
 	//compareComptonSynchrotron();
 	//evaluateSynchrotronImage();
+	//testRotation();
 
 
-	evaluateFluxSNRtoWind();
+	//evaluateFluxSNRtoWind();
 	//evaluateComtonFromWind();
 	//evaluateTychoProfile();
 	//fitTychoProfile();

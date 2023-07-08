@@ -261,16 +261,29 @@ void inverseRotationSphericalCoordinates(const double& thetar, const double& phi
 	}*/
 	//double sinThetar = sqrt(1.0 - mur * mur);
 	double sinThetar = sin(thetar);
+	if (fabs(pi - thetar) < 1E-15) {
+		sinThetar = 0;
+	}
 	double mur = cos(thetar);
 	double versinr = versin(thetar);
 	//double sinTheta1 = sqrt(1.0 - mu1 * mu1);
 	double sinTheta1 = sin(theta1);
 	double mu1 = cos(theta1);
 	double versin1 = versin(theta1);
+	double versin0;
 
+	/*if ((thetar > 0.9 * pi) && (theta1 > 0.9 * pi)) {
+		double alphar = pi - thetar;
+		double alpha1 = pi - theta1;
+		double versinAlphaR = versin(alphar);
+		double versinAlpha1 = versin(alpha1);
+		versin0 = versinAlphaR + versinAlpha1 - versinAlphaR*versinAlpha1 - sinThetar * sinTheta1 * cos(phi1 + pi / 2);
+	}
+	else {*/
 
-	//double mu0 = mu1 * mur + sinThetar * sinTheta1 * cos(phi1 + pi / 2);
-	double versin0 = versinr + versin1 - versinr * versin1 - sinThetar * sinTheta1 * cos(phi1 + pi / 2);
+		//double mu0 = mu1 * mur + sinThetar * sinTheta1 * cos(phi1 + pi / 2);
+		versin0 = versinr + versin1 - versinr * versin1 - sinThetar * sinTheta1 * cos(phi1 + pi / 2);
+	//}
 	/*if (mu0 > 1.0 && mu0 < 1.00001) {
 		printf("mu0 = %g > 1.0 reduced to 1.0\n", mu0);
 		printLog("mu0 = %g > 1.0 reduced to 1.0\n", mu0);

@@ -1,5 +1,6 @@
 #include "stdio.h"
 #include "math.h"
+#include "time.h"
 
 #include "constants.h"
 #include "massiveParticleDistribution.h"
@@ -12,6 +13,7 @@
 #include "pionDecay.h"
 #include "bremsstrahlung.h"
 #include "radiationSourceFactory.h"
+#include "coordinateTransform.h"
 
 #include "examples.h"
 
@@ -46,10 +48,10 @@ void evaluateComtonWithPowerLawDistribution() {
 	//double Emin = 600*me_c2;
 	double Emax = 1E8 * me_c2;
 	int Ne = 200;
-	int Nmu = 20;
+	int Nmu = 40;
 	int Nrho = 20;
 	int Nz = 20;
-	int Nphi = 4;
+	int Nphi = 10;
 	double index = 2.5;
 	double KK = 24990.8;
 	double electronConcentration = KK / (pow(652.317, index - 1) * (index - 1));
@@ -70,7 +72,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	double rsun = 7.5E10;
 	double rstar = rsun * sqrt(510000.0 / pow(Tstar / 5500, 4));
 	//PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rmax));
-	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, 1, 0, 0, atan2(1, 1));
+	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, 1, pi, 0, atan2(1, 1));
 	//initializing electrons distribution
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.3_theta0-90/Ee3.dat", "./examples_data/gamma0.3_theta0-90/Fs3.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
@@ -986,4 +988,47 @@ void evaluateSynchrotronImage() {
 	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
 	//evaluator->writeFluxFromSourceToFile("outputSynch.dat", source, 10 * hplank * cyclotronOmega, 10000000 * hplank * cyclotronOmega, 1000);
 	evaluator->writeImageFromSourceToFile("image.dat", source, 10 * hplank * cyclotronOmega, 1000000 * hplank * cyclotronOmega, 100);
+}
+
+//example 9 test rotation
+void testRotation() {
+	srand(time(NULL));
+	double thetaR = pi * uniformDistribution();
+	double phiR = 2 * pi * uniformDistribution();
+	thetaR = 3.1415926535897931;
+	//thetaR = pi - 1E-16;
+	phiR = 0.15707963267948966;
+
+	double theta0 = pi * uniformDistribution();
+	double phi0 = 2 * pi * uniformDistribution();
+	theta0 = 1E-16;
+	phi0 = 0.15707963267948966;
+
+	double theta1;
+	double phi1;
+
+	double theta2;
+	double phi2;
+
+	resetLog();
+
+	rotationSphericalCoordinates(thetaR, phiR, theta0, phi0, theta1, phi1);
+	theta1 = 3.1415926535897931;
+	phi1 = 0.15707963267948966;
+	inverseRotationSphericalCoordinates(thetaR, phiR, theta1, phi1, theta2, phi2);
+
+	printf("theta rotation = %g\n", thetaR);
+	printLog("theta rotation = %g\n", thetaR);
+	printf("phi rotation = %g\n", phiR);
+	printLog("phi rotation = %g\n", phiR);
+
+	printf("theta0 = %g\n", theta0);
+	printLog("theta0 = %g\n", theta0);
+	printf("phi0 = %g\n", phi0);
+	printLog("phi0 = %g\n", phi0);
+
+	printf("theta2 = %g\n", theta2);
+	printLog("theta2 = %g\n", theta2);
+	printf("phi2 = %g\n", phi2);
+	printLog("phi2 = %g\n", phi2);
 }
