@@ -419,6 +419,9 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 		}
 
 		double Eemin = max(0.5 * photonFinalEnergy * (1.0 + sqrt(1 + m_c2 * m_c2 / (photonFinalEnergy * photonInitialEnergy))), m_c2);
+		if (Eemin > my_Emax) {
+			continue;
+		}
 		if (Eemin < my_Emin) {
 			Eemin = my_Emin;
 		}

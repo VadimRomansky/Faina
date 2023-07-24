@@ -44,14 +44,14 @@ void evaluateComtonWithPowerLawDistribution() {
 	//const double distance = 150 * 1000000 * parsec;
 	const double distance = 1.0;
 
-	double Emin = 652.317 * me_c2 * 1;
-	//double Emin = 600*me_c2;
-	double Emax = 1E8 * me_c2;
+	//double Emin = 652.317 * me_c2 * 1;
+	double Emin = 10*me_c2;
+	double Emax = 10*1E4 * me_c2;
 	int Ne = 200;
-	int Nmu = 40;
+	int Nmu = 100;
 	int Nrho = 20;
 	int Nz = 20;
-	int Nphi = 10;
+	int Nphi = 4;
 	double index = 2.5;
 	double KK = 24990.8;
 	double electronConcentration = KK / (pow(652.317, index - 1) * (index - 1));
@@ -61,30 +61,32 @@ void evaluateComtonWithPowerLawDistribution() {
 	double Ephmin = 0.01 * 2.7 * kBoltzman;
 	double Ephmax = 100 * 2.7 * kBoltzman;
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
-	PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
+	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
 	//PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(27, 1.0);
 
 	double Tstar = 50 * 1000;
 	Tstar = 2.7;
 	Ephmin = 0.01 * Tstar * kBoltzman;
-	Ephmax = 100 * Tstar * kBoltzman;
+	Ephmax = 1000 * Tstar * kBoltzman;
 	double luminosity = 510000 * 4 * 1E33;
 	double rsun = 7.5E10;
 	double rstar = rsun * sqrt(510000.0 / pow(Tstar / 5500, 4));
-	//PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rmax));
-	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, 1, pi, 0, atan2(1, 1));
+	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rmax));
+	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), pi, 0, pi/10);
+	PhotonPlankDirectedDistribution* photonDirectedDistribution2 = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), pi, 0, pi/4);
 	//initializing electrons distribution
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
+	//MassiveParticlePowerLawCutoffDistribution* electrons = new MassiveParticlePowerLawCutoffDistribution(massElectron, index, Emin, 2.0,Emax,electronConcentration);
 	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.3_theta0-90/Ee3.dat", "./examples_data/gamma0.3_theta0-90/Fs3.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
 	//electrons->rescaleDistribution(sqrt(18));
 	//electrons->addPowerLaw(100 * me_c2, 3.5);
 	//creating radiation source
 	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, rmax, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, electronConcentration, rmax, 0.9*rmax, distance);
-	InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
+	InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(200, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	InverseComptonEvaluator* comptonEvaluator2 = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	InverseComptonEvaluator* comptonEvaluator3 = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA1);
+	InverseComptonEvaluator* comptonEvaluator2 = new InverseComptonEvaluator(200, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator3 = new InverseComptonEvaluator(200, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA1);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
 
 	//comptonEvaluator3->outputDifferentialFlux("output3.dat");
@@ -104,7 +106,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	fclose(outFile);
 
 	//initializing photon energy grid for output
-	int Nnu = 100;
+	int Nnu = 20;
 	double* E = new double[Nnu];
 	double* F = new double[Nnu];
 
@@ -132,19 +134,26 @@ void evaluateComtonWithPowerLawDistribution() {
 	FILE* output_ev_EFE1 = fopen("output1.dat", "w");
 	FILE* output_ev_EFE2 = fopen("output2.dat", "w");
 	FILE* output_ev_EFE3 = fopen("output3.dat", "w");
+	FILE* output_ev_EFE4 = fopen("output4.dat", "w");
+	FILE* output_ev_EFE5 = fopen("output5.dat", "w");
 	//FILE* output_GHz_Jansky = fopen("output.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		printf("%d\n", i);
 		double nu = E[i] / hplank;
 		fprintf(output_ev_EFE1, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator1->evaluateFluxFromSource(E[i], source));
-		//fprintf(output_ev_EFE2, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator2->evaluateFluxFromSource(E[i], source));
-		fprintf(output_ev_EFE2, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator2->evaluateFluxFromSourceAnisotropic(E[i], 0, 0, photonDirectedDistribution, source));
+		fprintf(output_ev_EFE2, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator2->evaluateFluxFromSource(E[i], source));
+		//fprintf(output_ev_EFE2, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator2->evaluateFluxFromSourceAnisotropic(E[i], 0, 0, photonDirectedDistribution, source));
 		fprintf(output_ev_EFE3, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator3->evaluateFluxFromSource(E[i], source));
+		fprintf(output_ev_EFE4, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator2->evaluateFluxFromSourceAnisotropic(E[i], 0, 0, photonDirectedDistribution, source));
+		fprintf(output_ev_EFE5, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator2->evaluateFluxFromSourceAnisotropic(E[i], 0, 0, photonDirectedDistribution2, source));
+		//fprintf(output_ev_EFE4, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator2->evaluateFluxFromSourceAnisotropic(E[i], 0, 0, photonDistribution, source));
 		//fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * F[i]);
 	}
 	fclose(output_ev_EFE1);
 	fclose(output_ev_EFE2);
 	fclose(output_ev_EFE3);
+	fclose(output_ev_EFE4);
+	fclose(output_ev_EFE5);
 	//fclose(output_GHz_Jansky);
 
 	delete[] E;

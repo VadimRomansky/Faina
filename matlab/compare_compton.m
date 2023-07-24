@@ -10,6 +10,8 @@ radiationUvarov = importdata('../compt_test1_KN.dat');
 radiationMineJones = importdata('../output1.dat');
 radiationMine1 = importdata('../output2.dat');
 radiationMine2 = importdata('../output3.dat');
+radiationMine3 = importdata('../output4.dat');
+radiationMine4 = importdata('../output5.dat');
 
 
 %Nnu = size(radiationEu,1);
@@ -74,4 +76,6 @@ plot(radiationUvarov(1:N1,1), radiationUvarov(1:N1,2)/(4*3.14),'cyan','LineWidth
 plot(radiationMineJones(1:N2,1), radiationMineJones(1:N2,2),'blue','LineWidth',2);
 plot(radiationMine1(1:N2,1), radiationMine1(1:N2,2),'green','LineWidth',2);
 plot(radiationMine2(1:N2,1), radiationMine2(1:N2,2),'red','LineWidth',2);
-legend('uvarov','kang jones','kN','kn1');
+plot(radiationMine3(1:N2,1), radiationMine3(1:N2,2),'magenta','LineWidth',2);
+plot(radiationMine4(1:N2,1), radiationMine4(1:N2,2),'yellow','LineWidth',2);
+legend('uvarov','kang jones','anisotropic KN','isotropic KN','anisotropic photons KN');
