@@ -78,4 +78,4 @@ plot(radiationMine1(1:N2,1), radiationMine1(1:N2,2),'green','LineWidth',2);
 plot(radiationMine2(1:N2,1), radiationMine2(1:N2,2),'red','LineWidth',2);
 plot(radiationMine3(1:N2,1), radiationMine3(1:N2,2),'magenta','LineWidth',2);
 plot(radiationMine4(1:N2,1), radiationMine4(1:N2,2),'yellow','LineWidth',2);
-legend('uvarov','kang jones','anisotropic KN','isotropic KN','anisotropic photons KN');
+legend('uvarov','kang jones','anisotropic KN','isotropic KN','anisotropic photons KN \theta1','anisotropic photons KN \theta2');

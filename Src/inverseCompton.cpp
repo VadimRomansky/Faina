@@ -386,6 +386,7 @@ double InverseComptonEvaluator::evaluateComptonFluxThomsonIsotropic(const double
 	return I/(sqr(distance));
 }
 
+//returns fluxes in cm^-2 s^-1 = d energy flux/ d energy
 double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
 	
 	double m = electronDistribution->getMass();
@@ -1252,14 +1253,15 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const
 						printf("photon Initial Sin Theta Primed = %g reduced to 0\n", photonInitialSinThetaPrimed);
 						printLog("photon Initial Sin Theta Primed = %g reduced to 0\n", photonInitialSinThetaPrimed);
 					}
+					double photonsN = photonDistribution->distribution(photonInitialEnergy, cos(photonInitialTheta), photonInitialPhi);
 					double dI = volume * 0.5 * r2 * speed_of_light * electronDist *
 						//(sqr(1 - photonInitialCosThetaRotated * electronInitialBeta) / denom) *
 						(sqr(numenator) / denom) *
 						//(1 + cosXiPrimed * cosXiPrimed + sqr(photonFinalEnergyPrimed / m_c2) * sqr(Xidelta) / (1 - (photonFinalEnergyPrimed / m_c2) * (Xidelta))) *
 						(2 - 2 * Xidelta + Xidelta * Xidelta + sqr(photonFinalEnergyPrimed / m_c2) * sqr(Xidelta) / (1 - (photonFinalEnergyPrimed / m_c2) * (Xidelta))) *
 						photonDistribution->distribution(photonInitialEnergy, cos(photonInitialTheta), photonInitialPhi) *
-						//photonFinalEnergy*2*pi * dphi_ph * my_dcosTheta[imue] * my_dcosTheta[imuph] * delectronEnergy;
-						photonFinalEnergy * dphi_e * dphi_ph * photonInitialSinThetaPrimed * dthetaph * sintheta_e * dthetae * delectronEnergy;
+						photonFinalEnergy* dphi_e * dphi_ph * dcosTheta[imue] * dcosTheta[imuph] * delectronEnergy;
+						//photonFinalEnergy * dphi_e * dphi_ph * photonInitialSinThetaPrimed * dthetaph * sintheta_e * dthetae * delectronEnergy;
 					if (dI < 0) {
 						omp_set_lock(&my_lock);
 						printf("dI[i] <  0\n");
