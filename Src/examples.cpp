@@ -46,7 +46,7 @@ void evaluateComtonWithPowerLawDistribution() {
 
 	//double Emin = 652.317 * me_c2 * 1;
 	double Emin = 10*me_c2;
-	double Emax = 10*1E4 * me_c2;
+	double Emax = 1E15*1E4 * me_c2;
 	int Ne = 100;
 	int Nmu = 20;
 	int Nrho = 20;
@@ -110,8 +110,8 @@ void evaluateComtonWithPowerLawDistribution() {
 	double* E = new double[Nnu];
 	double* F = new double[Nnu];
 
-	double EphFinalmin = 0.0001 * kBoltzman * 2.7;
-	double EphFinalmax = 10 * Emax + Emin;
+	double EphFinalmin = 0.00001 * kBoltzman * Tstar;
+	double EphFinalmax = 10000000 * Emax + Emin;
 	//photonDistribution->writeDistribution("output3.dat", 200, Ephmin, Ephmax);
 	double factor = pow(EphFinalmax / EphFinalmin, 1.0 / (Nnu - 1));
 	E[0] = EphFinalmin;

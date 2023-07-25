@@ -65,6 +65,45 @@ N2 = size(radiationMine1,1);
 % legend('klein nisina','kang jones','thompson','anisotropic K-N','Power Law');
 % grid ;
 
+startPower = 25;
+endPower = 35;
+
+polyfitxJones(1:endPower-startPower + 1) = 0;
+polyfityJones(1:endPower-startPower + 1) = 0;
+for i = 1:endPower-startPower + 1,
+    polyfitxJones(i) = log(radiationMineJones(i+startPower - 1,1));
+    polyfityJones(i) = log(radiationMineJones(i+startPower - 1,2));
+end;
+pJones = polyfit(polyfitxJones, polyfityJones, 1);
+appJones(1:N2) = 0;
+for i = startPower-5:endPower+5,
+    appJones(i) = exp(polyval(pJones, log(radiationMineJones(i,1))));
+end;
+
+polyfitx1(1:endPower-startPower + 1) = 0;
+polyfity1(1:endPower-startPower + 1) = 0;
+for i = 1:endPower-startPower + 1,
+    polyfitx1(i) = log(radiationMine1(i+startPower - 1,1));
+    polyfity1(i) = log(radiationMine1(i+startPower - 1,2));
+end;
+p1 = polyfit(polyfitx1, polyfity1, 1);
+app1(1:N2) = 0;
+for i = startPower-5:endPower+5,
+    app1(i) = exp(polyval(p1, log(radiationMine1(i,1))));
+end;
+
+polyfitx3(1:endPower-startPower + 1) = 0;
+polyfity3(1:endPower-startPower + 1) = 0;
+for i = 1:endPower-startPower + 1,
+    polyfitx3(i) = log(radiationMine3(i+startPower - 1,1));
+    polyfity3(i) = log(radiationMine3(i+startPower - 1,2));
+end;
+p3 = polyfit(polyfitx3, polyfity3, 1);
+app3(1:N2) = 0;
+for i = startPower-5:endPower+5,
+    app3(i) = exp(polyval(p3, log(radiationMine3(i,1))));
+end;
+
 figure(2)
 hold on;
 set(gca, 'YScale', 'log');
@@ -78,4 +117,8 @@ plot(radiationMine1(1:N2,1), radiationMine1(1:N2,2),'green','LineWidth',2);
 plot(radiationMine2(1:N2,1), radiationMine2(1:N2,2),'red','LineWidth',2);
 plot(radiationMine3(1:N2,1), radiationMine3(1:N2,2),'magenta','LineWidth',2);
 plot(radiationMine4(1:N2,1), radiationMine4(1:N2,2),'yellow','LineWidth',2);
-legend('uvarov','kang jones','anisotropic KN','isotropic KN','anisotropic photons KN \theta1','anisotropic photons KN \theta2');
+
+plot(radiationMineJones(1:N2,1), appJones(1:N2),'--','Color','blue','LineWidth',2);
+plot(radiationMine1(1:N2,1), app1(1:N2),'--','Color','green','LineWidth',2);
+plot(radiationMine3(1:N2,1), app3(1:N2),'--','Color','magenta','LineWidth',2);
+legend('uvarov','kang jones','anisotropic KN','isotropic KN','anisotropic photons KN \theta = \pi/100','anisotropic photons KN \theta = 0.9\pi', strcat('fit jones\gamma = ',num2str(pJones(1))), strcat('fit KN\gamma = ',num2str(p1(1))), strcat('fit KN \gamma = ',num2str(p3(1))));

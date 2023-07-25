@@ -611,14 +611,15 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic1(const 
 		}
 		for (int i = 0; i < my_Nmu - 1; ++i) {
 			dcosTheta[i] = -(cosThetaLeft[i + 1] - cosThetaLeft[i]);
-			if (theta[i] < 1E-7) {
+			dcosTheta[i] = versin(theta[i + 1]) - versin(theta[i]);
+			/*if (theta[i] < 1E-7) {
 				if (i == 0) {
 					dcosTheta[i] = sin(0.5 * (theta[i] + theta[i + 1])) * (theta[i + 1] - theta[i]);
 				}
 				else {
 					dcosTheta[i] = sin(theta[i]) * 0.5 * (theta[i + 1] - theta[i - 1]);
 				}
-			}
+			}*/
 		}
 		theta[my_Nmu - 1] = pi;
 		dcosTheta[my_Nmu - 1] = 1.0 + cosThetaLeft[my_Nmu - 1];
@@ -770,7 +771,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic1(const 
 						//(1 + cosXiPrimed * cosXiPrimed + sqr(photonFinalEnergyPrimed / m_c2) * sqr(Xidelta) / (1 - (photonFinalEnergyPrimed / m_c2) * (Xidelta))) *
 						(2 - 2 * Xidelta + Xidelta * Xidelta + sqr(photonFinalEnergyPrimed / m_c2) * sqr(Xidelta) / (1 - (photonFinalEnergyPrimed / m_c2) * (Xidelta))) *
 						photonDistribution->distribution(photonInitialEnergy) *
-						//photonFinalEnergy*2*pi * dphi_ph * my_dcosTheta[imue] * my_dcosTheta[imuph] * delectronEnergy;
+						//photonFinalEnergy * 2 * pi * dphi_ph * my_dcosTheta[imue] * my_dcosTheta[imuph] * delectronEnergy;
 						photonFinalEnergy * 2 * pi * dphi_ph * photonInitialSinThetaPrimed * dthetaph * sintheta_e * dthetae * delectronEnergy;
 					if (dI < 0) {
 						omp_set_lock(&my_lock);
@@ -1094,14 +1095,15 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const
 		}
 		for (int i = 0; i < my_Nmu - 1; ++i) {
 			dcosTheta[i] = -(cosThetaLeft[i + 1] - cosThetaLeft[i]);
-			if (theta[i] < 1E-7) {
+			dcosTheta[i] = versin(theta[i + 1]) - versin(theta[i]);
+			/*if (theta[i] < 1E-7) {
 				if (i == 0) {
 					dcosTheta[i] = sin(0.5 * (theta[i] + theta[i + 1])) * (theta[i + 1] - theta[i]);
 				}
 				else {
 					dcosTheta[i] = sin(theta[i]) * 0.5 * (theta[i + 1] - theta[i - 1]);
 				}
-			}
+			}*/
 		}
 		theta[my_Nmu - 1] = pi;
 		dcosTheta[my_Nmu - 1] = 1.0 + cosThetaLeft[my_Nmu - 1];
