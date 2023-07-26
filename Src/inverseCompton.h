@@ -6,7 +6,8 @@
 #include "radiationSource.h"
 #include "radiation.h"
 
-enum ComptonSolverType {ISOTROPIC_THOMSON, ISOTROPIC_JONES, ISOTROPIC_KLEIN_NISHINA, ISOTROPIC_KLEIN_NISHINA1, ANISOTROPIC_KLEIN_NISHINA};
+//enum ComptonSolverType {ISOTROPIC_THOMSON, ISOTROPIC_JONES, ISOTROPIC_KLEIN_NISHINA2, ISOTROPIC_KLEIN_NISHINA, ANISOTROPIC_KLEIN_NISHINA};
+enum ComptonSolverType {ISOTROPIC_THOMSON, ISOTROPIC_JONES, ISOTROPIC_KLEIN_NISHINA, ANISOTROPIC_KLEIN_NISHINA};
 
 class InverseComptonEvaluator : public RadiationEvaluator{
 protected:
@@ -27,8 +28,8 @@ protected:
 
 	double evaluateComptonFluxThomsonIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
 	double evaluateComptonFluxJonesIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
+	//double evaluateComptonFluxKleinNishinaIsotropic2(const double& photonFinalEnergyi, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
 	double evaluateComptonFluxKleinNishinaIsotropic(const double& photonFinalEnergyi, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
-	double evaluateComptonFluxKleinNishinaIsotropic1(const double& photonFinalEnergyi, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
 	double evaluateComptonFluxKleinNishinaAnisotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
 
 	virtual PhotonIsotropicDistribution* getPhotonIsotropicDistribution(const double& rho, const double& z, const double& phi);

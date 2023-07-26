@@ -576,7 +576,7 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 	return I / (distance * distance);
 }
 
-double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic1(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
 	
 	double m = electronDistribution->getMass();
 	double m_c2 = m * speed_of_light2;
@@ -599,13 +599,13 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic1(const 
 		//experimental
 		double fraction = 0.5 / my_Nmu;
 		double thetamin = min(0.1 / (electronInitialEnergy / m_c2), pi / (2 * my_Nmu));
-		double dlogtheta = log((pi + (1 - fraction) * thetamin) / (thetamin)) / (my_Nmu - 1);
+		double dlogtheta = log((pi + (1 - fraction) * thetamin) / (thetamin)) / (my_Nmu - 2);
 
 		cosThetaLeft[0] = 1.0;
 		theta[0] = 0;
 		cosTheta[0] = cos(theta[0]);
 		for (int i = 1; i < my_Nmu; ++i) {
-			theta[i] = thetamin * exp(dlogtheta * (i)) - (1 - fraction) * thetamin;
+			theta[i] = thetamin * exp(dlogtheta * (i-1)) - (1 - fraction) * thetamin;
 			cosTheta[i] = cos(theta[i]);
 			cosThetaLeft[i] = (cosTheta[i] + cosTheta[i - 1]) / 2.0;
 		}
@@ -771,8 +771,8 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic1(const 
 						//(1 + cosXiPrimed * cosXiPrimed + sqr(photonFinalEnergyPrimed / m_c2) * sqr(Xidelta) / (1 - (photonFinalEnergyPrimed / m_c2) * (Xidelta))) *
 						(2 - 2 * Xidelta + Xidelta * Xidelta + sqr(photonFinalEnergyPrimed / m_c2) * sqr(Xidelta) / (1 - (photonFinalEnergyPrimed / m_c2) * (Xidelta))) *
 						photonDistribution->distribution(photonInitialEnergy) *
-						//photonFinalEnergy * 2 * pi * dphi_ph * my_dcosTheta[imue] * my_dcosTheta[imuph] * delectronEnergy;
-						photonFinalEnergy * 2 * pi * dphi_ph * photonInitialSinThetaPrimed * dthetaph * sintheta_e * dthetae * delectronEnergy;
+						photonFinalEnergy * 2 * pi * dphi_ph * my_dcosTheta[imue] * my_dcosTheta[imuph] * delectronEnergy;
+						//photonFinalEnergy * 2 * pi * dphi_ph * photonInitialSinThetaPrimed * dthetaph * sintheta_e * dthetae * delectronEnergy;
 					if (dI < 0) {
 						omp_set_lock(&my_lock);
 						printf("dI[i] <  0\n");
@@ -841,7 +841,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic1(const 
 	return I / (distance * distance);
 }
 
-double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
+/*double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic2(const double& photonFinalEnergy, PhotonIsotropicDistribution* photonDistribution, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance) {
 	
 	double m = electronDistribution->getMass();
 	double m_c2 = m * speed_of_light2;
@@ -956,9 +956,9 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 					//double Xidelta = photonInitialVersinThetaPrimed + photonFinalVersinThetaPrimed - photonInitialVersinThetaPrimed * photonFinalVersinThetaPrimed - photonInitialSinThetaPrimed * photonFinalSinThetaPrimed * cos(photonFinalPhiRotated - photonInitialPhiRotated);
 					//double Xiepsilon = photonInitialVersinAlphaPrimed - photonFinalVersinThetaPrimed + photonInitialSinThetaPrimed * photonFinalSinThetaPrimed * cos(photonFinalPhiRotated - photonInitialPhiRotated);
 					//double Xidelta = 2.0 - Xiepsilon;
-					/*if (cosXiPrimed >= (1.0 - 1E-7) && photonInitialSinThetaPrimed > 0 && photonFinalSinThetaPrimed > 0) {
-						Xidelta = 0.5*(photonInitialSinThetaPrimed* photonInitialSinThetaPrimed + photonFinalSinThetaPrimed* photonFinalSinThetaPrimed) - photonInitialSinThetaPrimed * photonFinalSinThetaPrimed * cos(photonFinalPhiRotated - photonInitialPhiRotated);
-					}*/
+					//if (cosXiPrimed >= (1.0 - 1E-7) && photonInitialSinThetaPrimed > 0 && photonFinalSinThetaPrimed > 0) {
+					//	Xidelta = 0.5*(photonInitialSinThetaPrimed* photonInitialSinThetaPrimed + photonFinalSinThetaPrimed* photonFinalSinThetaPrimed) - photonInitialSinThetaPrimed * photonFinalSinThetaPrimed * cos(photonFinalPhiRotated - photonInitialPhiRotated);
+					//}
 
 					double photonInitialEnergyPrimed = photonFinalEnergyPrimed / (1.0 - (photonFinalEnergyPrimed / (m_c2)) * Xidelta);
 					if (photonInitialEnergyPrimed <= 0) {
@@ -988,12 +988,12 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 
 					double denom = electronInitialDelta + photonFinalVersinThetaRotated - electronInitialDelta * photonFinalVersinThetaRotated;
 					double numenator = electronInitialDelta + photonInitialVersinThetaRotated - electronInitialDelta * photonInitialVersinThetaRotated;
-					/*if (1.0 - photonFinalCosThetaRotated * electronInitialBeta < 1E-7) {
-						denom = electronInitialDelta;
-					}
-					else {
-						denom = (1.0 - photonFinalCosThetaRotated * electronInitialBeta);
-					}*/
+					//if (1.0 - photonFinalCosThetaRotated * electronInitialBeta < 1E-7) {
+					//	denom = electronInitialDelta;
+					//}
+					//else {
+					//	denom = (1.0 - photonFinalCosThetaRotated * electronInitialBeta);
+					//}
 					double dI = volume * 0.5 * r2 * speed_of_light * electronDist *
 						//(sqr(1 - photonInitialCosThetaRotated * electronInitialBeta) / denom) *
 						(numenator / (electronInitialGamma* electronInitialGamma * electronInitialGamma * electronInitialGamma *denom)) *
@@ -1063,7 +1063,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 	delete[] dcosTheta;
 
 	return I / (distance * distance);
-}
+}*/
 
 double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& volume, const double& distance) {
 	double m = electronDistribution->getMass();
@@ -1083,13 +1083,13 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const
 		//experimental
 		double fraction = 0.5 / my_Nmu;
 		double thetamin = min(0.1 / (electronInitialEnergy / m_c2), pi / (2 * my_Nmu));
-		double dlogtheta = log((pi + (1 - fraction) * thetamin) / (thetamin)) / (my_Nmu - 1);
+		double dlogtheta = log((pi + (1 - fraction) * thetamin) / (thetamin)) / (my_Nmu - 2);
 
 		cosThetaLeft[0] = 1.0;
 		theta[0] = 0;
 		cosTheta[0] = cos(theta[0]);
 		for (int i = 1; i < my_Nmu; ++i) {
-			theta[i] = thetamin * exp(dlogtheta * (i)) - (1 - fraction) * thetamin;
+			theta[i] = thetamin * exp(dlogtheta * (i-1)) - (1 - fraction) * thetamin;
 			cosTheta[i] = cos(theta[i]);
 			cosThetaLeft[i] = (cosTheta[i] + cosTheta[i - 1]) / 2.0;
 		}
@@ -1132,6 +1132,15 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const
 			else {
 				dthetae = theta[imue] - theta[imue - 1];
 			}
+			/*if (imue == 0) {
+				dthetae = 0.5 * (theta[1] - theta[0]);
+			}
+			else if (imue == my_Nmu - 1) {
+				dthetae = 0.5 * (theta[my_Nmu - 1] - theta[my_Nmu - 2]);
+			}
+			else {
+				dthetae = 0.5 * (theta[imue + 1] - theta[imue - 1]);
+			}*/
 			double theta_e = theta[imue];
 			double sintheta_e = sin(theta_e);
 			for (int iphie = 0; iphie < my_Nphi; ++iphie) {
@@ -1196,6 +1205,15 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const
 					else {
 						dthetaph = theta[imuph] - theta[imuph - 1];
 					}
+					/*if (imuph == 0) {
+						dthetaph = 0.5 * (theta[1] - theta[0]);
+					}
+					else if (imuph == my_Nmu - 1) {
+						dthetaph = 0.5 * (theta[my_Nmu - 1] - theta[my_Nmu - 2]);
+					}
+					else {
+						dthetaph = 0.5 * (theta[imuph + 1] - theta[imuph - 1]);
+					}*/
 					//double photonInitialVersinAlphaPrimed = versin(photonInitialAlphaPrimed);
 					//double photonInitialThetaPrimed = pi - imuph*(pi/my_Nmu);
 					//double photonInitialCosThetaPrimed = cos(photonInitialThetaPrimed);
@@ -1495,11 +1513,11 @@ double InverseComptonEvaluator::evaluateFluxFromIsotropicFunction(const double& 
 	else if (my_solverType == ComptonSolverType::ISOTROPIC_JONES) {
 		return evaluateComptonFluxJonesIsotropic(photonFinalEnergy, photonDistribution, electronDistribution, volume, distance);
 	}
+	/*else if (my_solverType == ComptonSolverType::ISOTROPIC_KLEIN_NISHINA2) {
+		return evaluateComptonFluxKleinNishinaIsotropic2(photonFinalEnergy, photonDistribution, electronDistribution, volume, distance);
+	}*/
 	else if (my_solverType == ComptonSolverType::ISOTROPIC_KLEIN_NISHINA) {
 		return evaluateComptonFluxKleinNishinaIsotropic(photonFinalEnergy, photonDistribution, electronDistribution, volume, distance);
-	}
-	else if (my_solverType == ComptonSolverType::ISOTROPIC_KLEIN_NISHINA1) {
-		return evaluateComptonFluxKleinNishinaIsotropic1(photonFinalEnergy, photonDistribution, electronDistribution, volume, distance);
 	}
 	else if (my_solverType == ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA) {
 		return evaluateComptonFluxKleinNishinaAnisotropic(photonFinalEnergy, photonDistribution, electronDistribution, volume, distance);

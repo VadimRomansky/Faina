@@ -46,9 +46,9 @@ void evaluateComtonWithPowerLawDistribution() {
 
 	//double Emin = 652.317 * me_c2 * 1;
 	double Emin = 10*me_c2;
-	double Emax = 1E15*1E4 * me_c2;
+	double Emax = 1E4 * me_c2;
 	int Ne = 100;
-	int Nmu = 20;
+	int Nmu = 40;
 	int Nrho = 20;
 	int Nz = 20;
 	int Nphi = 4;
@@ -71,11 +71,13 @@ void evaluateComtonWithPowerLawDistribution() {
 	double luminosity = 510000 * 4 * 1E33;
 	double rsun = 7.5E10;
 	double rstar = rsun * sqrt(510000.0 / pow(Tstar / 5500, 4));
-	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rmax));
+	//PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rmax));
+	PhotonIsotropicDistribution* photonDistribution = new PhotonMonoenergeticDistribution(4*1.6E-12, 0.4*1.6E-12, 1.0);
 	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), pi, 0, pi/100);
 	PhotonPlankDirectedDistribution* photonDirectedDistribution2 = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), pi, 0, 0.9*pi);
 	//initializing electrons distribution
-	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
+	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
+	MassiveParticleIsotropicDistribution* electrons = new MassiveParticleMonoenergeticDistribution(massElectron, 2 * Emin, me_c2 / 2, electronConcentration);
 	//MassiveParticlePowerLawCutoffDistribution* electrons = new MassiveParticlePowerLawCutoffDistribution(massElectron, index, Emin, 2.0,Emax,electronConcentration);
 	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.3_theta0-90/Ee3.dat", "./examples_data/gamma0.3_theta0-90/Fs3.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
 	//electrons->rescaleDistribution(sqrt(18));
@@ -86,7 +88,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
 	InverseComptonEvaluator* comptonEvaluator2 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	InverseComptonEvaluator* comptonEvaluator3 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA1);
+	InverseComptonEvaluator* comptonEvaluator3 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
 
 	//comptonEvaluator3->outputDifferentialFlux("output3.dat");
@@ -111,7 +113,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	double* F = new double[Nnu];
 
 	double EphFinalmin = 0.00001 * kBoltzman * Tstar;
-	double EphFinalmax = 10000000 * Emax + Emin;
+	double EphFinalmax = 10 * Emax + Emin;
 	//photonDistribution->writeDistribution("output3.dat", 200, Ephmin, Ephmax);
 	double factor = pow(EphFinalmax / EphFinalmin, 1.0 / (Nnu - 1));
 	E[0] = EphFinalmin;
@@ -916,7 +918,7 @@ void compareComptonSynchrotron() {
 	//PhotonIsotropicDistribution* photons = PhotonPlankDistribution::getCMBradiation();
 	PhotonIsotropicDistribution* photons = new PhotonPlankDistribution(T, 1.0);
 	RadiationEvaluator* inverseComptonEvaluator = new InverseComptonEvaluator(100, 50, 4, Emin, Emax, Ephmin, Ephmax, photons, ComptonSolverType::ISOTROPIC_JONES);
-	RadiationEvaluator* inverseComptonEvaluator2 = new InverseComptonEvaluator(100, 50, 4, Emin, Emax, Ephmin, Ephmax, photons, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA1);
+	RadiationEvaluator* inverseComptonEvaluator2 = new InverseComptonEvaluator(100, 50, 4, Emin, Emax, Ephmin, Ephmax, photons, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
 	double EminCompton = 0.1*kBoltzman*T;
 	double EmaxCompton = 20*sqrt(kBoltzman * T * Emax);
 	inverseComptonEvaluator->writeFluxFromSourceToFile("output2.dat", source, EminCompton, EmaxCompton, 100);

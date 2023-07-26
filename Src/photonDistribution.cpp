@@ -289,4 +289,32 @@ PhotonPlankDirectedDistribution::~PhotonPlankDirectedDistribution() {
 
 }
 
+PhotonMonoenergeticDistribution::PhotonMonoenergeticDistribution(const double& Energy, const double& halfWidth, const double& concentration)
+{
+	my_E0 = Energy;
+	my_dE = halfWidth;
+	if (halfWidth > my_E0) {
+		printf("dE > E0 in monoenergetic distribution\n");
+		printLog("dE > E0 in monoenergetic distribution\n");
+		exit(0);
+	}
+	my_concentration = concentration;
+}
 
+double PhotonMonoenergeticDistribution::distributionNormalized(const double& energy)
+{
+	if (energy > my_E0 + my_dE || energy < my_E0 - my_dE) {
+		return 0;
+	}
+	return 1.0 / (4 * pi * 2 * my_dE);
+}
+
+double PhotonMonoenergeticDistribution::getMeanEnergy()
+{
+	return my_E0;
+}
+
+void PhotonMonoenergeticDistribution::resetConcentration(const double& concentration)
+{
+	my_concentration = concentration;
+}

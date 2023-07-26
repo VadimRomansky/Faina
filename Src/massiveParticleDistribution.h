@@ -49,6 +49,24 @@ public:
 	virtual void resetConcentration(const double& concentration);
 };
 
+class MassiveParticleMonoenergeticDirectedDistribution : public MassiveParticleDistribution {
+protected:
+	double my_E0;
+	double my_dE;
+
+	double my_theta0;
+	double my_phi0;
+	double my_deltaTheta;
+public:
+	virtual ~MassiveParticleMonoenergeticDirectedDistribution() {
+
+	}
+	MassiveParticleMonoenergeticDirectedDistribution(const double& mass, const double& Energy, const double& halfWidth, const double& concentration, const double& theta0, const double& phi0, const double& deltaTheta);
+	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi);
+	virtual double getMeanEnergy();
+	virtual void resetConcentration(const double& concentration);
+};
+
 class MassiveParticlePowerLawDistribution : public MassiveParticleIsotropicDistribution {
 protected:
 	double my_index;

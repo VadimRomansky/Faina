@@ -96,6 +96,20 @@ public:
 	virtual double getMeanEnergy();
 };
 
+class PhotonMonoenergeticDistribution : public PhotonIsotropicDistribution {
+protected:
+	double my_E0;
+	double my_dE;
+public:
+	virtual ~PhotonMonoenergeticDistribution() {
+
+	}
+	PhotonMonoenergeticDistribution(const double& Energy, const double& halfWidth, const double& concentration);
+	virtual double distributionNormalized(const double& energy);
+	virtual double getMeanEnergy();
+	virtual void resetConcentration(const double& concentration);
+};
+
 class PhotonPlankDirectedDistribution : public PhotonDistribution {
 private:
 	double my_temperature;

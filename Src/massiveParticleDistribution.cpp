@@ -1787,3 +1787,45 @@ void MassiveParticleMonoenergeticDistribution::resetConcentration(const double& 
 {
 	my_concentration = concentration;
 }
+
+MassiveParticleMonoenergeticDirectedDistribution::MassiveParticleMonoenergeticDirectedDistribution(const double& mass, const double& Energy, const double& halfWidth, const double& concentration, const double& theta0, const double& phi0, const double& deltaTheta)
+{
+	my_mass = mass;
+	my_concentration = concentration;
+
+	my_E0 = Energy;
+	my_dE = halfWidth;
+
+	my_theta0 = theta0;
+	my_phi0 = phi0;
+	my_deltaTheta = deltaTheta;
+}
+
+double MassiveParticleMonoenergeticDirectedDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
+{
+	double sinTheta = sin(acos(mu));
+
+	double cosDelta = mu * cos(my_theta0) + sinTheta * sin(my_theta0) * cos(phi - my_phi0);
+
+	if (cosDelta < cos(my_deltaTheta)) {
+		return 0;
+	}
+
+	if (energy > my_E0 + my_dE || energy < my_E0 - my_dE) {
+		return 0;
+	}
+
+	double sphericalFraction = 0.5 * (1.0 - cos(my_deltaTheta));
+
+	return 1.0 / (4 * pi * 2 * my_dE * sphericalFraction);
+}
+
+double MassiveParticleMonoenergeticDirectedDistribution::getMeanEnergy()
+{
+	return my_E0;
+}
+
+void MassiveParticleMonoenergeticDirectedDistribution::resetConcentration(const double& concentration)
+{
+	my_concentration = concentration;
+}
