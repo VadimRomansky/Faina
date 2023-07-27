@@ -49,8 +49,8 @@ void evaluateComtonWithPowerLawDistribution() {
 	double Emax = 1E4 * me_c2;
 	int Ne = 100;
 	int Nmu = 40;
-	int Nrho = 20;
-	int Nz = 20;
+	int Nrho = 2;
+	int Nz = 4;
 	int Nphi = 4;
 	double index = 2.5;
 	double KK = 24990.8;
@@ -65,9 +65,9 @@ void evaluateComtonWithPowerLawDistribution() {
 	//PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(27, 1.0);
 
 	double Tstar = 50 * 1000;
-	Tstar = 2.7;
-	Ephmin = 0.01 * Tstar * kBoltzman;
-	Ephmax = 1000 * Tstar * kBoltzman;
+	//Tstar = 2.7;
+	Ephmin = 0.1 * Tstar * kBoltzman;
+	Ephmax = 10 * Tstar * kBoltzman;
 	double luminosity = 510000 * 4 * 1E33;
 	double rsun = 7.5E10;
 	double rstar = rsun * sqrt(510000.0 / pow(Tstar / 5500, 4));
@@ -77,7 +77,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	PhotonPlankDirectedDistribution* photonDirectedDistribution2 = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), pi, 0, 0.9*pi);
 	//initializing electrons distribution
 	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
-	MassiveParticleIsotropicDistribution* electrons = new MassiveParticleMonoenergeticDistribution(massElectron, 2 * Emin, me_c2 / 2, electronConcentration);
+	MassiveParticleIsotropicDistribution* electrons = new MassiveParticleMonoenergeticDistribution(massElectron, 19*me_c2 , 2*me_c2, electronConcentration);
 	//MassiveParticlePowerLawCutoffDistribution* electrons = new MassiveParticlePowerLawCutoffDistribution(massElectron, index, Emin, 2.0,Emax,electronConcentration);
 	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.3_theta0-90/Ee3.dat", "./examples_data/gamma0.3_theta0-90/Fs3.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
 	//electrons->rescaleDistribution(sqrt(18));
@@ -112,7 +112,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	double* E = new double[Nnu];
 	double* F = new double[Nnu];
 
-	double EphFinalmin = 0.00001 * kBoltzman * Tstar;
+	double EphFinalmin = 0.1 * kBoltzman * Tstar;
 	double EphFinalmax = 10 * Emax + Emin;
 	//photonDistribution->writeDistribution("output3.dat", 200, Ephmin, Ephmax);
 	double factor = pow(EphFinalmax / EphFinalmin, 1.0 / (Nnu - 1));

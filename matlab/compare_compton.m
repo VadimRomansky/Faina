@@ -121,4 +121,4 @@ plot(radiationMine4(1:N2,1), radiationMine4(1:N2,2),'yellow','LineWidth',2);
 plot(radiationMineJones(1:N2,1), appJones(1:N2),'--','Color','blue','LineWidth',2);
 plot(radiationMine1(1:N2,1), app1(1:N2),'--','Color','green','LineWidth',2);
 plot(radiationMine3(1:N2,1), app3(1:N2),'--','Color','magenta','LineWidth',2);
-%legend('uvarov','kang jones','anisotropic KN','isotropic KN','anisotropic photons KN \theta = \pi/100','anisotropic photons KN \theta = 0.9\pi', strcat('fit jones\gamma = ',num2str(pJones(1))), strcat('fit KN\gamma = ',num2str(p1(1))), strcat('fit KN \gamma = ',num2str(p3(1))));
+legend('uvarov','kang jones','anisotropic KN','isotropic KN','anisotropic photons KN \theta = \pi/100','anisotropic photons KN \theta = 0.9\pi', strcat('fit jones\gamma = ',num2str(pJones(1))), strcat('fit KN\gamma = ',num2str(p1(1))), strcat('fit KN \gamma = ',num2str(p3(1))));
