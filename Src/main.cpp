@@ -48,9 +48,9 @@ void evaluateFluxSNRtoWind() {
 	int Ne = 200;
 	int Nmu = 50;
 
-	int Nrho = 100;
+	int Nrho = 200;
 	int Nz = 50;
-	int Nphi = 20;
+	int Nphi = 4;
 
 	//initializing mean galactic photon field
 	double Ephmin = 0.01 * Tstar * kBoltzman;
@@ -115,8 +115,8 @@ void evaluateFluxSNRtoWind() {
 		}
 	}
 
-	RadiationSourceFactory::initialize3dAngularMask(mask, Nrho, Nphi, pi / 10);
-	//RadiationSourceFactory::initializeRhoMask(mask, Nrho, Nphi, sin(pi/10));
+	//RadiationSourceFactory::initialize3dAngularMask(mask, Nrho, Nphi, pi / 20);
+	RadiationSourceFactory::initializeRhoMask(mask, Nrho, Nphi, sin(pi/20));
 	//source->setMask(mask);
 	for (int irho = 0; irho < Nrho; ++irho) {
 		delete[] mask[irho];
@@ -253,16 +253,16 @@ void evaluateFluxSNRtoWind() {
 
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
-	double rcompton = 2E16;
-	rcompton = rmax + 2E16;
+	double rcompton = 0.5E16;
+	rcompton = rmax + 0.5E16;
 	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rcompton));
 	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rcompton), 0, 0, atan2(1, 1));
 
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
     //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, newEmax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
-	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluatorWithSource(Ne, Nmu, Nphi, Emin, newEmax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES, rmax + 2E16, 0, 0);
-	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluatorWithSource(Ne, Nmu, Nphi, Emin, newEmax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA, 0, -rmax - 2E16, 0);
+	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluatorWithSource(Ne, Nmu, Nphi, Emin, newEmax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES, rmax + 0.5E16, 0, 0);
+	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluatorWithSource(Ne, Nmu, Nphi, Emin, newEmax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA, 0, -rmax - 0.5E16, 0);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
 	//initializing photon energy grid for output
 
@@ -738,7 +738,7 @@ void fitTychoProfile() {
 
 int main() {
 	//evaluateSimpleSynchrotron();
-	evaluateComtonWithPowerLawDistribution();
+	//evaluateComtonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
@@ -749,7 +749,7 @@ int main() {
 	//testRotation();
 
 
-	//evaluateFluxSNRtoWind();
+	evaluateFluxSNRtoWind();
 	//evaluateComtonFromWind();
 	//evaluateTychoProfile();
 	//fitTychoProfile();
