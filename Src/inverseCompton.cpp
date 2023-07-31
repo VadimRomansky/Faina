@@ -1556,8 +1556,8 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const
 						//(1 + cosXiPrimed * cosXiPrimed + sqr(photonFinalEnergyPrimed / m_c2) * sqr(Xidelta) / (1 - (photonFinalEnergyPrimed / m_c2) * (Xidelta))) *
 						(2 - 2 * Xidelta + Xidelta * Xidelta + sqr(photonFinalEnergyPrimed / m_c2) * sqr(Xidelta) / (1 - (photonFinalEnergyPrimed / m_c2) * (Xidelta))) *
 						photonDistribution->distribution(photonInitialEnergy, cos(photonInitialTheta), photonInitialPhi) *
-						photonFinalEnergy* dphi_e * dphi_ph * dcosTheta[imue] * dcosTheta[imuph] * delectronEnergy;
-						//photonFinalEnergy * dphi_e * dphi_ph * photonInitialSinThetaPrimed * dthetaph * sintheta_e * dthetae * delectronEnergy;
+						//photonFinalEnergy* dphi_e * dphi_ph * dcosTheta[imue] * dcosTheta[imuph] * delectronEnergy;
+						photonFinalEnergy * dphi_e * dphi_ph * photonInitialSinThetaPrimed * dthetaph * sintheta_e * dthetae * delectronEnergy;
 					if (dI < 0) {
 						omp_set_lock(&my_lock);
 						printf("dI[i] <  0\n");
