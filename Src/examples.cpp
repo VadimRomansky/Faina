@@ -1122,7 +1122,7 @@ void testAnisotropicCompton() {
 
 	for (int i = 0; i < Nangles; ++i) {
 		double theta = (i + 0.5) * pi / Nangles;
-		PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), theta, 0, pi / 18);
+		PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), theta, 0, pi / 10);
 		
 		double kevAnisotropicFlux = 0;
 		double factor = pow(maxEev / minEev, 1.0 / (Nph - 1));
