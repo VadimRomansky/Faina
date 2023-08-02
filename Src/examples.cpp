@@ -34,8 +34,8 @@ void evaluateComtonWithPowerLawDistribution() {
 	double theta = pi/2;
 	//double rmax = 2E14;
 	double rmax = 1.0 / sqrt(pi);
-	rmax = 1E15;
-	double B = 0.0;
+	rmax = 1E16;
+	double B = 0.3;
 
 	//SN2009bb
 	//const double distance = 40*3.08*1.0E24;
@@ -57,7 +57,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	double index =3.0;
 	double KK = 24990.8;
 	double electronConcentration = KK / (pow(652.317, index - 1) * (index - 1));
-	electronConcentration = 1E4;
+	electronConcentration = 5E5;
 
 	//initializing mean galactic photon field
 	double Ephmin = 0.01 * 2.7 * kBoltzman;
@@ -76,15 +76,16 @@ void evaluateComtonWithPowerLawDistribution() {
 	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rmax));
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
 	//PhotonIsotropicDistribution* photonDistribution = new PhotonMonoenergeticDistribution(4*1.6E-12, 0.4*1.6E-12, 1.0);
-	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), pi, 0, pi/100);
+	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), pi, 0, pi/18);
 	PhotonPlankDirectedDistribution* photonDirectedDistribution2 = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), pi, 0, 0.9*pi);
 	//initializing electrons distribution
 	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 	//MassiveParticleIsotropicDistribution* electrons = new MassiveParticleMonoenergeticDistribution(massElectron, 19*me_c2 , 2*me_c2, electronConcentration);
 	//MassiveParticlePowerLawCutoffDistribution* electrons = new MassiveParticlePowerLawCutoffDistribution(massElectron, index, Emin, 2.0,Emax,electronConcentration);
-	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee3.dat", "./examples_data/gamma0.5_theta0-90/Fs3.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
+	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee9.dat", "./examples_data/gamma0.5_theta0-90/Fs9.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
 	electrons->rescaleDistribution(sqrt(18));
-	//electrons->addPowerLaw(100 * me_c2, 3.5);
+	//electrons->addPowerLaw(300 * me_c2, 3.5);
+	double electronEnergy = electronConcentration * 2 * pi * rmax * rmax * rmax * electrons->getMeanEnergy();
 	//creating radiation source
 	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, rmax, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, electronConcentration, rmax, 0.9*rmax, distance);
@@ -100,13 +101,28 @@ void evaluateComtonWithPowerLawDistribution() {
 
 	double minEev = 0.3 * 1000 * 1.6E-12;
 	double maxEev = 10 * 1000 * 1.6E-12;
-	double kevFlux = comptonEvaluator1->evaluateTotalFluxInEnergyRange(minEev, maxEev, 10, source);
+	int Nph = 10;
+	double kevFlux = comptonEvaluator1->evaluateTotalFluxInEnergyRange(minEev, maxEev, Nph, source);
+	double kevAnisotropicFlux = 0;
+	double factor = pow(maxEev / minEev, 1.0 / (Nph - 1));
+	double currentE = minEev;
+	double flux = 0;
+	for (int i = 0; i < Nph; ++i) {
+		printf("%d\n", i);
+		double dE = currentE * (factor - 1.0);
+		kevAnisotropicFlux += comptonEvaluator2->evaluateFluxFromSourceAnisotropic(currentE, 0, 0, photonDirectedDistribution, source)* dE;
+		currentE = currentE * factor;
+	}
 	double totalLuminosity = kevFlux * 4 * pi * distance * distance;
+	double ejectaKineticEnergy = 2 * pi * rmax * rmax * rmax * electronConcentration * massProton * speed_of_light2 * (1.0 / sqrt(1 - 0.5 * 0.5) - 1.0);
 	FILE* outFile = fopen("SNRtoWindData.dat", "w");
 	printf("total luminosity = %g erg/s \n", totalLuminosity);
 	fprintf(outFile, "total luminosity = %g erg/s \n", totalLuminosity);
 	printf("total flux = %g erg/s cm^2 \n", kevFlux);
+	printf("total anisotropic flux = %g erg/s cm^2 \n", kevAnisotropicFlux);
 	printf("99 days F = 1.33+-0.76 10^-15 L = 3.4+-1.9 10^39\n");
+	printf("ejecta kinetic Energy =%g\n", ejectaKineticEnergy);
+	printf("electrons kinetic Energy =%g\n", electronEnergy);
 	fprintf(outFile, "99 days F = 1.33+-0.76 10^-15 L = 3.4+-1.9 10^39\n");
 	fclose(outFile);
 
@@ -118,7 +134,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	double EphFinalmin = 0.1 * kBoltzman * Tstar;
 	double EphFinalmax = 10 * Emax + Emin;
 	//photonDistribution->writeDistribution("output3.dat", 200, Ephmin, Ephmax);
-	double factor = pow(EphFinalmax / EphFinalmin, 1.0 / (Nnu - 1));
+	factor = pow(EphFinalmax / EphFinalmin, 1.0 / (Nnu - 1));
 	E[0] = EphFinalmin;
 	F[0] = 0;
 	for (int i = 1; i < Nnu; ++i) {
@@ -160,6 +176,9 @@ void evaluateComtonWithPowerLawDistribution() {
 	fclose(output_ev_EFE4);
 	fclose(output_ev_EFE5);
 	//fclose(output_GHz_Jansky);
+
+	RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true, false);
+	synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch2.dat", source, 1E9 * hplank, 1E11 * hplank, 100);
 
 	delete[] E;
 	delete[] F;
