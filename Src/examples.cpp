@@ -76,7 +76,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rmax));
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
 	//PhotonIsotropicDistribution* photonDistribution = new PhotonMonoenergeticDistribution(4*1.6E-12, 0.4*1.6E-12, 1.0);
-	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), pi, 0, pi/18);
+	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), pi/10, 0, pi/18);
 	PhotonPlankDirectedDistribution* photonDirectedDistribution2 = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), pi, 0, 0.9*pi);
 	//initializing electrons distribution
 	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
@@ -1064,4 +1064,80 @@ void testRotation() {
 	printLog("theta2 = %g\n", theta2);
 	printf("phi2 = %g\n", phi2);
 	printLog("phi2 = %g\n", phi2);
+}
+
+//example 10 test anisotropic compton
+void testAnisotropicCompton() {
+	double rmax = 1E16;
+	double B = 0.3;
+
+	//SN2009bb
+	//const double distance = 40*3.08*1.0E24;
+	//AT2018
+	//const double distance = 60*3.08*1.0E24;
+	//CSS161010
+	const double distance = 150 * 1000000 * parsec;
+	//const double distance = 1.0;
+
+	//double Emin = 652.317 * me_c2 * 1;
+	double Emin = me_c2;
+	double Emax = 1E4 * me_c2;
+	Emax = 1E9 * (1.6E-12);
+	int Ne = 100;
+	int Nmu = 40;
+	int Nrho = 2;
+	int Nz = 4;
+	int Nphi = 4;
+	double index = 3.0;
+	double electronConcentration = 5E5;
+
+
+	double Tstar = 50 * 1000;
+	//Tstar = 2.7;
+	double Ephmin = 0.1 * Tstar * kBoltzman;
+	double Ephmax = 100 * Tstar * kBoltzman;
+	double luminosity = 510000 * 4 * 1E33;
+	double rsun = 7.5E10;
+	double rstar = rsun * sqrt(510000.0 / pow(Tstar / 5500, 4));
+
+	int Nangles = 20;
+
+	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee9.dat", "./examples_data/gamma0.5_theta0-90/Fs9.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
+	electrons->rescaleDistribution(sqrt(18));
+	//electrons->addPowerLaw(300 * me_c2, 3.5);
+	RadiationSource* source = new SimpleFlatSource(electrons, B, pi/2, rmax, rmax, distance);
+	PhotonIsotropicDistribution* photonDummyDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rmax));
+	InverseComptonEvaluator* comptonEvaluator2 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDummyDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDummyDistribution, ComptonSolverType::ISOTROPIC_JONES);
+
+	double minEev = 0.3 * 1000 * 1.6E-12;
+	double maxEev = 10 * 1000 * 1.6E-12;
+	int Nph = 10;
+	double kevFlux = comptonEvaluator2->evaluateTotalFluxInEnergyRange(minEev, maxEev, Nph, source);
+	double kevJonesFlux = comptonEvaluator1->evaluateTotalFluxInEnergyRange(minEev, maxEev, Nph, source);
+	printf("isotropic flux = %g\n", kevFlux);
+	printf("isotropic jones flux = %g\n", kevJonesFlux);
+
+	FILE* outFile = fopen("anisotropicCompton.dat", "w");
+
+	for (int i = 0; i < Nangles; ++i) {
+		double theta = (i + 0.5) * pi / Nangles;
+		PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), theta, 0, pi / 18);
+		
+		double kevAnisotropicFlux = 0;
+		double factor = pow(maxEev / minEev, 1.0 / (Nph - 1));
+		double currentE = minEev;
+		double flux = 0;
+		for (int j = 0; j < Nph; ++j) {
+			printf("%d\n", j);
+			double dE = currentE * (factor - 1.0);
+			kevAnisotropicFlux += comptonEvaluator2->evaluateFluxFromSourceAnisotropic(currentE, 0, 0, photonDirectedDistribution, source) * dE;
+			currentE = currentE * factor;
+		}
+		printf("theta = %g flux = %g\n", theta, kevAnisotropicFlux);
+		fprintf(outFile, "%g %g\n", theta, kevAnisotropicFlux);
+
+		delete photonDirectedDistribution;
+	}
+	fclose(outFile);
 }

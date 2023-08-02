@@ -31,5 +31,8 @@ void evaluateSynchrotronImage();
 //example 9 test rotation
 void testRotation();
 
+//example 10 test anisotropic compton
+void testAnisotropicCompton();
+
 
 #endif
