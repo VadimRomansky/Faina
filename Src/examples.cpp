@@ -1083,6 +1083,7 @@ void testAnisotropicCompton() {
 	double Emin = me_c2;
 	double Emax = 1E4 * me_c2;
 	Emax = 1E9 * (1.6E-12);
+	Emax = 1.000001 * me_c2;
 	int Ne = 100;
 	int Nmu = 40;
 	int Nrho = 2;
@@ -1102,8 +1103,9 @@ void testAnisotropicCompton() {
 
 	int Nangles = 20;
 
-	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee9.dat", "./examples_data/gamma0.5_theta0-90/Fs9.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
-	electrons->rescaleDistribution(sqrt(18));
+	MassiveParticleIsotropicDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, 3.0, Emin, electronConcentration);
+	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee9.dat", "./examples_data/gamma0.5_theta0-90/Fs9.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
+	//electrons->rescaleDistribution(sqrt(18));
 	//electrons->addPowerLaw(300 * me_c2, 3.5);
 	RadiationSource* source = new SimpleFlatSource(electrons, B, pi/2, rmax, rmax, distance);
 	PhotonIsotropicDistribution* photonDummyDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rmax));
@@ -1112,8 +1114,8 @@ void testAnisotropicCompton() {
 
 	comptonEvaluator2->outputDifferentialFlux("differentialFLux.dat");
 
-	double minEev = 0.3 * 1 * 1.6E-12;
-	double maxEev = 10 * 1 * 1.6E-12;
+	double minEev = 0.3 * 0.001 * 1.6E-12;
+	double maxEev = 10 * 0.001 * 1.6E-12;
 	int Nph = 10;
 	double kevFlux = comptonEvaluator2->evaluateTotalFluxInEnergyRange(minEev, maxEev, Nph, source);
 	double kevJonesFlux = comptonEvaluator1->evaluateTotalFluxInEnergyRange(minEev, maxEev, Nph, source);
