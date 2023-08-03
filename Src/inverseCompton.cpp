@@ -771,7 +771,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 							//photonInitialCosThetaRotated = (photonInitialCosThetaPrimed + electronInitialBeta) / (1.0 + photonInitialCosThetaPrimed * electronInitialBeta);
 						//}
 						//LorentzTransformationPhotonReverseZ(electronInitialGamma, photonFinalEnergyPrimed, photonInitialThetaPrimed, photonInitialEnergy, photonInitialThetaRotated);
-						LorentzTransformationPhotonZ(electronInitialGamma, photonFinalEnergyPrimed, photonInitialAlphaPrimed, photonInitialEnergy, photonInitialAlphaRotated);
+						LorentzTransformationPhotonZ(electronInitialGamma, photonInitialEnergyPrimed, photonInitialAlphaPrimed, photonInitialEnergy, photonInitialAlphaRotated);
 						photonInitialThetaRotated = pi - photonInitialAlphaRotated;
 						//LorentzTransformationPhotonReverseZalpha(electronInitialGamma, photonFinalEnergyPrimed, photonInitialAlphaPrimed, photonInitialEnergy, photonInitialAlphaRotated);
 						//double photonInitialCosThetaRotated = cos(photonInitialThetaRotated);
@@ -1530,7 +1530,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const
 						//photonInitialCosThetaRotated = (photonInitialCosThetaPrimed + electronInitialBeta) / (1.0 + photonInitialCosThetaPrimed * electronInitialBeta);
 					//}
 					//LorentzTransformationPhotonReverseZ(electronInitialGamma, photonFinalEnergyPrimed, photonInitialThetaPrimed, photonInitialEnergy, photonInitialThetaRotated);
-					LorentzTransformationPhotonZ(electronInitialGamma, photonFinalEnergyPrimed, photonInitialAlphaPrimed, photonInitialEnergy, photonInitialAlphaRotated);
+					LorentzTransformationPhotonZ(electronInitialGamma, photonInitialEnergyPrimed, photonInitialAlphaPrimed, photonInitialEnergy, photonInitialAlphaRotated);
 					photonInitialThetaRotated = pi - photonInitialAlphaRotated;
 					//LorentzTransformationPhotonReverseZalpha(electronInitialGamma, photonFinalEnergyPrimed, photonInitialAlphaPrimed, photonInitialEnergy, photonInitialAlphaRotated);
 					//double photonInitialCosThetaRotated = cos(photonInitialThetaRotated);
