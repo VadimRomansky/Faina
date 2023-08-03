@@ -1093,7 +1093,7 @@ void testAnisotropicCompton() {
 
 
 	double Tstar = 50 * 1000;
-	//Tstar = 2.7;
+	Tstar = 2.7;
 	double Ephmin = 0.1 * Tstar * kBoltzman;
 	double Ephmax = 100 * Tstar * kBoltzman;
 	double luminosity = 510000 * 4 * 1E33;
@@ -1110,8 +1110,10 @@ void testAnisotropicCompton() {
 	InverseComptonEvaluator* comptonEvaluator2 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDummyDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
 	InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDummyDistribution, ComptonSolverType::ISOTROPIC_JONES);
 
-	double minEev = 0.3 * 1000 * 1.6E-12;
-	double maxEev = 10 * 1000 * 1.6E-12;
+	comptonEvaluator2->outputDifferentialFlux("differentialFLux.dat");
+
+	double minEev = 0.3 * 1 * 1.6E-12;
+	double maxEev = 10 * 1 * 1.6E-12;
 	int Nph = 10;
 	double kevFlux = comptonEvaluator2->evaluateTotalFluxInEnergyRange(minEev, maxEev, Nph, source);
 	double kevJonesFlux = comptonEvaluator1->evaluateTotalFluxInEnergyRange(minEev, maxEev, Nph, source);
@@ -1128,12 +1130,13 @@ void testAnisotropicCompton() {
 		double factor = pow(maxEev / minEev, 1.0 / (Nph - 1));
 		double currentE = minEev;
 		double flux = 0;
-		for (int j = 0; j < Nph; ++j) {
+		/*for (int j = 0; j < Nph; ++j) {
 			printf("%d\n", j);
 			double dE = currentE * (factor - 1.0);
 			kevAnisotropicFlux += comptonEvaluator2->evaluateFluxFromSourceAnisotropic(currentE, 0, 0, photonDirectedDistribution, source) * dE;
 			currentE = currentE * factor;
-		}
+		}*/
+		kevAnisotropicFlux = comptonEvaluator2->evaluateFluxFromSourceAnisotropic(currentE, 0, 0, photonDirectedDistribution, source);
 		printf("theta = %g flux = %g\n", theta, kevAnisotropicFlux);
 		fprintf(outFile, "%g %g\n", theta, kevAnisotropicFlux);
 
