@@ -1084,8 +1084,9 @@ void testAnisotropicCompton() {
 	double Emax = 1E4 * me_c2;
 	Emax = 1E9 * (1.6E-12);
 	Emax = 1.000001 * me_c2;
+	double dE = 0.000001 * me_c2;
 	int Ne = 100;
-	int Nmu = 100;
+	int Nmu = 40;
 	int Nrho = 2;
 	int Nz = 4;
 	int Nphi = 4;
@@ -1103,7 +1104,8 @@ void testAnisotropicCompton() {
 
 	int Nangles = 20;
 
-	MassiveParticleIsotropicDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, 3.0, Emin, electronConcentration);
+	//MassiveParticleIsotropicDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, 3.0, Emin, electronConcentration);
+	MassiveParticleIsotropicDistribution* electrons = new MassiveParticleMonoenergeticDistribution(massElectron, Emax, dE, electronConcentration);
 	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee9.dat", "./examples_data/gamma0.5_theta0-90/Fs9.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
 	//electrons->rescaleDistribution(sqrt(18));
 	//electrons->addPowerLaw(300 * me_c2, 3.5);

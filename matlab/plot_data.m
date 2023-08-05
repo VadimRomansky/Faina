@@ -2,8 +2,9 @@ clear;
 
 %data = importdata('../output4.dat');
 %data = importdata('../dist1.dat');
-data = importdata('../anisotropicCompton.dat');
+%data = importdata('../anisotropicCompton.dat');
 %data = importdata('../differentialFlux.dat');
+data = importdata('../debugFlux.dat');
 
 N = size(data,1);
 
