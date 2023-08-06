@@ -1934,14 +1934,17 @@ double InverseComptonEvaluator::evaluateFluxFromFunction(const double& photonFin
 	else if (my_solverType == ComptonSolverType::ISOTROPIC_JONES) {
 		return evaluateComptonFluxJonesIsotropic(photonFinalEnergy, photonDistribution, electronDistribution, volume, distance);
 	}
-	/*else if (my_solverType == ComptonSolverType::ISOTROPIC_KLEIN_NISHINA2) {
-		return evaluateComptonFluxKleinNishinaIsotropic2(photonFinalEnergy, photonDistribution, electronDistribution, volume, distance);
-	}*/
 	else if (my_solverType == ComptonSolverType::ISOTROPIC_KLEIN_NISHINA) {
 		return evaluateComptonFluxKleinNishinaIsotropic(photonFinalEnergy, photonDistribution, electronDistribution, volume, distance);
 	}
 	else if (my_solverType == ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA) {
-		return evaluateComptonFluxKleinNishinaAnisotropic(photonFinalEnergy, photonDistribution, electronDistribution, volume, distance);
+		return evaluateComptonFluxKleinNishinaAnisotropic(photonFinalEnergy, 0, 0, photonDistribution, electronDistribution, volume, distance);
+	}
+	else if (my_solverType == ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA2) {
+		return evaluateComptonFluxKleinNishinaAnisotropic2(photonFinalEnergy, 0, 0, photonDistribution, electronDistribution, volume, distance);
+	}
+	else if (my_solverType == ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA3) {
+		return evaluateComptonFluxKleinNishinaAnisotropic3(photonFinalEnergy, 0, 0, photonDistribution, electronDistribution, volume, distance);
 	}
 	else {
 		printf("unknown compton solver type\n");
@@ -1949,32 +1952,6 @@ double InverseComptonEvaluator::evaluateFluxFromFunction(const double& photonFin
 		exit(0);
 	}
 }
-
-/*double InverseComptonEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source) {
-	int Nrho = source->getNrho();
-	int Nz = source->getNz();
-	int Nphi = source->getNphi();
-
-	double result = 0;
-	int irho = 0;
-
-	omp_init_lock(&my_lock);
-
-#pragma omp parallel for private(irho) shared(photonFinalEnergy, source, Nrho, Nz, Nphi) reduction(+:result)
-
-	for (irho = 0; irho < Nrho; ++irho) {
-		for (int iphi = 0; iphi < Nphi; ++iphi) {
-			for (int iz = 0; iz < Nz; ++iz) {
-                result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
-			}
-			result += evaluateFluxFromSourceAtPoint(photonFinalEnergy, source, irho, iphi);
-		}
-	}
-
-	omp_destroy_lock(&my_lock);
-
-	return result;
-}*/
 
 double InverseComptonEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi) {
 	int Nrho = source->getNrho();
@@ -1992,7 +1969,7 @@ double InverseComptonEvaluator::evaluateFluxFromSourceAtPoint(const double& phot
 	return result;
 }
 
-double InverseComptonEvaluator::evaluateFluxFromSourceAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, RadiationSource* source) {
+double InverseComptonEvaluator::evaluateFluxFromSourceAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, RadiationSource* source, ComptonSolverType solverType) {
 	int Nrho = source->getNrho();
 	int Nz = source->getNz();
 	int Nphi = source->getNphi();
@@ -2007,7 +1984,20 @@ double InverseComptonEvaluator::evaluateFluxFromSourceAnisotropic(const double& 
 	for (irho = 0; irho < Nrho; ++irho) {
 		for (int iz = 0; iz < Nz; ++iz) {
 			for (int iphi = 0; iphi < Nphi; ++iphi) {
-				result += evaluateComptonFluxKleinNishinaAnisotropic2(photonFinalEnergy, photonFinalTheta, photonFinalPhi, photonDistribution, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
+				if (solverType == ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA) {
+					result += evaluateComptonFluxKleinNishinaAnisotropic(photonFinalEnergy, photonFinalTheta, photonFinalPhi, photonDistribution, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
+				}
+				else if (solverType == ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA2) {
+					result += evaluateComptonFluxKleinNishinaAnisotropic2(photonFinalEnergy, photonFinalTheta, photonFinalPhi, photonDistribution, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
+				}
+				else if (solverType == ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA3) {
+					result += evaluateComptonFluxKleinNishinaAnisotropic3(photonFinalEnergy, photonFinalTheta, photonFinalPhi, photonDistribution, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
+				}
+				else {
+					printf("wrong Compton solver type for anisotropic flux\n");
+					printLog("wrong Compton solver type for anisotropic flux\n");
+					exit(0);
+				}
 			}
 		}
 	}

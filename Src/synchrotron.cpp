@@ -362,7 +362,7 @@ double SynchrotronEvaluator::evaluateFluxFromSourceAtPoint(const double& photonF
 		double D = gamma * (1.0 - beta * mu);
 		double photonFinalFrequencyPrimed = photonFinalFrequency * D;
 		//evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), source->getParticleDistribution(irho, iz, iphi), I, A);
-		MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticlePowerLawDistribution*>(source->getParticleDistribution(irho, iz, iphi));
+		MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
 		if (distribution == NULL) {
 			printf("Synchrotron evaluator works only with isotropic distributions\n");
 			printLog("Synchrotron evaluator works only with isotropic distributions\n");
