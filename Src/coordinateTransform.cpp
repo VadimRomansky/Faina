@@ -211,26 +211,7 @@ void rotationSphericalCoordinates(const double& thetar, const double& phir, cons
 	}
 	double coshi = sinTheta0 * cos(tempPhi);
 	double cosPhi1 = coshi / sinTheta1;
-	if (cosPhi1 > 1.0 && cosPhi1 < 1.00001) {
-		printf("cosPhi1 = %g > 1.0 reduced to 1.0\n", cosPhi1);
-		printLog("cosPhi1 = %g > 1.0 reduced to 1.0\n", cosPhi1);
-		cosPhi1 = 1.0;
-	}
-	if (cosPhi1 < -1.0 && cosPhi1 > -1.00001) {
-		printf("cosPhi1 = %g < -1.0 reduced to -1.0\n", cosPhi1);
-		printLog("cosPhi1 = %g < -1.0 reduced to -1.0\n", cosPhi1);
-		cosPhi1 = -1.0;
-	}
-	if (cosPhi1 > 1.0) {
-		printf("cosPhi1 = %g > 1.0\n", cosPhi1);
-		printLog("cosPhi1 = %g > 1.0\n", cosPhi1);
-		exit(0);
-	}
-	if (cosPhi1 < -1.0) {
-		printf("cosPhi1 = %g < -1.0\n", cosPhi1);
-		printLog("cosPhi1 = %g < -1.0\n", cosPhi1);
-		exit(0);
-	}
+	checkAndFixCosValue(cosPhi1);
 	double scalarMult = sin(tempPhi) * sinTheta0 * mur - mu0 * sinThetar;
 	phi1 = acos(cosPhi1);
 	if (scalarMult < 0) {
@@ -326,26 +307,7 @@ void inverseRotationSphericalCoordinates(const double& thetar, const double& phi
 	double coshi = sinTheta1 * cos(phi1);
 
 	double cosTempPhi = coshi / sinTheta0;
-	if (cosTempPhi > 1.0 && cosTempPhi < 1.00001) {
-		//printf("cosTempPhi = %g > 1.0 reduced to 1.0\n", cosTempPhi);
-		//printLog("cosTempPhi = %g > 1.0 reduced to 1.0\n", cosTempPhi);
-		cosTempPhi = 1.0;
-	}
-	if (cosTempPhi < -1.0 && cosTempPhi > -1.00001) {
-		//printf("cosTempPhi = %g < -1.0 reduced to -1.0\n", cosTempPhi);
-		//printLog("cosTempPhi = %g < -1.0 reduced to -1.0\n", cosTempPhi);
-		cosTempPhi = -1.0;
-	}
-	if (cosTempPhi > 1.0) {
-		printf("cosTempPhi = %g > 1.0\n", cosTempPhi);
-		printLog("cosTempPhi = %g > 1.0\n", cosTempPhi);
-		exit(0);
-	}
-	if (cosTempPhi < -1.0) {
-		printf("cosTempPhi = %g < -1.0\n", cosTempPhi);
-		printLog("cosTempPhi = %g < -1.0\n", cosTempPhi);
-		exit(0);
-	}
+	checkAndFixCosValue(cosTempPhi);
 	double scalarMult = sin(phi1) * sinTheta1 * mur + mu1 * sinThetar;
 	double tempPhi = acos(cosTempPhi);
 	if (scalarMult < 0) {

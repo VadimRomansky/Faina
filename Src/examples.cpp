@@ -48,7 +48,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	//double Emin = 652.317 * me_c2 * 1;
 	double Emin = me_c2;
 	double Emax = 1E4 * me_c2;
-	Emax = 1E9 * (1.6E-12);
+	Emax = 1E15 * (1.6E-12);
 	int Ne = 100;
 	int Nmu = 40;
 	int Nrho = 2;
@@ -79,11 +79,11 @@ void evaluateComtonWithPowerLawDistribution() {
 	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), pi/10, 0, pi/18);
 	PhotonPlankDirectedDistribution* photonDirectedDistribution2 = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), pi, 0, 0.9*pi);
 	//initializing electrons distribution
-	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
+	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 	//MassiveParticleIsotropicDistribution* electrons = new MassiveParticleMonoenergeticDistribution(massElectron, 19*me_c2 , 2*me_c2, electronConcentration);
 	//MassiveParticlePowerLawCutoffDistribution* electrons = new MassiveParticlePowerLawCutoffDistribution(massElectron, index, Emin, 2.0,Emax,electronConcentration);
-	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee9.dat", "./examples_data/gamma0.5_theta0-90/Fs9.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
-	electrons->rescaleDistribution(sqrt(18));
+	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee9.dat", "./examples_data/gamma0.5_theta0-90/Fs9.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
+	//electrons->rescaleDistribution(sqrt(18));
 	//electrons->addPowerLaw(300 * me_c2, 3.5);
 	double electronEnergy = electronConcentration * 2 * pi * rmax * rmax * rmax * electrons->getMeanEnergy();
 	//creating radiation source

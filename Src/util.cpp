@@ -218,13 +218,13 @@ double relativisticDelta(const double& gamma) {
 
 void checkAndFixCosValue(double& mu) {
     if (mu > 1.0 && mu < 1.00001) {
-        printf("mu = %g > 1.0 reduced to 1.0\n", mu);
-        printLog("mu = %g > 1.0 reduced to 1.0\n", mu);
+        //printf("mu = %g > 1.0 reduced to 1.0\n", mu);
+        //printLog("mu = %g > 1.0 reduced to 1.0\n", mu);
         mu = 1.0;
     }
     if (mu < -1.0 && mu > -1.00001) {
-        printf("mu = %g < -1.0 reduced to =-1.0\n", mu);
-        printLog("mu = %g < -1.0 reduced to -1.0\n", mu);
+       // printf("mu = %g < -1.0 reduced to =-1.0\n", mu);
+       // printLog("mu = %g < -1.0 reduced to -1.0\n", mu);
         mu = -1.0;
     }
     if (mu > 1.0) {
@@ -250,7 +250,7 @@ void checkAndFixVersin(double& v) {
         printLog("versin = %g > 2.0\n", v);
         exit(0);
     }
-    if (v < 0 && v > -1E-14) {
+    if (v < 0 && v > -5E-10) {
         v = 0;
     }
     if (v < 0) {
