@@ -1085,11 +1085,11 @@ void testAnisotropicCompton() {
 	Emax = 1E9 * (1.6E-12);
 	Emax = 1.000001 * me_c2;
 	double dE = 0.000001 * me_c2;
-	int Ne = 100;
+	int Ne = 10;
 	int Nmu = 40;
 	int Nrho = 2;
 	int Nz = 4;
-	int Nphi = 4;
+	int Nphi = 20;
 	double index = 3.0;
 	double electronConcentration = 5E5;
 
@@ -1102,7 +1102,7 @@ void testAnisotropicCompton() {
 	double rsun = 7.5E10;
 	double rstar = rsun * sqrt(510000.0 / pow(Tstar / 5500, 4));
 
-	int Nangles = 20;
+	int Nangles = 40;
 
 	//MassiveParticleIsotropicDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, 3.0, Emin, electronConcentration);
 	MassiveParticleIsotropicDistribution* electrons = new MassiveParticleMonoenergeticDistribution(massElectron, Emax, dE, electronConcentration);
@@ -1119,16 +1119,16 @@ void testAnisotropicCompton() {
 	double minEev = 0.3 * 0.001 * 1.6E-12;
 	double maxEev = 10 * 0.001 * 1.6E-12;
 	int Nph = 10;
-	double kevFlux = comptonEvaluator2->evaluateTotalFluxInEnergyRange(minEev, maxEev, Nph, source);
-	double kevJonesFlux = comptonEvaluator1->evaluateTotalFluxInEnergyRange(minEev, maxEev, Nph, source);
-	printf("isotropic flux = %g\n", kevFlux);
-	printf("isotropic jones flux = %g\n", kevJonesFlux);
+	//double kevFlux = comptonEvaluator2->evaluateTotalFluxInEnergyRange(minEev, maxEev, Nph, source);
+	//double kevJonesFlux = comptonEvaluator1->evaluateTotalFluxInEnergyRange(minEev, maxEev, Nph, source);
+	//printf("isotropic flux = %g\n", kevFlux);
+	//printf("isotropic jones flux = %g\n", kevJonesFlux);
 
 	FILE* outFile = fopen("anisotropicCompton.dat", "w");
 
 	for (int i = 0; i < Nangles; ++i) {
 		double theta = (i + 0.5) * pi / Nangles;
-		PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), theta, 0, pi / 100);
+		PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), theta, 0, pi / 10);
 		
 		double kevAnisotropicFlux = 0;
 		double factor = pow(maxEev / minEev, 1.0 / (Nph - 1));
