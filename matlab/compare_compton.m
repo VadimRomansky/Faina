@@ -12,7 +12,7 @@ radiationMine1 = importdata('../output2.dat');
 radiationMine2 = importdata('../output3.dat');
 radiationMine3 = importdata('../output4.dat');
 radiationMine4 = importdata('../output5.dat');
-
+radiationMine5 = importdata('../output6.dat');
 
 %Nnu = size(radiationEu,1);
 N1 = size(radiationUvarov,1);
@@ -111,14 +111,16 @@ set(gca, 'XScale', 'log');
 for i = 1:N2,
     %radiationMine1(i,2) = radiationMine1(i,2)*4*3.14*radiationMine1(i,1);
 end;
-plot(radiationUvarov(1:N1,1), radiationUvarov(1:N1,2)/(4*3.14),'cyan','LineWidth',2);
+%plot(radiationUvarov(1:N1,1), radiationUvarov(1:N1,2)/(4*3.14),'cyan','LineWidth',2);
 plot(radiationMineJones(1:N2,1), radiationMineJones(1:N2,2),'blue','LineWidth',2);
 plot(radiationMine1(1:N2,1), radiationMine1(1:N2,2),'green','LineWidth',2);
 plot(radiationMine2(1:N2,1), radiationMine2(1:N2,2),'red','LineWidth',2);
 plot(radiationMine3(1:N2,1), radiationMine3(1:N2,2),'magenta','LineWidth',2);
 plot(radiationMine4(1:N2,1), radiationMine4(1:N2,2),'yellow','LineWidth',2);
+plot(radiationMine5(1:N2,1), radiationMine5(1:N2,2),'cyan','LineWidth',2);
 
 plot(radiationMineJones(1:N2,1), appJones(1:N2),'--','Color','blue','LineWidth',2);
 plot(radiationMine1(1:N2,1), app1(1:N2),'--','Color','green','LineWidth',2);
 plot(radiationMine3(1:N2,1), app3(1:N2),'--','Color','magenta','LineWidth',2);
-legend('uvarov','kang jones','anisotropic KN','isotropic KN','anisotropic photons KN \theta = \pi/18','anisotropic photons KN \theta = 0.9\pi', strcat('fit jones\gamma = ',num2str(pJones(1))), strcat('fit KN\gamma = ',num2str(p1(1))), strcat('fit KN \gamma = ',num2str(p3(1))));
+%legend('uvarov','kang jones','anisotropic KN','isotropic KN','anisotropic photons KN \theta = \pi/18','anisotropic photons KN \theta = 0.9\pi', strcat('fit jones\gamma = ',num2str(pJones(1))), strcat('fit KN\gamma = ',num2str(p1(1))), strcat('fit KN \gamma = ',num2str(p3(1))));
+legend('kang jones','isotropic KNsolver','anisotropic KNsolver','anisotropic photons KN1 \theta = \pi/4','anisotropic photons KN2 \theta = \pi/4','anisotropic photons KN3 \theta = \pi/4', strcat('fit jones\gamma = ',num2str(pJones(1))), strcat('fit KN\gamma = ',num2str(p1(1))), strcat('fit KN \gamma = ',num2str(p3(1))));
