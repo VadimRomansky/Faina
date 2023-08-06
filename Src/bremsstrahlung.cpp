@@ -107,7 +107,13 @@ double BremsstrahlungThermalEvaluator::evaluateFluxFromSourceAtPoint(const doubl
 	double result = 0;
 
 	for (int iz = 0; iz < Nz; ++iz) {
-		result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
+		MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
+		if (distribution == NULL) {
+			printf("BremsstrahlungThermalEvaluator works only with MassiveParticleIsotropicDistribution\n");
+			printLog("BremsstrahlungThermalEvaluator works only with MassiveParticleIsotropicDistribution\n");
+			exit(0);
+		}
+		result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, distribution, source->getVolume(irho, iz, iphi), source->getDistance());
 	}
 
 	return result;

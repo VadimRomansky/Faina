@@ -651,7 +651,7 @@ void RadiationSourceFactory::initializeRhoMask(bool** mask, int Nrho, int Nphi, 
 	}
 }
 
-AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWithTurbulentField(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& theta0, const double& phi0, const double n0, const double& fraction, const double& index, const double& L0, int Nmodes, const double& rho, const double& rhoin, const double& distance)
+AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWithTurbulentField(MassiveParticleDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& theta0, const double& phi0, const double n0, const double& fraction, const double& index, const double& L0, int Nmodes, const double& rho, const double& rhoin, const double& distance)
 {
 	double*** B = create3dArray(Nrho, Nz, Nphi, B0);
 	double*** theta = create3dArray(Nrho, Nz, Nphi, theta0);
@@ -670,7 +670,7 @@ AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWith
 	return source;
 }
 
-AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWithParkerField(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& rho, const double& rhoin, const double& distance)
+AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWithParkerField(MassiveParticleDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& rho, const double& rhoin, const double& distance)
 {
 	double*** B = new double** [Nrho];
 	double*** theta = new double** [Nrho];
@@ -711,7 +711,7 @@ AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWith
 	return new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ntheta, electronDistributions, B, theta, phi, concentration, rho, rhoin, distance);
 }
 
-AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWithParkerFieldWithRotation(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& thetaRot, const double& rho, const double& rhoin, const double& distance)
+AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWithParkerFieldWithRotation(MassiveParticleDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& thetaRot, const double& rho, const double& rhoin, const double& distance)
 {
 	double*** B = new double** [Nrho];
 	double*** theta = new double** [Nrho];

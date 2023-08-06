@@ -1696,9 +1696,9 @@ void CompoundWeightedMassiveParticleDistribution::resetConcentration(const doubl
 	my_concentration = concentration;
 }
 
-MassiveParticleIsotropicDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(const double& mass, const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, const double& electronConcentration, int Ne)
+MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(const double& mass, const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, const double& electronConcentration, int Ne)
 {
-	MassiveParticleIsotropicDistribution** distributions = new MassiveParticleIsotropicDistribution * [Nfiles];
+	MassiveParticleDistribution** distributions = new MassiveParticleDistribution * [Nfiles];
 	for (int i = 0; i < Nfiles; ++i) {
 		std::string fileNumber = convertIntToString(i);
 		const std::string fileNameE = energyFileName;
@@ -1712,9 +1712,9 @@ MassiveParticleIsotropicDistribution** MassiveParticleDistributionFactory::readT
 	return distributions;
 }
 
-MassiveParticleIsotropicDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(const double& mass, const char* fileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, const double& electronConcentration, int Ne)
+MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(const double& mass, const char* fileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, const double& electronConcentration, int Ne)
 {
-	MassiveParticleIsotropicDistribution** distributions = new MassiveParticleIsotropicDistribution * [Nfiles];
+	MassiveParticleDistribution** distributions = new MassiveParticleDistribution * [Nfiles];
 	for (int i = 0; i < Nfiles; ++i) {
 		std::string fileNumber = convertIntToString(i);
 		const std::string fileName = fileName;
@@ -1724,9 +1724,9 @@ MassiveParticleIsotropicDistribution** MassiveParticleDistributionFactory::readT
 	return distributions;
 }
 
-MassiveParticleIsotropicDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(const double& mass, const char* fileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, const double& electronConcentration, int Ne, const double& Epower, const double& index)
+MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(const double& mass, const char* fileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, const double& electronConcentration, int Ne, const double& Epower, const double& index)
 {
-	MassiveParticleIsotropicDistribution** distributions = new MassiveParticleIsotropicDistribution * [Nfiles];
+	MassiveParticleDistribution** distributions = new MassiveParticleDistribution * [Nfiles];
 	for (int i = 0; i < Nfiles; ++i) {
 		std::string fileNumber = convertIntToString(i);
 		const std::string fileName = fileName;
@@ -1738,9 +1738,9 @@ MassiveParticleIsotropicDistribution** MassiveParticleDistributionFactory::readT
 	return distributions;
 }
 
-MassiveParticleIsotropicDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(const double& mass, const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, const double& electronConcentration, int Ne, const double& Epower, const double& index)
+MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(const double& mass, const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, const double& electronConcentration, int Ne, const double& Epower, const double& index)
 {
-	MassiveParticleIsotropicDistribution** distributions = new MassiveParticleIsotropicDistribution * [Nfiles];
+	MassiveParticleDistribution** distributions = new MassiveParticleDistribution * [Nfiles];
 	for (int i = 0; i < Nfiles; ++i) {
 		std::string fileNumber = convertIntToString(i);
 		const std::string fileNameE = energyFileName;

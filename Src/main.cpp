@@ -71,7 +71,7 @@ void evaluateFluxSNRtoWind() {
 	int Ndistributions = 10;
 	//reading electron distributions from files
 	//MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.3_theta0-90/Ee", "./examples_data/gamma0.3_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
-	MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.5_theta0-90/Ee", "./examples_data/gamma0.5_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
+	MassiveParticleDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.5_theta0-90/Ee", "./examples_data/gamma0.5_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
 	double newEmax = 1E6 * me_c2;
 	for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
@@ -85,9 +85,9 @@ void evaluateFluxSNRtoWind() {
 		
 	}
 
-	angleDependentDistributions[1]->writeDistribution("dist1.dat", 300, Emin, newEmax);
-	angleDependentDistributions[4]->writeDistribution("dist4.dat", 300, Emin, newEmax);
-	angleDependentDistributions[8]->writeDistribution("dist8.dat", 300, Emin, newEmax);
+	(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[1]))->writeDistribution("dist1.dat", 300, Emin, newEmax);
+	(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[4]))->writeDistribution("dist4.dat", 300, Emin, newEmax);
+	(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[8]))->writeDistribution("dist8.dat", 300, Emin, newEmax);
 
 	//creating radiation source
 	//RadiationSource* source = new SimpleFlatSource(electronsFromSmilei, B, theta, rsource, 0.1*rsource, distance);

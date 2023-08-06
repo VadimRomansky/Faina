@@ -68,7 +68,7 @@ double DiskSource::getMaxZ() {
 	return my_z;
 }
 
-SimpleFlatSource::SimpleFlatSource(MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& theta, const double& rho, const double& z, const double& distance, const double& velocity) : DiskSource(1,1,1, rho, z,distance) {
+SimpleFlatSource::SimpleFlatSource(MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& rho, const double& z, const double& distance, const double& velocity) : DiskSource(1,1,1, rho, z,distance) {
 	my_distribution = electronDistribution;
 	my_B = B;
 	my_theta = theta;
@@ -162,11 +162,11 @@ void SimpleFlatSource::resetParameters(const double* parameters, const double* n
 double SimpleFlatSource::getLength(int irho, int iz, int iphi) {
 	return my_z;
 }
-MassiveParticleIsotropicDistribution* SimpleFlatSource::getParticleDistribution(int irho, int iz, int iphi) {
+MassiveParticleDistribution* SimpleFlatSource::getParticleDistribution(int irho, int iz, int iphi) {
 	return my_distribution;
 }
 
-TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& z, const double& distance, const double& velocity) : DiskSource(Nrho, Nz, Nphi, rho, z, distance) {
+TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& z, const double& distance, const double& velocity) : DiskSource(Nrho, Nz, Nphi, rho, z, distance) {
 	my_distribution = electronDistribution;
 	my_velocity = 0;
 
@@ -198,7 +198,7 @@ TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassivePart
 	}
 }
 
-TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& theta, const double& concentration, const double& rho, const double& z, const double& distance, const double& velocity) : DiskSource(Nrho, Nz, Nphi, rho, z, distance)
+TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& concentration, const double& rho, const double& z, const double& distance, const double& velocity) : DiskSource(Nrho, Nz, Nphi, rho, z, distance)
 {
 	my_distribution = electronDistribution;
 	my_velocity = velocity;
@@ -442,7 +442,7 @@ double TabulatedDiskSource::getAverageConcentration()
 	}
 	return result;
 }
-MassiveParticleIsotropicDistribution* TabulatedDiskSource::getParticleDistribution(int irho, int iz, int iphi) {
+MassiveParticleDistribution* TabulatedDiskSource::getParticleDistribution(int irho, int iz, int iphi) {
 	my_distribution->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_distribution;
 }
@@ -831,7 +831,7 @@ double SphericalLayerSource::getInnerRho() {
 	return my_rhoin;
 }
 
-TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance) {
+TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance) {
 	my_distribution = electronDistribution;
 	my_velocity = velocity;
 	
@@ -869,7 +869,7 @@ TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, i
 		}
 	}
 }
-TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& theta, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance) {
+TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance) {
 	my_distribution = electronDistribution;
 	my_velocity = velocity;
 
@@ -1262,15 +1262,15 @@ void TabulatedSphericalLayerSource::resetParameters(const double* parameters, co
 	}
 	my_velocity = parameters[4] * normalizationUnits[4];
 }
-MassiveParticleIsotropicDistribution* TabulatedSphericalLayerSource::getParticleDistribution(int irho, int iz, int iphi) {
+MassiveParticleDistribution* TabulatedSphericalLayerSource::getParticleDistribution(int irho, int iz, int iphi) {
 	my_distribution->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_distribution;
 }
 
-AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, double*** B, double*** sinTheta, double*** phi, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, concentration, rho, rhoin, distance, velocity)
+AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleDistribution** electronDistributions, double*** B, double*** sinTheta, double*** phi, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, concentration, rho, rhoin, distance, velocity)
 {
 	my_Ntheta = Ntheta;
-	my_distributions = new MassiveParticleIsotropicDistribution*[my_Ntheta];
+	my_distributions = new MassiveParticleDistribution*[my_Ntheta];
 
 	for (int i = 0; i < my_Ntheta; ++i) {
 		my_distributions[i] = electronDistributions[i];
@@ -1318,10 +1318,10 @@ AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(i
 	}
 }
 
-AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, const double& B, const double& sinTheta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, concentration, rho, rhoin, distance, velocity)
+AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleDistribution** electronDistributions, const double& B, const double& sinTheta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, concentration, rho, rhoin, distance, velocity)
 {
 	my_Ntheta = Ntheta;
-	my_distributions = new MassiveParticleIsotropicDistribution * [my_Ntheta];
+	my_distributions = new MassiveParticleDistribution * [my_Ntheta];
 
 	for (int i = 0; i < my_Ntheta; ++i) {
 		my_distributions[i] = electronDistributions[i];
@@ -1400,7 +1400,7 @@ double AngleDependentElectronsSphericalSource::getShockWaveAngle(int irho, int i
 	return my_shockWaveAngle[irho][iz][iphi];
 }
 
-MassiveParticleIsotropicDistribution* AngleDependentElectronsSphericalSource::getParticleDistribution(int irho, int iz, int iphi)
+MassiveParticleDistribution* AngleDependentElectronsSphericalSource::getParticleDistribution(int irho, int iz, int iphi)
 {
 	double dtheta = 0.5*pi / (my_Ntheta-1);
 	double theta = my_shockWaveAngle[irho][iz][iphi];
@@ -1470,7 +1470,7 @@ RadiationSource* ExpandingRemnantSource::getRadiationSource(double& time, const 
 	return my_radiationSource;
 }
 
-TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, rhoin, distance, velocity)
+TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, rhoin, distance, velocity)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticlePowerLawCutoffDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
@@ -1487,7 +1487,7 @@ TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int
 	write3dArrayToFile(my_LB2, my_Nrho, my_Nz, my_Nphi, "LB2.dat");
 }
 
-TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, rhoin, distance, velocity)
+TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, rhoin, distance, velocity)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticlePowerLawCutoffDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
@@ -1564,7 +1564,7 @@ void TabulatedSLSourceWithSynchCutoff::resetParameters(const double* parameters,
 	updateLB2();
 }
 
-MassiveParticleIsotropicDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistribution(int irho, int iz, int iphi)
+MassiveParticleDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistribution(int irho, int iz, int iphi)
 {
 	my_cutoffDistribution->resetEcut(my_defaultCutoff);
 	double LB2 = my_LB2[irho][iz][iphi];
@@ -1587,7 +1587,7 @@ MassiveParticleIsotropicDistribution* TabulatedSLSourceWithSynchCutoff::getParti
 	return my_cutoffDistribution;
 }
 
-TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, z, distance, velocity)
+TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, z, distance, velocity)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticlePowerLawCutoffDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
@@ -1600,7 +1600,7 @@ TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho,
 	my_defaultCutoff = my_cutoffDistribution->getEcutoff();
 }
 
-TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, z, distance, velocity)
+TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, z, distance, velocity)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticlePowerLawCutoffDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
@@ -1648,7 +1648,7 @@ void TabulatedDiskSourceWithSynchCutoff::resetParameters(const double* parameter
 	my_meanB = getAverageBsquared();
 }
 
-MassiveParticleIsotropicDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDistribution(int irho, int iz, int iphi)
+MassiveParticleDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDistribution(int irho, int iz, int iphi)
 {
 	my_cutoffDistribution->resetEcut(my_defaultCutoff);
 	double rho = (irho + 0.5) * my_rho / my_Nrho;
@@ -2174,7 +2174,7 @@ double TabulatedSectoralSphericalLayerSource::evaluateTotalLB2fromPoint(const do
 	return totalLB2;
 }
 
-TabulatedSectoralSphericalLayerSource::TabulatedSectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& velocity) : SectoralSphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, minrho, phi, distance)
+TabulatedSectoralSphericalLayerSource::TabulatedSectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& velocity) : SectoralSphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, minrho, phi, distance)
 {
 	my_distribution = electronDistribution;
 	my_velocity = velocity;
@@ -2207,7 +2207,7 @@ TabulatedSectoralSphericalLayerSource::TabulatedSectoralSphericalLayerSource(int
 	}
 }
 
-TabulatedSectoralSphericalLayerSource::TabulatedSectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& velocity) : SectoralSphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, minrho, phi, distance)
+TabulatedSectoralSphericalLayerSource::TabulatedSectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& velocity) : SectoralSphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, minrho, phi, distance)
 {
 	my_distribution = electronDistribution;
 	my_velocity = velocity;
@@ -2442,12 +2442,12 @@ void TabulatedSectoralSphericalLayerSource::resetParameters(const double* parame
 	}
 	my_velocity = parameters[4] * normalizationUnits[4];
 }
-MassiveParticleIsotropicDistribution* TabulatedSectoralSphericalLayerSource::getParticleDistribution(int irho, int iz, int iphi) {
+MassiveParticleDistribution* TabulatedSectoralSphericalLayerSource::getParticleDistribution(int irho, int iz, int iphi) {
 	my_distribution->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_distribution;
 }
 
-TabulatedSectoralSLSourceWithSynchCutoff::TabulatedSectoralSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSectoralSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, rhoin, minrho, phi, distance, velocity)
+TabulatedSectoralSLSourceWithSynchCutoff::TabulatedSectoralSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSectoralSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, rhoin, minrho, phi, distance, velocity)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticlePowerLawCutoffDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
@@ -2474,7 +2474,7 @@ TabulatedSectoralSLSourceWithSynchCutoff::TabulatedSectoralSLSourceWithSynchCuto
 	delete3dArray(Ecutoff, my_Nrho, my_Nz, my_Nphi);
 }
 
-TabulatedSectoralSLSourceWithSynchCutoff::TabulatedSectoralSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSectoralSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, rhoin, minrho, phi, distance, velocity)
+TabulatedSectoralSLSourceWithSynchCutoff::TabulatedSectoralSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSectoralSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, rhoin, minrho, phi, distance, velocity)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticlePowerLawCutoffDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
@@ -2564,7 +2564,7 @@ void TabulatedSectoralSLSourceWithSynchCutoff::resetParameters(const double* par
 	updateLB2();
 }
 
-MassiveParticleIsotropicDistribution* TabulatedSectoralSLSourceWithSynchCutoff::getParticleDistribution(int irho, int iz, int iphi)
+MassiveParticleDistribution* TabulatedSectoralSLSourceWithSynchCutoff::getParticleDistribution(int irho, int iz, int iphi)
 {
 	my_cutoffDistribution->resetEcut(my_defaultCutoff);
 	double LB2 = my_LB2[irho][iz][iphi];

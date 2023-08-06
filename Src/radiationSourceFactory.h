@@ -26,10 +26,10 @@ public:
 	static void initialize3dAngularMask(bool** mask, int Nrho, int Nphi, const double& angle);
 	static void initializeRhoMask(bool** mask, int Nrho, int Nphi, const double& fraction);
 
-	static AngleDependentElectronsSphericalSource* createSourceWithTurbulentField(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& theta0, const double& phi0, const double n0, const double& fraction, const double& index, const double& L0, int Nmodes, const double& rho, const double& rhoin, const double& distance);
+	static AngleDependentElectronsSphericalSource* createSourceWithTurbulentField(MassiveParticleDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& theta0, const double& phi0, const double n0, const double& fraction, const double& index, const double& L0, int Nmodes, const double& rho, const double& rhoin, const double& distance);
 
-	static AngleDependentElectronsSphericalSource* createSourceWithParkerField(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& rho, const double& rhoin, const double& distance);
-	static AngleDependentElectronsSphericalSource* createSourceWithParkerFieldWithRotation(MassiveParticleIsotropicDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& thetaRot, const double& rho, const double& rhoin, const double& distance);
+	static AngleDependentElectronsSphericalSource* createSourceWithParkerField(MassiveParticleDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& rho, const double& rhoin, const double& distance);
+	static AngleDependentElectronsSphericalSource* createSourceWithParkerFieldWithRotation(MassiveParticleDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& thetaRot, const double& rho, const double& rhoin, const double& distance);
 };
 
 #endif

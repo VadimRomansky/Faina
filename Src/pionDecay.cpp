@@ -390,7 +390,13 @@ double PionDecayEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFin
 	double result = 0;
 
 	for (int iz = 0; iz < Nz; ++iz) {
-		result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
+		MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
+		if(distribution == NULL) {
+			printf("Pion decay evaluator works only woth isotropic protons distribution\n");
+			printLog("Pion decay evaluator works only woth isotropic protons distribution\n");
+			exit(0);
+		}
+		result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, distribution, source->getVolume(irho, iz, iphi), source->getDistance());
 	}
 
 	return result;
@@ -486,7 +492,13 @@ double PionDecayEvaluatorKelner::evaluateFluxFromSourceAtPoint(const double& pho
 	double result = 0;
 
 	for (int iz = 0; iz < Nz; ++iz) {
-		result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
+		MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
+		if (distribution == NULL) {
+			printf("Pion decay Kelner evaluator works only woth isotropic protons distribution\n");
+			printLog("Pion decay Kelner evaluator works only woth isotropic protons distribution\n");
+			exit(0);
+		}
+		result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, distribution, source->getVolume(irho, iz, iphi), source->getDistance());
 	}
 
 	return result;
