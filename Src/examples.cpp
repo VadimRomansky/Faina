@@ -53,7 +53,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	int Nmu = 40;
 	int Nrho = 2;
 	int Nz = 4;
-	int Nphi = 10;
+	int Nphi = 20;
 	double index =3.0;
 	double KK = 24990.8;
 	double electronConcentration = KK / (pow(652.317, index - 1) * (index - 1));
@@ -76,7 +76,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rmax));
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
 	//PhotonIsotropicDistribution* photonDistribution = new PhotonMonoenergeticDistribution(4*1.6E-12, 0.4*1.6E-12, 1.0);
-	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), pi, 0, pi/10);
+	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), pi, 0, pi/4);
 	PhotonPlankDirectedDistribution* photonDirectedDistribution2 = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), pi, 0, 0.9*pi);
 	//initializing electrons distribution
 	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
@@ -114,9 +114,9 @@ void evaluateComtonWithPowerLawDistribution() {
 	for (int i = 0; i < Nph; ++i) {
 		printf("%d\n", i);
 		double dE = currentE * (factor - 1.0);
-		kevAnisotropicFlux2 += comptonEvaluator2->evaluateFluxFromSourceAnisotropic(currentE, pi/18, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA)* dE;
-		kevAnisotropicFlux3 += comptonEvaluator3->evaluateFluxFromSourceAnisotropic(currentE, pi/18, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA2)* dE;
-		kevAnisotropicFlux4 += comptonEvaluator4->evaluateFluxFromSourceAnisotropic(currentE, pi/18, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA3)* dE;
+		kevAnisotropicFlux2 += comptonEvaluator2->evaluateFluxFromSourceAnisotropic(currentE, 0, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA)* dE;
+		kevAnisotropicFlux3 += comptonEvaluator3->evaluateFluxFromSourceAnisotropic(currentE, 0, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA2)* dE;
+		kevAnisotropicFlux4 += comptonEvaluator4->evaluateFluxFromSourceAnisotropic(currentE, 0, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA3)* dE;
 		currentE = currentE * factor;
 	}
 	double totalLuminosity = kevFlux * 4 * pi * distance * distance;
@@ -1096,7 +1096,7 @@ void testAnisotropicCompton() {
 	//Emax = 1000* me_c2;
 	//Emin = Emax - me_c2;
 	double dE = me_c2;
-	int Ne = 10;
+	int Ne = 50;
 	int Nmu = 40;
 	int Nrho = 2;
 	int Nz = 4;
@@ -1140,7 +1140,7 @@ void testAnisotropicCompton() {
 
 	for (int i = 0; i < Nangles; ++i) {
 		double theta = (i + 0.5) * pi / Nangles;
-		PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), theta, 0, pi / 4);
+		PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), 0, 0, pi / 4);
 		
 		double kevAnisotropicFlux1 = 0;
 		double kevAnisotropicFlux2 = 0;
@@ -1154,9 +1154,9 @@ void testAnisotropicCompton() {
 			kevAnisotropicFlux += comptonEvaluator2->evaluateFluxFromSourceAnisotropic(currentE, 0, 0, photonDirectedDistribution, source) * dE;
 			currentE = currentE * factor;
 		}*/
-		kevAnisotropicFlux1 = comptonEvaluator1->evaluateFluxFromSourceAnisotropic(currentE, 0, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-		kevAnisotropicFlux2 = comptonEvaluator1->evaluateFluxFromSourceAnisotropic(currentE, 0, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA2);
-		kevAnisotropicFlux3 = comptonEvaluator1->evaluateFluxFromSourceAnisotropic(currentE, 0, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA3);
+		kevAnisotropicFlux1 = comptonEvaluator1->evaluateFluxFromSourceAnisotropic(currentE, theta, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+		kevAnisotropicFlux2 = comptonEvaluator1->evaluateFluxFromSourceAnisotropic(currentE, theta, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA2);
+		kevAnisotropicFlux3 = comptonEvaluator1->evaluateFluxFromSourceAnisotropic(currentE, theta, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA3);
 		printf("theta = %g flux1 = %g flux2 = %g flux3 = %g\n", theta, kevAnisotropicFlux1, kevAnisotropicFlux2, kevAnisotropicFlux3);
 		fprintf(outFile, "%g %g %g %g\n", theta, kevAnisotropicFlux1, kevAnisotropicFlux2, kevAnisotropicFlux3);
 
