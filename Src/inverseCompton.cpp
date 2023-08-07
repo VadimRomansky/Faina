@@ -2007,6 +2007,19 @@ double InverseComptonEvaluator::evaluateFluxFromSourceAnisotropic(const double& 
 	return result;
 }
 
+double InverseComptonEvaluator::evaluateTotalFluxInEnergyRangeAnisotropic(const double& Ephmin, const double& Ephmax, const double& photonFinalTheta, const double& photonFinalPhi, int Nph, PhotonDistribution* photonDistribution, RadiationSource* source, ComptonSolverType solverType ) {
+	double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+	double currentE = Ephmin;
+	double flux = 0;
+	for (int i = 0; i < Nph; ++i) {
+		printf("%d\n", i);
+		double dE = currentE * (factor - 1.0);
+		flux += evaluateFluxFromSourceAnisotropic(currentE, photonFinalTheta, photonFinalPhi, photonDistribution, source, solverType) * dE;
+		currentE = currentE * factor;
+	}
+	return flux;
+}
+
 InverseComptonEvaluatorWithSource::InverseComptonEvaluatorWithSource(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonDistribution* photonDistribution, ComptonSolverType solverType, const double& sourceR, const double& sourceZ, const double& sourcePhi) : InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, solverType) {
 	my_sourceR = sourceR;
 	my_sourceZ = sourceZ;
