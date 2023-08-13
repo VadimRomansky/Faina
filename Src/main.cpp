@@ -30,7 +30,7 @@ void evaluateFluxSNRtoWind() {
 
 	double electronConcentration = 25;
 	double B = 0.003;
-	double rmax = 1.4E17;
+	double rmax = 1.0E16;
 	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
 	double fraction = 0.5;
 	sigma = 0.0002;
@@ -65,8 +65,8 @@ void evaluateFluxSNRtoWind() {
 	//initializing electrons distribution
 	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee3.dat", "./examples_data/gamma0.5_theta0-90/Fs3.dat", 200, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
-	electrons->rescaleDistribution(sqrt(18.0));
-	//electronsFromSmilei->addPowerLaw(20 * massElectron * speed_of_light2, 3.5);
+	//electrons->rescaleDistribution(sqrt(18.0));
+	electrons->addPowerLaw(80 * massElectron * speed_of_light2, 3.5);
 	//electronsFromSmilei->rescaleDistribution(sqrt(18));
 	int Ndistributions = 10;
 	//reading electron distributions from files
@@ -90,10 +90,10 @@ void evaluateFluxSNRtoWind() {
 	(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[8]))->writeDistribution("dist8.dat", 300, Emin, newEmax);
 
 	//creating radiation source
-	//RadiationSource* source = new SimpleFlatSource(electronsFromSmilei, B, theta, rsource, 0.1*rsource, distance);
-	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronsFromSmilei, B, theta, electronConcentration, rsource, 0.9*rsource, distance);
+	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, 0.1*rmax, distance);
+	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, electronConcentration, rmax, 0.5*rmax, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronsFromSmilei, Bturb, thetaTurb, concentration, rsource, 0.9*rsource, distance);
-	AngleDependentElectronsSphericalSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, Bturb, thetaTurb, phiTurb, concentration, rmax, 0.9*rmax, distance, 0.5*speed_of_light);
+	//AngleDependentElectronsSphericalSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, Bturb, thetaTurb, phiTurb, concentration, rmax, 0.9*rmax, distance, 0.5*speed_of_light);
 	//counting of quai parallel
 	/*int nangle = 0;
 	for (int irho = 0; irho < Nrho; ++irho) {
@@ -125,15 +125,15 @@ void evaluateFluxSNRtoWind() {
 
 	//SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true);
 	//SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, newEmax, true, true);
-	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne+100, Emin, newEmax, true, true);
+	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne+100, Emin, newEmax, true, false);
 	//comptonEvaluator->outputDifferentialFlux("output1.dat");
 	//return;
 
 	//number of parameters of the source
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 1.0E17, 0.00001, 0.02, 0.0001, 0.3*speed_of_light };
-	double maxParameters[Nparams] = { 2.5E17, 1E-2, 2E6, 0.5, 0.5*speed_of_light };
+	double minParameters[Nparams] = { 0.5E16, 0.0000001, 100, 0.0005, 0.3*speed_of_light };
+	double maxParameters[Nparams] = { 2.4E17, 1E-2, 2E7, 0.5, 0.5*speed_of_light };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, 0.5*speed_of_light };
 	for (int i = 0; i < Nparams; ++i) {
@@ -152,13 +152,13 @@ void evaluateFluxSNRtoWind() {
 
 	printf("start optimization\n");
 	printLog("start optimization\n");
-	bool optPar[Nparams] = { false, true, true, true, false };
+	bool optPar[Nparams] = { true, true, true, true, false };
 	int Niterations = 5;
 	//creating gradient descent optimizer
 	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
 	//RadiationOptimizer* synchrotronOptimizer = new CoordinateRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
 	//number of points per axis in gridEnumOptimizer
-	int Npoints[Nparams] = { 5,10,10,10,2 };
+	int Npoints[Nparams] = { 10,10,10,10,2 };
 	//creating grid enumeration optimizer
 	RadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints);
 	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
@@ -172,14 +172,14 @@ void evaluateFluxSNRtoWind() {
 	//reseting source parameters to found values
 	//synchrotronOptimizer->outputProfileDiagrams(vector, energy1, observedFlux, observedError, Nenergy1, source, 10);
 	//synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source, 10, 1, 2);
-	//combinedOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
+	combinedOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
     //combinedOptimizer->outputProfileDiagrams(vector, energy1, observedFlux, observedError, Nenergy1, source, 10);
 	//combinedOptimizer->outputOptimizedProfileDiagram(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source, 20, 1, 2);
-	vector[0] = 1.4E17 / maxParameters[0];
-	vector[1] = 0.001 / maxParameters[1];
-	vector[2] = 4089.98 / maxParameters[2];
-	vector[3] = 0.001 / maxParameters[3];
-	vector[4] = 1.49896E10 / maxParameters[4];
+	//vector[0] = 1.0E16 / maxParameters[0];
+	//vector[1] = 0.001 / maxParameters[1];
+	//vector[2] = 10000 / maxParameters[2];
+	//vector[3] = 0.001 / maxParameters[3];
+	//vector[4] = 1.49896E10 / maxParameters[4];
 	source->resetParameters(vector, maxParameters);
 	//evaluating resulting error
 	error = synchrotronOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
@@ -201,7 +201,10 @@ void evaluateFluxSNRtoWind() {
 	fprintf(paramFile, "width fraction = %g\n", vector[3] * maxParameters[3]);
 	printf("velocity/c = %g\n", vector[4] * maxParameters[4]/speed_of_light);
 	fprintf(paramFile, "celocity/c = %g\n", vector[4] * maxParameters[4]/speed_of_light);
-
+	B = sqrt(vector[1] * maxParameters[1] * 4 * pi * massProton * vector[2] * maxParameters[2] * speed_of_light2);
+	printf("average B = %g\n", B);
+	fprintf(paramFile, "average B = %g\n", B);
+	fclose(paramFile);
 
 
 	rmax = vector[0] * maxParameters[0];
@@ -210,18 +213,15 @@ void evaluateFluxSNRtoWind() {
 	double velocity = vector[4] * maxParameters[4] / speed_of_light;
 	double gamma = 1.0 / sqrt(1.0 - velocity * velocity);
 
-	double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0)*(4*pi*rmax*rmax*rmax/3)*(1.0 - cube(1.0 - fraction));
+	//double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0)*(4*pi*rmax*rmax*rmax/3)*(1.0 - cube(1.0 - fraction));
+	double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0)*source->getTotalVolume();
 
 	printf("total kinetik energy = %g\n", totalEnergy);
 	printLog("total kinetik energy = %g\n", totalEnergy);
 
-	B = sqrt(vector[1] * maxParameters[1] * 4 * pi * massProton * vector[2] * maxParameters[2] * speed_of_light2);
-	printf("average B = %g\n", B);
-	fprintf(paramFile, "average B = %g\n", B);
-	fclose(paramFile);
 
 	//initialization arrays for full synchrotron spectrum
-	const int Nnu = 20;
+	const int Nnu = 50;
 	double* Nu = new double[Nnu];
 	double* F = new double[Nnu];
 
@@ -738,7 +738,7 @@ void fitTychoProfile() {
 
 int main() {
 	//evaluateSimpleSynchrotron();
-	evaluateComtonWithPowerLawDistribution();
+	//evaluateComtonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
@@ -750,7 +750,7 @@ int main() {
 	//testAnisotropicCompton();
 
 
-	//evaluateFluxSNRtoWind();
+	evaluateFluxSNRtoWind();
 	//evaluateComtonFromWind();
 	//evaluateTychoProfile();
 	//fitTychoProfile();

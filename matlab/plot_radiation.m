@@ -172,7 +172,7 @@ xlabel ('{\nu} GHz');
 ylabel ('mJy');
 
 loglog(radiation(1:N,1),radiation(1:N,2),'red','LineWidth',2);
-loglog(compton(1:N,1),compton(1:N,2),'blue','LineWidth',2);
+%loglog(compton(1:N,1),compton(1:N,2),'blue','LineWidth',2);
 
 %loglog(radiation(1:N,1),radiation(1:N,5),'magenta','LineWidth',2);
 %plot(radiation(1:N,1),radiation(1:N,6),'Color',[1.0,0.6,0],'LineWidth',2);

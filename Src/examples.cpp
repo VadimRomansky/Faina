@@ -35,7 +35,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	//double rmax = 2E14;
 	double rmax = 1.0 / sqrt(pi);
 	rmax = 1E16;
-	double B = 0.3;
+	double B = 0.6;
 
 	//SN2009bb
 	//const double distance = 40*3.08*1.0E24;
@@ -84,7 +84,14 @@ void evaluateComtonWithPowerLawDistribution() {
 	//MassiveParticlePowerLawCutoffDistribution* electrons = new MassiveParticlePowerLawCutoffDistribution(massElectron, index, Emin, 2.0,Emax,electronConcentration);
 	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee9.dat", "./examples_data/gamma0.5_theta0-90/Fs9.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
 	electrons->rescaleDistribution(sqrt(18));
+
+	double photonMeanEnergy = photonDistribution->getMeanEnergy();
+	double photonMeanEnergy1 = photonDirectedDistribution->getMeanEnergy();
+	double photonEnergyDensity = photonMeanEnergy * photonDistribution->getConcentration();
+	double photonEnergyDensity1 = photonMeanEnergy1 * photonDirectedDistribution->getConcentration();
+	double luminosity2 = photonEnergyDensity * 4 * pi * rmax * rmax * speed_of_light;
 	//electrons->addPowerLaw(300 * me_c2, 3.5);
+	double electronKineticEnergyDensity = (electrons->getMeanEnergy() - me_c2)* electronConcentration;
 	double electronEnergy = electronConcentration * 2 * pi * rmax * rmax * rmax * electrons->getMeanEnergy();
 	//creating radiation source
 	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, rmax, distance);
@@ -111,14 +118,14 @@ void evaluateComtonWithPowerLawDistribution() {
 	double factor = pow(maxEev / minEev, 1.0 / (Nph - 1));
 	double currentE = minEev;
 	double flux = 0;
-	for (int i = 0; i < Nph; ++i) {
+	/*for (int i = 0; i < Nph; ++i) {
 		printf("%d\n", i);
 		double dE = currentE * (factor - 1.0);
 		kevAnisotropicFlux2 += comptonEvaluator2->evaluateFluxFromSourceAnisotropic(currentE, 0, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA)* dE;
 		kevAnisotropicFlux3 += comptonEvaluator3->evaluateFluxFromSourceAnisotropic(currentE, 0, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA2)* dE;
 		kevAnisotropicFlux4 += comptonEvaluator4->evaluateFluxFromSourceAnisotropic(currentE, 0, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA3)* dE;
 		currentE = currentE * factor;
-	}
+	}*/
 	double totalLuminosity = kevFlux * 4 * pi * distance * distance;
 	double ejectaKineticEnergy = 2 * pi * rmax * rmax * rmax * electronConcentration * massProton * speed_of_light2 * (1.0 / sqrt(1 - 0.5 * 0.5) - 1.0);
 	FILE* outFile = fopen("SNRtoWindData.dat", "w");
@@ -165,7 +172,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	FILE* output_ev_EFE5 = fopen("output5.dat", "w");
 	FILE* output_ev_EFE6 = fopen("output6.dat", "w");
 	//FILE* output_GHz_Jansky = fopen("output.dat", "w");
-	for (int i = 0; i < Nnu; ++i) {
+	/*for (int i = 0; i < Nnu; ++i) {
 		printf("%d\n", i);
 		double nu = E[i] / hplank;
 		fprintf(output_ev_EFE1, "%g %g\n", E[i] / (1.6E-12), comptonEvaluator0->evaluateFluxFromSource(E[i], source));
@@ -178,7 +185,7 @@ void evaluateComtonWithPowerLawDistribution() {
 		fprintf(output_ev_EFE6, "%g %g\n", E[i] / (1.6E-12), comptonEvaluator4->evaluateFluxFromSourceAnisotropic(E[i], 0, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA3));
 		//fprintf(output_ev_EFE4, "%g %g\n", E[i] / (1.6E-12), comptonEvaluator2->evaluateFluxFromSourceAnisotropic(E[i], 0, 0, photonDistribution, source));
 		//fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * F[i]);
-	}
+	}*/
 	fclose(output_ev_EFE1);
 	fclose(output_ev_EFE2);
 	fclose(output_ev_EFE3);
@@ -188,7 +195,9 @@ void evaluateComtonWithPowerLawDistribution() {
 	//fclose(output_GHz_Jansky);
 
 	RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true, false);
-	synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch2.dat", source, 1E9 * hplank, 1E11 * hplank, 100);
+	RadiationEvaluator* synchrotronEvaluator2 = new SynchrotronEvaluator(Ne, Emin, Emax, false, false);
+	synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch2.dat", source, 1E6 * hplank, 1E11 * hplank, 100);
+	synchrotronEvaluator2->writeFluxFromSourceToFile("outputSynch3.dat", source, 1E6 * hplank, 1E11 * hplank, 100);
 
 	delete[] E;
 	delete[] F;
