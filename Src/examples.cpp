@@ -70,14 +70,15 @@ void evaluateComtonWithPowerLawDistribution() {
 	//Tstar = 2.7;
 	Ephmin = 0.1 * Tstar * kBoltzman;
 	Ephmax = 100 * Tstar * kBoltzman;
-	double luminosity = 510000 * 4 * 1E33;
-	double rsun = 7.5E10;
-	double rstar = rsun * sqrt(510000.0 / pow(Tstar / 5500, 4));
-	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rmax));
+	double luminosity = 510000 * 3.8 * 1E33;
+	double rsun =6.9E10;
+	double rstar = rsun * sqrt(510000.0 / pow(Tstar / 5780, 4));
+	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, 0.25*sqr(rstar / rmax));
+	//PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(2.725, 1.0);
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
 	//PhotonIsotropicDistribution* photonDistribution = new PhotonMonoenergeticDistribution(4*1.6E-12, 0.4*1.6E-12, 1.0);
-	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), pi, 0, pi/4);
-	PhotonPlankDirectedDistribution* photonDirectedDistribution2 = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), pi, 0, 0.9*pi);
+	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, 0.25*sqr(rstar / rmax), pi, 0, pi/4);
+	PhotonPlankDirectedDistribution* photonDirectedDistribution2 = new PhotonPlankDirectedDistribution(Tstar, 0.25*sqr(rstar / rmax), pi, 0, 0.9*pi);
 	//initializing electrons distribution
 	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 	//MassiveParticleIsotropicDistribution* electrons = new MassiveParticleMonoenergeticDistribution(massElectron, 19*me_c2 , 2*me_c2, electronConcentration);
@@ -87,6 +88,7 @@ void evaluateComtonWithPowerLawDistribution() {
 
 	double photonMeanEnergy = photonDistribution->getMeanEnergy();
 	double photonMeanEnergy1 = photonDirectedDistribution->getMeanEnergy();
+	double photonConcentration = photonDistribution->getConcentration();
 	double photonEnergyDensity = photonMeanEnergy * photonDistribution->getConcentration();
 	double photonEnergyDensity1 = photonMeanEnergy1 * photonDirectedDistribution->getConcentration();
 	double luminosity2 = photonEnergyDensity * 4 * pi * rmax * rmax * speed_of_light;
