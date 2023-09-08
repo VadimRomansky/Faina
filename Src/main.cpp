@@ -63,9 +63,9 @@ void evaluateFluxSNRtoWind() {
 	double*** concentration = create3dArray(Nrho, Nz, Nphi, electronConcentration);
 	RadiationSourceFactory::initializeTurbulentField(Bturb, thetaTurb, phiTurb, Nrho, Nz, Nphi, B, pi / 2, 0, 0.9, 11.0 / 6.0, rmax, 10, rmax);
 	//initializing electrons distribution
-	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
-	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee8.dat", "./examples_data/gamma0.5_theta0-90/Fs8.dat", 200, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
-	//electrons->rescaleDistribution(sqrt(18.0));
+	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, me_c2, electronConcentration);
+	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee3.dat", "./examples_data/gamma0.5_theta0-90/Fs3.dat", 200, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+	//electrons->rescaleDistribution(1.2);
 	//electrons->addPowerLaw(80 * massElectron * speed_of_light2, 3.5);
 	int Ndistributions = 10;
 	//reading electron distributions from files
@@ -89,7 +89,7 @@ void evaluateFluxSNRtoWind() {
 	(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[8]))->writeDistribution("dist8.dat", 300, Emin, newEmax);
 
 	//creating radiation source
-	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, 0.1*rmax, distance);
+	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, 0.5*rmax, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, electronConcentration, rmax, 0.5*rmax, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronsFromSmilei, Bturb, thetaTurb, concentration, rsource, 0.9*rsource, distance);
 	//AngleDependentElectronsSphericalSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, Bturb, thetaTurb, phiTurb, concentration, rmax, 0.9*rmax, distance, 0.5*speed_of_light);
@@ -132,8 +132,8 @@ void evaluateFluxSNRtoWind() {
 	//number of parameters of the source
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 0.5E17, 1E-6, 100, 0.0005, 0.3*speed_of_light };
-	double maxParameters[Nparams] = { 1.4E17, 1E-2, 2E5, 0.5, 0.5*speed_of_light };
+	double minParameters[Nparams] = { 0.5E17, 1E-6, 10, 0.0005, 0.3*speed_of_light };
+	double maxParameters[Nparams] = { 1.4E17, 1E-2, 2E6, 0.7, 0.5*speed_of_light };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, 0.5*speed_of_light };
 	for (int i = 0; i < Nparams; ++i) {
@@ -175,15 +175,18 @@ void evaluateFluxSNRtoWind() {
 	combinedOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
     //combinedOptimizer->outputProfileDiagrams(vector, energy1, observedFlux, observedError, Nenergy1, source, 10);
 	//combinedOptimizer->outputOptimizedProfileDiagram(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source, 20, 1, 2);
-	//vector[0] = 1.0E16 / maxParameters[0];
-	//vector[1] = 0.001 / maxParameters[1];
-	//vector[2] = 10000 / maxParameters[2];
-	//vector[3] = 0.001 / maxParameters[3];
-	//vector[4] = 1.49896E10 / maxParameters[4];
+	/*B = 0.29;
+	electronConcentration = 10000;
+	vector[0] = 1.4E17 / maxParameters[0];
+	vector[1] = (B*B/(4*pi*massProton*electronConcentration*speed_of_light2)) / maxParameters[1];
+	vector[2] = electronConcentration / maxParameters[2];
+	vector[3] = 1.33*0.5 / maxParameters[3];
+	vector[4] = 0.55*speed_of_light / maxParameters[4];*/
 	source->resetParameters(vector, maxParameters);
 	//evaluating resulting error
-	error = synchrotronOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
-	printf("error = %g\n", error);
+	error = combinedOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
+	printf("resulting error = %g\n", error);
+	printLog("resulting error = %g\n", error);
 
 	//outputing parameters
 	FILE* paramFile = fopen("parametersCSS161010.dat", "w");

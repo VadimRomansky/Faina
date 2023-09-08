@@ -135,6 +135,7 @@
     <ClCompile Include="Src\coordinateTransform.cpp" />
     <ClCompile Include="Src\examples.cpp" />
     <ClCompile Include="Src\inverseCompton.cpp" />
+    <ClCompile Include="Src\KPIevaluator.cpp" />
     <ClCompile Include="Src\main.cpp" />
     <ClCompile Include="Src\massiveParticleDistribution.cpp" />
     <ClCompile Include="Src\optimization.cpp" />
@@ -152,6 +153,7 @@
     <ClInclude Include="Src\coordinateTransform.h" />
     <ClInclude Include="Src\examples.h" />
     <ClInclude Include="Src\inverseCompton.h" />
+    <ClInclude Include="Src\KPIevaluator.h" />
     <ClInclude Include="Src\massiveParticleDistribution.h" />
     <ClInclude Include="Src\optimization.h" />
     <ClInclude Include="Src\particleDistribution.h" />
