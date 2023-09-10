@@ -6,7 +6,7 @@
 
 class KPIevaluator {
 public:
-	virtual double evaluate(const double* vector, const double* maxParameters, RadiationSource* source, RadiationEvaluator evaluator) = 0;
+	virtual double evaluate(const double* vector, const double* maxParameters, RadiationSource* source, RadiationEvaluator* evaluator) = 0;
 };
 
 class SpectrumKPIevaluator : public KPIevaluator {

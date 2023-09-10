@@ -12,8 +12,9 @@
 #include "optimization.h"
 
 
-RadiationOptimizer::RadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams) {
+RadiationOptimizer::RadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, KPIevaluator* KPIevaluator) {
 	my_evaluator = evaluator;
+	my_KPIevaluator = KPIevaluator;
 	my_Nparams = Nparams;
 	my_minParameters = new double[my_Nparams];
 	my_maxParameters = new double[my_Nparams];
@@ -30,43 +31,12 @@ RadiationOptimizer::~RadiationOptimizer() {
 	delete[] my_minVector;
 }
 
-double RadiationOptimizer::evaluateOptimizationFunction(const double* vector, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source) {
-	double* totalInu = new double[Ne];
-	
-	source->resetParameters(vector, my_maxParameters);
-    my_evaluator->resetParameters(vector, my_maxParameters);
-
-	for (int i = 0; i < Ne; ++i) {
-        totalInu[i] = my_evaluator->evaluateFluxFromSource(energy[i], source);
-	}
-	double err = 0;
-	//for debug only
-	//err = sqr(vector[0] * my_maxParameters[0] - 1.4E17)/1E30 + sqr(vector[1] * my_maxParameters[1] - 0.6) + sqr(vector[2] * my_maxParameters[2] - 10) + sqr(vector[3] * my_maxParameters[3] - 0.5);
-	//err = sqr(vector[0] * my_maxParameters[0] - 1.4E17) / 1E30 + sqr(vector[1] * my_maxParameters[1] - 0.6 + vector[2] * my_maxParameters[2] - 10) + sqr(vector[3] * my_maxParameters[3] - 0.5);
-	for (int j = 0; j < Ne; ++j) {
-		double err1 = 0;
-		err1 = sqr(totalInu[j] - observedFlux[j]) / sqr(observedError[j]);
-
-		err = err + err1;
-	}
-
-	delete[] totalInu;
-
-	return err;
+double RadiationOptimizer::evaluateOptimizationFunction(const double* vector, RadiationSource* source) {
+	return my_KPIevaluator->evaluate(vector, my_maxParameters, source, my_evaluator);
 }
 
-void RadiationOptimizer::optimize(double* vector, bool* optPar, double* energy, double* observedFlux, int Ne, RadiationSource* source) {
-	double* observedError = new double[Ne];
-	for (int i = 0; i < Ne; ++i) {
-		observedError[i] = 1.0;
-	}
 
-	optimize(vector, optPar, energy, observedFlux, observedError, Ne, source);
-
-	delete[] observedError;
-}
-
-void RadiationOptimizer::outputProfileDiagrams(const double* vector, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source, int Npoints)
+void RadiationOptimizer::outputProfileDiagrams(const double* vector, RadiationSource* source, int Npoints)
 {
 	if (my_Nparams < 2) {
 		printf("cannot output error profilefor Nparams < 2\n");
@@ -115,7 +85,7 @@ void RadiationOptimizer::outputProfileDiagrams(const double* vector, double* ene
 					tempVector[ip1] = paramPoints[ip1][j1]/my_maxParameters[ip1];
 					tempVector[ip2] = paramPoints[ip2][j2]/my_maxParameters[ip2];
 
-					double error = evaluateOptimizationFunction(tempVector, energy, observedFlux, observedError, Ne, source);
+					double error = evaluateOptimizationFunction(tempVector, source);
 
 					fprintf(errorFile, "%g", error);
 					if (j2 < Npoints - 1) {
@@ -137,7 +107,7 @@ void RadiationOptimizer::outputProfileDiagrams(const double* vector, double* ene
 	delete[] paramPoints;
 }
 
-void RadiationOptimizer::outputOptimizedProfileDiagram(const double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source, int Npoints, int Nparam1, int Nparam2)
+void RadiationOptimizer::outputOptimizedProfileDiagram(const double* vector, bool* optPar, RadiationSource* source, int Npoints, int Nparam1, int Nparam2)
 {
 	double** paramPoints = new double* [my_Nparams];
 	for (int i = 0; i < my_Nparams; ++i) {
@@ -189,9 +159,9 @@ void RadiationOptimizer::outputOptimizedProfileDiagram(const double* vector, boo
 					tempVector[Nparam1] = paramPoints[Nparam1][j1] / my_maxParameters[Nparam1];
 					tempVector[Nparam2] = paramPoints[Nparam2][j2] / my_maxParameters[Nparam2];
 
-					optimize(tempVector, tempOptPar, energy, observedFlux, observedError, Ne, source);
+					optimize(tempVector, tempOptPar, source);
 
-					double error = evaluateOptimizationFunction(tempVector, energy, observedFlux, observedError, Ne, source);
+					double error = evaluateOptimizationFunction(tempVector, source);
 
 					fprintf(errorFile, "%g", error);
 					if (j2 < Npoints - 1) {
@@ -212,7 +182,7 @@ void RadiationOptimizer::outputOptimizedProfileDiagram(const double* vector, boo
 	delete[] paramPoints;
 }
 
-GradientDescentRadiationOptimizer::GradientDescentRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams) {
+GradientDescentRadiationOptimizer::GradientDescentRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, KPIevaluator* KPIevaluator) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, KPIevaluator) {
 	my_Niterations = Niterations;
 
 	tempVector = new double[my_Nparams];
@@ -236,7 +206,7 @@ GradientDescentRadiationOptimizer::~GradientDescentRadiationOptimizer() {
 	delete[] grad;
 }
 
-void GradientDescentRadiationOptimizer::findMinParametersAtDirection(double* vector, bool* optPar, const double* grad, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source, const double& currentF) {
+void GradientDescentRadiationOptimizer::findMinParametersAtDirection(double* vector, bool* optPar, const double* grad, RadiationSource* source, const double& currentF) {
 	int Npar = 0;
 	for (int i = 0; i < my_Nparams; ++i) {
 		if (optPar[i]) {
@@ -272,7 +242,7 @@ void GradientDescentRadiationOptimizer::findMinParametersAtDirection(double* vec
 		}
 	}
 
-	double f = evaluateOptimizationFunction(tempVector1, energy, observedFlux, observedError, Ne, source);
+	double f = evaluateOptimizationFunction(tempVector1, source);
 	if (f > currentF) {
 		int count = 0;
 		while (f > currentF && count < 20) {
@@ -293,7 +263,7 @@ void GradientDescentRadiationOptimizer::findMinParametersAtDirection(double* vec
 				}
 			}
 
-			f = evaluateOptimizationFunction(tempVector1, energy, observedFlux, observedError, Ne, source);
+			f = evaluateOptimizationFunction(tempVector1, source);
 		}
 
 		if (f < currentF) {
@@ -309,7 +279,7 @@ void GradientDescentRadiationOptimizer::findMinParametersAtDirection(double* vec
 		}
 	}
 
-	f = evaluateOptimizationFunction(vector, energy, observedFlux, observedError, Ne, source);
+	f = evaluateOptimizationFunction(vector, source);
 
 	/*maxLambda = sqrt(1.0 * Npar);
 	for (int i = 0; i < my_Nparams; ++i) {
@@ -337,7 +307,7 @@ void GradientDescentRadiationOptimizer::findMinParametersAtDirection(double* vec
 			}
 		}
 	}
-	double f3 = evaluateOptimizationFunction(tempVector1, energy, observedFlux, observedError, Ne, source);
+	double f3 = evaluateOptimizationFunction(tempVector1, source);
 
 	double leftLambda = 0;
 	double rightLambda = maxLambda;
@@ -358,8 +328,8 @@ void GradientDescentRadiationOptimizer::findMinParametersAtDirection(double* vec
 			}
 		}
 
-		double f1 = evaluateOptimizationFunction(tempVector1, energy, observedFlux, observedError, Ne, source);
-		double f2 = evaluateOptimizationFunction(tempVector2, energy, observedFlux, observedError, Ne, source);
+		double f1 = evaluateOptimizationFunction(tempVector1, source);
+		double f2 = evaluateOptimizationFunction(tempVector2, source);
 
 		if (f1 > f2) {
 			leftLambda = lambda1;
@@ -385,7 +355,7 @@ void GradientDescentRadiationOptimizer::findMinParametersAtDirection(double* vec
 		}
 	}
 
-	double tempF = evaluateOptimizationFunction(tempVector1, energy, observedFlux, observedError, Ne, source);
+	double tempF = evaluateOptimizationFunction(tempVector1, source);
 
 	if (f < tempF) {
 		if (f < f3) {
@@ -427,7 +397,7 @@ void GradientDescentRadiationOptimizer::findMinParametersAtDirection(double* vec
 	}
 }
 
-double GradientDescentRadiationOptimizer::getDerivativeByCoordinate(double* vector, int direction, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source)
+double GradientDescentRadiationOptimizer::getDerivativeByCoordinate(double* vector, int direction, RadiationSource* source)
 {
 	for (int j = 0; j < my_Nparams; ++j) {
 		tempVector[j] = vector[j];
@@ -435,15 +405,15 @@ double GradientDescentRadiationOptimizer::getDerivativeByCoordinate(double* vect
 	double dx = fabs(vector[direction]) / 100;
 
 	tempVector[direction] = vector[direction] + dx;
-	double f = evaluateOptimizationFunction(tempVector, energy, observedFlux, observedError, Ne, source);
+	double f = evaluateOptimizationFunction(tempVector, source);
 	tempVector[direction] = vector[direction] - dx;
-	double f1 = evaluateOptimizationFunction(tempVector, energy, observedFlux, observedError, Ne, source);
+	double f1 = evaluateOptimizationFunction(tempVector, source);
 
 	double der = (f - f1) / (2 * dx);
 	return der;
 }
 
-void GradientDescentRadiationOptimizer::gradientStep(int iterationNumber, const double& currentF, double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source) {
+void GradientDescentRadiationOptimizer::gradientStep(int iterationNumber, const double& currentF, double* vector, bool* optPar, RadiationSource* source) {
 	for (int i = 0; i < my_Nparams; ++i) {
 		grad[i] = 0;
 	}
@@ -458,9 +428,9 @@ void GradientDescentRadiationOptimizer::gradientStep(int iterationNumber, const 
 				dx = min(dx, max(max(0.000001, fabs(currentVector[i] - prevVector[i]) / 10), fabs(currentVector[i] - my_minVector[i]) / 2));
 			}
 			tempVector[i] = vector[i] + dx;
-			double f = evaluateOptimizationFunction(tempVector, energy, observedFlux, observedError, Ne, source);
+			double f = evaluateOptimizationFunction(tempVector, source);
 			tempVector[i] = vector[i] - dx;
-			double f1 = evaluateOptimizationFunction(tempVector, energy, observedFlux, observedError, Ne, source);
+			double f1 = evaluateOptimizationFunction(tempVector, source);
 
 			grad[i] = (f - f1) / (2 * dx);
 			if (grad[i] != grad[i]) {
@@ -504,11 +474,11 @@ void GradientDescentRadiationOptimizer::gradientStep(int iterationNumber, const 
 	}
 
 
-	findMinParametersAtDirection(vector, optPar, grad, energy, observedFlux, observedError, Ne, source, currentF);
+	findMinParametersAtDirection(vector, optPar, grad, source, currentF);
 
 }
 
-void GradientDescentRadiationOptimizer::optimize(double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source) {
+void GradientDescentRadiationOptimizer::optimize(double* vector, bool* optPar, RadiationSource* source) {
 	int Npar = 0;
 	for (int i = 0; i < my_Nparams; ++i) {
 		if (optPar[i]) {
@@ -520,7 +490,7 @@ void GradientDescentRadiationOptimizer::optimize(double* vector, bool* optPar, d
 		prevVector[i] = vector[i];
 		currentVector[i] = vector[i];
 	}
-	double currentF = evaluateOptimizationFunction(vector, energy, observedFlux, observedError, Ne, source);
+	double currentF = evaluateOptimizationFunction(vector, source);
 	printf("optimization function = %g\n", currentF);
 	for (int i = 0; i < my_Nparams; ++i) {
 		printf("parameter[%d] = %g\n", i, vector[i] * my_maxParameters[i]);
@@ -543,7 +513,7 @@ void GradientDescentRadiationOptimizer::optimize(double* vector, bool* optPar, d
 				}
 			}
 
-			double tempF = evaluateOptimizationFunction(tempVector, energy, observedFlux, observedError, Ne, source);
+			double tempF = evaluateOptimizationFunction(tempVector, source);
 			if(tempF < currentF){
 				currentF = tempF;
 				for(int i = 0; i < my_Nparams; ++i) {
@@ -566,13 +536,13 @@ void GradientDescentRadiationOptimizer::optimize(double* vector, bool* optPar, d
 		printf("optimization k = %d\n", k);
 		printLog("optimization k = %d\n", k);
 
-		gradientStep(k, currentF, vector, optPar, energy, observedFlux, observedError, Ne, source);
+		gradientStep(k, currentF, vector, optPar, source);
 
-		currentF = evaluateOptimizationFunction(vector, energy, observedFlux, observedError, Ne, source);
+		currentF = evaluateOptimizationFunction(vector, source);
 		//valley second step
-		gradientStep(k, currentF, vector, optPar, energy, observedFlux, observedError, Ne, source);
+		gradientStep(k, currentF, vector, optPar, source);
 
-		currentF = evaluateOptimizationFunction(vector, energy, observedFlux, observedError, Ne, source);
+		currentF = evaluateOptimizationFunction(vector, source);
 
 		for (int i = 0; i < my_Nparams; ++i) {
 			valley2[i] = vector[i];
@@ -613,7 +583,7 @@ void GradientDescentRadiationOptimizer::optimize(double* vector, bool* optPar, d
 			findMinParametersAtDirection(vector, optPar, grad, energy, observedFlux, observedError, Ne, source, currentF);
 
 		}*/
-		currentF = evaluateOptimizationFunction(vector, energy, observedFlux, observedError, Ne, source);
+		currentF = evaluateOptimizationFunction(vector, source);
 
 		/*if(fabs(currentF - prevF) < 0.00000001){
 			break;
@@ -639,7 +609,7 @@ void GradientDescentRadiationOptimizer::optimize(double* vector, bool* optPar, d
 	printLog("finish optimization\n");
 }
 
-GridEnumRadiationOptimizer::GridEnumRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams)
+GridEnumRadiationOptimizer::GridEnumRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints, KPIevaluator* KPIevaluator) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, KPIevaluator)
 {
 	my_Npoints = new int[my_Nparams];
 	for (int i = 0; i < my_Nparams; ++i) {
@@ -670,14 +640,14 @@ GridEnumRadiationOptimizer::~GridEnumRadiationOptimizer()
 	delete[] my_Npoints;
 }
 
-void GridEnumRadiationOptimizer::optimize(double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source)
+void GridEnumRadiationOptimizer::optimize(double* vector, bool* optPar, RadiationSource* source)
 {
 	double* tempVector = new double[my_Nparams];
 
 	for (int i = 0; i < my_Nparams; ++i) {
 		tempVector[i] = vector[i];
 	}
-	double currentF = evaluateOptimizationFunction(vector, energy, observedFlux, observedError, Ne, source);
+	double currentF = evaluateOptimizationFunction(vector, source);
 	int N = 1;
 	for (int i = 0; i < my_Nparams; ++i) {
 		if (optPar[i]) {
@@ -695,7 +665,7 @@ void GridEnumRadiationOptimizer::optimize(double* vector, bool* optPar, double* 
 				tempVector[j] = my_points[j][index[j]];
 			}
 		}
-		double tempF = evaluateOptimizationFunction(tempVector, energy, observedFlux, observedError, Ne, source);
+		double tempF = evaluateOptimizationFunction(tempVector, source);
 		if (tempF < currentF) {
 			currentF = tempF;
 			for (int j = 0; j < my_Nparams; ++j) {
@@ -1337,7 +1307,7 @@ void GridEnumRadiationTimeOptimizer::optimize(double* vector, bool* optPar, doub
 	delete[] tempVector;
 }
 
-void CoordinateRadiationOptimizer::findMinParametersAtCoordinate(double* vector, bool* optPar, const double& der, int ncoord, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source, const double& currentF)
+void CoordinateRadiationOptimizer::findMinParametersAtCoordinate(double* vector, bool* optPar, const double& der, int ncoord, RadiationSource* source, const double& currentF)
 {
 	if (!optPar[ncoord]) {
 		return;
@@ -1366,7 +1336,7 @@ void CoordinateRadiationOptimizer::findMinParametersAtCoordinate(double* vector,
 	}
 
 
-	double f = evaluateOptimizationFunction(tempVector1, energy, observedFlux, observedError, Ne, source);
+	double f = evaluateOptimizationFunction(tempVector1, source);
 	if (f > currentF) {
 		int count = 0;
 		while (f > currentF && count < 20) {
@@ -1383,7 +1353,7 @@ void CoordinateRadiationOptimizer::findMinParametersAtCoordinate(double* vector,
 				exit(0);
 			}
 
-			f = evaluateOptimizationFunction(tempVector1, energy, observedFlux, observedError, Ne, source);
+			f = evaluateOptimizationFunction(tempVector1, source);
 		}
 
 		if (f < currentF) {
@@ -1399,7 +1369,7 @@ void CoordinateRadiationOptimizer::findMinParametersAtCoordinate(double* vector,
 		}
 	}
 
-	f = evaluateOptimizationFunction(vector, energy, observedFlux, observedError, Ne, source);
+	f = evaluateOptimizationFunction(vector, source);
 
 	/*maxLambda = sqrt(1.0 * Npar);
 	for (int i = 0; i < my_Nparams; ++i) {
@@ -1425,7 +1395,7 @@ void CoordinateRadiationOptimizer::findMinParametersAtCoordinate(double* vector,
 		tempVector1[ncoord] = my_minVector[ncoord];
 	}
 
-	double f3 = evaluateOptimizationFunction(tempVector1, energy, observedFlux, observedError, Ne, source);
+	double f3 = evaluateOptimizationFunction(tempVector1, source);
 
 	double leftLambda = 0;
 	double rightLambda = maxLambda;
@@ -1443,8 +1413,8 @@ void CoordinateRadiationOptimizer::findMinParametersAtCoordinate(double* vector,
 		tempVector1[ncoord] = vector[ncoord] - lambda1 * der;
 		tempVector2[ncoord] = vector[ncoord] - lambda2 * der;
 
-		double f1 = evaluateOptimizationFunction(tempVector1, energy, observedFlux, observedError, Ne, source);
-		double f2 = evaluateOptimizationFunction(tempVector2, energy, observedFlux, observedError, Ne, source);
+		double f1 = evaluateOptimizationFunction(tempVector1, source);
+		double f2 = evaluateOptimizationFunction(tempVector2, source);
 
 		if (f1 > f2) {
 			leftLambda = lambda1;
@@ -1467,7 +1437,7 @@ void CoordinateRadiationOptimizer::findMinParametersAtCoordinate(double* vector,
 		tempVector1[ncoord] = my_minVector[ncoord];
 	}
 
-	double tempF = evaluateOptimizationFunction(tempVector1, energy, observedFlux, observedError, Ne, source);
+	double tempF = evaluateOptimizationFunction(tempVector1, source);
 
 	if (f < tempF) {
 		if (f < f3) {
@@ -1497,7 +1467,7 @@ void CoordinateRadiationOptimizer::findMinParametersAtCoordinate(double* vector,
 	}
 }
 
-void CoordinateRadiationOptimizer::gradientStep(int iterationNumber, const double& currentF, double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source)
+void CoordinateRadiationOptimizer::gradientStep(int iterationNumber, const double& currentF, double* vector, bool* optPar, RadiationSource* source)
 {
 	for (int i = 0; i < my_Nparams; ++i) {
 		if (optPar[i]) {
@@ -1509,9 +1479,9 @@ void CoordinateRadiationOptimizer::gradientStep(int iterationNumber, const doubl
 				dx = min(dx, max(max(0.000001, fabs(currentVector[i] - prevVector[i]) / 10), fabs(currentVector[i] - my_minVector[i]) / 2));
 			}
 			tempVector[i] = vector[i] + dx;
-			double f = evaluateOptimizationFunction(tempVector, energy, observedFlux, observedError, Ne, source);
+			double f = evaluateOptimizationFunction(tempVector, source);
 			tempVector[i] = vector[i] - dx;
-			double f1 = evaluateOptimizationFunction(tempVector, energy, observedFlux, observedError, Ne, source);
+			double f1 = evaluateOptimizationFunction(tempVector, source);
 
 			grad[i] = (f - f1) / (2 * dx);
 			if (grad[i] != grad[i]) {
@@ -1545,22 +1515,22 @@ void CoordinateRadiationOptimizer::gradientStep(int iterationNumber, const doubl
 			grad[i] = grad[i] / gradNorm;
 
 
-			findMinParametersAtCoordinate(vector, optPar, grad[i], i, energy, observedFlux, observedError, Ne, source, currentF);
+			findMinParametersAtCoordinate(vector, optPar, grad[i], i, source, currentF);
 		}
 	}
 }
 
-CoordinateRadiationOptimizer::CoordinateRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations) : GradientDescentRadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, Niterations) {
+CoordinateRadiationOptimizer::CoordinateRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, KPIevaluator* KPIevaluator) : GradientDescentRadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator) {
 
 }
 CoordinateRadiationOptimizer::~CoordinateRadiationOptimizer(){
 
 }
 
-CombinedRadiationOptimizer::CombinedRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, const int* Npoints) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams)
+CombinedRadiationOptimizer::CombinedRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, const int* Npoints, KPIevaluator* KPIevaluator) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, KPIevaluator)
 {
-	my_EnumOptimizer = new GridEnumRadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, Npoints);
-	my_GradientOptimzer = new GradientDescentRadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, Niterations);
+	my_EnumOptimizer = new GridEnumRadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
+	my_GradientOptimzer = new GradientDescentRadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 
 }
 
@@ -1587,96 +1557,8 @@ CombinedRadiationOptimizer::~CombinedRadiationOptimizer()
 	delete my_GradientOptimzer;
 }
 
-void CombinedRadiationOptimizer::optimize(double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source)
+void CombinedRadiationOptimizer::optimize(double* vector, bool* optPar, RadiationSource* source)
 {
-	my_EnumOptimizer->optimize(vector, optPar, energy, observedFlux, observedError, Ne, source);
-	my_GradientOptimzer->optimize(vector, optPar, energy, observedFlux, observedError, Ne, source);
-}
-
-RadialProfileGradientDescentOptimizer::RadialProfileGradientDescentOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, const double* rhoPoints, int NrhoPoints) : GradientDescentRadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, Niterations) {
-	my_NrhoPoints = NrhoPoints;
-	my_RhoPoints = new double [my_NrhoPoints];
-	for (int irho = 0; irho < my_NrhoPoints; ++irho) {
-		my_RhoPoints[irho] = rhoPoints[irho];
-	}
-}
-
-RadialProfileGradientDescentOptimizer::~RadialProfileGradientDescentOptimizer() {
-	delete[] my_RhoPoints;
-}
-
-double RadialProfileGradientDescentOptimizer::evaluateOptimizationFunction(const double* vector, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source) {
-	double* totalInu = new double[Ne];
-
-	source->resetParameters(vector, my_maxParameters);
-	my_evaluator->resetParameters(vector, my_maxParameters);
-
-	for (int i = 0; i < Ne; ++i) {
-		if (my_RhoPoints[i] > source->getMaxRho() || my_RhoPoints[i] < source->getMinRho()) {
-			totalInu[i] = 0;
-		}
-		else {
-			int irho = source->getRhoIndex(my_RhoPoints[i]);
-			int iphi = 0;
-			totalInu[i] = my_evaluator->evaluateFluxFromSourceAtPoint(energy[i], source, irho, iphi) / source->getCrossSectionArea(irho, iphi);
-		}
-	}
-	double err = 0;
-	//for debug only
-	//err = sqr(vector[0] * my_maxParameters[0] - 1.4E17)/1E30 + sqr(vector[1] * my_maxParameters[1] - 0.6) + sqr(vector[2] * my_maxParameters[2] - 10) + sqr(vector[3] * my_maxParameters[3] - 0.5);
-	//err = sqr(vector[0] * my_maxParameters[0] - 1.4E17) / 1E30 + sqr(vector[1] * my_maxParameters[1] - 0.6 + vector[2] * my_maxParameters[2] - 10) + sqr(vector[3] * my_maxParameters[3] - 0.5);
-	for (int j = 0; j < Ne; ++j) {
-		double err1 = 0;
-		err1 = sqr(totalInu[j] - observedFlux[j]) / sqr(observedError[j]);
-
-		err = err + err1;
-	}
-
-	delete[] totalInu;
-
-	return err;
-}
-
-RadialProfileGridEnumOptimizer::RadialProfileGridEnumOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints, const double* rhoPoints, int NrhoPoints) : GridEnumRadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, Npoints) {
-	my_NrhoPoints = NrhoPoints;
-	my_RhoPoints = new double[my_NrhoPoints];
-	for (int irho = 0; irho < my_NrhoPoints; ++irho) {
-		my_RhoPoints[irho] = rhoPoints[irho];
-	}
-}
-
-RadialProfileGridEnumOptimizer::~RadialProfileGridEnumOptimizer() {
-	delete[] my_RhoPoints;
-}
-
-double RadialProfileGridEnumOptimizer::evaluateOptimizationFunction(const double* vector, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source) {
-	double* totalInu = new double[Ne];
-
-	source->resetParameters(vector, my_maxParameters);
-	my_evaluator->resetParameters(vector, my_maxParameters);
-
-	for (int i = 0; i < Ne; ++i) {
-		if (my_RhoPoints[i] > source->getMaxRho() || my_RhoPoints[i] < source->getMinRho()) {
-			totalInu[i] = 0;
-		}
-		else {
-			int irho = source->getRhoIndex(my_RhoPoints[i]);
-			int iphi = 0;
-			totalInu[i] = my_evaluator->evaluateFluxFromSourceAtPoint(energy[i], source, irho, iphi) / source->getCrossSectionArea(irho, iphi);
-		}
-	}
-	double err = 0;
-	//for debug only
-	//err = sqr(vector[0] * my_maxParameters[0] - 1.4E17)/1E30 + sqr(vector[1] * my_maxParameters[1] - 0.6) + sqr(vector[2] * my_maxParameters[2] - 10) + sqr(vector[3] * my_maxParameters[3] - 0.5);
-	//err = sqr(vector[0] * my_maxParameters[0] - 1.4E17) / 1E30 + sqr(vector[1] * my_maxParameters[1] - 0.6 + vector[2] * my_maxParameters[2] - 10) + sqr(vector[3] * my_maxParameters[3] - 0.5);
-	for (int j = 0; j < Ne; ++j) {
-		double err1 = 0;
-		err1 = sqr(totalInu[j] - observedFlux[j]) / sqr(observedError[j]);
-
-		err = err + err1;
-	}
-
-	delete[] totalInu;
-
-	return err;
+	my_EnumOptimizer->optimize(vector, optPar, source);
+	my_GradientOptimzer->optimize(vector, optPar, source);
 }

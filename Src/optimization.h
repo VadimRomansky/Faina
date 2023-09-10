@@ -7,6 +7,7 @@
 #include "synchrotron.h"
 #include "inverseCompton.h"
 #include "radiation.h"
+#include "KPIevaluator.h"
 
 class RadiationOptimizer {
 protected:
@@ -16,14 +17,15 @@ protected:
 	double* my_maxParameters;
 
 	double* my_minVector;
+	KPIevaluator* my_KPIevaluator;
 public:
-    RadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams);
+    RadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, KPIevaluator* KPIevaluator);
     virtual ~RadiationOptimizer();
-	virtual double evaluateOptimizationFunction(const double* vector, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source);
-	virtual void optimize(double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source) = 0;
-	void optimize(double* vector, bool* optPar, double* energy, double* observedFlux, int Ne, RadiationSource* source);
-	void outputProfileDiagrams(const double* vector, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source, int Npoints);
-	void outputOptimizedProfileDiagram(const double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source, int Npoints, int Nparam1, int Nparam2);
+	virtual double evaluateOptimizationFunction(const double* vector, RadiationSource* source);
+	virtual void optimize(double* vector, bool* optPar, RadiationSource* source) = 0;
+	//void optimize(double* vector, bool* optPar, RadiationSource* source);
+	void outputProfileDiagrams(const double* vector, RadiationSource* source, int Npoints);
+	void outputOptimizedProfileDiagram(const double* vector, bool* optPar, RadiationSource* source, int Npoints, int Nparam1, int Nparam2);
 };
 
 class GradientDescentRadiationOptimizer:public RadiationOptimizer{
@@ -38,21 +40,21 @@ protected:
 	double* valley1;
 	double* valley2;
 	double* grad;
-	void findMinParametersAtDirection(double* vector, bool* optPar, const double* grad, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source, const double& currentF);
-	double getDerivativeByCoordinate(double* vector, int direction, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source);
-	virtual void gradientStep(int iterationNumber, const double& currentF, double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source);
+	void findMinParametersAtDirection(double* vector, bool* optPar, const double* grad, RadiationSource* source, const double& currentF);
+	double getDerivativeByCoordinate(double* vector, int direction, RadiationSource* source);
+	virtual void gradientStep(int iterationNumber, const double& currentF, double* vector, bool* optPar, RadiationSource* source);
 public:
-    GradientDescentRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations);
+    GradientDescentRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, KPIevaluator* KPIevaluator);
     virtual ~GradientDescentRadiationOptimizer();
-	virtual void optimize(double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source);
+	virtual void optimize(double* vector, bool* optPar, RadiationSource* source);
 };
 
 class CoordinateRadiationOptimizer : public GradientDescentRadiationOptimizer {
 protected:
-	void findMinParametersAtCoordinate(double* vector, bool* optPar, const double& der, int ncoord, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source, const double& currentF);
-	virtual void gradientStep(int iterationNumber, const double& currentF, double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source);
+	void findMinParametersAtCoordinate(double* vector, bool* optPar, const double& der, int ncoord, RadiationSource* source, const double& currentF);
+	virtual void gradientStep(int iterationNumber, const double& currentF, double* vector, bool* optPar, RadiationSource* source);
 public:
-	CoordinateRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations);
+	CoordinateRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, KPIevaluator* KPIevaluator);
 	virtual ~CoordinateRadiationOptimizer();
 	//virtual void optimize(double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source);
 };
@@ -62,9 +64,9 @@ protected:
 	int* my_Npoints;
 	double** my_points;
 public:
-    GridEnumRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints);
+    GridEnumRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints, KPIevaluator* KPIevaluator);
     virtual ~GridEnumRadiationOptimizer();
-	virtual void optimize(double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source);
+	virtual void optimize(double* vector, bool* optPar, RadiationSource* source);
 };
 
 class CombinedRadiationOptimizer : public RadiationOptimizer {
@@ -72,10 +74,10 @@ protected:
 	GradientDescentRadiationOptimizer* my_GradientOptimzer;
 	GridEnumRadiationOptimizer* my_EnumOptimizer;
 public:
-	CombinedRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, const int* Npoints);
+	CombinedRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, const int* Npoints, KPIevaluator* KPIevaluator);
 	//CombinedRadiationOptimizer(GridEnumRadiationOptimizer* enumOptimizer, GradientDescentRadiationOptimizer* gradientOptimizer);
 	virtual ~CombinedRadiationOptimizer();
-	virtual void optimize(double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source);
+	virtual void optimize(double* vector, bool* optPar, RadiationSource* source);
 };
 
 class RadiationTimeOptimizer {
@@ -122,28 +124,6 @@ public:
     GridEnumRadiationTimeOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints);
     virtual ~GridEnumRadiationTimeOptimizer();
 	virtual void optimize(double* vector, bool* optPar, double** energy, double** observedFlux, double** observedError, int* Ne, int Ntimes, double* times, RadiationTimeDependentSource* source);
-};
-
-class RadialProfileGradientDescentOptimizer : public GradientDescentRadiationOptimizer {
-protected:
-	int my_NrhoPoints;
-	double* my_RhoPoints;
-public:
-	RadialProfileGradientDescentOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, const double* rhoPoints, int NrhoPoints);
-	virtual ~RadialProfileGradientDescentOptimizer();
-	virtual double evaluateOptimizationFunction(const double* vector, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source);
-
-};
-
-class RadialProfileGridEnumOptimizer : public GridEnumRadiationOptimizer {
-protected:
-	int my_NrhoPoints;
-	double* my_RhoPoints;
-public:
-	RadialProfileGridEnumOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints, const double* rhoPoints, int NrhoPoints);
-	virtual ~RadialProfileGridEnumOptimizer();
-	virtual double evaluateOptimizationFunction(const double* vector, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source);
-
 };
 
 #endif

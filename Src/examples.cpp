@@ -302,25 +302,27 @@ void fitCSS161010withPowerLawDistribition() {
 	//picking parameters to be optimized
 	bool optPar[Nparams] = { false, true, true, true };
 	int Niterations = 20;
+	//creating KPIevaluator
+	KPIevaluator* KPIevaluator = new SpectrumKPIevaluator(energy1, observedFlux, observedError, Nenergy1);
 	//creating gradient descent optimizer
-	RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
+	RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	//number of points per axis in gridEnumOptimizer
 	int Npoints[Nparams] = { 10,10,10,10 };
 	//creating grid enumeration optimizer
-	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
+	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
 
 	source->resetParameters(vector, maxParameters);
 	//evaluating resulting error
-	double error0 = gradientOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
+	double error0 = gradientOptimizer->evaluateOptimizationFunction(vector, source);
 
 	//grid enumeration optimization, finding best starting point for gradien descent
-	enumOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
+	enumOptimizer->optimize(vector, optPar, source);
 	//gradient descent optimization
-	gradientOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
+	gradientOptimizer->optimize(vector, optPar, source);
 	//reseting source parameters to found values
 	source->resetParameters(vector, maxParameters);
 	//evaluating resulting error
-	double error = gradientOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
+	double error = gradientOptimizer->evaluateOptimizationFunction(vector, source);
 
 	//initialization arrays for full spectrum
 	const int Nnu = 200;
@@ -492,20 +494,22 @@ void fitCSS161010withTabulatedDistributions() {
 	//picking parameters to be optimized
 	bool optPar[Nparams] = { false, true, true, false };
 	int Niterations = 10;
+	//creating KPIevaluator
+	KPIevaluator* KPIevaluator = new SpectrumKPIevaluator(energy1, observedFlux, observedError, Nenergy1);
 	//creating gradient descent optimizer
-	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
+	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	//number of points per axis in gridEnumOptimizer
 	int Npoints[Nparams] = { 5,5,5,5 };
 	//creating grid enumeration optimizer
-	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
+	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
 	//grid enumeration optimization, finding best starting point for gradien descent
-	enumOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, angleDependentSource);
+	enumOptimizer->optimize(vector, optPar, angleDependentSource);
 	//gradient descent optimization
-	synchrotronOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, angleDependentSource);
+	synchrotronOptimizer->optimize(vector, optPar, angleDependentSource);
 	//reseting source parameters to found values
 	angleDependentSource->resetParameters(vector, maxParameters);
 	//evaluating resulting error
-	double error = synchrotronOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, angleDependentSource);
+	double error = synchrotronOptimizer->evaluateOptimizationFunction(vector, angleDependentSource);
 	printf("error = %g\n", error);
 	//initialization arrays for full spectrum
 	const int Nnu = 200;

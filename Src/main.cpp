@@ -154,27 +154,29 @@ void evaluateFluxSNRtoWind() {
 	printLog("start optimization\n");
 	bool optPar[Nparams] = { true, true, true, true, false };
 	int Niterations = 5;
+	//creating KPIevaluator
+	KPIevaluator* KPIevaluator = new SpectrumKPIevaluator(energy1, observedFlux, observedError, Nenergy1);
 	//creating gradient descent optimizer
-	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
+	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	//RadiationOptimizer* synchrotronOptimizer = new CoordinateRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
 	//number of points per axis in gridEnumOptimizer
 	int Npoints[Nparams] = { 10,10,10,10,2 };
 	//creating grid enumeration optimizer
-	RadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints);
-	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints);
+	RadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints, KPIevaluator);
+	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
 	//grid enumeration optimization, finding best starting point for gradien descent
-	double error = synchrotronOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
+	double error = synchrotronOptimizer->evaluateOptimizationFunction(vector, source);
 	printf("starting error = %g\n", error);
 	printLog("starting error = %g\n", error);
-	//enumOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
+	//enumOptimizer->optimize(vector, optPar, source);
 	//gradient descent optimization
-	//synchrotronOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
+	//synchrotronOptimizer->optimize(vector, optPar, source);
 	//reseting source parameters to found values
-	//synchrotronOptimizer->outputProfileDiagrams(vector, energy1, observedFlux, observedError, Nenergy1, source, 10);
-	//synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source, 10, 1, 2);
-	combinedOptimizer->optimize(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source);
-    //combinedOptimizer->outputProfileDiagrams(vector, energy1, observedFlux, observedError, Nenergy1, source, 10);
-	//combinedOptimizer->outputOptimizedProfileDiagram(vector, optPar, energy1, observedFlux, observedError, Nenergy1, source, 20, 1, 2);
+	//synchrotronOptimizer->outputProfileDiagrams(vector, source, 10);
+	//synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, source, 10, 1, 2);
+	combinedOptimizer->optimize(vector, optPar, source);
+    //combinedOptimizer->outputProfileDiagrams(vector, source, 10);
+	//combinedOptimizer->outputOptimizedProfileDiagram(vector, optPar, source, 20, 1, 2);
 	/*B = 0.29;
 	electronConcentration = 10000;
 	vector[0] = 1.4E17 / maxParameters[0];
@@ -184,7 +186,7 @@ void evaluateFluxSNRtoWind() {
 	vector[4] = 0.55*speed_of_light / maxParameters[4];*/
 	source->resetParameters(vector, maxParameters);
 	//evaluating resulting error
-	error = combinedOptimizer->evaluateOptimizationFunction(vector, energy1, observedFlux, observedError, Nenergy1, source);
+	error = combinedOptimizer->evaluateOptimizationFunction(vector, source);
 	printf("resulting error = %g\n", error);
 	printLog("resulting error = %g\n", error);
 
@@ -685,15 +687,16 @@ void fitTychoProfile() {
 
 	bool optPar[Nparams] = { true, true, true, false, false };
 	int Niterations = 5;
-	RadialProfileGradientDescentOptimizer* optimizer = new RadialProfileGradientDescentOptimizer(evaluator, minParameters, maxParameters, Nparams, Niterations, rhoPoints, Ndata);
+	KPIevaluator* KPIevaluator = new RadialProfileKPIevaluator(energyPoints[0], observedFlux, observedError, rhoPoints, Ndata);
+	GradientDescentRadiationOptimizer* optimizer = new GradientDescentRadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	int Npoints[Nparams] = { 5,5,5,10,2 };
-	RadialProfileGridEnumOptimizer* gridOptimizer = new RadialProfileGridEnumOptimizer(evaluator, minParameters, maxParameters, Nparams, Npoints, rhoPoints, Ndata);
+	GridEnumRadiationOptimizer* gridOptimizer = new GridEnumRadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
 
-	gridOptimizer->optimize(vector, optPar, energyPoints, observedFlux, observedError, Ndata, source);
-	optimizer->optimize(vector, optPar, energyPoints, observedFlux, observedError, Ndata, source);
+	gridOptimizer->optimize(vector, optPar, source);
+	optimizer->optimize(vector, optPar, source);
 
 	source->resetParameters(vector, maxParameters);
-	double error = optimizer->evaluateOptimizationFunction(vector, energyPoints, observedFlux, observedError, Ndata, source);
+	double error = optimizer->evaluateOptimizationFunction(vector, source);
 
 	R = vector[0] * maxParameters[0];
 	sigma = vector[1] * maxParameters[1];
