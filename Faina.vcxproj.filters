@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="Src\bremsstrahlung.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -113,5 +110,8 @@
     <ClInclude Include="Src\KPIevaluator.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

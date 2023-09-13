@@ -134,7 +134,7 @@ void evaluateFluxSNRtoWind() {
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 0.5E17, 1E-6, 10, 0.0005, 0.3*speed_of_light };
-	double maxParameters[Nparams] = { 1.4E17, 1E-2, 2E6, 0.7, 0.5*speed_of_light };
+	double maxParameters[Nparams] = { 1.4E17, 1E-2, 2E6, 0.1, 0.5*speed_of_light };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, 0.5*speed_of_light };
 	for (int i = 0; i < Nparams; ++i) {
@@ -221,9 +221,11 @@ void evaluateFluxSNRtoWind() {
 
 	//double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0)*(4*pi*rmax*rmax*rmax/3)*(1.0 - cube(1.0 - fraction));
 	double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0)*source->getTotalVolume();
-
+	double energyInRadioElectrons = electronConcentration * (electrons->getMeanEnergy() - me_c2) * source->getTotalVolume();
 	printf("total kinetik energy = %g\n", totalEnergy);
 	printLog("total kinetik energy = %g\n", totalEnergy);
+	printf("energy in radio electrons = %g\n", energyInRadioElectrons);
+	printLog("energy in radio electrons = %g\n", energyInRadioElectrons);
 
 
 	//initialization arrays for full synchrotron spectrum

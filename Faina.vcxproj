@@ -128,9 +128,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="Src\bremsstrahlung.cpp" />
     <ClCompile Include="Src\coordinateTransform.cpp" />
     <ClCompile Include="Src\examples.cpp" />
@@ -164,6 +161,9 @@
     <ClInclude Include="Src\radiationSourceFactory.h" />
     <ClInclude Include="Src\synchrotron.h" />
     <ClInclude Include="Src\util.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
