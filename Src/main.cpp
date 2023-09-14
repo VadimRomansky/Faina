@@ -65,8 +65,8 @@ void evaluateFluxSNRtoWind() {
 	//initializing electrons distribution
 	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, me_c2, electronConcentration);
 	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee3.dat", "./examples_data/gamma0.5_theta0-90/Fs3.dat", 200, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
-	//electrons->rescaleDistribution(1.2);
 	electrons->addPowerLaw(50 * massElectron * speed_of_light2, 3.5);
+	electrons->rescaleDistribution(2);
 	electrons->writeDistribution("distribution.dat", 100, Emin, Emax);
 	int Ndistributions = 10;
 	//reading electron distributions from files

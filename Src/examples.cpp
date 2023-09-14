@@ -21,8 +21,8 @@
 void evaluateSimpleSynchrotron() {
 	double B = 1.0;
 	double electronConcentration = 1.0;
-	//MassiveParticleIsotropicDistribution* distribution = new MassiveParticlePowerLawDistribution(massElectron, 3.0, me_c2, 1.0);
-	MassiveParticleIsotropicDistribution* distribution = new MassiveParticleMonoenergeticDistribution(massElectron, 1000*me_c2, me_c2, 1.0);
+	MassiveParticleIsotropicDistribution* distribution = new MassiveParticlePowerLawDistribution(massElectron, 3.0, me_c2, 1.0);
+	//MassiveParticleIsotropicDistribution* distribution = new MassiveParticleMonoenergeticDistribution(massElectron, 1000*me_c2, me_c2, 1.0);
 	RadiationSource* source = new SimpleFlatSource(distribution, B, pi/2, parsec, parsec, 1000 * parsec);
 	RadiationEvaluator* evaluator = new SynchrotronEvaluator(10000, me_c2, 10000 * me_c2, true);
 	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
