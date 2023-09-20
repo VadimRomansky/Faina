@@ -21,7 +21,7 @@ void evaluateFluxSNRtoWind() {
 	fclose(logFile);
 
 	double theta = pi/2;
-	double index = 3.5;
+	double index = 3.0;
 	double Tstar = 50 * 1000;
 	double luminosity = 510000 * 4 * 1E33;
 	double rsun = 6.9E10;
@@ -48,7 +48,7 @@ void evaluateFluxSNRtoWind() {
 	int Ne = 200;
 	int Nmu = 50;
 
-	int Nrho = 200;
+	int Nrho = 50;
 	int Nz = 50;
 	int Nphi = 4;
 
@@ -63,10 +63,10 @@ void evaluateFluxSNRtoWind() {
 	double*** concentration = create3dArray(Nrho, Nz, Nphi, electronConcentration);
 	RadiationSourceFactory::initializeTurbulentField(Bturb, thetaTurb, phiTurb, Nrho, Nz, Nphi, B, pi / 2, 0, 0.9, 11.0 / 6.0, rmax, 10, rmax);
 	//initializing electrons distribution
-	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, me_c2, electronConcentration);
-	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee3.dat", "./examples_data/gamma0.5_theta0-90/Fs3.dat", 200, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
-	electrons->addPowerLaw(50 * massElectron * speed_of_light2, 3.5);
-	electrons->rescaleDistribution(2);
+	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, 10*me_c2, electronConcentration);
+	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee8.dat", "./examples_data/gamma0.5_theta0-90/Fs8.dat", 200, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+	//electrons->addPowerLaw(100 * massElectron * speed_of_light2, 3.5);
+	//electrons->rescaleDistribution(1.2);
 	electrons->writeDistribution("distribution.dat", 100, Emin, Emax);
 	int Ndistributions = 10;
 	//reading electron distributions from files
@@ -133,10 +133,10 @@ void evaluateFluxSNRtoWind() {
 	//number of parameters of the source
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 0.5E17, 1E-6, 10, 0.0005, 0.3*speed_of_light };
-	double maxParameters[Nparams] = { 1.4E17, 1E-2, 2E6, 0.1, 0.5*speed_of_light };
+	double minParameters[Nparams] = { 0.5E17, 1E-6, 10, 0.01, 0.3*speed_of_light };
+	double maxParameters[Nparams] = { 2.1E17, 1E-2, 2E6, 0.5, 0.5*speed_of_light };
 	//starting point of optimization and normalization
-	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, 0.5*speed_of_light };
+	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, 0.75*speed_of_light };
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
 	}
@@ -226,7 +226,9 @@ void evaluateFluxSNRtoWind() {
 	printLog("total kinetik energy = %g\n", totalEnergy);
 	printf("energy in radio electrons = %g\n", energyInRadioElectrons);
 	printLog("energy in radio electrons = %g\n", energyInRadioElectrons);
-
+	double totalMass = electronConcentration * massProton * source->getTotalVolume();
+	printf("total mass = %g\n", totalMass);
+	printLog("total mass = %g\n", totalMass);
 
 	//initialization arrays for full synchrotron spectrum
 	const int Nnu = 50;
