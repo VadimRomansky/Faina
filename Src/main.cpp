@@ -64,9 +64,12 @@ void evaluateFluxSNRtoWind() {
 	RadiationSourceFactory::initializeTurbulentField(Bturb, thetaTurb, phiTurb, Nrho, Nz, Nphi, B, pi / 2, 0, 0.9, 11.0 / 6.0, rmax, 10, rmax);
 	//initializing electrons distribution
 	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, 10*me_c2, electronConcentration);
-	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee8.dat", "./examples_data/gamma0.5_theta0-90/Fs8.dat", 200, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_theta0-90/Ee3.dat", "./examples_data/gamma1.5_theta0-90/Fs3.dat", 200, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+	//double velocity = 0.55 * speed_of_light;
+	double velocity = 0.75 * speed_of_light;
+	double gamma = 1.0 / sqrt(1.0 - velocity * velocity / speed_of_light2);
 	//electrons->addPowerLaw(100 * massElectron * speed_of_light2, 3.5);
-	//electrons->rescaleDistribution(1.2);
+	electrons->rescaleDistribution(4.0);
 	electrons->writeDistribution("distribution.dat", 100, Emin, Emax);
 	int Ndistributions = 10;
 	//reading electron distributions from files
@@ -134,9 +137,10 @@ void evaluateFluxSNRtoWind() {
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 0.5E17, 1E-6, 10, 0.01, 0.3*speed_of_light };
-	double maxParameters[Nparams] = { 2.1E17, 1E-2, 2E6, 0.5, 0.5*speed_of_light };
+	double maxParameters[Nparams] = { 1.4E17, 1E-2, 2E6, 0.5, 0.5*speed_of_light };
 	//starting point of optimization and normalization
-	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, 0.75*speed_of_light };
+	rmax = velocity * 99 * 24 * 3600;
+	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, velocity };
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
 	}
@@ -153,7 +157,7 @@ void evaluateFluxSNRtoWind() {
 
 	printf("start optimization\n");
 	printLog("start optimization\n");
-	bool optPar[Nparams] = { true, true, true, true, false };
+	bool optPar[Nparams] = { false, true, true, true, false };
 	int Niterations = 5;
 	//creating KPIevaluator
 	KPIevaluator* KPIevaluator = new SpectrumKPIevaluator(energy1, observedFlux, observedError, Nenergy1, source);
@@ -216,8 +220,8 @@ void evaluateFluxSNRtoWind() {
 	rmax = vector[0] * maxParameters[0];
 	electronConcentration = vector[2] * maxParameters[2];
 	fraction = vector[3] * maxParameters[3];
-	double velocity = vector[4] * maxParameters[4] / speed_of_light;
-	double gamma = 1.0 / sqrt(1.0 - velocity * velocity);
+	velocity = vector[4] * maxParameters[4] / speed_of_light;
+	gamma = 1.0 / sqrt(1.0 - velocity * velocity);
 
 	//double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0)*(4*pi*rmax*rmax*rmax/3)*(1.0 - cube(1.0 - fraction));
 	double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0)*source->getTotalVolume();
@@ -264,6 +268,7 @@ void evaluateFluxSNRtoWind() {
 	}
 	fclose(output_GZ_Jansky);
 	fclose(output_GZ_Jansky2);
+	return;
 
 	double synchrotronFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(hplank * 1E8, hplank * 1E11, 20, source);
 	double synchrotronFlux2 = synchrotronEvaluator2->evaluateTotalFluxInEnergyRange(hplank * 1E8, hplank * 1E11, 20, source);

@@ -7,7 +7,7 @@ from plot_radiation import plot_radiation
 from plot_radiation2 import plot_radiation2
 
 if __name__ == '__main__':
-    #plot_distributions()
+    plot_distributions()
     #plot_radiation()
-    plot_radiation2()
+    #plot_radiation2()
     #plot_error_profile(1,2)
