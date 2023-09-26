@@ -3,14 +3,14 @@ from pylab import *
 import numpy as np
 
 def plot_distributions():
-    Efile0 = open('../examples_data/gamma1.5_theta0-90/Ee1.dat','r').readline().split()
-    Ffile0= open('../examples_data/gamma1.5_theta0-90/Fs1.dat','r').readline().split()
+    Efile0 = open('../examples_data/gamma0.5_theta0-90/Ee1.dat','r').readline().split()
+    Ffile0= open('../examples_data/gamma0.5_theta0-90/Fs1.dat','r').readline().split()
 
-    Efile1 = open('../examples_data/gamma1.5_theta0-90/Ee3.dat','r').readline().split()
-    Ffile1 = open('../examples_data/gamma1.5_theta0-90/Fs3.dat','r').readline().split()
+    Efile1 = open('../examples_data/gamma0.5_theta0-90/Ee3.dat','r').readline().split()
+    Ffile1 = open('../examples_data/gamma0.5_theta0-90/Fs3.dat','r').readline().split()
 
-    Efile2 = open('../examples_data/gamma1.5_theta0-90/Ee8.dat','r').readline().split()
-    Ffile2 = open('../examples_data/gamma1.5_theta0-90/Fs8.dat','r').readline().split()
+    Efile2 = open('../examples_data/gamma0.5_theta0-90/Ee8.dat','r').readline().split()
+    Ffile2 = open('../examples_data/gamma0.5_theta0-90/Fs8.dat','r').readline().split()
 
     N = len(Efile0)
 
@@ -18,10 +18,12 @@ def plot_distributions():
     F = np.zeros([3,N])
     dE = np.zeros([3,N])
 
+    factor = 1.2
+
     for i in range(N):
-        E[0,i] = 1+float(Efile0[i])
-        E[1,i] = 1+float(Efile1[i])
-        E[2,i] = 1+float(Efile2[i])
+        E[0,i] = 1+float(Efile0[i])*factor
+        E[1,i] = 1+float(Efile1[i])*factor
+        E[2,i] = 1+float(Efile2[i])*factor
 
         F[0, i] = float(Ffile0[i])
         F[1, i] = float(Ffile1[i])
@@ -70,4 +72,4 @@ def plot_distributions():
     ax.legend([r'$\theta = 10^{\circ}$', r'$\theta = 30^{\circ}$', r'$\theta = 80^{\circ}$'], fontsize="40")
 
     #plt.show()
-    plt.savefig('electrons1.5.png', bbox_inches='tight')
+    plt.savefig('electrons.png', bbox_inches='tight')
