@@ -284,12 +284,13 @@ void evaluateFluxSNRtoWind() {
 	rmax = 0.5E16;
 	fraction = 0.5;
 	rcompton = rmax + 0.5E16;
+	rcompton = rmax;
 	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, 0.25*sqr(rstar / rcompton));
 	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, 0.25*sqr(rstar / rcompton), pi, 0, atan2(1, 1));
-
+	
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
-    InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, newEmax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
+    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, newEmax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluatorWithSource(Ne, Nmu, Nphi, Emin, newEmax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES, rmax + 0.5E16, 0, 0);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluatorWithSource(Ne, Nmu, Nphi, Emin, newEmax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA, 0, -rmax - 0.5E16, 0);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
@@ -315,9 +316,11 @@ void evaluateFluxSNRtoWind() {
 	double V = source2->getTotalVolume();
 	double totalEnergy2 = jetelectronConcentration * massProton * speed_of_light2 * (gamma - 1.0) * source2->getTotalVolume();
 	double energyInComptonElectrons = jetelectronConcentration * (monoElectrons->getMeanEnergy()) * source2->getTotalVolume();
-
+	double photonEnergyDensity = photonDistribution->getConcentration() * photonDistribution->getMeanEnergy();
 	printf("jet electron concentration = %g\n", jetelectronConcentration);
 	printLog("jet electron concentration = %g\n", jetelectronConcentration);
+	printf("photon energy density = %g\n", photonEnergyDensity);
+	printLog("photon energy density = %g\n", photonEnergyDensity);
 	printf("energy in compton electrons = %g\n", energyInComptonElectrons);
 	printLog("energy in compton electrons = %g\n", energyInComptonElectrons);
 	printf("energy in protons = %g\n", totalEnergy2);
@@ -334,7 +337,7 @@ void evaluateFluxSNRtoWind() {
 		printf("%d\n", i);
 		double dE = currentE * (factor - 1.0);
 		//kevFlux += comptonEvaluator->evaluateFluxFromSourceAnisotropic(currentE, 0, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA) * dE;
-		kevFlux += comptonEvaluator->evaluateFluxFromSource(currentE, source) * dE;
+		kevFlux += comptonEvaluator->evaluateFluxFromSource(currentE, source2) * dE;
 		currentE = currentE * factor;
 	}
 
