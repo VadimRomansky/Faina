@@ -297,8 +297,8 @@ void evaluateFluxSNRtoWind() {
 
 	double* E = new double[Nnu];
 
-	double EphFinalmin = 0.01 * kBoltzman * Tstar;
-	double EphFinalmax = 2 * Emax + Emin;
+	double EphFinalmin = 0.1*1000*1.6E-12;
+	double EphFinalmax = 10 * 1000 * 1.6E-12;
 	//photonDistribution->writeDistribution("output3.dat", 200, Ephmin, Ephmax);
 	factor = pow(EphFinalmax / EphFinalmin, 1.0 / (Nnu - 1));
 	E[0] = EphFinalmin;
@@ -309,10 +309,12 @@ void evaluateFluxSNRtoWind() {
 	}
 	double jetelectronConcentration = 2E6;
 	electrons->resetConcentration(jetelectronConcentration);
-	RadiationSource* source2 = new SimpleFlatSource(electrons, B, pi / 2, rcompton, rmax*fraction, distance);
+	MassiveParticleDistribution* monoElectrons = new MassiveParticleMonoenergeticDistribution(massElectron, 30 * me_c2, me_c2, jetelectronConcentration);
+	RadiationSource* source2 = new SimpleFlatSource(monoElectrons, B, pi / 2, rmax, rmax*fraction, distance);
 
+	double V = source2->getTotalVolume();
 	double totalEnergy2 = jetelectronConcentration * massProton * speed_of_light2 * (gamma - 1.0) * source2->getTotalVolume();
-	double energyInComptonElectrons = jetelectronConcentration * (electrons->getMeanEnergy() - me_c2) * source2->getTotalVolume();
+	double energyInComptonElectrons = jetelectronConcentration * (monoElectrons->getMeanEnergy()) * source2->getTotalVolume();
 
 	printf("jet electron concentration = %g\n", jetelectronConcentration);
 	printLog("jet electron concentration = %g\n", jetelectronConcentration);
@@ -331,8 +333,8 @@ void evaluateFluxSNRtoWind() {
 	for (int i = 0; i < Nph; ++i) {
 		printf("%d\n", i);
 		double dE = currentE * (factor - 1.0);
-		kevFlux += comptonEvaluator->evaluateFluxFromSourceAnisotropic(currentE, 0, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA) * dE;
-		//kevFlux += comptonEvaluator->evaluateFluxFromSource(currentE, source) * dE;
+		//kevFlux += comptonEvaluator->evaluateFluxFromSourceAnisotropic(currentE, 0, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA) * dE;
+		kevFlux += comptonEvaluator->evaluateFluxFromSource(currentE, source) * dE;
 		currentE = currentE * factor;
 	}
 
