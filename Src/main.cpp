@@ -289,8 +289,8 @@ void evaluateFluxSNRtoWind() {
 	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, 0.25*sqr(rstar / rcompton), pi, 0, atan2(1, 1));
 	
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
-    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, newEmax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
+    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDirectedDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluatorWithSource(Ne, Nmu, Nphi, Emin, newEmax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES, rmax + 0.5E16, 0, 0);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluatorWithSource(Ne, Nmu, Nphi, Emin, newEmax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA, 0, -rmax - 0.5E16, 0);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
@@ -308,15 +308,17 @@ void evaluateFluxSNRtoWind() {
 		E[i] = E[i - 1] * factor;
 		F[i] = 0;
 	}
-	double jetelectronConcentration = 2E6;
+	double jetelectronConcentration = 2.56E6;
 	electrons->resetConcentration(jetelectronConcentration);
-	MassiveParticleDistribution* monoElectrons = new MassiveParticleMonoenergeticDistribution(massElectron, 30 * me_c2, me_c2, jetelectronConcentration);
+	MassiveParticleDistribution* monoElectrons = new MassiveParticleMonoenergeticDistribution(massElectron, 34 * me_c2, me_c2, jetelectronConcentration);
 	RadiationSource* source2 = new SimpleFlatSource(monoElectrons, B, pi / 2, rmax, rmax*fraction, distance);
 
 	double V = source2->getTotalVolume();
 	double totalEnergy2 = jetelectronConcentration * massProton * speed_of_light2 * (gamma - 1.0) * source2->getTotalVolume();
 	double energyInComptonElectrons = jetelectronConcentration * (monoElectrons->getMeanEnergy()) * source2->getTotalVolume();
 	double photonEnergyDensity = photonDistribution->getConcentration() * photonDistribution->getMeanEnergy();
+	printf("source volume = %g\n", V);
+	printLog("source volume = %g\n", V);
 	printf("jet electron concentration = %g\n", jetelectronConcentration);
 	printLog("jet electron concentration = %g\n", jetelectronConcentration);
 	printf("photon energy density = %g\n", photonEnergyDensity);
