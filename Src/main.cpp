@@ -22,7 +22,7 @@ void evaluateFluxSNRtoWind() {
 
 	double theta = pi/2;
 	double index = 3.5;
-	double Tstar = 50 * 1000;
+	double Tstar = 10 * 1000;
 	double luminosity = 510000 * 4 * 1E33;
 	double rsun = 6.9E10;
 	double rstar = rsun*sqrt(510000.0/pow(Tstar/5800,4));
@@ -280,8 +280,8 @@ void evaluateFluxSNRtoWind() {
 
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
-	double rcompton = 0.5E16;
-	rmax = 0.5E16;
+	double rcompton = 2E16;
+	rmax = 2E16;
 	fraction = 0.5;
 	rcompton = rmax + 0.5E16;
 	rcompton = rmax;
@@ -289,8 +289,8 @@ void evaluateFluxSNRtoWind() {
 	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, 0.25*sqr(rstar / rcompton), pi, 0, atan2(1, 1));
 	
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
-    //InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDirectedDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
+    InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDirectedDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluatorWithSource(Ne, Nmu, Nphi, Emin, newEmax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES, rmax + 0.5E16, 0, 0);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluatorWithSource(Ne, Nmu, Nphi, Emin, newEmax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA, 0, -rmax - 0.5E16, 0);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
@@ -298,8 +298,8 @@ void evaluateFluxSNRtoWind() {
 
 	double* E = new double[Nnu];
 
-	double EphFinalmin = 0.1*1000*1.6E-12;
-	double EphFinalmax = 10 * 1000 * 1.6E-12;
+	double EphFinalmin = 0.01*1000*1.6E-12;
+	double EphFinalmax = 100 * 1000 * 1.6E-12;
 	//photonDistribution->writeDistribution("output3.dat", 200, Ephmin, Ephmax);
 	factor = pow(EphFinalmax / EphFinalmin, 1.0 / (Nnu - 1));
 	E[0] = EphFinalmin;
@@ -308,10 +308,10 @@ void evaluateFluxSNRtoWind() {
 		E[i] = E[i - 1] * factor;
 		F[i] = 0;
 	}
-	double jetelectronConcentration = 2.56E6;
+	double jetelectronConcentration = 0.5E6;
 	electrons->resetConcentration(jetelectronConcentration);
 	MassiveParticleDistribution* monoElectrons = new MassiveParticleMonoenergeticDistribution(massElectron, 34 * me_c2, me_c2, jetelectronConcentration);
-	RadiationSource* source2 = new SimpleFlatSource(monoElectrons, B, pi / 2, rmax, rmax*fraction, distance);
+	RadiationSource* source2 = new SimpleFlatSource(electrons, B, pi / 2, rmax, rmax*fraction, distance);
 
 	double V = source2->getTotalVolume();
 	double totalEnergy2 = jetelectronConcentration * massProton * speed_of_light2 * (gamma - 1.0) * source2->getTotalVolume();

@@ -216,11 +216,11 @@ hold on;
 set(gca, 'YScale', 'log');
 set(gca, 'XScale', 'log');
 title ('\nu F_{\nu}');
-xlabel ('{\nu} GHz');
+xlabel ('{\E} eV');
 ylabel ('\nu F_{\nu} erg cm^{-2} s^{-1}');
 
-loglog(radiation(1:N,1),nufnuSynch(1:N),'red','LineWidth',2);
-loglog(compton(1:N,1),nufnuCompt(1:N),'blue','LineWidth',2);
+loglog(radiation(1:N,1)*10^9*h/(1.6*10^-12),nufnuSynch(1:N),'red','LineWidth',2);
+loglog(compton(1:N,1)*10^9*h/(1.6*10^-12),nufnuCompt(1:N),'blue','LineWidth',2);
 
 dlmwrite('radiation.dat',radiation,'delimiter',' ');
 
