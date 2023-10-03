@@ -22,7 +22,7 @@ void evaluateFluxSNRtoWind() {
 
 	double theta = pi/2;
 	double index = 3.5;
-	double Tstar = 10 * 1000;
+	double Tstar = 30 * 1000;
 	double luminosity = 510000 * 4 * 1E33;
 	double rsun = 6.9E10;
 	double rstar = rsun*sqrt(510000.0/pow(Tstar/5800,4));
@@ -280,13 +280,13 @@ void evaluateFluxSNRtoWind() {
 
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
-	double rcompton = 2E16;
-	rmax = 2E16;
+	double rcompton = 1E16;
+	rmax = 1E16;
 	fraction = 0.5;
 	rcompton = rmax + 0.5E16;
 	rcompton = rmax;
 	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, 0.25*sqr(rstar / rcompton));
-	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, 0.25*sqr(rstar / rcompton), pi, 0, atan2(1, 1));
+	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, 0.25*sqr(rstar / rcompton), pi*17/18, 0, atan2(1, 1));
 	
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
     InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDirectedDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
@@ -308,14 +308,16 @@ void evaluateFluxSNRtoWind() {
 		E[i] = E[i - 1] * factor;
 		F[i] = 0;
 	}
-	double jetelectronConcentration = 0.5E6;
+	double jetelectronConcentration = 2E6;
 	electrons->resetConcentration(jetelectronConcentration);
-	MassiveParticleDistribution* monoElectrons = new MassiveParticleMonoenergeticDistribution(massElectron, 34 * me_c2, me_c2, jetelectronConcentration);
-	RadiationSource* source2 = new SimpleFlatSource(electrons, B, pi / 2, rmax, rmax*fraction, distance);
+	//MassiveParticleDistribution* jetelectrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, 34 * me_c2, jetelectronConcentration);
+	MassiveParticleDistribution* jetelectrons = new MassiveParticleMonoenergeticDistribution(massElectron, 20 * me_c2, me_c2, jetelectronConcentration);
+
+	RadiationSource* source2 = new SimpleFlatSource(jetelectrons, B, pi / 2, rmax, rmax*fraction, distance);
 
 	double V = source2->getTotalVolume();
-	double totalEnergy2 = jetelectronConcentration * massProton * speed_of_light2 * (gamma - 1.0) * source2->getTotalVolume();
-	double energyInComptonElectrons = jetelectronConcentration * (monoElectrons->getMeanEnergy()) * source2->getTotalVolume();
+	double totalEnergy2 = jetelectronConcentration * massProton * speed_of_light2 * 20 * source2->getTotalVolume();
+	double energyInComptonElectrons = jetelectronConcentration * (jetelectrons->getMeanEnergy()) * source2->getTotalVolume();
 	double photonEnergyDensity = photonDistribution->getConcentration() * photonDistribution->getMeanEnergy();
 	printf("source volume = %g\n", V);
 	printLog("source volume = %g\n", V);
@@ -327,6 +329,12 @@ void evaluateFluxSNRtoWind() {
 	printLog("energy in compton electrons = %g\n", energyInComptonElectrons);
 	printf("energy in protons = %g\n", totalEnergy2);
 	printLog("energy in protons = %g\n", totalEnergy2);
+
+	FILE* output_GZ_Jansky3 = fopen("outputSynch3.dat", "w");
+	for (int i = 0; i < Nnu; ++i) {
+		fprintf(output_GZ_Jansky3, "%g %g\n", Nu[i]/1E9, hplank*1E26*synchrotronEvaluator->evaluateFluxFromSource(hplank * Nu[i], source2));
+	}
+	fclose(output_GZ_Jansky3);
 
 	double minEev = 0.3 * 1000 * 1.6E-12;
 	double maxEev = 10 * 1000 * 1.6E-12;
