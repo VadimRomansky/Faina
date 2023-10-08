@@ -279,7 +279,7 @@ double MassiveParticleBrokenPowerLawDistribution::getMeanEnergy()
 		first = my_E0 * my_E0 * my_A * log(my_Etran / my_E0);
 	}
 	else {
-		first = my_E0 * my_E0 * my_A * (1.0 - pow(my_E0 / my_Etran, my_index1 - 2)) / (my_index1 - 2.0);
+		first = my_E0 * my_E0 * my_A * (1.0 - pow(my_E0 / my_Etran, my_index1 - 2.0)) / (my_index1 - 2.0);
 	}
 	double second = 0;
 	if (my_index2 <= 2.0) {

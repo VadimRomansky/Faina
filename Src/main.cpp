@@ -22,7 +22,7 @@ void evaluateFluxSNRtoWind() {
 
 	double theta = pi/2;
 	double index = 3.5;
-	double Tstar = 10 * 1000;
+	double Tstar = 25 * 1000;
 	double luminosity = 510000 * 4 * 1E33;
 	double rsun = 6.9E10;
 	double rstar = rsun*sqrt(510000.0/pow(Tstar/5800,4));
@@ -64,13 +64,13 @@ void evaluateFluxSNRtoWind() {
 	RadiationSourceFactory::initializeTurbulentField(Bturb, thetaTurb, phiTurb, Nrho, Nz, Nphi, B, pi / 2, 0, 0.9, 11.0 / 6.0, rmax, 10, rmax);
 	//initializing electrons distribution
 	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, 2*me_c2, electronConcentration);
-	MassiveParticleBrokenPowerLawDistribution* electrons = new MassiveParticleBrokenPowerLawDistribution(massElectron, index, 2.001, 2*me_c2, 200*me_c2, electronConcentration);
-	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_theta0-90/Ee3.dat", "./examples_data/gamma1.5_theta0-90/Fs3.dat", 200, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
-	//double velocity = 0.75 * speed_of_light;
-	double velocity = 0.55 * speed_of_light;
+	//MassiveParticleBrokenPowerLawDistribution* electrons = new MassiveParticleBrokenPowerLawDistribution(massElectron, index, 2.001, 2*me_c2, 1000*me_c2, electronConcentration);
+	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_theta0-90/Ee8.dat", "./examples_data/gamma1.5_theta0-90/Fs8.dat", 200, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+	double velocity = 0.75 * speed_of_light;
+	//double velocity = 0.55 * speed_of_light;
 	double gamma = 1.0 / sqrt(1.0 - velocity * velocity / speed_of_light2);
 	//electrons->addPowerLaw(200 * massElectron * speed_of_light2, 3.5);
-	//electrons->rescaleDistribution(1.2);
+	electrons->rescaleDistribution(1.2);
 	//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electrons))->prolongEnergyRange(1E6, 100);
 	//electrons->addPowerLaw(200 * massElectron * speed_of_light2, 3.5);
 	electrons->writeDistribution("distribution.dat", 100, Emin, Emax);
@@ -78,7 +78,7 @@ void evaluateFluxSNRtoWind() {
 	//reading electron distributions from files
 	//MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.3_theta0-90/Ee", "./examples_data/gamma0.3_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
 	MassiveParticleDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.5_theta0-90/Ee", "./examples_data/gamma0.5_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
-	double newEmax = 5E6 * me_c2;
+	double newEmax = 1E6 * me_c2;
 	/*for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
 		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
@@ -183,16 +183,14 @@ void evaluateFluxSNRtoWind() {
 	//reseting source parameters to found values
 	//synchrotronOptimizer->outputProfileDiagrams(vector, source, 10);
 	//synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, source, 10, 1, 2);
-	//combinedOptimizer->optimize(vector, optPar);
-    //combinedOptimizer->outputProfileDiagrams(vector, source, 10);
-	//combinedOptimizer->outputOptimizedProfileDiagram(vector, optPar, source, 20, 1, 2);
-	B = 0.29;
+	combinedOptimizer->optimize(vector, optPar);
+	/*B = 0.29;
 	electronConcentration = 2500;
 	vector[0] = 1.4E17 / maxParameters[0];
 	vector[1] = (B*B/(4*pi*massProton*electronConcentration*speed_of_light2)) / maxParameters[1];
 	vector[2] = electronConcentration / maxParameters[2];
 	vector[3] = 1.33*0.5 / maxParameters[3];
-	vector[4] = 0.55*speed_of_light / maxParameters[4];
+	vector[4] = 0.55*speed_of_light / maxParameters[4];*/
 	source->resetParameters(vector, maxParameters);
 	//evaluating resulting error
 	error = combinedOptimizer->evaluateOptimizationFunction(vector);
@@ -285,8 +283,8 @@ void evaluateFluxSNRtoWind() {
 
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
-	double rcompton = 1E16;
-	rmax = 1E16;
+	double rcompton = 1E14;
+	rmax = 1E14;
 	fraction = 0.5;
 	rcompton = rmax + 0.5E16;
 	rcompton = rmax;
@@ -313,15 +311,15 @@ void evaluateFluxSNRtoWind() {
 		E[i] = E[i - 1] * factor;
 		F[i] = 0;
 	}
-	double jetelectronConcentration = 2E6;
+	double jetelectronConcentration = 2E12;
 	electrons->resetConcentration(jetelectronConcentration);
-	//MassiveParticleDistribution* jetelectrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, 34 * me_c2, jetelectronConcentration);
-	MassiveParticleDistribution* jetelectrons = new MassiveParticleMonoenergeticDistribution(massElectron, 20 * me_c2, me_c2, jetelectronConcentration);
+	MassiveParticleDistribution* jetelectrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, 10 * me_c2, jetelectronConcentration);
+	//MassiveParticleDistribution* jetelectrons = new MassiveParticleMonoenergeticDistribution(massElectron, 20 * me_c2, me_c2, jetelectronConcentration);
 
 	RadiationSource* source2 = new SimpleFlatSource(jetelectrons, B, pi / 2, rmax, rmax*fraction, distance);
 
 	double V = source2->getTotalVolume();
-	double totalEnergy2 = jetelectronConcentration * massProton * speed_of_light2 * 20 * source2->getTotalVolume();
+	double totalEnergy2 = jetelectronConcentration * massProton * speed_of_light2 * 10 * source2->getTotalVolume();
 	double energyInComptonElectrons = jetelectronConcentration * (jetelectrons->getMeanEnergy()) * source2->getTotalVolume();
 	double photonEnergyDensity = photonDistribution->getConcentration() * photonDistribution->getMeanEnergy();
 	printf("source volume = %g\n", V);
