@@ -22,8 +22,8 @@ void evaluateFluxSNRtoWind() {
 
 	double theta = pi/2;
 	double index = 3.5;
-	double Tstar = 25 * 1000;
-	double luminosity = 510000 * 4 * 1E33;
+	double Tstar = 5 * 1000;
+	double luminosity = 10000 * 4 * 1E33;
 	double rsun = 6.9E10;
 	double rstar = rsun*sqrt(510000.0/pow(Tstar/5800,4));
 	
@@ -46,7 +46,7 @@ void evaluateFluxSNRtoWind() {
 	//double Emax = 1E12 * me_c2;
 	double Emax = 1E4 * me_c2;
 	int Ne = 200;
-	int Nmu = 50;
+	int Nmu = 100;
 
 	int Nrho = 50;
 	int Nz = 50;
@@ -283,8 +283,8 @@ void evaluateFluxSNRtoWind() {
 
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
-	double rcompton = 1E14;
-	rmax = 1E14;
+	double rcompton = 2E14;
+	rmax = 2E15;
 	fraction = 0.5;
 	rcompton = rmax + 0.5E16;
 	rcompton = rmax;
@@ -311,11 +311,11 @@ void evaluateFluxSNRtoWind() {
 		E[i] = E[i - 1] * factor;
 		F[i] = 0;
 	}
-	double jetelectronConcentration = 2E12;
+	double jetelectronConcentration = 1E7;
 	electrons->resetConcentration(jetelectronConcentration);
-	MassiveParticleDistribution* jetelectrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, 10 * me_c2, jetelectronConcentration);
+	//MassiveParticleDistribution* jetelectrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, 30 * me_c2, jetelectronConcentration);
 	//MassiveParticleDistribution* jetelectrons = new MassiveParticleMonoenergeticDistribution(massElectron, 20 * me_c2, me_c2, jetelectronConcentration);
-
+	MassiveParticleDistribution* jetelectrons = new MassiveParticleMonoenergeticDirectedDistribution(massElectron, 30 * me_c2, me_c2, jetelectronConcentration, 0, 0, 0.1);
 	RadiationSource* source2 = new SimpleFlatSource(jetelectrons, B, pi / 2, rmax, rmax*fraction, distance);
 
 	double V = source2->getTotalVolume();
@@ -335,7 +335,7 @@ void evaluateFluxSNRtoWind() {
 
 	FILE* output_GZ_Jansky3 = fopen("outputSynch3.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
-		fprintf(output_GZ_Jansky3, "%g %g\n", Nu[i]/1E9, hplank*1E26*synchrotronEvaluator->evaluateFluxFromSource(hplank * Nu[i], source2));
+		//fprintf(output_GZ_Jansky3, "%g %g\n", Nu[i]/1E9, hplank*1E26*synchrotronEvaluator->evaluateFluxFromSource(hplank * Nu[i], source2));
 	}
 	fclose(output_GZ_Jansky3);
 
@@ -355,8 +355,8 @@ void evaluateFluxSNRtoWind() {
 	}
 
 	double totalLuminosity = kevFlux * 4 * pi * distance * distance;
-	double synchrotronKevFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(minEev, maxEev, 10, source);
-	double synchrotronFluxGHz3 = synchrotronEvaluator->evaluateFluxFromSource(3E9 * hplank, source)*1E26*hplank;
+	//double synchrotronKevFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(minEev, maxEev, 10, source);
+	//double synchrotronFluxGHz3 = synchrotronEvaluator->evaluateFluxFromSource(3E9 * hplank, source)*1E26*hplank;
 	
 	FILE* outFile = fopen("SNRtoWindData.dat", "w");
 	printf("total luminosity = %g erg/s \n", totalLuminosity);
@@ -365,15 +365,15 @@ void evaluateFluxSNRtoWind() {
 	printf("total flux = %g erg/s cm^2 \n", kevFlux);
 	printLog("total flux = %g erg/s cm^2 \n", kevFlux);
 	fprintf(outFile, "total flux = %g erg/s cm^2 \n", kevFlux);
-	printf("synchrotron total keV flux = %g erg/s cm^2 \n", synchrotronKevFlux);
-	printLog("synchrotron total keV flux = %g erg/s cm^2 \n", synchrotronKevFlux);
-	fprintf(outFile, "synchrotron total keV flux = %g erg/s cm^2 \n", synchrotronKevFlux);
+	//printf("synchrotron total keV flux = %g erg/s cm^2 \n", synchrotronKevFlux);
+	//printLog("synchrotron total keV flux = %g erg/s cm^2 \n", synchrotronKevFlux);
+	//fprintf(outFile, "synchrotron total keV flux = %g erg/s cm^2 \n", synchrotronKevFlux);
 	printf("99 days F = 1.33+-0.76 10^-15 L = 3.4+-1.9 10^39\n");
 	printLog("99 days F = 1.33+-0.76 10^-15 L = 3.4+-1.9 10^39\n");
 	fprintf(outFile, "99 days F = 1.33+-0.76 10^-15 L = 3.4+-1.9 10^39\n");
-	printf("synchrotron radio flux at 3 GHz = %g mJy\n", synchrotronFluxGHz3);
-	printLog("synchrotron radio flux at 3 GHz = %g mJy\n", synchrotronFluxGHz3);
-	fprintf(outFile, "synchrotron radio flux at 3 GHz = %g mJy\n", synchrotronFluxGHz3);
+	//printf("synchrotron radio flux at 3 GHz = %g mJy\n", synchrotronFluxGHz3);
+	//printLog("synchrotron radio flux at 3 GHz = %g mJy\n", synchrotronFluxGHz3);
+	//fprintf(outFile, "synchrotron radio flux at 3 GHz = %g mJy\n", synchrotronFluxGHz3);
 	printf("99 days F(3GHz) = 4.3 mJy\n");
 	printLog("99 days F(3GHz) = 4.3 mJy\n");
 	fprintf(outFile, "99 days F(3GHz) = 4.3 mJy\n");
