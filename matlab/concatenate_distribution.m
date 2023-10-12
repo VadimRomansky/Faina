@@ -12,7 +12,7 @@ dE1(1:N1)=0;
 FEE1(1:N1)=0;
 
 for i = 1:N1,
-    %E1(i) = me*c*c*(1.0 + 1.2*E1(i));
+    %E1(i) = m*c*c*(1.0 + 1.2*E1(i));
     E1(i) = m*c*c*(1.0 + E1(i));
 end;
 dE1(1)=0;
@@ -46,7 +46,7 @@ for i=1:N2,
     FEE2(i)=F2(i)*E2(i)*E2(i);
 end;
 
-Nconcat1 = 180;
+Nconcat1 = 183;
 Econcat1 = E1(Nconcat1);
 Nconcat2=1;
 for i=1:N2,
@@ -65,9 +65,12 @@ for i=1:Nconcat1,
     E3(i)=E1(i);
     F3(i)=F1(i);
 end;
+tempF = exp(log(F1(Nconcat1)) + (log(F1(Nconcat1)/F1(Nconcat1-1))/log(E1(Nconcat1)/E1(Nconcat1-1)))*log(E2(Nconcat2)/E1(Nconcat1)));
+%tempF = F1(Nconcat1) + ((F1(Nconcat1) - F1(Nconcat1-1))/(E1(Nconcat1)-E1(Nconcat1-1))*(E2(Nconcat2)-E1(Nconcat1)));
 for i=Nconcat1+1:N3,
     E3(i)=E2(i - Nconcat1-1 + Nconcat2);
-    F3(i)=F2(i - Nconcat1-1 + Nconcat2)*F1(Nconcat1)/F2(Nconcat2);
+    F3(i)=F2(i - Nconcat1-1 + Nconcat2)*tempF/F2(Nconcat2);
+    %F3(i)=tempF;
 end;
 dE3(1)=0;
 for i=2:N3,
@@ -98,9 +101,9 @@ xlabel ('E/m_p c^2');
 ylabel ('F_{E} E^2');
 
 
-plot(E1(1:N1)/(mp*c*c), FEE1(1:N1),'red','LineWidth',2);
-plot(E2(1:N2)/(mp*c*c), FEE2(1:N2),'green','LineWidth',2);
-plot(E3(1:N3)/(mp*c*c), FEE3(1:N3),'blue','LineWidth',2);
+plot(E1(1:N1)/(mp*c*c), F1(1:N1),'red','LineWidth',2);
+plot(E2(1:N2)/(mp*c*c), F2(1:N2),'green','LineWidth',2);
+plot(E3(1:N3)/(mp*c*c), F3(1:N3),'blue','LineWidth',2);
 
 E3kin(1:N3)=0;
 F3kin(1:N3)=0;
