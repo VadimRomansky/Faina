@@ -1,0 +1,45 @@
+size 24 30
+set font times8b hei 1.0
+set lwidth 0.12
+amove 3.7 3.0
+begin graph
+  size 20 26
+  fullsize
+  xtitle "Log_1_0\,p\,[m_pc]"
+  ytitle "p^{4}f(p)/(m_pc)"
+  data "GLE_pdf_sf_A1.dat"
+  data "GLE_pdf_sf_A2.dat"
+  data "GLE_pdf_sf_A3.dat"
+  data "GLE_pdf_sf_FEB_up_A1.dat"  
+  data "GLE_pdf_sf_FEB_up_A2.dat"  
+  data "GLE_pdf_sf_FEB_up_A3.dat"  	  
+  xaxis min -3.2 max 6.2
+  xaxis ftick -3 dticks 3 dsubticks 1  
+  yaxis min 1.0E-6 max 2.0E4 log 
+  ylabels log off
+  d1 lstyle 1 lwidth 0.12 color green
+  d2 lstyle 5 lwidth 0.12 color blue
+  d3 lstyle 6 lwidth 0.12 color red
+  d4 lstyle 1 lwidth 0.05 color green
+  d5 lstyle 5 lwidth 0.05 color blue
+  d6 lstyle 6 lwidth 0.05 color red
+end graph
+begin key
+   pos tr
+   text "A1" line lstyle 1 lwidth 0.12 color green
+   text "A2" line lstyle 5 lwidth 0.12 color blue
+   text "A3" line lstyle 6 lwidth 0.12 color red
+end key
+!set font times8b hei 0.9
+!amove 10.0 26.6
+!begin text
+!NL shock frame spectra
+!end text
+!set font times8b hei 0.9
+!amove 10.0 24.4
+!begin text
+!Solid (black) \gamma_0\,=\,1.5
+!Dashed (red) \gamma_0\,=\,2
+!Dot-dash (green) \gamma_0\,=\,3
+!Dotted (blue) \gamma_0\,=\,4
+!end text
