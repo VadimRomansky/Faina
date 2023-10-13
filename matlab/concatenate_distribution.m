@@ -1,19 +1,19 @@
 clear;
 
-me = 9.1*10^-27;
+me = 9.1*10^-28;
 mp = 1.6*10^-24;
 c =3*10^10;
 m=mp;
 
-E1 = importdata('../examples_data/gamma1.5_theta0-90_protons/Ee3.dat');
-F1 = importdata('../examples_data/gamma1.5_theta0-90_protons/Fs3.dat');
+E1 = importdata('../examples_data/gamma1.5_theta0-90/Ee3.dat');
+F1 = importdata('../examples_data/gamma1.5_theta0-90/Fs3.dat');
 N1 = size(E1,2);
 dE1(1:N1)=0;
 FEE1(1:N1)=0;
 
 for i = 1:N1,
-    %E1(i) = m*c*c*(1.0 + 1.2*E1(i));
-    E1(i) = m*c*c*(1.0 + E1(i));
+    E1(i) = m*c*c*(1.0 + 1.2*E1(i));
+    %E1(i) = m*c*c*(1.0 + E1(i));
 end;
 dE1(1)=0;
 for i = 2:N1,
@@ -46,7 +46,7 @@ for i=1:N2,
     FEE2(i)=F2(i)*E2(i)*E2(i);
 end;
 
-Nconcat1 = 183;
+Nconcat1 = 185;
 Econcat1 = E1(Nconcat1);
 Nconcat2=1;
 for i=1:N2,
@@ -108,7 +108,7 @@ plot(E3(1:N3)/(mp*c*c), F3(1:N3),'blue','LineWidth',2);
 E3kin(1:N3)=0;
 F3kin(1:N3)=0;
 for i=1:N3,
-    E3kin(i) = (E3(i) - m*c*c)/(m*c*c);
+    E3kin(i) = E3(i)/(m*c*c) - 1.0;
     F3kin(i) = F3(i)*m*c*c;
 end;
 

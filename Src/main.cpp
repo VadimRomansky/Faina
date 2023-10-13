@@ -44,7 +44,7 @@ void evaluateFluxSNRtoWind() {
 
 	double Emin = me_c2;
 	//double Emax = 1E12 * me_c2;
-	double Emax = 1E4 * me_c2;
+	double Emax = 1E7 * me_c2;
 	int Ne = 200;
 	int Nmu = 100;
 
@@ -65,20 +65,20 @@ void evaluateFluxSNRtoWind() {
 	//initializing electrons distribution
 	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, 2*me_c2, electronConcentration);
 	//MassiveParticleBrokenPowerLawDistribution* electrons = new MassiveParticleBrokenPowerLawDistribution(massElectron, index, 2.001, 2*me_c2, 1000*me_c2, electronConcentration);
-	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_theta0-90/Ee8.dat", "./examples_data/gamma1.5_theta0-90/Fs8.dat", 200, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined/Ee3.dat", "./examples_data/gamma1.5_combined/Fs3.dat", 259, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 	double velocity = 0.75 * speed_of_light;
 	//double velocity = 0.55 * speed_of_light;
 	double gamma = 1.0 / sqrt(1.0 - velocity * velocity / speed_of_light2);
 	//electrons->addPowerLaw(200 * massElectron * speed_of_light2, 3.5);
-	electrons->rescaleDistribution(1.2);
+	//electrons->rescaleDistribution(1.2);
 	//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electrons))->prolongEnergyRange(1E6, 100);
 	//electrons->addPowerLaw(200 * massElectron * speed_of_light2, 3.5);
-	electrons->writeDistribution("distribution.dat", 100, Emin, Emax);
+	electrons->writeDistribution("distribution.dat", 200, Emin, Emax);
 	int Ndistributions = 10;
 	//reading electron distributions from files
 	//MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.3_theta0-90/Ee", "./examples_data/gamma0.3_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
 	MassiveParticleDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.5_theta0-90/Ee", "./examples_data/gamma0.5_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
-	double newEmax = 1E6 * me_c2;
+	double newEmax = 1E7 * me_c2;
 	/*for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
 		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
