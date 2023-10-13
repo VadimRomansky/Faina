@@ -44,8 +44,8 @@ void evaluateFluxSNRtoWind() {
 
 	double Emin = me_c2;
 	//double Emax = 1E12 * me_c2;
-	double Emax = 1E7 * me_c2;
-	int Ne = 200;
+	double Emax = 1E8 * me_c2;
+	int Ne = 400;
 	int Nmu = 100;
 
 	int Nrho = 50;
@@ -78,7 +78,7 @@ void evaluateFluxSNRtoWind() {
 	//reading electron distributions from files
 	//MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.3_theta0-90/Ee", "./examples_data/gamma0.3_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
 	MassiveParticleDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.5_theta0-90/Ee", "./examples_data/gamma0.5_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
-	double newEmax = 1E7 * me_c2;
+	double newEmax = 1E8 * me_c2;
 	/*for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
 		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
@@ -144,6 +144,7 @@ void evaluateFluxSNRtoWind() {
 	//starting point of optimization and normalization
 	electronConcentration = 690 * 0.012 / 0.5;
 	sigma = 0.01 * 0.5 / 0.012;
+	fraction = 1E-4;
 	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, velocity };
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
@@ -183,7 +184,7 @@ void evaluateFluxSNRtoWind() {
 	//reseting source parameters to found values
 	//synchrotronOptimizer->outputProfileDiagrams(vector, source, 10);
 	//synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, source, 10, 1, 2);
-	combinedOptimizer->optimize(vector, optPar);
+	//combinedOptimizer->optimize(vector, optPar);
 	/*B = 0.29;
 	electronConcentration = 2500;
 	vector[0] = 1.4E17 / maxParameters[0];
@@ -240,13 +241,13 @@ void evaluateFluxSNRtoWind() {
 	printLog("total mass = %g\n", totalMass);
 
 	//initialization arrays for full synchrotron spectrum
-	const int Nnu = 50;
+	const int Nnu = 100;
 	double* Nu = new double[Nnu];
 	double* F = new double[Nnu];
 	double* F2 = new double[Nnu];
 
 	double Numin = 1E8;
-	double Numax = 1E18;
+	double Numax = 1E19;
 	double factor = pow(Numax / Numin, 1.0 / (Nnu - 1));
 	Nu[0] = Numin;
 	F[0] = 0;

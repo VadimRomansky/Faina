@@ -1,0 +1,60 @@
+size 24 30
+set font times8b hei 1.0
+set lwidth 0.12
+amove 3.7 3.0
+begin graph
+  size 20 26
+  fullsize
+  xtitle "Log_1_0\,p\,[m_pc]"
+  ytitle "p^{4}f(p)/(m_pc)"
+  data   "GLE_pdf_sf_casc_B0_000003.dat"
+  data   "GLE_pdf_sf_B0_000003.dat"
+  data   "GLE_pdf_sf_casc_B0_00003.dat"  
+  data   "GLE_pdf_sf_B0_00003.dat"   
+  data   "GLE_pdf_sf_casc_B0_0003.dat"  
+  data   "GLE_pdf_sf_B0_0003.dat"   
+  data   "GLE_pdf_sf_FEB_up_casc_B0_000003.dat"
+  data   "GLE_pdf_sf_FEB_up_B0_000003.dat"  
+  data   "GLE_pdf_sf_FEB_up_casc_B0_00003.dat"    
+  data   "GLE_pdf_sf_FEB_up_B0_00003.dat" 
+  data   "GLE_pdf_sf_FEB_up_casc_B0_0003.dat"   
+  data   "GLE_pdf_sf_FEB_up_B0_0003.dat" 
+  xaxis min -1.2 max 9.2
+  xaxis ftick 0 dticks 3 dsubticks 1  
+  yaxis min 1.0E-7 max 3.0E-3 log 
+  ylabels log off
+  d1 lstyle 1 lwidth 0.12 color black
+  d2 lstyle 5 lwidth 0.12 color black
+  d3 lstyle 6 lwidth 0.12 color black
+  d4 lstyle 3 lwidth 0.12 color black
+  d5 lstyle 4 lwidth 0.12 color black
+  d6 lstyle 9 lwidth 0.12 color black
+  d7 lstyle 1 lwidth 0.05 color black
+  d8 lstyle 5 lwidth 0.05 color black
+  d9 lstyle 6 lwidth 0.05 color black
+  d10 lstyle 3 lwidth 0.05 color black
+  d11 lstyle 4 lwidth 0.05 color black
+  d12 lstyle 9 lwidth 0.05 color black
+end graph
+begin key
+   pos tr
+   text "AC" line lstyle 1 lwidth 0.12 color black
+   text "A" line lstyle 5 lwidth 0.12 color black
+   text "BC" line lstyle 6 lwidth 0.12 color black
+   text "B" line lstyle 3 lwidth 0.12 color black
+   text "CC" line lstyle 4 lwidth 0.12 color black
+   text "C" line lstyle 9 lwidth 0.12 color black
+end key
+!set font times8b hei 0.9
+!amove 10.0 26.6
+!begin text
+!NL shock frame spectra
+!end text
+!set font times8b hei 0.9
+!amove 10.0 24.4
+!begin text
+!Solid (black) \gamma_0\,=\,1.5
+!Dashed (red) \gamma_0\,=\,2
+!Dot-dash (green) \gamma_0\,=\,3
+!Dotted (blue) \gamma_0\,=\,4
+!end text
