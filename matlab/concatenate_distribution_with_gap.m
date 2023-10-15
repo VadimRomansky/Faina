@@ -48,10 +48,13 @@ end;
 
 Nconcat1 = 151;
 Econcat1 = E1(Nconcat1);
-Nconcat2=47;
+Nconcat2=55;
 
-p = 3.8;
-Npower = 20;
+p1 = 2.5;
+Npower1 = 10;
+p2 = 2.2;
+Npower2 = 10;
+Npower = Npower1+Npower2;
 
 N3 = Nconcat1 + (N2 - Nconcat2 + 1) + Npower;
 E3(1:N3)=0;
@@ -65,13 +68,17 @@ end;
 
 energyFactor = power(E2(Nconcat2)/E1(Nconcat1),1.0/(Npower+1));
 
-for i = Nconcat1+1:Nconcat1+Npower,
+for i = Nconcat1+1:Nconcat1+Npower1,
     E3(i) = E1(Nconcat1)*power(energyFactor, i - Nconcat1);
-    F3(i) = F1(Nconcat1)*power(E1(Nconcat1)/E3(i), p);
+    F3(i) = F1(Nconcat1)*power(E1(Nconcat1)/E3(i), p1);
+end;
+for i = Nconcat1+Npower1+1:Nconcat1+Npower,
+    E3(i) = E1(Nconcat1)*power(energyFactor, i - Nconcat1);
+    F3(i) = F3(Nconcat1+Npower1)*power(E3(Nconcat1+Npower1)/E3(i), p2);
 end;
 
 tempE = E1(Nconcat1)*power(energyFactor, Npower+1);
-tempF = F1(Nconcat1)*power(E1(Nconcat1)/tempE, p);
+tempF = F3(Nconcat1+Npower1)*power(E3(Nconcat1+Npower1)/tempE, p2);
 %tempF = F1(Nconcat1) + ((F1(Nconcat1) - F1(Nconcat1-1))/(E1(Nconcat1)-E1(Nconcat1-1))*(E2(Nconcat2)-E1(Nconcat1)));
 for i=Nconcat1+Npower+1:N3,
     E3(i)=E2(i - Nconcat1-Npower-1 + Nconcat2);
