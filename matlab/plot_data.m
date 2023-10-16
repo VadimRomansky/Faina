@@ -1,16 +1,17 @@
 clear;
 
 %data = importdata('../output4.dat');
-data = importdata('../distribution.dat');
+%data = importdata('../distribution.dat');
 %data = importdata('../anisotropicCompton.dat');
 %data = importdata('../differentialFlux.dat');
+data = importdata('../outputSynch3.dat');
 
 N = size(data,1);
 
-approx(1:N) = 0;
-for i=1:N,
-    approx(i) = 0.5*data(1,2)*(1 + (cos(data(i,1))^2));
-end;
+%approx(1:N) = 0;
+%for i=1:N,
+%    approx(i) = 0.5*data(1,2)*(1 + (cos(data(i,1))^2));
+%end;
 
 
 
@@ -27,7 +28,7 @@ ylabel ('F_{E} см^{-2} с^{-1}');
 
 mc2 = (9.1*10^-28) * (3*10^10)^2;
 
-loglog(data(1:N,1)/mc2,data(1:N,2),'red','LineWidth',2,'Marker','+');
+loglog(data(1:N,1),data(1:N,2),'red','LineWidth',2,'Marker','+');
 %plot(data(1:N,1),data(1:N,3),'green','LineWidth',2,'Marker','+');
 %plot(data(1:N,1),data(1:N,4),'magenta','LineWidth',2,'Marker','+');
 %plot(data(1:N,1),approx(1:N),'blue','LineWidth',2,'Marker','+');

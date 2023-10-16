@@ -143,7 +143,7 @@ void evaluateFluxSNRtoWind() {
 	double maxParameters[Nparams] = { rmax, 1E-2, 2E6, 0.5, 0.5*speed_of_light };
 	//starting point of optimization and normalization
 	electronConcentration = 690 * 0.012 / 0.5;
-	sigma = 0.01 * 0.5 / 0.012;
+	sigma = 0.01 * 0.5 / (0.012);
 	fraction = 1E13/rmax;
 	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, velocity };
 	for (int i = 0; i < Nparams; ++i) {
@@ -275,8 +275,9 @@ void evaluateFluxSNRtoWind() {
 	fclose(output_GZ_Jansky);
 	fclose(output_GZ_Jansky2);
 
-	double synchrotronFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(hplank * 1E8, hplank * 1E11, 20, source);
-	double synchrotronKevFlux1 = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.3*1000*1.6E-12, 10 * 1000 * 1.6E-12, 20, source);
+	double synchrotronFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(hplank * 1E8, hplank * 1E11, 200, source);
+	double synchrotronKevFlux1 = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.3*1000*1.6E-12, 10 * 1000 * 1.6E-12, 200, source);
+	synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch3.dat", source, hplank * 1E8, 10 * 1000 * 1.6E-12, 1000);
 	double synchrotronFlux2 = synchrotronEvaluator2->evaluateTotalFluxInEnergyRange(hplank * 1E8, hplank * 1E11, 20, source);
 	printf("total synchrotron flux = %g erg/cm^2 s\n", synchrotronFlux);
 	printf("total synchrotron flux without absorption = %g erg/cm^2 s\n", synchrotronFlux2);
@@ -334,7 +335,7 @@ void evaluateFluxSNRtoWind() {
 	printf("energy in protons = %g\n", totalEnergy2);
 	printLog("energy in protons = %g\n", totalEnergy2);
 
-	FILE* output_GZ_Jansky3 = fopen("outputSynch3.dat", "w");
+	FILE* output_GZ_Jansky3 = fopen("outputSynch4.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		//fprintf(output_GZ_Jansky3, "%g %g\n", Nu[i]/1E9, hplank*1E26*synchrotronEvaluator->evaluateFluxFromSource(hplank * Nu[i], source2));
 	}

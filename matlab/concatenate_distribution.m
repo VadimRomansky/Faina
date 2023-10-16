@@ -23,7 +23,7 @@ for i = 1:N1,
     FEE1(i)=F1(i)*E1(i)*E1(i);
 end;
 
-MC_F = importdata('../examples_data/pdf_sf_gamma1.5/GLE_pdf_sf_B0_0003.dat');
+MC_F = importdata('../examples_data/pdf_sf_gamma1.5/GLE_pdf_sf_B0_00003.dat');
 N2 = size(MC_F,1);
 
 
@@ -101,9 +101,9 @@ xlabel ('E/m_p c^2');
 ylabel ('F_{E} E^2');
 
 
-plot(E1(1:N1)/(mp*c*c)-1, F1(1:N1),'red','LineWidth',2);
-plot(E2(1:N2)/(mp*c*c)-1, F2(1:N2),'green','LineWidth',2);
-plot(E3(1:N3)/(mp*c*c)-1, F3(1:N3),'blue','LineWidth',2);
+plot(E1(1:N1)/(mp*c*c)-1, FEE1(1:N1),'red','LineWidth',2);
+plot(E2(1:N2)/(mp*c*c)-1, FEE2(1:N2),'green','LineWidth',2);
+plot(E3(1:N3)/(mp*c*c)-1, FEE3(1:N3),'blue','LineWidth',2);
 
 E3kin(1:N3)=0;
 F3kin(1:N3)=0;

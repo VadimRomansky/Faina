@@ -23,7 +23,7 @@ for i = 1:N1,
     FEE1(i)=F1(i)*E1(i)*E1(i);
 end;
 
-MC_F = importdata('../examples_data/pdf_sf_gamma1.5/GLE_pdf_sf_B0_0003.dat');
+MC_F = importdata('../examples_data/pdf_sf_gamma1.5/GLE_pdf_sf_B0_00003.dat');
 N2 = size(MC_F,1);
 
 
@@ -52,7 +52,7 @@ Nconcat2=55;
 
 p1 = 2.5;
 Npower1 = 10;
-p2 = 2.2;
+p2 = 2.3;
 Npower2 = 10;
 Npower = Npower1+Npower2;
 
@@ -122,6 +122,7 @@ E3kin(1:N3)=0;
 F3kin(1:N3)=0;
 for i=1:N3,
     E3kin(i) = E3(i)/(m*c*c) - 1.0;
+    %F3kin(i) = F3(i)*m*c*c;
     F3kin(i) = F3(i)*exp(-E3(i)/(m*c*c*Emax))*m*c*c;
 end;
 
