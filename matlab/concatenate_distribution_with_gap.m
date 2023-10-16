@@ -100,8 +100,6 @@ for i = 1:N3,
     FEE3(i)=F3(i)*E3(i)*E3(i);
 end;
 
-
-
 set(0,'DefaultAxesFontSize',14,'DefaultAxesFontName','Times New Roman');
 set(0,'DefaultTextFontSize',20,'DefaultTextFontName','Times New Roman'); 
 
@@ -118,11 +116,13 @@ plot(E1(1:N1)/(mp*c*c), FEE1(1:N1),'red','LineWidth',2);
 plot(E2(1:N2)/(mp*c*c), FEE2(1:N2),'green','LineWidth',2);
 plot(E3(1:N3)/(mp*c*c), FEE3(1:N3),'blue','LineWidth',2);
 
+Emax = 1.4E8;
+
 E3kin(1:N3)=0;
 F3kin(1:N3)=0;
 for i=1:N3,
     E3kin(i) = E3(i)/(m*c*c) - 1.0;
-    F3kin(i) = F3(i)*m*c*c;
+    F3kin(i) = F3(i)*exp(-E3(i)/(m*c*c*Emax))*m*c*c;
 end;
 
 

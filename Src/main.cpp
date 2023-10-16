@@ -65,7 +65,7 @@ void evaluateFluxSNRtoWind() {
 	//initializing electrons distribution
 	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, 2*me_c2, electronConcentration);
 	//MassiveParticleBrokenPowerLawDistribution* electrons = new MassiveParticleBrokenPowerLawDistribution(massElectron, index, 2.001, 2*me_c2, 1000*me_c2, electronConcentration);
-	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined/Ee3.dat", "./examples_data/gamma1.5_combined/Fs3.dat", 259, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", 259, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 	double velocity = 0.75 * speed_of_light;
 	//double velocity = 0.55 * speed_of_light;
 	double gamma = 1.0 / sqrt(1.0 - velocity * velocity / speed_of_light2);
@@ -144,7 +144,7 @@ void evaluateFluxSNRtoWind() {
 	//starting point of optimization and normalization
 	electronConcentration = 690 * 0.012 / 0.5;
 	sigma = 0.01 * 0.5 / 0.012;
-	fraction = 1E-4;
+	fraction = 1E13/rmax;
 	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, velocity };
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];

@@ -3,8 +3,8 @@ from pylab import *
 import numpy as np
 
 def plot_distributions2():
-    Efile0 = open('../examples_data/gamma1.5_combined/Ee3.dat','r').readline().split()
-    Ffile0= open('../examples_data/gamma1.5_combined/Fs3.dat','r').readline().split()
+    Efile0 = open('../examples_data/gamma1.5_combined_cutoff/Ee3.dat','r').readline().split()
+    Ffile0= open('../examples_data/gamma1.5_combined_cutoff/Fs3.dat','r').readline().split()
 
     Efile0a = open('../examples_data/gamma1.5_combined_protons/Ee3.dat', 'r').readline().split()
     Ffile0a = open('../examples_data/gamma1.5_combined_protons/Fs3.dat', 'r').readline().split()
