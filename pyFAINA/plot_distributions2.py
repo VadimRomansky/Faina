@@ -69,6 +69,9 @@ def plot_distributions2():
     plt.plot(E[0], F3, 'b', linewidth=4)
     plt.plot(E[1], F[1], 'r', linewidth=4)
     plt.plot(E[0], F[0], 'b', linewidth=4, linestyle='dashed')
+    E1=E[0][150:167]
+    F1=F[0][150:167]
+    plt.plot(E1, F1, 'b', linewidth=50, linestyle='dashed', dashes=(5, 1), alpha=0.5)
     ax.legend([r'electrons',r'protons'], fontsize="25")
     ax.set_xlim(xmin=0.5E-3, xmax=5E8)
     ax.set_ylim(ymin=0.5E-6, ymax=2)

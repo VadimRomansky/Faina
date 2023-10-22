@@ -4,7 +4,8 @@ clear;
 %data = importdata('../distribution.dat');
 %data = importdata('../anisotropicCompton.dat');
 %data = importdata('../differentialFlux.dat');
-data = importdata('../outputSynch3.dat');
+%data = importdata('../bremsstrahlung.dat');
+data = importdata('../outputCompton.dat');
 
 N = size(data,1);
 
@@ -28,7 +29,7 @@ ylabel ('F_{E} см^{-2} с^{-1}');
 
 mc2 = (9.1*10^-28) * (3*10^10)^2;
 
-loglog(data(1:N,1),data(1:N,2),'red','LineWidth',2,'Marker','+');
+loglog(data(1:N,1)/(1.6*10^-9),data(1:N,2),'red','LineWidth',2,'Marker','+');
 %plot(data(1:N,1),data(1:N,3),'green','LineWidth',2,'Marker','+');
 %plot(data(1:N,1),data(1:N,4),'magenta','LineWidth',2,'Marker','+');
 %plot(data(1:N,1),approx(1:N),'blue','LineWidth',2,'Marker','+');

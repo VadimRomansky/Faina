@@ -66,6 +66,8 @@ void evaluateFluxSNRtoWind() {
 	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, 2*me_c2, electronConcentration);
 	//MassiveParticleBrokenPowerLawDistribution* electrons = new MassiveParticleBrokenPowerLawDistribution(massElectron, index, 2.001, 2*me_c2, 1000*me_c2, electronConcentration);
 	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", 259, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+	MassiveParticleTabulatedIsotropicDistribution* protons = new MassiveParticleTabulatedIsotropicDistribution(massProton, "./examples_data/gamma1.5_theta0-90_protons/Ee3.dat", "./examples_data/gamma1.5_theta0-90_protons/Fs3.dat", 259, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+	MassiveParticleMaxwellJuttnerDistribution* thermalElectrons = new MassiveParticleMaxwellJuttnerDistribution(massElectron, 4 * me_c2 / kBoltzman, electronConcentration);
 	double velocity = 0.75 * speed_of_light;
 	//double velocity = 0.55 * speed_of_light;
 	double gamma = 1.0 / sqrt(1.0 - velocity * velocity / speed_of_light2);
@@ -74,6 +76,7 @@ void evaluateFluxSNRtoWind() {
 	//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electrons))->prolongEnergyRange(1E6, 100);
 	//electrons->addPowerLaw(200 * massElectron * speed_of_light2, 3.5);
 	electrons->writeDistribution("distribution.dat", 200, Emin, Emax);
+	thermalElectrons->writeDistribution("distribution1.dat", 200, Emin, Emax);
 	int Ndistributions = 10;
 	//reading electron distributions from files
 	//MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.3_theta0-90/Ee", "./examples_data/gamma0.3_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
@@ -97,6 +100,7 @@ void evaluateFluxSNRtoWind() {
 
 	//creating radiation source
 	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, fraction*rmax, distance);
+	RadiationSource* thermalSource = new SimpleFlatSource(thermalElectrons, B, theta, rmax, fraction*rmax, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, electronConcentration, rmax, 0.5*rmax, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronsFromSmilei, Bturb, thetaTurb, concentration, rsource, 0.9*rsource, distance);
 	//AngleDependentElectronsSphericalSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, Bturb, thetaTurb, phiTurb, concentration, rmax, 0.9*rmax, distance, 0.5*speed_of_light);
@@ -142,9 +146,11 @@ void evaluateFluxSNRtoWind() {
 	double minParameters[Nparams] = { 0.5E17, 1E-6, 10, 0.01, 0.3*speed_of_light };
 	double maxParameters[Nparams] = { rmax, 1E-2, 2E6, 0.5, 0.5*speed_of_light };
 	//starting point of optimization and normalization
-	electronConcentration = 690 * 0.012 / 0.5;
-	sigma = 0.01 * 0.5 / (0.012);
-	fraction = 1E13/rmax;
+	//fraction = 2E13 / rmax;
+	fraction = 0.5;
+	double denseFactor = 1;
+	electronConcentration = (690 * 0.012 / 0.5)*denseFactor;
+	sigma = (0.01 * 0.5 / (0.012))/denseFactor;
 	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, velocity };
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
@@ -193,6 +199,7 @@ void evaluateFluxSNRtoWind() {
 	vector[3] = 1.33*0.5 / maxParameters[3];
 	vector[4] = 0.55*speed_of_light / maxParameters[4];*/
 	source->resetParameters(vector, maxParameters);
+	thermalSource->resetParameters(vector, maxParameters);
 	//evaluating resulting error
 	error = combinedOptimizer->evaluateOptimizationFunction(vector);
 	printf("resulting error = %g\n", error);
@@ -229,17 +236,25 @@ void evaluateFluxSNRtoWind() {
 	//double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0)*(4*pi*rmax*rmax*rmax/3)*(1.0 - cube(1.0 - fraction));
 	double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0)*source->getTotalVolume();
 	double energyInRadioElectrons = electronConcentration * (electrons->getMeanEnergy() - me_c2) * source->getTotalVolume();
+	double energyInRadioProtons = electronConcentration * (protons->getMeanEnergy() - massProton*speed_of_light2) * source->getTotalVolume();
 	double magneticEnergy = (B * B / (8 * pi)) * source->getTotalVolume();
 	printf("total kinetik energy = %g\n", totalEnergy);
 	printLog("total kinetik energy = %g\n", totalEnergy);
 	printf("energy in radio electrons = %g\n", energyInRadioElectrons);
 	printLog("energy in radio electrons = %g\n", energyInRadioElectrons);
+	printf("energy in radio protons = %g\n", energyInRadioProtons);
+	printLog("energy in radio protons = %g\n", energyInRadioProtons);
 	printf("energy in magnetic field = %g\n", magneticEnergy);
 	printLog("energy in magnetic field = %g\n", magneticEnergy);
 	double totalMass = electronConcentration * massProton * source->getTotalVolume();
 	printf("total mass = %g\n", totalMass);
 	printLog("total mass = %g\n", totalMass);
 
+	BremsstrahlungThermalEvaluator* bremsstrahlungEvaluator = new BremsstrahlungThermalEvaluator();
+	bremsstrahlungEvaluator->writeFluxFromSourceToFile("bremsstrahlung.dat", thermalSource, 1.6E-9, 1.6E-5, 200);
+	double bremMevFlux = bremsstrahlungEvaluator->evaluateTotalFluxInEnergyRange(0.3 * 1000000 * 1.6E-12, 10 * 1000000 * 1.6E-12, 200, thermalSource);
+	printf("bremMevFlux = %g\n", bremMevFlux);
+	printLog("bremMevFlux = %g\n", bremMevFlux);
 	//initialization arrays for full synchrotron spectrum
 	const int Nnu = 100;
 	double* Nu = new double[Nnu];
@@ -280,9 +295,12 @@ void evaluateFluxSNRtoWind() {
 	synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch3.dat", source, hplank * 1E8, 10 * 1000 * 1.6E-12, 1000);
 	double synchrotronFlux2 = synchrotronEvaluator2->evaluateTotalFluxInEnergyRange(hplank * 1E8, hplank * 1E11, 20, source);
 	printf("total synchrotron flux = %g erg/cm^2 s\n", synchrotronFlux);
+	printLog("total synchrotron flux = %g erg/cm^2 s\n", synchrotronFlux);
 	printf("total synchrotron flux without absorption = %g erg/cm^2 s\n", synchrotronFlux2);
-	printf("tsynchrotron keV flux = %g erg/cm^2 s\n", synchrotronKevFlux1);
-
+	printLog("total synchrotron flux without absorption = %g erg/cm^2 s\n", synchrotronFlux2);
+	printf("synchrotron keV flux = %g erg/cm^2 s\n", synchrotronKevFlux1);
+	printLog("synchrotron keV flux = %g erg/cm^2 s\n", synchrotronKevFlux1);
+	return;
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
 	double rcompton = 2E14;
@@ -292,7 +310,7 @@ void evaluateFluxSNRtoWind() {
 	rcompton = rmax;
 	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, 0.25*sqr(rstar / rcompton));
 	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, 0.25*sqr(rstar / rcompton), pi*17/18, 0, atan2(1, 1));
-	
+	PhotonIsotropicDistribution* galacticField = PhotonMultiPlankDistribution::getGalacticField();
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
     InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDirectedDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
@@ -300,6 +318,11 @@ void evaluateFluxSNRtoWind() {
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluatorWithSource(Ne, Nmu, Nphi, Emin, newEmax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA, 0, -rmax - 0.5E16, 0);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
 	//initializing photon energy grid for output
+	InverseComptonEvaluator* galacticEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, galacticField, ComptonSolverType::ISOTROPIC_JONES);
+	galacticEvaluator->writeFluxFromSourceToFile("outputCompton.dat", source, 0.1 * 1.6E-12, 1.6E-5, 1000);
+	double galacticComptonFlux = galacticEvaluator->evaluateTotalFluxInEnergyRange(0.1 * 1.6E-12, 1.6E-5, 1000, source);
+	printf("galactic Compton flux = %g\n", galacticComptonFlux);
+	printLog("galactic Compton flux = %g\n", galacticComptonFlux);
 
 	double* E = new double[Nnu];
 

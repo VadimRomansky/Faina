@@ -25,7 +25,7 @@ void BremsstrahlungThermalEvaluator::resetParameters(const double* parameters, c
 
 double BremsstrahlungThermalEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance)
 {
-	MassiveParticleMaxwellDistribution* maxwellDistribution = dynamic_cast<MassiveParticleMaxwellDistribution*>(electronDistribution);
+	MassiveParticleMaxwellJuttnerDistribution* maxwellDistribution = dynamic_cast<MassiveParticleMaxwellJuttnerDistribution*>(electronDistribution);
 	if (maxwellDistribution == NULL) {
 		printf("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
 		printLog("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
@@ -113,6 +113,7 @@ double BremsstrahlungThermalEvaluator::evaluateFluxFromSourceAtPoint(const doubl
 			printLog("BremsstrahlungThermalEvaluator works only with MassiveParticleIsotropicDistribution\n");
 			exit(0);
 		}
+		distribution->resetConcentration(source->getConcentration(irho, iz, iphi));
 		result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, distribution, source->getVolume(irho, iz, iphi), source->getDistance());
 	}
 

@@ -163,6 +163,7 @@ double SimpleFlatSource::getLength(int irho, int iz, int iphi) {
 	return my_z;
 }
 MassiveParticleDistribution* SimpleFlatSource::getParticleDistribution(int irho, int iz, int iphi) {
+	my_distribution->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_distribution;
 }
 
@@ -1584,6 +1585,7 @@ MassiveParticleDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistri
 		}
 		my_cutoffDistribution->resetEcut(Ecut);
 	}
+	my_cutoffDistribution->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_cutoffDistribution;
 }
 
@@ -1673,6 +1675,7 @@ MassiveParticleDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDist
 		}
 		my_cutoffDistribution->resetEcut(Ecut);
 	}
+	my_cutoffDistribution->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_cutoffDistribution;
 }
 
@@ -2584,5 +2587,6 @@ MassiveParticleDistribution* TabulatedSectoralSLSourceWithSynchCutoff::getPartic
 		}
 		my_cutoffDistribution->resetEcut(Ecut);
 	}
+	my_cutoffDistribution->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_cutoffDistribution;
 }
