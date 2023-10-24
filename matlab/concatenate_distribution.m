@@ -42,7 +42,12 @@ dE2(1)=0;
 for i=2:N2,
     dE2(i)=E2(i)-E2(i-1);
 end;
+norm2 = 0;
+for i = 1:N2,
+    norm2 =norm2 + F2(i)*dE2(i);
+end;
 for i=1:N2,
+    F2(i) = F2(i)/norm2;
     FEE2(i)=F2(i)*E2(i)*E2(i);
 end;
 

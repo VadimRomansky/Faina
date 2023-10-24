@@ -74,7 +74,22 @@ def plot_distributions2():
     plt.plot(E1, F1, 'b', linewidth=50, linestyle='dashed', dashes=(5, 1), alpha=0.5)
     ax.legend([r'electrons',r'protons'], fontsize="25")
     ax.set_xlim(xmin=0.5E-3, xmax=5E8)
-    ax.set_ylim(ymin=0.5E-6, ymax=2)
+    ax.set_ylim(ymin=0.2E-5, ymax=0.4)
     #ax.set_xbound(lower=0.5, upper=2E3)
     #plt.show()
     plt.savefig('distributions.png', bbox_inches='tight')
+
+    i1 = 0
+    i2 = 0
+
+    for i in range(N):
+        if E[0][i] > 100:
+            i1 = i
+            break
+
+    for i in range(N):
+        if E[1][i] > 100:
+            i2 = i
+            break
+
+    print('injection ratio = ', F[1][i2]/F[0][i1])
