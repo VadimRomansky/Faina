@@ -26,6 +26,15 @@ void MassiveParticleIsotropicDistribution::writeDistribution(const char* fileNam
 	delete[] energy;
 }
 
+double MassiveParticleIsotropicDistribution::distributionNormalizedTransformedByLosses(const double& energy, const double& lossRate, const double& time)
+{
+	double factor = energy * lossRate * time;
+	if (factor >= 1) {
+		return 0;
+	}
+	return distributionNormalized(energy / (1 - factor)) / sqr(1 - factor);
+}
+
 MassiveParticlePowerLawDistribution::MassiveParticlePowerLawDistribution(const double& mass, const double& index, const double& E0, const double& concentration) {
 	my_mass = mass;
 	if (index <= 1.0) {
@@ -768,6 +777,16 @@ void MassiveParticleTabulatedIsotropicDistribution::setToZeroAboveE(const double
 		my_distribution[i] = 0;
 	}
 
+	normalizeDistribution();
+}
+
+void MassiveParticleTabulatedIsotropicDistribution::transformToLosses(const double& lossRate, const double& time)
+{
+	for (int i = 0; i < my_Ne; ++i) {
+		double factor = my_energy[i] * lossRate * time;
+		my_energy[i] = my_energy[i] / (1 + factor);
+		my_distribution[i] = my_distribution[i] * sqr(1 + factor);
+	}
 	normalizeDistribution();
 }
 

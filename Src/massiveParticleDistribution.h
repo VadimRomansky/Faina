@@ -33,6 +33,9 @@ public:
 	}
 	virtual double distributionNormalized(const double& energy) = 0;
 	void writeDistribution(const char* fileName, int Ne, const double& Emin, const double& Emax);
+
+	double distributionNormalizedTransformedByLosses(const double& energy, const double& lossRate, const double& time);
+
 };
 
 class MassiveParticleMonoenergeticDistribution : public MassiveParticleIsotropicDistribution {
@@ -182,6 +185,7 @@ public:
 	void prolongEnergyRange(const double& Emax, int N);
 	void addExponentialCutoff(const double& E);
 	void setToZeroAboveE(const double& E);
+	void transformToLosses(const double& lossRate, const double& time);
 };
 
 class MassiveParticleTabulatedPolarDistribution : public MassiveParticleDistribution {
