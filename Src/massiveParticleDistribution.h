@@ -165,6 +165,8 @@ protected:
 	void setDistributionAtPoint(int i, const double& energy, const double& distriution);
 	void normalizeDistribution();
 public:
+	MassiveParticleTabulatedIsotropicDistribution(const MassiveParticleTabulatedIsotropicDistribution& distribution);
+
 	MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* fileName, const int N, const double& concentration, DistributionInputType inputType);
 	MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* energyFileName, const char* distributionFileName, const int N, const double& concentration, DistributionInputType inputType);
 	MassiveParticleTabulatedIsotropicDistribution(const double& mass, const double* energy, const double* distribution, const int N, const double& concentration, DistributionInputType inputType);
@@ -178,6 +180,8 @@ public:
 	void rescaleDistribution(const double& k);
 	void addPowerLaw(const double& Epower, const double& index);
 	void prolongEnergyRange(const double& Emax, int N);
+	void addExponentialCutoff(const double& E);
+	void setToZeroAboveE(const double& E);
 };
 
 class MassiveParticleTabulatedPolarDistribution : public MassiveParticleDistribution {

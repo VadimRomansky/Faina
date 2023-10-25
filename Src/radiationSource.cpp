@@ -1591,28 +1591,28 @@ MassiveParticleDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistri
 
 TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, z, distance, velocity)
 {
-	my_cutoffDistribution = dynamic_cast<MassiveParticlePowerLawCutoffDistribution*>(electronDistribution);
+	my_cutoffDistribution = dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
-		printf("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticlePowerLawCutoffDistribution\n");
-		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticlePowerLawCutoffDistribution\n");
+		printf("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
+		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
 		exit(0);
 	}
+	my_localDistribution = NULL;
 	my_downstreamVelocity = downstreamVelocity;
 	my_meanB = getAverageBsquared();
-	my_defaultCutoff = my_cutoffDistribution->getEcutoff();
 }
 
 TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, z, distance, velocity)
 {
-	my_cutoffDistribution = dynamic_cast<MassiveParticlePowerLawCutoffDistribution*>(electronDistribution);
+	my_cutoffDistribution = dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
-		printf("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticlePowerLawCutoffDistribution\n");
-		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticlePowerLawCutoffDistribution\n");
+		printf("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
+		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
 		exit(0);
 	}
+	my_localDistribution = NULL;
 	my_downstreamVelocity = downstreamVelocity;
 	my_meanB = getAverageBsquared();
-	my_defaultCutoff = my_cutoffDistribution->getEcutoff();
 }
 
 TabulatedDiskSourceWithSynchCutoff::~TabulatedDiskSourceWithSynchCutoff()
@@ -1652,13 +1652,19 @@ void TabulatedDiskSourceWithSynchCutoff::resetParameters(const double* parameter
 
 MassiveParticleDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDistribution(int irho, int iz, int iphi)
 {
-	my_cutoffDistribution->resetEcut(my_defaultCutoff);
+	if (my_localDistribution != NULL) {
+		delete my_localDistribution;
+		my_localDistribution = NULL;
+	}
+	my_localDistribution = new MassiveParticleTabulatedIsotropicDistribution(*my_cutoffDistribution);
+	//my_cutoffDistribution->resetEcut(my_defaultCutoff);
 	double rho = (irho + 0.5) * my_rho / my_Nrho;
 	double z = (iz + 0.5) * my_z / my_Nz;
-	double l1 = my_rho - rho;
+	//double l1 = my_rho - rho;
 	double l2 = my_z - z;
-	double l3 = z;
-	double l = min3(l1, l2, l3);
+	//double l3 = z;
+	//double l = min3(l1, l2, l3);
+	double l = l2;
 	if (l <= 0) {
 		/*printf("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
 		printf("rho = %g z = %g r = %g R = %g\n", rho, z, r, my_rho);
@@ -1668,15 +1674,17 @@ MassiveParticleDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDist
 	}
 	if (l > 0) {
 		double mass = my_cutoffDistribution->getMass();
-		double Ecut = 9.0 * mass * mass * mass * mass * pow(speed_of_light, 7) * my_downstreamVelocity / (electron_charge * electron_charge * electron_charge * electron_charge * my_meanB * my_meanB * l);
+		double Ecut = mass * mass * mass * mass * pow(speed_of_light, 7) * my_downstreamVelocity / (electron_charge * electron_charge * electron_charge * electron_charge * my_meanB * my_meanB * l);
 		if (Ecut < mass * speed_of_light2) {
 			//todo
 			Ecut = mass * speed_of_light2 * 2.0;
 		}
-		my_cutoffDistribution->resetEcut(Ecut);
+		//my_cutoffDistribution->resetEcut(Ecut);
+		//my_localDistribution->setToZeroAboveE(Ecut);
+		my_localDistribution->addExponentialCutoff(Ecut);
 	}
-	my_cutoffDistribution->resetConcentration(getConcentration(irho, iz, iphi));
-	return my_cutoffDistribution;
+	my_localDistribution->resetConcentration(getConcentration(irho, iz, iphi));
+	return my_localDistribution;
 }
 
 SectoralSphericalLayerSource::SectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance) : RadiationSource(Nrho, Nz, Nphi, distance)

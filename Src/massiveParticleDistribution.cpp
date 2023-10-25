@@ -459,6 +459,24 @@ void MassiveParticleTabulatedIsotropicDistribution::normalizeDistribution()
 	}
 }
 
+MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropicDistribution(const MassiveParticleTabulatedIsotropicDistribution& distribution) {
+	my_mass = distribution.my_mass;
+	my_Ne = distribution.my_Ne;
+
+	my_concentration = distribution.my_concentration;
+
+	my_energy = new double[my_Ne];
+	my_distribution = new double[my_Ne];
+	my_inputType = distribution.my_inputType;
+
+	for (int i = 0; i < my_Ne; ++i) {
+		my_energy[i] = distribution.my_energy[i];
+		my_distribution[i] = distribution.my_distribution[i];
+	}
+
+	normalizeDistribution();
+}
+
 MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* fileName, const int N, const double& concentration, DistributionInputType inputType) {
 	my_mass = mass;
 	
@@ -714,6 +732,43 @@ void MassiveParticleTabulatedIsotropicDistribution::prolongEnergyRange(const dou
 	
 	delete[] tempEnergy;
 	delete[] tempDistribution;
+}
+
+void MassiveParticleTabulatedIsotropicDistribution::addExponentialCutoff(const double& E)
+{
+	if (E < 0) {
+		printf("MassiveParticleTabulatedIsotropicDistribution::addExponentialCutoff E < 0\n");
+		printLog("MassiveParticleTabulatedIsotropicDistribution::addExponentialCutoff E < 0\n");
+		exit(0);
+	}
+
+	for (int i = 0; i < my_Ne; ++i) {
+		my_distribution[i] = my_distribution[i] * exp(-my_energy[i] / E);
+	}
+
+	normalizeDistribution();
+}
+
+void MassiveParticleTabulatedIsotropicDistribution::setToZeroAboveE(const double& E) {
+	if (E <= my_energy[0]) {
+		printf("MassiveParticleTabulatedIsotropicDistribution: canot set whole distribution to zero\n");
+		printLog("MassiveParticleTabulatedIsotropicDistribution: canot set whole distribution to zero\n");
+		exit(0);
+	}
+
+	int index = 1;
+	for (int i = 1; i < my_Ne; ++i) {
+		if (my_energy[i] > E) {
+			index = i;
+			break;
+		}
+	}
+
+	for (int i = index; i < my_Ne; ++i) {
+		my_distribution[i] = 0;
+	}
+
+	normalizeDistribution();
 }
 
 void MassiveParticleTabulatedPolarDistribution::setDistributionAtPoint(int i, int j, const double& energy, const double& distribution)

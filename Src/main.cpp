@@ -147,8 +147,8 @@ void evaluateFluxSNRtoWind() {
 	double maxParameters[Nparams] = { rmax, 1E-2, 2E6, 0.5, 0.5*speed_of_light };
 	//starting point of optimization and normalization
 	//fraction = 2E13 / rmax;
-	fraction = 0.5;
-	double denseFactor = 1;
+	fraction = 0.04;
+	double denseFactor = 0.5/0.04;
 	electronConcentration = (690 * 0.012 / 0.5)*denseFactor;
 	sigma = (0.01 * 0.5 / (0.012))/denseFactor;
 	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, velocity };
@@ -226,6 +226,8 @@ void evaluateFluxSNRtoWind() {
 	fprintf(paramFile, "average B = %g\n", B);
 	fclose(paramFile);
 
+	TabulatedDiskSourceWithSynchCutoff* source3 = new TabulatedDiskSourceWithSynchCutoff(1, 10000, 1, electrons, B, electronConcentration, pi / 2, rmax, fraction * rmax, distance, 0.2 * speed_of_light);
+
 
 	rmax = vector[0] * maxParameters[0];
 	electronConcentration = vector[2] * maxParameters[2];
@@ -292,7 +294,9 @@ void evaluateFluxSNRtoWind() {
 
 	double synchrotronFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(hplank * 1E8, hplank * 1E11, 200, source);
 	double synchrotronKevFlux1 = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.3*1000*1.6E-12, 10 * 1000 * 1.6E-12, 200, source);
+	double synchrotronKevFlux2 = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.3*1000*1.6E-12, 10 * 1000 * 1.6E-12, 200, source3);
 	synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch3.dat", source, hplank * 1E8, 10 * 1000 * 1.6E-12, 1000);
+	synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch5.dat", source3, hplank * 1E8, 50*1000 * 1000 * 1.6E-12, 1000);
 	double synchrotronFlux2 = synchrotronEvaluator2->evaluateTotalFluxInEnergyRange(hplank * 1E8, hplank * 1E11, 20, source);
 	printf("total synchrotron flux = %g erg/cm^2 s\n", synchrotronFlux);
 	printLog("total synchrotron flux = %g erg/cm^2 s\n", synchrotronFlux);
@@ -300,6 +304,8 @@ void evaluateFluxSNRtoWind() {
 	printLog("total synchrotron flux without absorption = %g erg/cm^2 s\n", synchrotronFlux2);
 	printf("synchrotron keV flux = %g erg/cm^2 s\n", synchrotronKevFlux1);
 	printLog("synchrotron keV flux = %g erg/cm^2 s\n", synchrotronKevFlux1);
+	printf("cutoff model synchrotron keV flux = %g erg/cm^2 s\n", synchrotronKevFlux2);
+	printLog("cutoff model synchrotron keV flux = %g erg/cm^2 s\n", synchrotronKevFlux2);
 	return;
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();

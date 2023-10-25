@@ -137,8 +137,9 @@ class TabulatedDiskSourceWithSynchCutoff : public TabulatedDiskSource {
 protected:
 	double my_downstreamVelocity;
 	double my_meanB;
-	double my_defaultCutoff;
-	MassiveParticlePowerLawCutoffDistribution* my_cutoffDistribution;
+	//MassiveParticlePowerLawCutoffDistribution* my_cutoffDistribution;
+	MassiveParticleTabulatedIsotropicDistribution* my_cutoffDistribution;
+	MassiveParticleTabulatedIsotropicDistribution* my_localDistribution;
 public:
 	TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
 	TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
