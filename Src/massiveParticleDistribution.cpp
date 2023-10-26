@@ -783,8 +783,8 @@ void MassiveParticleTabulatedIsotropicDistribution::setToZeroAboveE(const double
 void MassiveParticleTabulatedIsotropicDistribution::transformToLosses(const double& lossRate, const double& time)
 {
 	for (int i = 0; i < my_Ne; ++i) {
-		double factor = my_energy[i] * lossRate * time;
-		my_energy[i] = my_energy[i] / (1 + factor);
+		double factor = (my_energy[i] - my_mass * speed_of_light2) * lossRate * time;
+		my_energy[i] = my_mass*speed_of_light2 + (my_energy[i] - my_mass*speed_of_light2) / (1 + factor);
 		my_distribution[i] = my_distribution[i] * sqr(1 + factor);
 	}
 	normalizeDistribution();
