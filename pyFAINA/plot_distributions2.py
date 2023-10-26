@@ -61,7 +61,7 @@ def plot_distributions2():
     #ax.tick_params(axis='both', which='major', labelsize=10)
     #ax.tick_params(axis='both', which='minor', labelsize=8)
     ax.set_xlabel('$E_{kin}/m_p c^2$', fontsize=40,fontweight='bold')
-    ax.set_ylabel('$F(E) E^2$', fontsize=40,fontweight='bold')
+    ax.set_ylabel('$f(E) E^2$', fontsize=40,fontweight='bold')
     ax.set_yscale("log")
     ax.set_xscale("log")
     #extraticks=[1,100]
