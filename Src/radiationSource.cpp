@@ -1682,7 +1682,7 @@ MassiveParticleDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDist
 		//my_cutoffDistribution->resetEcut(Ecut);
 		//my_localDistribution->setToZeroAboveE(Ecut);
 		//my_localDistribution->addExponentialCutoff(Ecut);
-		double lossRate = electron_charge * electron_charge * electron_charge * electron_charge * my_meanB * my_meanB / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
+		double lossRate = (4.0/9.0)*electron_charge * electron_charge * electron_charge * electron_charge * my_meanB * my_meanB / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
 		double time = l / my_downstreamVelocity;
 		my_localDistribution->transformToLosses(lossRate, time);
 	}

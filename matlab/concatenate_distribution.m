@@ -52,7 +52,7 @@ for i=1:N2,
     FEE2(i)=F2(i)*E2(i)*E2(i);
 end;
 
-Nconcat1 = 185;
+Nconcat1 = 188;
 Econcat1 = E1(Nconcat1);
 Nconcat2=1;
 for i=1:N2,

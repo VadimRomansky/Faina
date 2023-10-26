@@ -147,14 +147,18 @@ void evaluateFluxSNRtoWind() {
 	double maxParameters[Nparams] = { rmax, 1E-2, 2E6, 0.5, 0.5*speed_of_light };
 	//starting point of optimization and normalization
 	//fraction = 2E13 / rmax;
-	fraction = 0.04;
-	double denseFactor = 0.5/0.04;
+	fraction = 0.1;
+	double denseFactor = 0.5/fraction;
 	electronConcentration = (690 * 0.012 / 0.5)*denseFactor;
 	sigma = (0.01 * 0.5 / (0.012))/denseFactor;
 	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, velocity };
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
 	}
+	printf("new sigma = %g\n", sigma);
+	printLog("new sigma = %g\n", sigma);
+	printf("new concentration = %g\n", electronConcentration);
+	printLog("new concentration = %g\n", electronConcentration);
 
 	const int Nenergy1 = 4;
 	double energy1[Nenergy1] = { 1.5E9, 3.0E9 , 6.1E9, 9.87E9 };
@@ -296,7 +300,7 @@ void evaluateFluxSNRtoWind() {
 	double synchrotronKevFlux1 = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.3*1000*1.6E-12, 10 * 1000 * 1.6E-12, 200, source);
 	double synchrotronKevFlux2 = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.3*1000*1.6E-12, 10 * 1000 * 1.6E-12, 200, source3);
 	synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch3.dat", source, hplank * 1E8, 10 * 1000 * 1.6E-12, 1000);
-	synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch5.dat", source3, hplank * 1E8, 50*1000 * 1000 * 1.6E-12, 1000);
+	synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch5.dat", source3, hplank * 1E8, 50*1000 * 1000 * 1.6E-12, 500);
 	double synchrotronFlux2 = synchrotronEvaluator2->evaluateTotalFluxInEnergyRange(hplank * 1E8, hplank * 1E11, 20, source);
 	printf("total synchrotron flux = %g erg/cm^2 s\n", synchrotronFlux);
 	printLog("total synchrotron flux = %g erg/cm^2 s\n", synchrotronFlux);

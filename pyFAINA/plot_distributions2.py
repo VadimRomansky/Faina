@@ -19,6 +19,9 @@ def plot_distributions2():
     F = np.zeros([2,N])
     dE = np.zeros([2,N])
 
+    massRatio = np.zeros([2])
+    massRatio[0] = me/mp
+    massRatio[1] = 1
 
     for i in range(N):
         E[0,i] = float(Efile0[i])*me/mp
@@ -42,7 +45,8 @@ def plot_distributions2():
     for i in range(N):
         #F[0][i] = F[0][i]*exp(-E[0,i]/Emax)
         for j in range(2):
-            F[j][i] = F[j][i]*E[j,i]*E[j,i]/norm[j]
+            #F[j][i] = F[j][i]*(E[j,i]+massRatio[j])*(E[j,i]+massRatio[j])/norm[j]
+            F[j][i] = F[j][i]*(E[j,i])*(E[j,i])/norm[j]
 
     F3 = np.zeros([N])
     for i in range(N):
@@ -74,10 +78,11 @@ def plot_distributions2():
     E2 = E[1][170:190]
     F2 = F[1][170:190]
     plt.plot(E1, F1, 'b', linewidth=50, linestyle='dashed', dashes=(5, 1), alpha=0.5)
-    plt.plot(E2, F2, 'r', linewidth=50, linestyle='dashed', dashes=(5, 1), alpha=0.5)
+    #plt.plot(E2, F2, 'r', linewidth=50, linestyle='dashed', dashes=(5, 1), alpha=0.5)
     ax.legend([r'electrons',r'protons'], fontsize="25")
     ax.set_xlim(xmin=0.5E-3, xmax=5E8)
-    ax.set_ylim(ymin=0.2E-5, ymax=0.4)
+    ax.set_ylim(ymin=0.2E-5, ymax=0.5)
+    ax.set_xticks([1E-2, 1, 1E2, 1E4, 1E6, 1E8])
     #ax.set_xbound(lower=0.5, upper=2E3)
     #plt.show()
     plt.savefig('distributions.png', bbox_inches='tight')
