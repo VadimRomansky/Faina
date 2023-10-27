@@ -5,8 +5,8 @@ mp = 1.6*10^-24;
 c =3*10^10;
 m=mp;
 
-E1 = importdata('../examples_data/gamma0.66_theta0-90_protons/Ee3.dat');
-F1 = importdata('../examples_data/gamma0.66_theta0-90_protons/Fs3.dat');
+E1 = importdata('../examples_data/gamma1.5_theta0-90_protons/Ee3.dat');
+F1 = importdata('../examples_data/gamma1.5_theta0-90_protons/Fs3.dat');
 N1 = size(E1,2);
 dE1(1:N1)=0;
 FEE1(1:N1)=0;
@@ -52,7 +52,7 @@ for i=1:N2,
     FEE2(i)=F2(i)*E2(i)*E2(i);
 end;
 
-Nconcat1 = 168;
+Nconcat1 = 188;
 Econcat1 = E1(Nconcat1);
 Nconcat2=1;
 for i=1:N2,
@@ -93,6 +93,34 @@ for i = 1:N3,
     FEE3(i)=F3(i)*E3(i)*E3(i);
 end;
 
+pevindex = 0;
+for i = 1:N3,
+    if E3(i) > 1E6*mp*c*c
+        pevindex = i;
+        break;
+    end;
+end;
+
+concentration = 80;
+R = 1.9E17;
+volume = 3.14*R*R*R*0.1;
+pevEnergy = 0;
+for i = pevindex:N3,
+    dE = E3(i) - E3(i-1);
+    pevEnergy = pevEnergy + F3(i)*mp*c*c*E3(i)*dE;
+end;
+pevEnergy = pevEnergy*concentration*volume;
+
+q=4.84*10^-10;
+lgalaxy = 3000*3*10^18;
+Rgalaxy = 30000*3*10^18;
+B=3*10^-6;
+rg=10^7*mp*c*c/(q*B);
+D=rg*c/3;
+time = lgalaxy^2/(4*D);
+Vgalaxy = 3.14*Rgalaxy*Rgalaxy*lgalaxy;
+densityGalaxy = pevEnergy/Vgalaxy;
+realdensity = 10^-8;
 
 
 set(0,'DefaultAxesFontSize',14,'DefaultAxesFontName','Times New Roman');
