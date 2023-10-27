@@ -5,8 +5,8 @@ mp = 1.6*10^-24;
 c =3*10^10;
 m=me;
 
-E1 = importdata('../examples_data/gamma1.5_theta0-90/Ee3.dat');
-F1 = importdata('../examples_data/gamma1.5_theta0-90/Fs3.dat');
+E1 = importdata('../examples_data/gamma0.66_theta0-90/Ee3.dat');
+F1 = importdata('../examples_data/gamma0.66_theta0-90/Fs3.dat');
 N1 = size(E1,2);
 dE1(1:N1)=0;
 FEE1(1:N1)=0;
@@ -47,13 +47,13 @@ for i=1:N2,
     FEE2(i)=F2(i)*E2(i)*E2(i);
 end;
 
-Nconcat1 = 155;
+Nconcat1 = 138;
 Econcat1 = E1(Nconcat1);
-Nconcat2=55;
+Nconcat2=52;
 
-p1 = 2.5;
-Npower1 = 10;
-p2 = 2.3;
+p1 = 2.9;
+Npower1 = 4;
+p2 = 2.2;
 Npower2 = 10;
 Npower = Npower1+Npower2;
 
@@ -123,8 +123,8 @@ E3kin(1:N3)=0;
 F3kin(1:N3)=0;
 for i=1:N3,
     E3kin(i) = E3(i)/(m*c*c) - 1.0;
-    %F3kin(i) = F3(i)*m*c*c;
-    F3kin(i) = F3(i)*exp(-E3(i)/(m*c*c*Emax))*m*c*c;
+    F3kin(i) = F3(i)*m*c*c;
+    %F3kin(i) = F3(i)*exp(-E3(i)/(m*c*c*Emax))*m*c*c;
 end;
 
 

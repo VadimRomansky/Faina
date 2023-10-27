@@ -96,7 +96,7 @@ def plot_distributions():
                r'$\theta = 30^{\circ}, v = 0.75c$',r'$\theta = 30^{\circ}, v = 0.5c$',
                r'$\theta = 80^{\circ}, v = 0.75c$',r'$\theta = 80^{\circ}, v = 0.5c$'], fontsize="25")
     ax.set_xlim(xmin=0.002, xmax=2E1)
-    ax.set_ylim(ymin=1E-4, ymax=50)
+    ax.set_ylim(ymin=1E-6, ymax=50)
     #ax.set_xbound(lower=0.5, upper=2E3)
     #plt.show()
     plt.savefig('protons.png', bbox_inches='tight')

@@ -144,7 +144,7 @@ void evaluateFluxSNRtoWind() {
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 0.5E17, 1E-6, 10, 0.01, 0.3*speed_of_light };
-	double maxParameters[Nparams] = { rmax, 1E-2, 2E6, 0.5, 0.5*speed_of_light };
+	double maxParameters[Nparams] = { rmax, 1E-1, 2E6, 0.5, 0.5*speed_of_light };
 	//starting point of optimization and normalization
 	//fraction = 2E13 / rmax;
 	fraction = 0.1;
@@ -190,7 +190,7 @@ void evaluateFluxSNRtoWind() {
 	printLog("starting error = %g\n", error);
 	//enumOptimizer->optimize(vector, optPar, source);
 	//gradient descent optimization
-	//synchrotronOptimizer->optimize(vector, optPar, source);
+	synchrotronOptimizer->optimize(vector, optPar);
 	//reseting source parameters to found values
 	//synchrotronOptimizer->outputProfileDiagrams(vector, source, 10);
 	//synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, source, 10, 1, 2);
@@ -300,7 +300,7 @@ void evaluateFluxSNRtoWind() {
 	double synchrotronKevFlux1 = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.3*1000*1.6E-12, 10 * 1000 * 1.6E-12, 200, source);
 	double synchrotronKevFlux2 = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.3*1000*1.6E-12, 10 * 1000 * 1.6E-12, 200, source3);
 	synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch3.dat", source, hplank * 1E8, 10 * 1000 * 1.6E-12, 1000);
-	synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch5.dat", source3, hplank * 1E8, 50*1000 * 1000 * 1.6E-12, 500);
+	//synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch5.dat", source3, hplank * 1E8, 50*1000 * 1000 * 1.6E-12, 500);
 	double synchrotronFlux2 = synchrotronEvaluator2->evaluateTotalFluxInEnergyRange(hplank * 1E8, hplank * 1E11, 20, source);
 	printf("total synchrotron flux = %g erg/cm^2 s\n", synchrotronFlux);
 	printLog("total synchrotron flux = %g erg/cm^2 s\n", synchrotronFlux);

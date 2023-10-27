@@ -5,8 +5,8 @@ mp = 1.6*10^-24;
 c =3*10^10;
 m=mp;
 
-E1 = importdata('../examples_data/gamma1.5_theta0-90_protons/Ee3.dat');
-F1 = importdata('../examples_data/gamma1.5_theta0-90_protons/Fs3.dat');
+E1 = importdata('../examples_data/gamma0.66_theta0-90_protons/Ee3.dat');
+F1 = importdata('../examples_data/gamma0.66_theta0-90_protons/Fs3.dat');
 N1 = size(E1,2);
 dE1(1:N1)=0;
 FEE1(1:N1)=0;
@@ -52,7 +52,7 @@ for i=1:N2,
     FEE2(i)=F2(i)*E2(i)*E2(i);
 end;
 
-Nconcat1 = 188;
+Nconcat1 = 168;
 Econcat1 = E1(Nconcat1);
 Nconcat2=1;
 for i=1:N2,
