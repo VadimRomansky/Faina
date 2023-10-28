@@ -147,7 +147,7 @@ void evaluateFluxSNRtoWind() {
 	double maxParameters[Nparams] = { rmax, 1E-1, 2E6, 0.5, 0.5*speed_of_light };
 	//starting point of optimization and normalization
 	//fraction = 2E13 / rmax;
-	fraction = 0.5;
+	fraction = 0.1;
 	double denseFactor = 0.5/fraction;
 	electronConcentration = (690 * 0.012 / 0.5)*denseFactor;
 	sigma = (0.01 * 0.5 / (0.012))/denseFactor;

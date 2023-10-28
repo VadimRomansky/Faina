@@ -5,8 +5,8 @@ mp = 1.6*10^-24;
 c =3*10^10;
 m=me;
 
-E1 = importdata('../examples_data/gamma0.66_theta0-90/Ee3.dat');
-F1 = importdata('../examples_data/gamma0.66_theta0-90/Fs3.dat');
+E1 = importdata('../examples_data/gamma1.5_theta0-90/Ee3.dat');
+F1 = importdata('../examples_data/gamma1.5_theta0-90/Fs3.dat');
 N1 = size(E1,2);
 dE1(1:N1)=0;
 FEE1(1:N1)=0;
@@ -51,7 +51,7 @@ Nconcat1 = 138;
 Econcat1 = E1(Nconcat1);
 Nconcat2=52;
 
-p1 = 2.9;
+p1 = 2.5;
 Npower1 = 4;
 p2 = 2.2;
 Npower2 = 10;
