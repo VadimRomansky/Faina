@@ -95,7 +95,7 @@ end;
 
 pevindex = 0;
 for i = 1:N3,
-    if E3(i) > 1E6*mp*c*c
+    if E3(i) > 1.6*1000
         pevindex = i;
         break;
     end;
@@ -107,9 +107,16 @@ volume = 3.14*R*R*R*0.1;
 pevEnergy = 0;
 for i = pevindex:N3,
     dE = E3(i) - E3(i-1);
-    pevEnergy = pevEnergy + F3(i)*mp*c*c*E3(i)*dE;
+    pevEnergy = pevEnergy + F3(i)*(E3(i) - m*c*c)*dE;
 end;
 pevEnergy = pevEnergy*concentration*volume;
+
+totalenergy = 0;
+for i = 2:N1,
+    dE = E3(i) - E3(i-1);
+    totalenergy = totalenergy + F3(i)*(E3(i)-m*c*c)*dE3(i);
+end;
+totalenergy = totalenergy*concentration*volume;
 
 q=4.84*10^-10;
 lgalaxy = 3000*3*10^18;
@@ -135,9 +142,9 @@ xlabel ('E/m_p c^2');
 ylabel ('F_{E} E^2');
 
 
-plot(E1(1:N1)/(mp*c*c)-1, FEE1(1:N1),'red','LineWidth',2);
-plot(E2(1:N2)/(mp*c*c)-1, FEE2(1:N2),'green','LineWidth',2);
-plot(E3(1:N3)/(mp*c*c)-1, FEE3(1:N3),'blue','LineWidth',2);
+plot(E1(1:N1)/(mp*c*c)-1, F1(1:N1),'red','LineWidth',2);
+plot(E2(1:N2)/(mp*c*c)-1, F2(1:N2),'green','LineWidth',2);
+plot(E3(1:N3)/(mp*c*c)-1, F3(1:N3),'blue','LineWidth',2);
 
 E3kin(1:N3)=0;
 F3kin(1:N3)=0;
