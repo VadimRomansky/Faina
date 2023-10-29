@@ -5,6 +5,11 @@ mp = 1.6*10^-24;
 c =3*10^10;
 m=mp;
 
+pev = 1.6*10^-12*10^15;
+
+energy1 = 10*pev;
+energy2 = 100*pev;
+
 minEcr = 1.6*10^-24*c*c;
 maxEcr = 10^10*minEcr;
 Ncr = 1000;
@@ -40,14 +45,14 @@ end;
 
 pevindex1 = 1;
 for i = 1:Ncr,
-    if(Ecr(i) > 1.6*10^-12*10^15)
+    if(Ecr(i) > energy1)
         pevindex1 = i;
         break;
     end;
 end;
 pevindex2 = 1;
 for i = 1:Ncr,
-    if(Ecr(i) > 1.6*10^-12*10*10^15)
+    if(Ecr(i) > energy2)
         pevindex2 = i;
         break;
     end;
@@ -112,14 +117,14 @@ end;
 
 pevindex = 1;
 for i = 1:N1,
-    if(E1(i) > 1.6*1000)
+    if(E1(i) > energy1)
         pevindex = i;
         break;
     end;
 end;
 pevupindex = 1;
 for i = 1:N1,
-    if(E1(i) > 10*1.6*1000)
+    if(E1(i) > energy2)
         pevupindex = i;
         break;
     end;
@@ -132,7 +137,7 @@ pevenergy = 0;
 for i = pevindex:pevupindex,
     pevenergy = pevenergy + F1(i)*(E1(i)-m*c*c)*dE1(i);
 end;
-pevenergy = pevenergy*concentration*volume;
+pevenergy = 10*pevenergy*concentration*volume;
 
 totalenergy = 0;
 for i = 2:N1,
@@ -140,17 +145,18 @@ for i = 2:N1,
 end;
 totalenergy = totalenergy*concentration*volume;
 
-pev10 = 1.6*10^-12*3*10^15;
 
 q=4.84*10^-10;
 lgalaxy = 3000*3*10^18;
 Rgalaxy = 30000*3*10^18;
 B=3*10^-6;
-rg=pev10/(q*B);
-D=rg*c/3;
-time = lgalaxy^2/(4*D);
+
+Dpev= 10^30;
+time = lgalaxy^2/(4*Dpev);
 Vgalaxy = 3.14*Rgalaxy*Rgalaxy*lgalaxy;
 densityGalaxy = pevenergy/Vgalaxy;
+
+timeYears = time/3E7;
 
 timeExp = (time/(realPevenergy/densityGalaxy))/3E7;
 
