@@ -39,4 +39,18 @@ public:
     void writeImageFromSourceAtEToFile(const double& photonFinalEnergy, const char* fileName, RadiationSource* source);
 };
 
+class RadiationSumEvaluator : public RadiationEvaluator {
+protected:
+    int my_Nevaluators;
+    RadiationEvaluator** my_Evaluators;
+public:
+    RadiationSumEvaluator(int Ne, const double& Emin, const double& Emax, RadiationEvaluator* evaluator1, RadiationEvaluator* evaluator2);
+    RadiationSumEvaluator(int Ne, const double& Emin, const double& Emax, int Nev, RadiationEvaluator** evaluators);
+    ~RadiationSumEvaluator();
+
+    virtual void resetParameters(const double* parameters, const double* normalizationUnits);
+    virtual double evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source);
+    virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int rhoi, int phi);
+};
+
 #endif // RADIATION_H

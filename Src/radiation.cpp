@@ -159,3 +159,48 @@ void RadiationEvaluator::writeImageFromSourceAtEToFile(const double& photonFinal
     }
     fclose(outFile);
 }
+
+RadiationSumEvaluator::RadiationSumEvaluator(int Ne, const double& Emin, const double& Emax, RadiationEvaluator* evaluator1, RadiationEvaluator* evaluator2) : RadiationEvaluator(Ne, Emin, Emax) {
+    my_Nevaluators = 2;
+    my_Evaluators = new RadiationEvaluator*[my_Nevaluators];
+    my_Evaluators[0] = evaluator1;
+    my_Evaluators[1] = evaluator2;
+}
+
+RadiationSumEvaluator::RadiationSumEvaluator(int Ne, const double& Emin, const double& Emax, int Nev, RadiationEvaluator** evaluators) : RadiationEvaluator(Ne, Emin, Emax) {
+    my_Nevaluators = Nev;
+    my_Evaluators = new RadiationEvaluator*[my_Nevaluators];
+    for (int i = 0; i < my_Nevaluators; ++i) {
+        my_Evaluators[i] = evaluators[i];
+    }
+}
+
+RadiationSumEvaluator::~RadiationSumEvaluator()
+{
+    delete[] my_Evaluators;
+}
+
+void RadiationSumEvaluator::resetParameters(const double* parameters, const double* normalizationUnits)
+{
+    for (int i = 0; i < my_Nevaluators; ++i) {
+        my_Evaluators[i]->resetParameters(parameters, normalizationUnits);
+    }
+}
+
+double RadiationSumEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)
+{
+    double result = 0;
+    for (int i = 0; i < my_Nevaluators; ++i) {
+        result = result + my_Evaluators[i]->evaluateFluxFromSource(photonFinalEnergy, source);
+    }
+    return result;
+}
+
+double RadiationSumEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int rhoi, int phi)
+{
+    double result = 0;
+    for (int i = 0; i < my_Nevaluators; ++i) {
+        result = result + my_Evaluators[i]->evaluateFluxFromSourceAtPoint(photonFinalEnergy, source, rhoi, phi);
+    }
+    return result;
+}
