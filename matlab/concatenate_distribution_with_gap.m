@@ -49,11 +49,11 @@ end;
 
 Nconcat1 = 138;
 Econcat1 = E1(Nconcat1);
-Nconcat2=52;
+Nconcat2=54;
 
 p1 = 2.5;
 Npower1 = 4;
-p2 = 2.2;
+p2 = 2.1;
 Npower2 = 10;
 Npower = Npower1+Npower2;
 

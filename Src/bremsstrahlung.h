@@ -19,8 +19,13 @@ public:
 
 class BremsstrahlungEeEvaluator : public RadiationEvaluator {
 protected:
+	double my_ambientConcentration;
+
+	double evaluateSigma1(const double& gammaE, const double& epsilonG);
+	double evaluateSigma2(const double& gammaE, const double& epsilonG);
+	double evaluateA(const double& gammaE, const double& epsilonG);
 public:
-	BremsstrahlungEeEvaluator();
+	BremsstrahlungEeEvaluator(int Ne, const double& Emin, const double& Emax, const double& ambientConcentration);
 	~BremsstrahlungEeEvaluator();
 
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
@@ -30,8 +35,11 @@ public:
 
 class BremsstrahlungPeEvaluator : public RadiationEvaluator {
 protected:
+	double my_ambientConcentration;
+
+	double evaluateSigma(const double& p1, const double& p2, const double& epsilonG);
 public:
-	BremsstrahlungPeEvaluator();
+	BremsstrahlungPeEvaluator(int Ne, const double& Emin, const double& Emax, const double& ambientConcentration);
 	~BremsstrahlungPeEvaluator();
 
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);

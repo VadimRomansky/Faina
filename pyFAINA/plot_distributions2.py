@@ -93,7 +93,7 @@ def plot_distributions2():
     #plt.plot(E2, F2, 'r', linewidth=50, linestyle='dashed', dashes=(5, 1), alpha=0.5)
     ax.legend([r'electrons',r'protons'], fontsize="25")
     ax.set_xlim(xmin=0.5E-3, xmax=5E8)
-    ax.set_ylim(ymin=0.2E-8, ymax=0.5)
+    ax.set_ylim(ymin=0.5E-6, ymax=0.5)
     ax.set_xticks([1E-2, 1, 1E2, 1E4, 1E6, 1E8])
     #ax.set_xbound(lower=0.5, upper=2E3)
     #plt.show()
@@ -103,12 +103,12 @@ def plot_distributions2():
     i2 = 0
 
     for i in range(Ne):
-        if Ee[i] > 100:
+        if Ee[i] > 1000:
             i1 = i
             break
 
     for i in range(Np):
-        if Ep[i] > 100:
+        if Ep[i] > 1000:
             i2 = i
             break
 
