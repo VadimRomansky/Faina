@@ -275,7 +275,26 @@ void GradientDescentRadiationOptimizer::findMinParametersAtDirection(double* vec
 			//return;
 		}
 		else {
-			return;
+			//return;
+			for (int i = 0; i < my_Nparams; ++i) {
+				if (optPar[i]) {
+					double tempLambda = 1E-6 * vector[i] / fabs(grad[i]);
+					if (tempLambda < maxLambda) {
+						maxLambda = tempLambda;
+					}
+				}
+			}
+
+			for (int i = 0; i < my_Nparams; ++i) {
+				if (optPar[i]) {
+					tempVector1[i] = vector[i] - grad[i] * maxLambda;
+				}
+			}
+
+			f = evaluateOptimizationFunction(tempVector1);
+			if (f > currentF) {
+				return;
+			}
 		}
 	}
 
@@ -423,7 +442,7 @@ void GradientDescentRadiationOptimizer::gradientStep(int iterationNumber, const 
 			for (int j = 0; j < my_Nparams; ++j) {
 				tempVector[j] = vector[j];
 			}
-			double dx = fabs(vector[i]) / 1000000;
+			double dx = fabs(vector[i]) / 1000;
 			if (iterationNumber > 0) {
 				dx = min(dx, max(max(0.000001, fabs(currentVector[i] - prevVector[i]) / 10), fabs(currentVector[i] - my_minVector[i]) / 2));
 			}

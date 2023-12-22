@@ -139,18 +139,19 @@ void evaluateFluxSNRtoWind() {
 	SynchrotronEvaluator* synchrotronEvaluator2 = new SynchrotronEvaluator(Ne, Emin, newEmax, false, false);
 	//comptonEvaluator->outputDifferentialFlux("output1.dat");
 	//return;
-	rmax = velocity * 99 * 24 * 3600;
+	int Ndays = 69;
+	rmax = velocity * Ndays * 24 * 3600;
 	//number of parameters of the source
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 0.5E17, 1E-6, 10, 0.01, 0.3*speed_of_light };
+	double minParameters[Nparams] = { 0.5E17, 1E-6, 1, 0.01, 0.3*speed_of_light };
 	double maxParameters[Nparams] = { rmax, 1E-1, 2E6, 0.5, 0.5*speed_of_light };
 	//starting point of optimization and normalization
 	//fraction = 2E13 / rmax;
 	fraction = 0.1;
 	double denseFactor = 0.5/fraction;
-	electronConcentration = (690 * 0.012 / 0.5)*denseFactor;
-	sigma = (0.01 * 0.5 / (0.012))/denseFactor;
+	electronConcentration = sqr(99.0/Ndays) * (690 * 0.012 / 0.5) * denseFactor;
+	sigma = 0.5*(0.01 * 0.5 / (0.012))/denseFactor;
 	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, velocity };
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
@@ -160,27 +161,49 @@ void evaluateFluxSNRtoWind() {
 	printf("new concentration = %g\n", electronConcentration);
 	printLog("new concentration = %g\n", electronConcentration);
 
-	const int Nenergy1 = 4;
+	/*const int Nenergy1 = 4;
 	double energy1[Nenergy1] = { 1.5E9, 3.0E9 , 6.1E9, 9.87E9 };
-	double observedFlux[Nenergy1] = { 1.5, 4.3, 6.1, 4.2 };
-	double observedError[Nenergy1] = { 0.1, 0.2 , 0.3, 0.2 };
-	for (int i = 0; i < Nenergy1; ++i) {
+	double observedFlux1[Nenergy1] = { 1.5, 4.3, 6.1, 4.2 };
+	double observedError1[Nenergy1] = { 0.1, 0.2 , 0.3, 0.2 };*/
+
+	/*const int Nenergy1 = 4;
+	double energy1[Nenergy1] = { 2.94E9 , 6.1E9, 9.74E9, 22.0E9};
+	double observedFlux1[Nenergy1] = {2.9, 2.3, 1.74, 0.56};
+	double observedError1[Nenergy1] = {0.2 , 0.1, 0.09, 0.03 };*/
+
+	/*const int Nenergy1 = 7;
+	double energy1[Nenergy1] = { 0.33E9, 0.61E9 , 1.39E9, 1.5E9, 3.0E9, 6.05E9, 10E9 };
+	double observedFlux1[Nenergy1] = { 0.375, 0.79, 0.38, 0.27, 0.17, 0.07, 0.032 };
+	double observedError1[Nenergy1] = { 0.375, 0.09 , 0.05, 0.07, 0.03, 0.01, 0.008 };*/
+
+	/*for (int i = 0; i < Nenergy1; ++i) {
 		energy1[i] = energy1[i] * hplank;
-		observedFlux[i] = observedFlux[i] / (hplank * 1E26);
-		observedError[i] = observedError[i] / (hplank * 1E26);
+		observedFlux1[i] = observedFlux1[i] / (hplank * 1E26);
+		observedError1[i] = observedError1[i] / (hplank * 1E26);
+	}*/
+
+	double* energy1;
+	double* observedFlux1;
+	double* observedError1;
+	int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/css_data/coppejans69.txt");
+	for (int i = 0; i < Nenergy1; ++i) {
+		energy1[i] = energy1[i] * hplank * 1E9;
+		observedFlux1[i] = observedFlux1[i] / (hplank * 1E26);
+		observedError1[i] = observedError1[i] / (hplank * 1E26);
 	}
+
 
 	printf("start optimization\n");
 	printLog("start optimization\n");
 	bool optPar[Nparams] = { false, true, true, false, false };
 	int Niterations = 5;
 	//creating KPIevaluator
-	KPIevaluator* KPIevaluator = new SpectrumKPIevaluator(energy1, observedFlux, observedError, Nenergy1, source);
+	KPIevaluator* KPIevaluator = new SpectrumKPIevaluator(energy1, observedFlux1, observedError1, Nenergy1, source);
 	//creating gradient descent optimizer
 	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	//RadiationOptimizer* synchrotronOptimizer = new CoordinateRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
 	//number of points per axis in gridEnumOptimizer
-	int Npoints[Nparams] = { 20,50,50,20,2 };
+	int Npoints[Nparams] = { 10,20,20,10,2 };
 	//creating grid enumeration optimizer
 	RadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints, KPIevaluator);
 	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
@@ -287,15 +310,15 @@ void evaluateFluxSNRtoWind() {
 	}
 
 	//outputing spectrum
-	FILE* output_GZ_Jansky = fopen("outputSynch.dat", "w");
-	FILE* output_GZ_Jansky2 = fopen("outputSynch2.dat", "w");
+	FILE* output_GZ_Jansky = fopen("outputSynch0.dat", "w");
+	//FILE* output_GZ_Jansky2 = fopen("outputSynch2.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		fprintf(output_GZ_Jansky, "%g %g\n", Nu[i] / 1E9, hplank * F[i] * 1E26);
-		fprintf(output_GZ_Jansky2, "%g %g\n", Nu[i] / 1E9, hplank * F2[i] * 1E26);
+		//fprintf(output_GZ_Jansky2, "%g %g\n", Nu[i] / 1E9, hplank * F2[i] * 1E26);
 	}
 	fclose(output_GZ_Jansky);
-	fclose(output_GZ_Jansky2);
-
+	//fclose(output_GZ_Jansky2);
+	return;
 	double synchrotronFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(hplank * 1E8, hplank * 1E11, 200, source);
 	double synchrotronKevFlux1 = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.3*1000*1.6E-12, 10 * 1000 * 1.6E-12, 200, source);
 	double synchrotronKevFlux2 = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.3*1000*1.6E-12, 10 * 1000 * 1.6E-12, 200, source3);

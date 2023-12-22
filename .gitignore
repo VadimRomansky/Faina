@@ -68,3 +68,5 @@ Thumbs.db
 *.dll
 *.exe
 
+/examples_data/coppejans data.gdw
+/examples_data/coppejans.txt

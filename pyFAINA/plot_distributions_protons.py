@@ -2,24 +2,24 @@ from matplotlib import animation
 from pylab import *
 import numpy as np
 
-def plot_distributions():
-    Efile0 = open('../examples_data/gamma1.5_theta0-90/Ee1.dat','r').readline().split()
-    Ffile0= open('../examples_data/gamma1.5_theta0-90/Fs1.dat','r').readline().split()
+def plot_distributions_protons():
+    Efile0 = open('../examples_data/gamma1.5_theta0-90_protons/Ee1.dat','r').readline().split()
+    Ffile0= open('../examples_data/gamma1.5_theta0-90_protons/Fs1.dat','r').readline().split()
 
-    Efile1 = open('../examples_data/gamma1.5_theta0-90/Ee3.dat','r').readline().split()
-    Ffile1 = open('../examples_data/gamma1.5_theta0-90/Fs3.dat','r').readline().split()
+    Efile1 = open('../examples_data/gamma1.5_theta0-90_protons/Ee3.dat','r').readline().split()
+    Ffile1 = open('../examples_data/gamma1.5_theta0-90_protons/Fs3.dat','r').readline().split()
 
-    Efile2 = open('../examples_data/gamma1.5_theta0-90/Ee8.dat','r').readline().split()
-    Ffile2 = open('../examples_data/gamma1.5_theta0-90/Fs8.dat','r').readline().split()
+    Efile2 = open('../examples_data/gamma1.5_theta0-90_protons/Ee8.dat','r').readline().split()
+    Ffile2 = open('../examples_data/gamma1.5_theta0-90_protons/Fs8.dat','r').readline().split()
 
-    Efile0a = open('../examples_data/gamma0.5_theta0-90/Ee1.dat', 'r').readline().split()
-    Ffile0a = open('../examples_data/gamma0.5_theta0-90/Fs1.dat', 'r').readline().split()
+    Efile0a = open('../examples_data/gamma0.5_theta0-90_protons/Ee1.dat', 'r').readline().split()
+    Ffile0a = open('../examples_data/gamma0.5_theta0-90_protons/Fs1.dat', 'r').readline().split()
 
-    Efile1a = open('../examples_data/gamma0.5_theta0-90/Ee3.dat', 'r').readline().split()
-    Ffile1a = open('../examples_data/gamma0.5_theta0-90/Fs3.dat', 'r').readline().split()
+    Efile1a = open('../examples_data/gamma0.5_theta0-90_protons/Ee3.dat', 'r').readline().split()
+    Ffile1a = open('../examples_data/gamma0.5_theta0-90_protons/Fs3.dat', 'r').readline().split()
 
-    Efile2a = open('../examples_data/gamma0.5_theta0-90/Ee8.dat', 'r').readline().split()
-    Ffile2a = open('../examples_data/gamma0.5_theta0-90/Fs8.dat', 'r').readline().split()
+    Efile2a = open('../examples_data/gamma0.5_theta0-90_protons/Ee8.dat', 'r').readline().split()
+    Ffile2a = open('../examples_data/gamma0.5_theta0-90_protons/Fs8.dat', 'r').readline().split()
 
     N = len(Efile0)
 
@@ -33,9 +33,9 @@ def plot_distributions():
     c = 3*10E10
     c2 = c*c
 
-    m = me
+    m = mp
 
-    factor = 1.2
+    factor = 1.0
 
     for i in range(N):
         E[0,i] = (float(Efile0[i])*factor + 1)*m*c2
@@ -86,10 +86,8 @@ def plot_distributions():
             if i == 0:
                 dP = P[j][1] - P[j][0]
             else:
-                dP = P[j][i] - P[j][i-1]
-            ratio1 = dP/dE[j][i]
-            ratio2 = E[j][i]/(P[j][i]*m*m*c2*c2)
-            norm[j] = norm[j] + (F[j][i]/(P[j][i]*P[j][i])) * dP
+                dP = P[j][i] - P[j][i - 1]
+            norm[j] = norm[j] + (F[j][i] / (P[j][i] * P[j][i])) * dP
 
     plt.rcParams.update({'font.size': 40})
     plt.rcParams['text.usetex'] = True
@@ -99,8 +97,8 @@ def plot_distributions():
     #plt.subplots_adjust(bottom=0.12)
     #ax.tick_params(axis='both', which='major', labelsize=10)
     #ax.tick_params(axis='both', which='minor', labelsize=8)
-    ax.set_xlabel('$p/m_e c$', fontsize=40,fontweight='bold')
-    ax.set_ylabel('$f(p/m_e c)  (p/m_e c)^4$', fontsize=40,fontweight='bold')
+    ax.set_xlabel('$p/m_p c$', fontsize=40,fontweight='bold')
+    ax.set_ylabel('$f(p/m_p c)  (p/m_p c)^4$', fontsize=40,fontweight='bold')
     ax.set_yscale("log")
     ax.set_xscale("log")
     #extraticks=[1,100]
@@ -118,8 +116,8 @@ def plot_distributions():
     ax.legend([r'$\theta = 10^{\circ}, v = 0.75c$',r'$\theta = 10^{\circ}, v = 0.5c$',
                r'$\theta = 30^{\circ}, v = 0.75c$',r'$\theta = 30^{\circ}, v = 0.5c$',
                r'$\theta = 80^{\circ}, v = 0.75c$',r'$\theta = 80^{\circ}, v = 0.5c$'], fontsize="25")
-    ax.set_xlim(xmin=1, xmax=2E3)
-    ax.set_ylim(ymin=2E-5, ymax=2E1)
+    ax.set_xlim(xmin=0.3, xmax=2E1)
+    ax.set_ylim(ymin=1E-2, ymax=1)
     #ax.set_xbound(lower=0.5, upper=2E3)
     #plt.show()
-    plt.savefig('electrons_momentum.png', bbox_inches='tight')
+    plt.savefig('protons_momentum.png', bbox_inches='tight')

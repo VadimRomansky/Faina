@@ -2,10 +2,15 @@ clear;
 
 radiation = importdata('../outputSynch.dat');
 compton = importdata('../outputCompt.dat');
+radiation2 = importdata('../outputSynch2.dat');
 radiation3 = importdata('../outputSynch3.dat');
+
+radiation4 = importdata('../examples_data/coppejans_data.txt');
 
 N = size(radiation,1);
 Nr = size(radiation,2);
+
+Nn = size(radiation4,1);
 
 %CSS161010
 cssx1(1:4) = [1.5, 3.0, 6.1, 9.87 ];
@@ -160,6 +165,11 @@ s = 4*f*r/3;
 
 h = 6.626*10^-27;
 
+for i = 1:Nn,
+    radiation4(i,1)=radiation4(i,1)*10^-9;
+    radiation4(i,2)=radiation4(i,2)*1000;
+end;
+
 
 set(0,'DefaultAxesFontSize',14,'DefaultAxesFontName','Times New Roman');
 set(0,'DefaultTextFontSize',20,'DefaultTextFontName','Times New Roman'); 
@@ -173,7 +183,8 @@ xlabel ('{\nu} GHz');
 ylabel ('mJy');
 
 loglog(radiation(1:N,1),radiation(1:N,2),'red','LineWidth',2);
-%loglog(radiation3(1:N,1),radiation3(1:N,2),'green','LineWidth',2);
+loglog(radiation2(1:N,1),radiation2(1:N,2),'green','LineWidth',2);
+loglog(radiation3(1:N,1),radiation3(1:N,2),'blue','LineWidth',2);
 %loglog(compton(1:N,1),compton(1:N,2),'blue','LineWidth',2);
 
 %loglog(radiation(1:N,1),radiation(1:N,5),'magenta','LineWidth',2);
@@ -188,6 +199,9 @@ loglog(radiation(1:N,1),radiation(1:N,2),'red','LineWidth',2);
 %plot(decx(1:3),decy(1:3),'--o','Color','black','LineWidth',2);
 
 errorbar(cssx1,cssy1,cssError1,'red','LineWidth',2);
+errorbar(cssx2,cssy2,cssError2,'green','LineWidth',2);
+errorbar(cssx3,cssy3,cssError3,'blue','LineWidth',2);
+%loglog(radiation4(1:Nn,1),radiation4(1:Nn,2),'blue','LineWidth',2);
 %errorbar(cssx2,cssy2,cssError2,'green','LineWidth',2);
 %errorbar(cssx3,cssy3,cssError3,'blue','LineWidth',2);
 

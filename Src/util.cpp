@@ -300,3 +300,40 @@ void write3dArrayToFile(double*** a, const int N1, const int N2, const int N3, c
 
     fclose(outFile);
 }
+
+int readRadiationFromFile(double*& E, double*& F, double*& error, const char* fileName) {
+    FILE* file = fopen(fileName, "r");
+    double year, month, day, time, freq, band, flux, err;
+    int ch;
+    int N = 0;
+    while (EOF != (ch = getc(file))){
+        if ('\n' == ch)
+            ++N;
+    }
+    fclose(file);
+    if (N == 0) {
+        printf("empty input file %s\n", fileName);
+        printLog("empty input file %s\n", fileName);
+        return N;
+    }
+    file = fopen(fileName, "r");
+    E = new double[N];
+    F = new double[N];
+    error = new double[N];
+    for (int i = 0; i < N; ++i) {
+        fscanf(file, "%lf %lf %lf %lf %lf %lf %lf %lf", &year, &month, &day, &time, &freq, &band, &flux, &err);
+        /*fscanf(file, "%lf", &year);
+        fscanf(file, "%lf", &month);
+        fscanf(file, "%lf", &day);
+        fscanf(file, "%lf", &time);
+        fscanf(file, "%lf", &freq);
+        fscanf(file, "%lf", &band);
+        fscanf(file, "%lf", &flux);
+        fscanf(file, "%lf", &err);*/
+        E[i] = freq;
+        F[i] = flux;
+        error[i] = err;
+    }
+    fclose(file);
+    return N;
+}
