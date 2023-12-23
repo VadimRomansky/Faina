@@ -63,7 +63,7 @@ void evaluateFluxSNRtoWind() {
 	double*** concentration = create3dArray(Nrho, Nz, Nphi, electronConcentration);
 	RadiationSourceFactory::initializeTurbulentField(Bturb, thetaTurb, phiTurb, Nrho, Nz, Nphi, B, pi / 2, 0, 0.9, 11.0 / 6.0, rmax, 10, rmax);
 	//initializing electrons distribution
-	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, 2*me_c2, electronConcentration);
+	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, me_c2, electronConcentration);
 	//MassiveParticleBrokenPowerLawDistribution* electrons = new MassiveParticleBrokenPowerLawDistribution(massElectron, index, 2.001, 2*me_c2, 1000*me_c2, electronConcentration);
 	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", 259, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 	MassiveParticleTabulatedIsotropicDistribution* protons = new MassiveParticleTabulatedIsotropicDistribution(massProton, "./examples_data/gamma1.5_theta0-90_protons/Ee3.dat", "./examples_data/gamma1.5_theta0-90_protons/Fs3.dat", 259, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
@@ -100,6 +100,7 @@ void evaluateFluxSNRtoWind() {
 
 	//creating radiation source
 	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, fraction*rmax, distance);
+	//RadiationSource* source = new TabulatedSphericalLayerSource(20, 20, 1,electrons, B, theta, electronConcentration, rmax, (1-fraction)*rmax, distance);
 	RadiationSource* thermalSource = new SimpleFlatSource(thermalElectrons, B, theta, rmax, fraction*rmax, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, electronConcentration, rmax, 0.5*rmax, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronsFromSmilei, Bturb, thetaTurb, concentration, rsource, 0.9*rsource, distance);
@@ -145,13 +146,18 @@ void evaluateFluxSNRtoWind() {
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 0.5E17, 1E-6, 1, 0.01, 0.3*speed_of_light };
-	double maxParameters[Nparams] = { rmax, 1E-1, 2E6, 0.5, 0.5*speed_of_light };
+	double maxParameters[Nparams] = { rmax, 5E-1, 2E6, 0.5, 0.5*speed_of_light };
 	//starting point of optimization and normalization
 	//fraction = 2E13 / rmax;
-	fraction = 0.1;
-	double denseFactor = 0.5/fraction;
+
+	fraction = (0.4-0.04 + 0.004/3);
+	//fraction = 0.1;
+
+	/*double denseFactor = 0.5 / fraction;
 	electronConcentration = sqr(99.0/Ndays) * (690 * 0.012 / 0.5) * denseFactor;
-	sigma = 0.5*(0.01 * 0.5 / (0.012))/denseFactor;
+	sigma = 0.5*(0.01 * 0.5 / (0.012))/denseFactor;*/
+	electronConcentration = 3167 * sqr(69.0 / Ndays);
+	sigma = 2.33E-5;
 	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, velocity };
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
@@ -203,17 +209,19 @@ void evaluateFluxSNRtoWind() {
 	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	//RadiationOptimizer* synchrotronOptimizer = new CoordinateRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
 	//number of points per axis in gridEnumOptimizer
-	int Npoints[Nparams] = { 10,20,20,10,2 };
+	int Npoints[Nparams] = { 10,10,10,10,2 };
 	//creating grid enumeration optimizer
 	RadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints, KPIevaluator);
 	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
 	//grid enumeration optimization, finding best starting point for gradien descent
-	double error = synchrotronOptimizer->evaluateOptimizationFunction(vector);
-	printf("starting error = %g\n", error);
-	printLog("starting error = %g\n", error);
+	
+	//double error = synchrotronOptimizer->evaluateOptimizationFunction(vector);
+	//printf("starting error = %g\n", error);
+	//printLog("starting error = %g\n", error);
+	
 	//enumOptimizer->optimize(vector, optPar, source);
 	//gradient descent optimization
-	synchrotronOptimizer->optimize(vector, optPar);
+	//synchrotronOptimizer->optimize(vector, optPar);
 	//reseting source parameters to found values
 	//synchrotronOptimizer->outputProfileDiagrams(vector, source, 10);
 	//synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, source, 10, 1, 2);
@@ -228,9 +236,31 @@ void evaluateFluxSNRtoWind() {
 	source->resetParameters(vector, maxParameters);
 	thermalSource->resetParameters(vector, maxParameters);
 	//evaluating resulting error
-	error = combinedOptimizer->evaluateOptimizationFunction(vector);
+	double error = combinedOptimizer->evaluateOptimizationFunction(vector);
 	printf("resulting error = %g\n", error);
 	printLog("resulting error = %g\n", error);
+
+	/*double totalVolume = source->getTotalVolume();
+	double totalVolume2 = 0;
+	for (int i = 0; i < 20; ++i) {
+		for (int j = 0; j < 20; ++j) {
+			for (int k = 0; k < 1; ++k) {
+				totalVolume2 += source->getVolume(i, j, k);
+			}
+		}
+	}
+
+	double area1 = pi * rmax * rmax * (1 - (1 - fraction) * (1 - fraction));
+	double area = 0;
+	for (int i = 0; i < 20; ++i) {
+		for (int k = 0; k < 1; ++k) {
+			area += source->getArea(i, 10, k);
+		}
+	}
+
+
+	printf("total volume = %g\n", totalVolume);
+	printf("total volume2 = %g\n", totalVolume2);*/
 
 	//outputing parameters
 	FILE* paramFile = fopen("parametersCSS161010.dat", "w");
@@ -253,7 +283,7 @@ void evaluateFluxSNRtoWind() {
 	fprintf(paramFile, "average B = %g\n", B);
 	fclose(paramFile);
 
-	TabulatedDiskSourceWithSynchCutoff* source3 = new TabulatedDiskSourceWithSynchCutoff(1, 10000, 1, electrons, B, electronConcentration, pi / 2, rmax, fraction * rmax, distance, 0.2 * speed_of_light);
+	//TabulatedDiskSourceWithSynchCutoff* source3 = new TabulatedDiskSourceWithSynchCutoff(1, 10000, 1, electrons, B, electronConcentration, pi / 2, rmax, fraction * rmax, distance, 0.2 * speed_of_light);
 
 
 	rmax = vector[0] * maxParameters[0];
@@ -310,7 +340,7 @@ void evaluateFluxSNRtoWind() {
 	}
 
 	//outputing spectrum
-	FILE* output_GZ_Jansky = fopen("outputSynch0.dat", "w");
+	FILE* output_GZ_Jansky = fopen("outputSynch1.dat", "w");
 	//FILE* output_GZ_Jansky2 = fopen("outputSynch2.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		fprintf(output_GZ_Jansky, "%g %g\n", Nu[i] / 1E9, hplank * F[i] * 1E26);
@@ -321,7 +351,7 @@ void evaluateFluxSNRtoWind() {
 	return;
 	double synchrotronFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(hplank * 1E8, hplank * 1E11, 200, source);
 	double synchrotronKevFlux1 = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.3*1000*1.6E-12, 10 * 1000 * 1.6E-12, 200, source);
-	double synchrotronKevFlux2 = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.3*1000*1.6E-12, 10 * 1000 * 1.6E-12, 200, source3);
+	//double synchrotronKevFlux2 = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.3*1000*1.6E-12, 10 * 1000 * 1.6E-12, 200, source3);
 	synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch3.dat", source, hplank * 1E8, 10 * 1000 * 1.6E-12, 1000);
 	//synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch5.dat", source3, hplank * 1E8, 50*1000 * 1000 * 1.6E-12, 500);
 	double synchrotronFlux2 = synchrotronEvaluator2->evaluateTotalFluxInEnergyRange(hplank * 1E8, hplank * 1E11, 20, source);
@@ -331,8 +361,8 @@ void evaluateFluxSNRtoWind() {
 	printLog("total synchrotron flux without absorption = %g erg/cm^2 s\n", synchrotronFlux2);
 	printf("synchrotron keV flux = %g erg/cm^2 s\n", synchrotronKevFlux1);
 	printLog("synchrotron keV flux = %g erg/cm^2 s\n", synchrotronKevFlux1);
-	printf("cutoff model synchrotron keV flux = %g erg/cm^2 s\n", synchrotronKevFlux2);
-	printLog("cutoff model synchrotron keV flux = %g erg/cm^2 s\n", synchrotronKevFlux2);
+	//printf("cutoff model synchrotron keV flux = %g erg/cm^2 s\n", synchrotronKevFlux2);
+	//printLog("cutoff model synchrotron keV flux = %g erg/cm^2 s\n", synchrotronKevFlux2);
 	return;
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();

@@ -527,7 +527,7 @@ double SphericalLayerSource::evaluateArea(int irho, int iz, int iphi) {
 		area = 0;
 	}
 	else {
-		area = 2 * pi * (rmax * rmax - rmin * rmin) / my_Nphi;
+		area = pi * (rmax * rmax - rmin * rmin) / my_Nphi;
 	}
 
 	return area;
@@ -625,7 +625,7 @@ void SphericalLayerSource::evaluateLengthAndArea()
 					my_area[irho][iz][iphi] = 0;
 				}
 				else {
-					my_area[irho][iz][iphi] = 2 * pi * (rmax * rmax - rmin * rmin) / my_Nphi;
+					my_area[irho][iz][iphi] = pi * (rmax * rmax - rmin * rmin) / my_Nphi;
 					if (my_area[irho][iz][iphi] != my_area[irho][iz][iphi]) {
 						printf("my_area = NaN\n");
 						printLog("my_area = NaN\n");
@@ -853,8 +853,8 @@ TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, i
 			my_theta[irho][iz] = new double[my_Nphi];
 			my_concentration[irho][iz] = new double[my_Nphi];
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
-				//my_B[irho][iz][iphi] = B[irho][iz][iphi];
-				my_B[irho][iz][iphi] = B[irho][iz][iphi]*(my_rho/r);
+				my_B[irho][iz][iphi] = B[irho][iz][iphi];
+				//my_B[irho][iz][iphi] = B[irho][iz][iphi]*(my_rho/r);
 				my_theta[irho][iz][iphi] = theta[irho][iz][iphi];
 				my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi];
 				//my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi] * sqr(my_rho / r);
