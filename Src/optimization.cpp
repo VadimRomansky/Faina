@@ -521,8 +521,8 @@ void GradientDescentRadiationOptimizer::optimize(double* vector, bool* optPar) {
 			for(int i = 0; i < my_Nparams; ++i) {
 				tempVector[i] = vector[i];
 				if(optPar[i]){
-					tempVector[i] = my_minVector[i] + (1.0 - my_minVector[i])*uniformDistribution();
-					//tempVector[i] = vector[i] + 0.2*my_minVector[i]*(0.5 - uniformDistribution());
+					//tempVector[i] = my_minVector[i] + (1.0 - my_minVector[i])*uniformDistribution();
+					tempVector[i] = vector[i] + 0.000001*my_minVector[i]*(0.5 - uniformDistribution());
 					if(tempVector[i] > 1.0) {
 						tempVector[i] = 1.0;
 					}
@@ -545,17 +545,18 @@ void GradientDescentRadiationOptimizer::optimize(double* vector, bool* optPar) {
 			}
 		}
 		double prevF = currentF;
-		//
-		//valley first step
-		for (int i = 0; i < my_Nparams; ++i) {
-			valley1[i] = vector[i];
-			grad[i] = 0;
-		}
+		
 
 		printf("optimization k = %d\n", k);
 		printLog("optimization k = %d\n", k);
 
 		gradientStep(k, currentF, vector, optPar);
+		
+		//valley first step
+		for (int i = 0; i < my_Nparams; ++i) {
+			valley1[i] = vector[i];
+			grad[i] = 0;
+		}
 
 		currentF = evaluateOptimizationFunction(vector);
 		//valley second step
@@ -570,7 +571,7 @@ void GradientDescentRadiationOptimizer::optimize(double* vector, bool* optPar) {
 
 		//// valley third step
 
-		/*for (int i = 0; i < my_Nparams; ++i) {
+		for (int i = 0; i < my_Nparams; ++i) {
 			if (optPar[i]) {
 				grad[i] = valley1[i] - valley2[i];
 			}
@@ -599,9 +600,9 @@ void GradientDescentRadiationOptimizer::optimize(double* vector, bool* optPar) {
 				}
 			}
 
-			findMinParametersAtDirection(vector, optPar, grad, energy, observedFlux, observedError, Ne, source, currentF);
+			findMinParametersAtDirection(vector, optPar, grad, currentF);
 
-		}*/
+		}
 		currentF = evaluateOptimizationFunction(vector);
 
 		/*if(fabs(currentF - prevF) < 0.00000001){

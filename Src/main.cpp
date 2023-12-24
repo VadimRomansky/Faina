@@ -66,6 +66,7 @@ void evaluateFluxSNRtoWind() {
 	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, me_c2, electronConcentration);
 	//MassiveParticleBrokenPowerLawDistribution* electrons = new MassiveParticleBrokenPowerLawDistribution(massElectron, index, 2.001, 2*me_c2, 1000*me_c2, electronConcentration);
 	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", 259, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee3.dat", "./examples_data/gamma0.5_theta0-90/Fs3.dat", 259, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 	MassiveParticleTabulatedIsotropicDistribution* protons = new MassiveParticleTabulatedIsotropicDistribution(massProton, "./examples_data/gamma1.5_theta0-90_protons/Ee3.dat", "./examples_data/gamma1.5_theta0-90_protons/Fs3.dat", 259, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 	MassiveParticleMaxwellJuttnerDistribution* thermalElectrons = new MassiveParticleMaxwellJuttnerDistribution(massElectron, 4 * me_c2 / kBoltzman, electronConcentration);
 	double velocity = 0.75 * speed_of_light;
@@ -142,6 +143,7 @@ void evaluateFluxSNRtoWind() {
 	//return;
 	int Ndays = 69;
 	rmax = velocity * Ndays * 24 * 3600;
+	//rmax = velocity * 99 * 24 * 3600 + 0.5 * speed_of_light * (Ndays - 99) * 24 * 3600;
 	//number of parameters of the source
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
@@ -150,14 +152,16 @@ void evaluateFluxSNRtoWind() {
 	//starting point of optimization and normalization
 	//fraction = 2E13 / rmax;
 
-	fraction = (0.4-0.04 + 0.004/3);
-	//fraction = 0.1;
+	//fraction = (0.4-0.04 + 0.004/3);
+	fraction = 0.1;
 
-	/*double denseFactor = 0.5 / fraction;
-	electronConcentration = sqr(99.0/Ndays) * (690 * 0.012 / 0.5) * denseFactor;
-	sigma = 0.5*(0.01 * 0.5 / (0.012))/denseFactor;*/
-	electronConcentration = 3167 * sqr(69.0 / Ndays);
-	sigma = 2.33E-5;
+	double denseFactor = 0.5 / fraction;
+	electronConcentration = sqr(99.0/Ndays) * 17 * denseFactor;
+	//sigma = 0.5*(0.01 * 0.5 / (0.012))/denseFactor;
+	//sigma = 0.34 * 0.34 / (4 * pi * massProton * speed_of_light2 * electronConcentration);
+	sigma = 0.08333;
+	//electronConcentration = 3167 * sqr(69.0 / Ndays);
+	//sigma = 2.33E-5;
 	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, velocity };
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
@@ -206,10 +210,10 @@ void evaluateFluxSNRtoWind() {
 	//creating KPIevaluator
 	KPIevaluator* KPIevaluator = new SpectrumKPIevaluator(energy1, observedFlux1, observedError1, Nenergy1, source);
 	//creating gradient descent optimizer
-	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
-	//RadiationOptimizer* synchrotronOptimizer = new CoordinateRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations);
+	//RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
+	RadiationOptimizer* synchrotronOptimizer = new CoordinateRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	//number of points per axis in gridEnumOptimizer
-	int Npoints[Nparams] = { 10,10,10,10,2 };
+	int Npoints[Nparams] = { 10,50,50,10,2 };
 	//creating grid enumeration optimizer
 	RadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints, KPIevaluator);
 	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
@@ -221,7 +225,7 @@ void evaluateFluxSNRtoWind() {
 	
 	//enumOptimizer->optimize(vector, optPar, source);
 	//gradient descent optimization
-	//synchrotronOptimizer->optimize(vector, optPar);
+	synchrotronOptimizer->optimize(vector, optPar);
 	//reseting source parameters to found values
 	//synchrotronOptimizer->outputProfileDiagrams(vector, source, 10);
 	//synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, source, 10, 1, 2);
@@ -340,7 +344,7 @@ void evaluateFluxSNRtoWind() {
 	}
 
 	//outputing spectrum
-	FILE* output_GZ_Jansky = fopen("outputSynch1.dat", "w");
+	FILE* output_GZ_Jansky = fopen("outputSynch0.dat", "w");
 	//FILE* output_GZ_Jansky2 = fopen("outputSynch2.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		fprintf(output_GZ_Jansky, "%g %g\n", Nu[i] / 1E9, hplank * F[i] * 1E26);
