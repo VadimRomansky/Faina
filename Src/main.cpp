@@ -141,14 +141,14 @@ void evaluateFluxSNRtoWind() {
 	SynchrotronEvaluator* synchrotronEvaluator2 = new SynchrotronEvaluator(Ne, Emin, newEmax, false, false);
 	//comptonEvaluator->outputDifferentialFlux("output1.dat");
 	//return;
-	int Ndays = 69;
+	int Ndays = 357;
 	rmax = velocity * Ndays * 24 * 3600;
 	//rmax = velocity * 99 * 24 * 3600 + 0.5 * speed_of_light * (Ndays - 99) * 24 * 3600;
 	//number of parameters of the source
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 0.5E17, 1E-6, 1, 0.01, 0.3*speed_of_light };
-	double maxParameters[Nparams] = { rmax, 5E-1, 2E6, 0.5, 0.5*speed_of_light };
+	double minParameters[Nparams] = { 0.5*rmax, 1E-6, 1, 0.01, 0.3*speed_of_light };
+	double maxParameters[Nparams] = { 1.1*rmax, 5E-1, 2E6, 0.5, 0.5*speed_of_light };
 	//starting point of optimization and normalization
 	//fraction = 2E13 / rmax;
 
@@ -195,7 +195,7 @@ void evaluateFluxSNRtoWind() {
 	double* energy1;
 	double* observedFlux1;
 	double* observedError1;
-	int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/css_data/coppejans69.txt");
+	int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/css_data/coppejans357.txt");
 	for (int i = 0; i < Nenergy1; ++i) {
 		energy1[i] = energy1[i] * hplank * 1E9;
 		observedFlux1[i] = observedFlux1[i] / (hplank * 1E26);
@@ -210,8 +210,8 @@ void evaluateFluxSNRtoWind() {
 	//creating KPIevaluator
 	KPIevaluator* KPIevaluator = new SpectrumKPIevaluator(energy1, observedFlux1, observedError1, Nenergy1, source);
 	//creating gradient descent optimizer
-	//RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
-	RadiationOptimizer* synchrotronOptimizer = new CoordinateRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
+	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
+	//RadiationOptimizer* synchrotronOptimizer = new CoordinateRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	//number of points per axis in gridEnumOptimizer
 	int Npoints[Nparams] = { 10,50,50,10,2 };
 	//creating grid enumeration optimizer
@@ -280,6 +280,8 @@ void evaluateFluxSNRtoWind() {
 	fprintf(paramFile, "n = %g\n", vector[2] * maxParameters[2]);
 	printf("width fraction = %g\n", vector[3] * maxParameters[3]);
 	fprintf(paramFile, "width fraction = %g\n", vector[3] * maxParameters[3]);
+	printf("R/t*c = %g\n", vector[0] * maxParameters[0] / (Ndays * 24 * 3600 * speed_of_light));
+	fprintf(paramFile,"R/t*c = %g\n", vector[0] * maxParameters[0] / (Ndays * 24 * 3600 * speed_of_light));
 	printf("velocity/c = %g\n", vector[4] * maxParameters[4]/speed_of_light);
 	fprintf(paramFile, "celocity/c = %g\n", vector[4] * maxParameters[4]/speed_of_light);
 	B = sqrt(vector[1] * maxParameters[1] * 4 * pi * massProton * vector[2] * maxParameters[2] * speed_of_light2);
@@ -344,7 +346,7 @@ void evaluateFluxSNRtoWind() {
 	}
 
 	//outputing spectrum
-	FILE* output_GZ_Jansky = fopen("outputSynch0.dat", "w");
+	FILE* output_GZ_Jansky = fopen("outputSynch3.dat", "w");
 	//FILE* output_GZ_Jansky2 = fopen("outputSynch2.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		fprintf(output_GZ_Jansky, "%g %g\n", Nu[i] / 1E9, hplank * F[i] * 1E26);
