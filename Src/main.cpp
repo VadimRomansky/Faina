@@ -22,8 +22,8 @@ void evaluateFluxSNRtoWind() {
 
 	double theta = pi/2;
 	double index = 3.5;
-	double Tstar = 5 * 1000;
-	double luminosity = 10000 * 4 * 1E33;
+	double Tstar = 25 * 1000;
+	double luminosity = 1000000 * 2 * 1E33;
 	double rsun = 6.9E10;
 	double rstar = rsun*sqrt(510000.0/pow(Tstar/5800,4));
 	
@@ -141,7 +141,7 @@ void evaluateFluxSNRtoWind() {
 	SynchrotronEvaluator* synchrotronEvaluator2 = new SynchrotronEvaluator(Ne, Emin, newEmax, false, false);
 	//comptonEvaluator->outputDifferentialFlux("output1.dat");
 	//return;
-	int Ndays = 357;
+	int Ndays = 99;
 	rmax = velocity * Ndays * 24 * 3600;
 	//rmax = velocity * 99 * 24 * 3600 + 0.5 * speed_of_light * (Ndays - 99) * 24 * 3600;
 	//number of parameters of the source
@@ -195,7 +195,7 @@ void evaluateFluxSNRtoWind() {
 	double* energy1;
 	double* observedFlux1;
 	double* observedError1;
-	int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/css_data/coppejans357.txt");
+	int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/css_data/coppejans99.txt");
 	for (int i = 0; i < Nenergy1; ++i) {
 		energy1[i] = energy1[i] * hplank * 1E9;
 		observedFlux1[i] = observedFlux1[i] / (hplank * 1E26);
@@ -289,7 +289,7 @@ void evaluateFluxSNRtoWind() {
 	fprintf(paramFile, "average B = %g\n", B);
 	fclose(paramFile);
 
-	//TabulatedDiskSourceWithSynchCutoff* source3 = new TabulatedDiskSourceWithSynchCutoff(1, 10000, 1, electrons, B, electronConcentration, pi / 2, rmax, fraction * rmax, distance, 0.2 * speed_of_light);
+	TabulatedDiskSourceWithSynchCutoff* source3 = new TabulatedDiskSourceWithSynchCutoff(1, 10000, 1, electrons, B, electronConcentration, pi / 2, rmax, fraction * rmax, distance, 0.2 * speed_of_light);
 
 
 	rmax = vector[0] * maxParameters[0];
@@ -346,7 +346,7 @@ void evaluateFluxSNRtoWind() {
 	}
 
 	//outputing spectrum
-	FILE* output_GZ_Jansky = fopen("outputSynch3.dat", "w");
+	FILE* output_GZ_Jansky = fopen("outputSynch1.dat", "w");
 	//FILE* output_GZ_Jansky2 = fopen("outputSynch2.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		fprintf(output_GZ_Jansky, "%g %g\n", Nu[i] / 1E9, hplank * F[i] * 1E26);
@@ -354,11 +354,11 @@ void evaluateFluxSNRtoWind() {
 	}
 	fclose(output_GZ_Jansky);
 	//fclose(output_GZ_Jansky2);
-	return;
+	//return;
 	double synchrotronFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(hplank * 1E8, hplank * 1E11, 200, source);
 	double synchrotronKevFlux1 = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.3*1000*1.6E-12, 10 * 1000 * 1.6E-12, 200, source);
-	//double synchrotronKevFlux2 = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.3*1000*1.6E-12, 10 * 1000 * 1.6E-12, 200, source3);
-	synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch3.dat", source, hplank * 1E8, 10 * 1000 * 1.6E-12, 1000);
+	double synchrotronKevFlux2 = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(0.3*1000*1.6E-12, 10 * 1000 * 1.6E-12, 200, source3);
+	//synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch3.dat", source, hplank * 1E8, 10 * 1000 * 1.6E-12, 1000);
 	//synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch5.dat", source3, hplank * 1E8, 50*1000 * 1000 * 1.6E-12, 500);
 	double synchrotronFlux2 = synchrotronEvaluator2->evaluateTotalFluxInEnergyRange(hplank * 1E8, hplank * 1E11, 20, source);
 	printf("total synchrotron flux = %g erg/cm^2 s\n", synchrotronFlux);
@@ -367,12 +367,12 @@ void evaluateFluxSNRtoWind() {
 	printLog("total synchrotron flux without absorption = %g erg/cm^2 s\n", synchrotronFlux2);
 	printf("synchrotron keV flux = %g erg/cm^2 s\n", synchrotronKevFlux1);
 	printLog("synchrotron keV flux = %g erg/cm^2 s\n", synchrotronKevFlux1);
-	//printf("cutoff model synchrotron keV flux = %g erg/cm^2 s\n", synchrotronKevFlux2);
-	//printLog("cutoff model synchrotron keV flux = %g erg/cm^2 s\n", synchrotronKevFlux2);
-	return;
+	printf("cutoff model synchrotron keV flux = %g erg/cm^2 s\n", synchrotronKevFlux2);
+	printLog("cutoff model synchrotron keV flux = %g erg/cm^2 s\n", synchrotronKevFlux2);
+
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
-	double rcompton = 2E14;
+	double rcompton = 2E15;
 	rmax = 2E15;
 	fraction = 0.5;
 	rcompton = rmax + 0.5E16;
@@ -395,8 +395,8 @@ void evaluateFluxSNRtoWind() {
 
 	double* E = new double[Nnu];
 
-	double EphFinalmin = 0.01*1000*1.6E-12;
-	double EphFinalmax = 100 * 1000 * 1.6E-12;
+	double EphFinalmin = 0.01*10000*1.6E-12;
+	double EphFinalmax = 100 * 100000 * 1.6E-12;
 	//photonDistribution->writeDistribution("output3.dat", 200, Ephmin, Ephmax);
 	factor = pow(EphFinalmax / EphFinalmin, 1.0 / (Nnu - 1));
 	E[0] = EphFinalmin;
@@ -407,9 +407,9 @@ void evaluateFluxSNRtoWind() {
 	}
 	double jetelectronConcentration = 1E7;
 	electrons->resetConcentration(jetelectronConcentration);
-	//MassiveParticleDistribution* jetelectrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, 30 * me_c2, jetelectronConcentration);
+	MassiveParticleDistribution* jetelectrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, 10 * me_c2, jetelectronConcentration);
 	//MassiveParticleDistribution* jetelectrons = new MassiveParticleMonoenergeticDistribution(massElectron, 20 * me_c2, me_c2, jetelectronConcentration);
-	MassiveParticleDistribution* jetelectrons = new MassiveParticleMonoenergeticDirectedDistribution(massElectron, 30 * me_c2, me_c2, jetelectronConcentration, 0, 0, 0.1);
+	//MassiveParticleDistribution* jetelectrons = new MassiveParticleMonoenergeticDirectedDistribution(massElectron, 30 * me_c2, me_c2, jetelectronConcentration, 0, 0, 0.1);
 	RadiationSource* source2 = new SimpleFlatSource(jetelectrons, B, pi / 2, rmax, rmax*fraction, distance);
 
 	double V = source2->getTotalVolume();
@@ -427,7 +427,7 @@ void evaluateFluxSNRtoWind() {
 	printf("energy in protons = %g\n", totalEnergy2);
 	printLog("energy in protons = %g\n", totalEnergy2);
 
-	FILE* output_GZ_Jansky3 = fopen("outputSynch4.dat", "w");
+	FILE* output_GZ_Jansky3 = fopen("outputSynch6.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		//fprintf(output_GZ_Jansky3, "%g %g\n", Nu[i]/1E9, hplank*1E26*synchrotronEvaluator->evaluateFluxFromSource(hplank * Nu[i], source2));
 	}

@@ -5,7 +5,7 @@ clear;
 %data = importdata('../anisotropicCompton.dat');
 %data = importdata('../differentialFlux.dat');
 %data = importdata('../bremsstrahlung.dat');
-data = importdata('../outputSynch5.dat');
+data = importdata('../output.dat');
 
 N = size(data,1);
 
@@ -34,28 +34,28 @@ end;
 
 mc2 = (9.1*10^-28) * (3*10^10)^2;
 
-startPower = 200;
-endPower = 300;
-Fpa(1:N) = 0;
+%startPower = 200;
+%endPower = 300;
+%Fpa(1:N) = 0;
 
-Fpa(startPower) = data1(startPower);
-Fpa(endPower) = data1(endPower);
-polyfitx(1:endPower-startPower + 1) = 0;
-polyfity(1:endPower-startPower + 1) = 0;
+%Fpa(startPower) = data1(startPower);
+%Fpa(endPower) = data1(endPower);
+%polyfitx(1:endPower-startPower + 1) = 0;
+%polyfity(1:endPower-startPower + 1) = 0;
 
-for i = 1:endPower-startPower + 1,
-    polyfitx(i) = log(data(i+startPower-1,1));
-    %polyfitx(i) = log((me*energy(i+startPower - 1)));
-    polyfity(i) = log(data1(i+startPower-1));
-end;
-p = polyfit(polyfitx, polyfity, 1);
+%for i = 1:endPower-startPower + 1,
+%    polyfitx(i) = log(data(i+startPower-1,1));
+%    %polyfitx(i) = log((me*energy(i+startPower - 1)));
+%    polyfity(i) = log(data1(i+startPower-1));
+%end;
+%p = polyfit(polyfitx, polyfity, 1);
 
-for i = startPower-5:endPower+5,
-    Fpa(i) = exp(polyval(p, log(data(i,1))));
-end;
+%for i = startPower-5:endPower+5,
+%    Fpa(i) = exp(polyval(p, log(data(i,1))));
+%end;
 
-loglog(data(1:N,1)/(1.6*10^-9),data1(1:N),'red','LineWidth',2,'Marker','+');
-loglog(data(1:N,1)/(1.6*10^-9),Fpa(1:N),'green','LineWidth',2);
+loglog(data(1:N,1),data1(1:N),'red','LineWidth',2,'Marker','+');
+%loglog(data(1:N,1)/(1.6*10^-9),Fpa(1:N),'green','LineWidth',2);
 %plot(data(1:N,1),data(1:N,3),'green','LineWidth',2,'Marker','+');
 %plot(data(1:N,1),data(1:N,4),'magenta','LineWidth',2,'Marker','+');
 %plot(data(1:N,1),approx(1:N),'blue','LineWidth',2,'Marker','+');

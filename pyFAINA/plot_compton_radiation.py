@@ -3,8 +3,8 @@ from matplotlib import animation
 from pylab import *
 import numpy as np
 
-def plot_long_radiation():
-    radiationFile = open('../outputSynch5.dat','r')
+def plot_compton_radiation():
+    radiationFile = open('../output.dat','r')
     lines = radiationFile.readlines()
     N = len(lines)
 
@@ -15,8 +15,8 @@ def plot_long_radiation():
     for i in range(N):
         s = lines[i].split()
         radiation[0,i] = float(s[0])
-        radiation[1,i] = float(s[1])*radiation[0,i]
-        radiation[0,i] = radiation[0,i]/tokeV
+        radiation[1,i] = float(s[1])*radiation[0,i]*tokeV
+        #radiation[0,i] = radiation[0,i]/tokeV;
 
 
 
@@ -28,14 +28,16 @@ def plot_long_radiation():
     ax.set_xlabel(r'$E~keV$', fontsize=40,fontweight='bold')
     ax.set_ylabel(r'$E F(E)~erg~cm^{-2}~s^{-1}$', fontsize=40,fontweight='bold')
     ax.set_yscale("log")
-    ax.set_xlim([1E-8, 0.5E4])
-    ax.set_ylim([1E-16, 1E-15])
+    ax.set_xlim([2E-1, 1E4])
+    #ax.set_ylim([1E-16, 1E-15])
     ax.set_xscale("log")
     #extraticks=[1E-6,1E-2,100]
     #plt.xticks(list(plt.xticks()[0]+extraticks))
-    ax.set_xticks([1E-8, 1E-6, 1E-4, 1E-2, 1, 100, 10000])
-    ax.set_yticks([1E-16, 2E-16, 4E-16, 6E-16, 8E-16, 1E-15])
-    ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+
+    #ax.set_xticks([1E-8, 1E-6, 1E-4, 1E-2, 1, 100, 10000])
+    #ax.set_yticks([1E-16, 2E-16, 4E-16, 6E-16, 8E-16, 1E-15])
+    #ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+
     #ax1.get_xaxis().get_major_formatter().labelOnlyBase = False
     ax.tick_params(axis='x', size=10, width=4)
     ax.tick_params(axis='y', size=10, width=4)
@@ -47,4 +49,4 @@ def plot_long_radiation():
     #plt.errorbar(cssx1, cssy1, cssError1, ecolor = 'b', elinewidth = 4, linewidth=0, capsize = 5, capthick = 4)
 
     #plt.show()
-    plt.savefig('long_radiation.png', bbox_inches='tight')
+    plt.savefig('compton_radiation.png', bbox_inches='tight')
