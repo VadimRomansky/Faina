@@ -87,6 +87,16 @@ double MassiveParticlePowerLawDistribution::getMeanEnergy()
 	return my_A*4*pi*my_E0*my_E0/(my_index - 2);
 }
 
+double MassiveParticlePowerLawDistribution::minEnergy()
+{
+	return my_E0;
+}
+
+double MassiveParticlePowerLawDistribution::maxEnergy()
+{
+	return -1.0;
+}
+
 void MassiveParticlePowerLawDistribution::resetConcentration(const double& concentration)
 {
 	my_concentration = concentration;
@@ -183,6 +193,16 @@ double MassiveParticlePowerLawCutoffDistribution::getMeanEnergy()
 		E = E * factor;
 	}
 	return Emean;
+}
+
+double MassiveParticlePowerLawCutoffDistribution::minEnergy()
+{
+	return my_E0;
+}
+
+double MassiveParticlePowerLawCutoffDistribution::maxEnergy()
+{
+	return -1.0;
 }
 
 void MassiveParticlePowerLawCutoffDistribution::resetConcentration(const double& concentration)
@@ -300,6 +320,16 @@ double MassiveParticleBrokenPowerLawDistribution::getMeanEnergy()
 	return first + second;
 }
 
+double MassiveParticleBrokenPowerLawDistribution::minEnergy()
+{
+	return my_E0;
+}
+
+double MassiveParticleBrokenPowerLawDistribution::maxEnergy()
+{
+	return -1.0;
+}
+
 void MassiveParticleBrokenPowerLawDistribution::resetConcentration(const double& concentration)
 {
 	my_concentration = concentration;
@@ -353,6 +383,16 @@ double MassiveParticleMaxwellDistribution::distributionNormalized(const double& 
 double MassiveParticleMaxwellDistribution::getMeanEnergy()
 {
 	return 3.0 * kBoltzman * my_temperature / 2.0;
+}
+
+double MassiveParticleMaxwellDistribution::minEnergy()
+{
+	return 0.0;
+}
+
+double MassiveParticleMaxwellDistribution::maxEnergy()
+{
+	return -1.0;
 }
 
 void MassiveParticleMaxwellDistribution::resetConcentration(const double& concentration)
@@ -415,6 +455,16 @@ double MassiveParticleMaxwellJuttnerDistribution::getMeanEnergy()
 		E = E * factor;
 	}
 	return Emean;
+}
+
+double MassiveParticleMaxwellJuttnerDistribution::minEnergy()
+{
+	return my_mass*speed_of_light2;
+}
+
+double MassiveParticleMaxwellJuttnerDistribution::maxEnergy()
+{
+	return -1.0;
 }
 
 void MassiveParticleMaxwellJuttnerDistribution::resetConcentration(const double& concentration)
@@ -673,6 +723,16 @@ double MassiveParticleTabulatedIsotropicDistribution::getMeanEnergy()
 		Emean += 4*pi*my_distribution[i] * (my_energy[i] - my_energy[i - 1]) * (my_energy[i] + my_energy[i - 1])/2.0;
 	}
 	return Emean;
+}
+
+double MassiveParticleTabulatedIsotropicDistribution::minEnergy()
+{
+	return my_energy[0];
+}
+
+double MassiveParticleTabulatedIsotropicDistribution::maxEnergy()
+{
+	return my_energy[my_Ne-1];
 }
 
 void MassiveParticleTabulatedIsotropicDistribution::resetConcentration(const double& concentration)
@@ -994,6 +1054,16 @@ double MassiveParticleTabulatedPolarDistribution::getMeanEnergy()
 		}
 	}
 	return Emean;
+}
+
+double MassiveParticleTabulatedPolarDistribution::minEnergy()
+{
+	return my_energy[0];
+}
+
+double MassiveParticleTabulatedPolarDistribution::maxEnergy()
+{
+	return my_energy[my_Ne-1];
 }
 
 double MassiveParticleTabulatedPolarDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
@@ -1548,6 +1618,16 @@ double MassiveParticleTabulatedAnisotropicDistribution::getMeanEnergy()
 	return Emean;
 }
 
+double MassiveParticleTabulatedAnisotropicDistribution::minEnergy()
+{
+	return my_energy[0];
+}
+
+double MassiveParticleTabulatedAnisotropicDistribution::maxEnergy()
+{
+	return my_energy[my_Ne-1];
+}
+
 void MassiveParticleTabulatedAnisotropicDistribution::resetConcentration(const double& concentration)
 {
 	my_concentration = concentration;
@@ -1665,6 +1745,33 @@ double CompoundMassiveParticleDistribution::getMeanEnergy()
 	return Emean / my_concentration;
 }
 
+double CompoundMassiveParticleDistribution::minEnergy()
+{
+	double tempEmin = my_distributions[0]->minEnergy();
+	for (int i = 0; i < my_Ndistr; ++i) {
+		double emin = my_distributions[i]->minEnergy();
+		if (tempEmin > emin) {
+			tempEmin = emin;
+		}
+	}
+	return tempEmin;
+}
+
+double CompoundMassiveParticleDistribution::maxEnergy()
+{
+	double tempEmax = my_distributions[0]->maxEnergy();
+	for (int i = 0; i < my_Ndistr; ++i) {
+		double emax = my_distributions[i]->maxEnergy();
+		if (emax < 0) {
+			return -1.0;
+		}
+		if (tempEmax < emax) {
+			tempEmax = emax;
+		}
+	}
+	return tempEmax;
+}
+
 void CompoundMassiveParticleDistribution::resetConcentration(const double& concentration)
 {
 	double ratio = concentration / my_concentration;
@@ -1759,6 +1866,33 @@ double CompoundWeightedMassiveParticleDistribution::getMeanEnergy()
 		Emean += my_weights[i] * my_distributions[i]->getMeanEnergy();
 	}
 	return Emean;
+}
+
+double CompoundWeightedMassiveParticleDistribution::minEnergy()
+{
+	double tempEmin = my_distributions[0]->minEnergy();
+	for (int i = 0; i < my_Ndistr; ++i) {
+		double emin = my_distributions[i]->minEnergy();
+		if (tempEmin > emin) {
+			tempEmin = emin;
+		}
+	}
+	return tempEmin;
+}
+
+double CompoundWeightedMassiveParticleDistribution::maxEnergy()
+{
+	double tempEmax = my_distributions[0]->maxEnergy();
+	for (int i = 0; i < my_Ndistr; ++i) {
+		double emax = my_distributions[i]->maxEnergy();
+		if (emax < 0) {
+			return -1.0;
+		}
+		if (tempEmax < emax) {
+			tempEmax = emax;
+		}
+	}
+	return tempEmax;
 }
 
 void CompoundWeightedMassiveParticleDistribution::resetConcentration(const double& concentration)
@@ -1857,6 +1991,16 @@ double MassiveParticleMonoenergeticDistribution::getMeanEnergy()
 	return my_E0;
 }
 
+double MassiveParticleMonoenergeticDistribution::minEnergy()
+{
+	return my_E0 - my_dE;
+}
+
+double MassiveParticleMonoenergeticDistribution::maxEnergy()
+{
+	return my_E0 + my_dE;
+}
+
 void MassiveParticleMonoenergeticDistribution::resetConcentration(const double& concentration)
 {
 	my_concentration = concentration;
@@ -1899,7 +2043,102 @@ double MassiveParticleMonoenergeticDirectedDistribution::getMeanEnergy()
 	return my_E0;
 }
 
+double MassiveParticleMonoenergeticDirectedDistribution::minEnergy()
+{
+	return my_E0 - my_dE;
+}
+
+double MassiveParticleMonoenergeticDirectedDistribution::maxEnergy()
+{
+	return my_E0 + my_dE;
+}
+
 void MassiveParticleMonoenergeticDirectedDistribution::resetConcentration(const double& concentration)
 {
 	my_concentration = concentration;
+}
+
+MassiveParticleMovingDistribution::MassiveParticleMovingDistribution(MassiveParticleDistribution* distribution, const double& velocity)
+{
+	my_distribution = distribution;
+	my_mass = distribution->getMass();
+	if (velocity > speed_of_light || velocity < -speed_of_light) {
+		printf("velocity > c in MassiveParticleMovingDistribution\n");
+		printLog("velocity > c in MassiveParticleMovingDistribution\n");
+		exit(0);
+	}
+	my_velocity = velocity;
+	my_gamma = 1.0 / sqrt(1.0 - my_velocity * my_velocity / speed_of_light2);
+	my_concentration = distribution->getConcentration() * my_gamma;
+}
+
+double MassiveParticleMovingDistribution::getMeanEnergy()
+{
+	double tempEmin = my_distribution->getMeanEnergy();
+	double Emean = 0;
+	int Nphi = 20;
+	int Nmu = 20;
+	int Ne = 100;
+	double dphi = 2 * pi / Nphi;
+	double dmu = 2 / Nmu;
+	double Emin = my_mass * speed_of_light2;
+	double Emax = 10 * tempEmin * my_gamma;
+	double factor = pow(Emax / Emin, 1.0 / (Ne - 1));
+	for (int imu = 0; imu < Nmu; ++imu) {
+		double mu = -1 + (imu + 0.5) * dmu;
+		for (int k = 0; k < Nphi; ++k) {
+			double currentEnergy = Emin*1.00000001;
+			for (int i = 0; i < Ne; ++i) {
+				Emean += distributionNormalized(currentEnergy, mu, (k+0.5)*dphi) * currentEnergy*(factor-1.0) * dmu * dphi * currentEnergy;
+			}
+		}
+	}
+	return Emean;
+}
+
+double MassiveParticleMovingDistribution::minEnergy()
+{
+	return my_mass*speed_of_light2;
+}
+
+double MassiveParticleMovingDistribution::maxEnergy()
+{
+	double emax = my_distribution->maxEnergy();
+	if (emax < 0) {
+		return -1.0;
+	}
+
+	double pmax = sqrt(emax * emax - my_mass * my_mass * speed_of_light2) / speed_of_light;
+	double tempemax = my_gamma * emax + my_velocity * my_gamma * pmax;
+
+	return tempemax;
+}
+
+double MassiveParticleMovingDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
+{
+	if (energy < my_mass * speed_of_light2) {
+		printf("energy < m*c2 in MassiveOarticleMovingDistribution\n");
+		printLog("energy < m*c2 in MassiveOarticleMovingDistribution\n");
+		exit(0);
+	}
+
+	double p = sqrt(energy * energy - my_mass * my_mass * speed_of_light4) / speed_of_light;
+	double pparallel = p * mu;
+	double pnorm = p * sqrt(1.0 - mu * mu);
+
+	double beta = my_velocity / speed_of_light;
+
+	double energy1 = my_gamma * energy - my_gamma * beta * mu * p * speed_of_light;
+	double p1 = sqrt(energy1 * energy1 - my_mass * my_mass * speed_of_light4) / speed_of_light;
+	double mu1 = (-my_gamma * beta * energy + my_gamma * mu * p * speed_of_light) / (p1 * speed_of_light);
+
+	double jacobian = (p/p1)*(beta*beta + 1)/(my_gamma*my_gamma);//todo
+
+	return my_distribution->distributionNormalized(energy1, mu1, phi)*jacobian;
+}
+
+void MassiveParticleMovingDistribution::resetConcentration(const double& concentration)
+{
+	my_concentration = concentration;
+	my_distribution->resetConcentration(concentration / my_gamma);
 }

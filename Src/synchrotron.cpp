@@ -130,6 +130,33 @@ void SynchrotronEvaluator::resetParameters(const double *parameters, const doubl
 
 void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, const double& concentration, MassiveParticleIsotropicDistribution* electronDistribution, double& I, double& A)
 {
+
+	double Emin = my_Emin;
+	if (Emin < electronDistribution->minEnergy()) {
+		Emin = electronDistribution->minEnergy();
+	}
+	double Emax = my_Emax;
+	double tempEemax = electronDistribution->maxEnergy();
+	if (tempEemax > 0) {
+		if (tempEemax < Emax) {
+			Emax = tempEemax;
+		}
+	}
+
+	if (Emin > Emax) {
+		printf("Emin > Emax in synchrotron evaluator\n");
+		printLog("Emin > Emax in synchrotron evaluator\n");
+		I = 0;
+		A = 0;
+		return;
+	}
+
+	double factor = pow(Emax / Emin, 1.0 / (my_Ne - 1));
+
+	my_Ee[0] = Emin;
+	for (int i = 1; i < my_Ne; ++i) {
+		my_Ee[i] = my_Ee[i - 1] * factor;
+	}
 	//Anu from ghiselini simple
 	I = 0;
 	A = 0;

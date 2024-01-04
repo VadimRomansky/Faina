@@ -22,10 +22,10 @@ void evaluateFluxSNRtoWind() {
 
 	double theta = pi/2;
 	double index = 3.5;
-	double Tstar = 25 * 1000;
-	double luminosity = 1000000 * 2 * 1E33;
+	double Tstar = 3 * 1000;
+	double luminosity = 10000 * 4 * 1E33;
 	double rsun = 6.9E10;
-	double rstar = rsun*sqrt(510000.0/pow(Tstar/5800,4));
+	double rstar = rsun*sqrt((luminosity/4E33)/ pow(Tstar / 5800, 4));
 	
 
 	double electronConcentration = 2500;
@@ -45,8 +45,8 @@ void evaluateFluxSNRtoWind() {
 	double Emin = me_c2;
 	//double Emax = 1E12 * me_c2;
 	double Emax = 1E8 * me_c2;
-	int Ne = 400;
-	int Nmu = 100;
+	int Ne = 40;
+	int Nmu = 20;
 
 	int Nrho = 50;
 	int Nz = 50;
@@ -321,7 +321,7 @@ void evaluateFluxSNRtoWind() {
 	printf("bremMevFlux = %g\n", bremMevFlux);
 	printLog("bremMevFlux = %g\n", bremMevFlux);
 	//initialization arrays for full synchrotron spectrum
-	const int Nnu = 100;
+	const int Nnu = 50;
 	double* Nu = new double[Nnu];
 	double* F = new double[Nnu];
 	double* F2 = new double[Nnu];
@@ -372,11 +372,11 @@ void evaluateFluxSNRtoWind() {
 
 	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
 	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
-	double rcompton = 2E15;
+	double rcompton = 2E14;
 	rmax = 2E15;
 	fraction = 0.5;
 	rcompton = rmax + 0.5E16;
-	rcompton = rmax;
+	rcompton = 2E14;
 	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, 0.25*sqr(rstar / rcompton));
 	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, 0.25*sqr(rstar / rcompton), pi*17/18, 0, atan2(1, 1));
 	PhotonIsotropicDistribution* galacticField = PhotonMultiPlankDistribution::getGalacticField();
@@ -395,8 +395,8 @@ void evaluateFluxSNRtoWind() {
 
 	double* E = new double[Nnu];
 
-	double EphFinalmin = 0.01*10000*1.6E-12;
-	double EphFinalmax = 100 * 100000 * 1.6E-12;
+	double EphFinalmin = 0.1*1000*1.6E-12;
+	double EphFinalmax = 10000 * 1000 * 1.6E-12;
 	//photonDistribution->writeDistribution("output3.dat", 200, Ephmin, Ephmax);
 	factor = pow(EphFinalmax / EphFinalmin, 1.0 / (Nnu - 1));
 	E[0] = EphFinalmin;
@@ -407,9 +407,36 @@ void evaluateFluxSNRtoWind() {
 	}
 	double jetelectronConcentration = 1E7;
 	electrons->resetConcentration(jetelectronConcentration);
-	MassiveParticleDistribution* jetelectrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, 10 * me_c2, jetelectronConcentration);
+	//MassiveParticleDistribution* jetelectrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, 10 * me_c2, jetelectronConcentration);
+	//MassiveParticleDistribution* jetelectrons1 = new MassiveParticlePowerLawDistribution(massElectron, 3.5, 1 * me_c2, jetelectronConcentration);
 	//MassiveParticleDistribution* jetelectrons = new MassiveParticleMonoenergeticDistribution(massElectron, 20 * me_c2, me_c2, jetelectronConcentration);
-	//MassiveParticleDistribution* jetelectrons = new MassiveParticleMonoenergeticDirectedDistribution(massElectron, 30 * me_c2, me_c2, jetelectronConcentration, 0, 0, 0.1);
+	//MassiveParticleDistribution* jetelectrons1 = new MassiveParticleMonoenergeticDistribution(massElectron, 2 * me_c2, 0.1*me_c2, jetelectronConcentration);
+	MassiveParticleDistribution* jetelectrons = new MassiveParticleMonoenergeticDirectedDistribution(massElectron, 30 * me_c2, me_c2, jetelectronConcentration, 0, 0, 0.1);
+	//MassiveParticleDistribution* jetelectrons = new MassiveParticleMovingDistribution(jetelectrons1, sqrt(1.0 - 1.0/(30*30)) * speed_of_light);
+	FILE* movingDistributionFile = fopen("distribution.dat", "w");
+	factor = pow(1E6, 1.0 / (Ne - 1));
+	double currentE = me_c2;
+	for (int i = 0; i < Ne; ++i) {
+		double distribution = jetelectrons->distributionNormalized(currentE, 1.0, 0.0);
+		fprintf(movingDistributionFile, "%g %g\n", currentE, distribution);
+		currentE = currentE * factor;
+	}
+	fclose(movingDistributionFile);
+
+	FILE* angleDistribution = fopen("angledistribution.dat", "w");
+	for (int i = 0; i < 100; ++i) {
+		double mu = -1 + (i + 0.5) * 2.0 / 100;
+		double distribution1 = jetelectrons->distributionNormalized(1.1 * me_c2, mu, 0.0);
+		double distribution2 = jetelectrons->distributionNormalized(10 * me_c2, mu, 0.0);
+		double distribution3 = jetelectrons->distributionNormalized(20 * me_c2, mu, 0.0);
+		double distribution4 = jetelectrons->distributionNormalized(30 * me_c2, mu, 0.0);
+		double distribution5 = jetelectrons->distributionNormalized(50 * me_c2, mu, 0.0);
+		double distribution6 = jetelectrons->distributionNormalized(1000 * me_c2, mu, 0.0);
+		fprintf(angleDistribution, "%g %g %g %g %g %g %g\n", mu, distribution1, distribution2, distribution3, distribution4, distribution5, distribution6);
+	}
+	fclose(angleDistribution);
+
+	jetelectrons->resetConcentration(jetelectronConcentration);
 	RadiationSource* source2 = new SimpleFlatSource(jetelectrons, B, pi / 2, rmax, rmax*fraction, distance);
 
 	double V = source2->getTotalVolume();
@@ -437,17 +464,21 @@ void evaluateFluxSNRtoWind() {
 	double maxEev = 10 * 1000 * 1.6E-12;
 	//double kevFlux = comptonEvaluator->evaluateTotalFluxInEnergyRange(minEev, maxEev, 10, source);
 	double kevFlux = 0;
-	int Nph = 10;
+	int Nph = 100;
 	factor = pow(maxEev / minEev, 1.0 / (Nph - 1));
-	double currentE = minEev;
+	currentE = minEev;
+	FILE* output7 = fopen("output7.dat", "w");
 	for (int i = 0; i < Nph; ++i) {
 		printf("%d\n", i);
 		double dE = currentE * (factor - 1.0);
+		//double dE = currentE * (1.0 - 1.0/factor);
 		//kevFlux += comptonEvaluator->evaluateFluxFromSourceAnisotropic(currentE, 0, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA) * dE;
-		kevFlux += comptonEvaluator->evaluateFluxFromSource(currentE, source2) * dE;
+		double flux = comptonEvaluator->evaluateFluxFromSource(currentE, source2);
+		fprintf(output7,"%g %g\n", currentE, flux);
+		kevFlux += flux * dE;
 		currentE = currentE * factor;
 	}
-
+	fclose(output7);
 	double totalLuminosity = kevFlux * 4 * pi * distance * distance;
 	//double synchrotronKevFlux = synchrotronEvaluator->evaluateTotalFluxInEnergyRange(minEev, maxEev, 10, source);
 	//double synchrotronFluxGHz3 = synchrotronEvaluator->evaluateFluxFromSource(3E9 * hplank, source)*1E26*hplank;
@@ -472,6 +503,8 @@ void evaluateFluxSNRtoWind() {
 	printLog("99 days F(3GHz) = 4.3 mJy\n");
 	fprintf(outFile, "99 days F(3GHz) = 4.3 mJy\n");
 	fclose(outFile);
+
+	//return;
 	//CSS161010
 	//99 days F = 1.33+-0.76 10^-15 L = 3.4+-1.9 10^39
 	//130 days F = 1.94+-0.74 10^-15 L = 5.0+-2.5 10^39

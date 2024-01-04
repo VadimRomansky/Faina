@@ -328,6 +328,31 @@ void PionDecayEvaluator::resetParameters(const double *parameters, const double 
 double PionDecayEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& volume, const double& distance)
 {
 	double result = 0;
+
+	double Emin = my_Emin;
+	if (Emin < protonDistribution->minEnergy()) {
+		Emin = protonDistribution->minEnergy();
+	}
+	double Emax = my_Emax;
+	double tempEemax = protonDistribution->maxEnergy();
+	if (tempEemax > 0) {
+		if (tempEemax < Emax) {
+			Emax = tempEemax;
+		}
+	}
+
+	if (Emin > Emax) {
+		printf("Emin > Emax in pion decay\n");
+		printLog("Emin > Emax in pion decay\n");
+		return 0;
+	}
+
+	double factor = pow(Emax / Emin, 1.0 / (my_Ne - 1));
+
+	my_Ee[0] = Emin;
+	for (int i = 1; i < my_Ne; ++i) {
+		my_Ee[i] = my_Ee[i - 1] * factor;
+	}
 	
 	for (int i = 0; i < my_Ne; ++i) {
 		double protonEnergy = my_Ee[i];
@@ -431,6 +456,31 @@ double PionDecayEvaluatorKelner::functionKelner(const double& x, const double& p
 double PionDecayEvaluatorKelner::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& volume, const double& distance)
 {
 	double result = 0;
+
+	double Emin = my_Emin;
+	if (Emin < protonDistribution->minEnergy()) {
+		Emin = protonDistribution->minEnergy();
+	}
+	double Emax = my_Emax;
+	double tempEemax = protonDistribution->maxEnergy();
+	if (tempEemax > 0) {
+		if (tempEemax < Emax) {
+			Emax = tempEemax;
+		}
+	}
+
+	if (Emin > Emax) {
+		printf("Emin > Emax in pion decay kelner\n");
+		printLog("Emin > Emax in pion decay kelner\n");
+		return 0;
+	}
+
+	double factor = pow(Emax / Emin, 1.0 / (my_Ne - 1));
+
+	my_Ee[0] = Emin;
+	for (int i = 1; i < my_Ne; ++i) {
+		my_Ee[i] = my_Ee[i - 1] * factor;
+	}
 
 	for (int i = 0; i < my_Ne; ++i) {
 		double protonEnergy = my_Ee[i];

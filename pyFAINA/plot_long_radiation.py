@@ -12,13 +12,16 @@ def plot_long_radiation():
     tokeV = 1.6E-9
 
     radiation = np.zeros([2,N])
+    integral = 0;
     for i in range(N):
         s = lines[i].split()
         radiation[0,i] = float(s[0])
+        if ((radiation[0, i] > 0.3*tokeV) and (radiation[0, i] < 10*tokeV) and (i > 0)):
+            integral = integral + float(s[1]) * (radiation[0, i] - radiation[0, i - 1]*tokeV)
         radiation[1,i] = float(s[1])*radiation[0,i]
         radiation[0,i] = radiation[0,i]/tokeV
 
-
+    print("0.3-10 keV flux = ", integral)
 
     plt.rcParams.update({'font.size': 40})
     plt.rcParams['text.usetex'] = True
@@ -43,6 +46,7 @@ def plot_long_radiation():
     plt.xticks(fontsize=30)
     ax.minorticks_on()
     # plt.axis([0.0,1.0,0.0,1.0])
+
     plt.plot(radiation[0], radiation[1], 'r', linewidth=4)
     #plt.errorbar(cssx1, cssy1, cssError1, ecolor = 'b', elinewidth = 4, linewidth=0, capsize = 5, capthick = 4)
 

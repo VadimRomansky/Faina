@@ -435,14 +435,24 @@ double InverseComptonEvaluator::evaluateComptonFluxJonesIsotropic(const double& 
 			dphotonInitialEnergy = Eph[l] - Eph[l - 1];
 		}
 
-		double Eemin = max(0.5 * photonFinalEnergy * (1.0 + sqrt(1 + m_c2 * m_c2 / (photonFinalEnergy * photonInitialEnergy))), m_c2);
-		if (Eemin > my_Emax) {
-			continue;
+		double Eemax = my_Emax;
+		double tempEemax = electronDistribution->maxEnergy();
+		if (tempEemax > 0) {
+			if (tempEemax < Eemax) {
+				Eemax = tempEemax;
+			}
 		}
+
+		double Eemin = max(0.5 * photonFinalEnergy * (1.0 + sqrt(1 + m_c2 * m_c2 / (photonFinalEnergy * photonInitialEnergy))), m_c2);
 		if (Eemin < my_Emin) {
 			Eemin = my_Emin;
 		}
-		double Eemax = my_Emax;
+		if (Eemin < electronDistribution->minEnergy()) {
+			Eemin = electronDistribution->minEnergy();
+		}
+		if (Eemin > Eemax) {
+			continue;
+		}
 		double Eetran = 2 * Eemin;
 		if (Eemax < Eemin) {
 			Eemax = 4 * Eemin;
@@ -621,6 +631,31 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 
 	double photonFinalTheta = 0;
 	double photonFinalPhi = 0;
+
+	double Emin = my_Emin;
+	if (Emin < electronDistribution->minEnergy()) {
+		Emin = electronDistribution->minEnergy();
+	}
+	double Emax = my_Emax;
+	double tempEemax = electronDistribution->maxEnergy();
+	if (tempEemax > 0) {
+		if (tempEemax < Emax) {
+			Emax = tempEemax;
+		}
+	}
+
+	if (Emin > Emax) {
+		printf("Emin > Emax in evaluate flux Klein Nishina Isotropic\n");
+		printLog("Emin > Emax in evaluate flux Klein Nishina Isotropic\n");
+		return 0;
+	}
+
+	double factor = pow(Emax / Emin, 1.0 / (my_Ne - 1));
+
+	my_Ee[0] = Emin;
+	for (int i = 1; i < my_Ne; ++i) {
+		my_Ee[i] = my_Ee[i - 1] * factor;
+	}
 
 	for (int k = 0; k < my_Ne; ++k) {
 		double electronInitialEnergy = my_Ee[k];
@@ -1162,6 +1197,31 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const
 		debugFlux[i] = 0;
 	}
 
+	double Emin = my_Emin;
+	if (Emin < electronDistribution->minEnergy()) {
+		Emin = electronDistribution->minEnergy();
+	}
+	double Emax = my_Emax;
+	double tempEemax = electronDistribution->maxEnergy();
+	if (tempEemax > 0) {
+		if (tempEemax < Emax) {
+			Emax = tempEemax;
+		}
+	}
+
+	if (Emin > Emax) {
+		printf("Emin > Emax in evaluate flux Klein Nishina Isotropic\n");
+		printLog("Emin > Emax in evaluate flux Klein Nishina Isotropic\n");
+		return 0;
+	}
+
+	double factor = pow(Emax / Emin, 1.0 / (my_Ne - 1));
+
+	my_Ee[0] = Emin;
+	for (int i = 1; i < my_Ne; ++i) {
+		my_Ee[i] = my_Ee[i - 1] * factor;
+	}
+
 	for (int k = 0; k < my_Ne; ++k) {
 		double electronInitialEnergy = my_Ee[k];
 		double electronInitialGamma = electronInitialEnergy / m_c2;
@@ -1465,6 +1525,31 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic2(cons
 	double* cosTheta = new double[my_Nmu];
 	double* dcosTheta = new double[my_Nmu];
 
+	double Emin = my_Emin;
+	if (Emin < electronDistribution->minEnergy()) {
+		Emin = electronDistribution->minEnergy();
+	}
+	double Emax = my_Emax;
+	double tempEemax = electronDistribution->maxEnergy();
+	if (tempEemax > 0) {
+		if (tempEemax < Emax) {
+			Emax = tempEemax;
+		}
+	}
+
+	if (Emin > Emax) {
+		printf("Emin > Emax in evaluate flux Klein Nishina Isotropic\n");
+		printLog("Emin > Emax in evaluate flux Klein Nishina Isotropic\n");
+		return 0;
+	}
+
+	double factor = pow(Emax / Emin, 1.0 / (my_Ne - 1));
+
+	my_Ee[0] = Emin;
+	for (int i = 1; i < my_Ne; ++i) {
+		my_Ee[i] = my_Ee[i - 1] * factor;
+	}
+
 	for (int k = 0; k < my_Ne; ++k) {
 		double electronInitialEnergy = my_Ee[k];
 		double electronInitialGamma = electronInitialEnergy / m_c2;
@@ -1698,6 +1783,31 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic3(cons
 	double* theta = new double[my_Nmu];
 	double* cosTheta = new double[my_Nmu];
 	double* dcosTheta = new double[my_Nmu];
+
+	double Emin = my_Emin;
+	if (Emin < electronDistribution->minEnergy()) {
+		Emin = electronDistribution->minEnergy();
+	}
+	double Emax = my_Emax;
+	double tempEemax = electronDistribution->maxEnergy();
+	if (tempEemax > 0) {
+		if (tempEemax < Emax) {
+			Emax = tempEemax;
+		}
+	}
+
+	if (Emin > Emax) {
+		printf("Emin > Emax in evaluate flux Klein Nishina Isotropic\n");
+		printLog("Emin > Emax in evaluate flux Klein Nishina Isotropic\n");
+		return 0;
+	}
+
+	double factor = pow(Emax / Emin, 1.0 / (my_Ne - 1));
+
+	my_Ee[0] = Emin;
+	for (int i = 1; i < my_Ne; ++i) {
+		my_Ee[i] = my_Ee[i - 1] * factor;
+	}
 
 	for (int k = 0; k < my_Ne; ++k) {
 		double electronInitialEnergy = my_Ee[k];

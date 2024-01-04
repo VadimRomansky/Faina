@@ -12,13 +12,16 @@ def plot_compton_radiation():
     tokeV = 1.6E-9
 
     radiation = np.zeros([2,N])
+    integral = 0
     for i in range(N):
         s = lines[i].split()
         radiation[0,i] = float(s[0])
-        radiation[1,i] = float(s[1])*radiation[0,i]*tokeV
+        if((radiation[0,i] > 0.3) and (radiation[0,i] < 10) and (i > 0)):
+            integral = integral + float(s[1])*(radiation[0,i] - radiation[0, i-1])*tokeV
+        radiation[1,i] = 1.5*float(s[1])*radiation[0,i]*tokeV
         #radiation[0,i] = radiation[0,i]/tokeV;
 
-
+    print("0.3-10 keV flux = ", 1.5*integral)
 
     plt.rcParams.update({'font.size': 40})
     plt.rcParams['text.usetex'] = True
@@ -28,15 +31,15 @@ def plot_compton_radiation():
     ax.set_xlabel(r'$E~keV$', fontsize=40,fontweight='bold')
     ax.set_ylabel(r'$E F(E)~erg~cm^{-2}~s^{-1}$', fontsize=40,fontweight='bold')
     ax.set_yscale("log")
-    ax.set_xlim([2E-1, 1E4])
-    #ax.set_ylim([1E-16, 1E-15])
+    ax.set_xlim([2E-1, 0.5E2])
+    ax.set_ylim([1E-13, 1E-11])
     ax.set_xscale("log")
     #extraticks=[1E-6,1E-2,100]
     #plt.xticks(list(plt.xticks()[0]+extraticks))
 
-    #ax.set_xticks([1E-8, 1E-6, 1E-4, 1E-2, 1, 100, 10000])
-    #ax.set_yticks([1E-16, 2E-16, 4E-16, 6E-16, 8E-16, 1E-15])
-    #ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    #ax.set_xticks([1E0, 1E1, 1E2, 1E3, 1E4, 1E5])
+    ax.set_yticks([1E-13, 2E-13, 5E-13, 1E-12, 2E-12, 5E-12, 1E-11])
+    ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
     #ax1.get_xaxis().get_major_formatter().labelOnlyBase = False
     ax.tick_params(axis='x', size=10, width=4)
@@ -49,4 +52,4 @@ def plot_compton_radiation():
     #plt.errorbar(cssx1, cssy1, cssError1, ecolor = 'b', elinewidth = 4, linewidth=0, capsize = 5, capthick = 4)
 
     #plt.show()
-    plt.savefig('compton_radiation.png', bbox_inches='tight')
+    plt.savefig('compton_radiation1.png', bbox_inches='tight')
