@@ -44,9 +44,9 @@ void evaluateFluxSNRtoWind() {
 
 	double Emin = me_c2;
 	//double Emax = 1E12 * me_c2;
-	double Emax = 1E8 * me_c2;
+	double Emax = 1E2 * me_c2;
 	int Ne = 40;
-	int Nmu = 20;
+	int Nmu = 200;
 
 	int Nrho = 50;
 	int Nz = 50;
@@ -407,12 +407,12 @@ void evaluateFluxSNRtoWind() {
 	}
 	double jetelectronConcentration = 1E7;
 	electrons->resetConcentration(jetelectronConcentration);
-	//MassiveParticleDistribution* jetelectrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, 10 * me_c2, jetelectronConcentration);
-	//MassiveParticleDistribution* jetelectrons1 = new MassiveParticlePowerLawDistribution(massElectron, 3.5, 1 * me_c2, jetelectronConcentration);
+	//MassiveParticleDistribution* jetelectrons = new MassiveParticlePowerLawDistribution(massElectron, 3.5, 30 * me_c2, jetelectronConcentration);
+	MassiveParticleDistribution* jetelectrons1 = new MassiveParticlePowerLawDistribution(massElectron, 3.5, 1.1 * me_c2, jetelectronConcentration);
 	//MassiveParticleDistribution* jetelectrons = new MassiveParticleMonoenergeticDistribution(massElectron, 20 * me_c2, me_c2, jetelectronConcentration);
-	//MassiveParticleDistribution* jetelectrons1 = new MassiveParticleMonoenergeticDistribution(massElectron, 2 * me_c2, 0.1*me_c2, jetelectronConcentration);
-	MassiveParticleDistribution* jetelectrons = new MassiveParticleMonoenergeticDirectedDistribution(massElectron, 30 * me_c2, me_c2, jetelectronConcentration, 0, 0, 0.1);
-	//MassiveParticleDistribution* jetelectrons = new MassiveParticleMovingDistribution(jetelectrons1, sqrt(1.0 - 1.0/(30*30)) * speed_of_light);
+	//MassiveParticleDistribution* jetelectrons1 = new MassiveParticleMonoenergeticDistribution(massElectron, 1.1 * me_c2, 0.1*me_c2, jetelectronConcentration);
+	//MassiveParticleDistribution* jetelectrons = new MassiveParticleMonoenergeticDirectedDistribution(massElectron, 30 * me_c2, me_c2, jetelectronConcentration, 0, 0, 0.1);
+	MassiveParticleDistribution* jetelectrons = new MassiveParticleMovingDistribution(jetelectrons1, sqrt(1.0 - 1.0/(30*30)) * speed_of_light);
 	FILE* movingDistributionFile = fopen("distribution.dat", "w");
 	factor = pow(1E6, 1.0 / (Ne - 1));
 	double currentE = me_c2;

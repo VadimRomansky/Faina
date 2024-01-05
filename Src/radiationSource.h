@@ -157,12 +157,13 @@ protected:
 	double*** my_area;
 	double*** my_length;
 	bool my_geometryCashed;
+	double my_velocity;
 
 	virtual double evaluateLength(int irho, int iz, int iphi);
 	virtual double evaluateArea(int irho, int iz, int iphi);
 	virtual void evaluateLengthAndArea();
 public:
-	SphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& distance);
+	SphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& distance, const double& velocity = 0);
 	virtual ~SphericalLayerSource();
 
 	virtual double getRho(int irho);
@@ -189,7 +190,6 @@ protected:
 	double*** my_B;
 	double*** my_theta;
 	double*** my_concentration;
-	double my_velocity;
 	bool** my_isSource;
 	MassiveParticleDistribution* my_distribution;
 

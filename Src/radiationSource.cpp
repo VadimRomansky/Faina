@@ -639,7 +639,7 @@ void SphericalLayerSource::evaluateLengthAndArea()
 	my_geometryCashed = true;
 }
 
-SphericalLayerSource::SphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& distance) : RadiationSource(Nrho, Nz, Nphi, distance) {
+SphericalLayerSource::SphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& distance, const double& velocity) : RadiationSource(Nrho, Nz, Nphi, distance) {
 	if (rhoin > rho) {
 		printf("rhoin > rho in spherical layer source\n");
 		printLog("rhoin > rho in spherical layer source\n");
@@ -656,6 +656,8 @@ SphericalLayerSource::SphericalLayerSource(int Nrho, int Nz, int Nphi, const dou
 	}
 	my_rho = rho;
 	my_rhoin = rhoin;
+
+	my_velocity = velocity;
 
 	my_geometryCashed = false;
 	my_area = new double** [my_Nrho];
@@ -832,9 +834,8 @@ double SphericalLayerSource::getInnerRho() {
 	return my_rhoin;
 }
 
-TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance) {
+TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance, velocity) {
 	my_distribution = electronDistribution;
-	my_velocity = velocity;
 	
 	my_B = new double** [my_Nrho];
 	my_theta = new double** [my_Nrho];
@@ -870,9 +871,8 @@ TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, i
 		}
 	}
 }
-TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance) {
+TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance, velocity) {
 	my_distribution = electronDistribution;
-	my_velocity = velocity;
 
 	my_B = new double** [my_Nrho];
 	my_theta = new double** [my_Nrho];

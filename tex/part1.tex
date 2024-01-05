@@ -14,9 +14,9 @@ FAINA позволяет рассчитывать электромагнитно
 			\hline
 			\textbf{ParticleDistribution} & Абстрактный класс для любых распределений частиц\\
 			\hline
-			double distribution(const double\& energy, const double\& mu, const double\& phi) & возвращает функцию распределения от энергии, косинуса полярного угла и азимутального угла, нормированную на единицу \\
+			double distribution(const double\& energy, const double\& mu, const double\& phi) & возвращает функцию распределения от энергии, косинуса полярного угла и азимутального угла, нормированную на концентрацию \\
 			\hline
-			virtual double distributionNormalized(const double\& energy, const double\& mu, const double\& phi) & чисто виртуальный метод, возвращает функцию распределения от энергии, косинуса полярного угла и азимутального угла, нормированную на концентрацию \\
+			virtual double distributionNormalized(const double\& energy, const double\& mu, const double\& phi) & чисто виртуальный метод, возвращает функцию распределения от энергии, косинуса полярного угла и азимутального угла, нормированную на единицу \\
 			\hline
 			virtual double getMeanEnergy() & чисто виртуальный метод, возвращает значение средней энергии частиц в распределении\\
 			\hline
@@ -47,6 +47,10 @@ FAINA позволяет рассчитывать электромагнитно
 			\begin{tabularx}{\textwidth}{|X|X|}
 				\hline
 				\textbf{MassiveParticleDistribution} & Абстрактный класс для распределений массивных излучающих частиц\\
+				\hline
+				virtual double minEnergy() & чисто виртуальный метод, возвращает нижнюю границу энергии частиц в распределении\\
+				\hline
+				virtual double maxEnergy() & чисто виртуальный метод, возвращает верхнюю границу энергии частиц в распределении. ОБРАТИТЕ ВНИМАНИЕ! если распределение не ограничено по энергии, возвращается отрицательное число.\\
 				\hline
 				double getMass() & возвращает массу частиц \\
 				\hline
@@ -115,12 +119,10 @@ FAINA позволяет рассчитывать электромагнитно
 
 Класс CompoundPhotonDistribution предназначен для представления смеси различных распределений фотонов, не обязательно планковских, как PhotonMultiPlankDistribution, и не обязательно изотропных. Его методы описаны в Таблице \ref{CompoundPhotonMethods}
 
-\begin{table}
-	\begin{center}
-		\caption{Публичные методы класса CompoundPhotonDistribution }
+\begin{small}
+		\topcaption{Публичные методы класса CompoundPhotonDistribution }
 		\label{CompoundPhotonMethods}
-		\begin{small}
-			\begin{tabularx}{\textwidth}{|X|X|}
+			\begin{xtabular}{|p{0.45\textwidth}|p{0.55\textwidth}|}
 				\hline
 				\textbf{CompoundPhotonDistribution} & Класс для распределения фотонов, состоящего из суммы других распределений\\
 				\hline
@@ -130,38 +132,32 @@ FAINA позволяет рассчитывать электромагнитно
 				\hline
 				CompoundPhotonDistribution( PhotonDistribution* dist1, PhotonDistribution* dist2, PhotonDistribution* dist3) & конструкторб создающий экземпляр содержащий смесь из трех распределений\\
 				\hline
-			\end{tabularx}
-		\end{small}
-	\end{center}
-\end{table}
+	\end{xtabular}
+\end{small}
 
 Единственное реализованное в коде анизотропное распределение фотонов - это PhotonPlankDirectedDistribution, представляющий направленное планковское излучение. Пользователь может реализовать другие виды анизотропных излучений самостоятельно, создав класс, наследующий от PhotonDistribution и определив необходимый виртуальный метод distributionNormalized(const double\& energy, const double\& mu, const double\& phi). Методы класса PhotonPlankDirectedDistribution описаны в Таблице \ref{PhotonPlankDirectedDistributionMethods}
 
-\begin{table}[h]
-	\begin{center}
-		\caption{Публичные методы класса PhotonPlankDirectedDistribution }
+\begin{small}
+		\topcaption{Публичные методы класса PhotonPlankDirectedDistribution }
 		\label{PhotonPlankDirectedDistributionMethods}
-		\begin{small}
-			\begin{tabularx}{\textwidth}{|X|X|}
+			\begin{xtabular}{|p{0.45\textwidth}|p{0.55\textwidth}|}
 				\hline
 				\textbf{PhotonPlankDirectedDistribution} & Класс для направленного планковского распределения фотонов\\
 				\hline
 				PhotonPlankDirectedDistribution(const double\& temperature, const double\& amplitude, const double\& theta0, const double\& phi0, const double\& deltaTheta) & конструктор, принимающий температуру, амплитуду, углы задающие направление излучения и угол задающий полуширину раствора конуса излучения\\
 				\hline
-			\end{tabularx}
-		\end{small}
-	\end{center}
-\end{table}
+				double getTemperature() & возвращает температуру распределения\\
+				\hline
+	\end{xtabular}
+\end{small}
 
 \subsection{Распределения массивных частиц}
 Распределения массивных частиц представлены наследниками класса MassiveParticleDistribution. Так же как и в случае с фотонами важную роль играет абстрактный клас для представления изотропных распределений - MassiveParticleIsotropicDistribution. У этого класса есть методы возвращающие значение функции распределения в зависимости от энергии, и опять же, это не функция распределения, проинтегрированная по углам, а полная функция распределения с отброшенными угловыми аргументами. Для получения значения функции распределения по энергии нужно домножить значение, возвращенное данным методом на $4 \pi$. 
 
-\begin{table}
-	\begin{center}
-		\caption{Публичные методы класса MassiveParticleIsotropicDistribution }
+\begin{small}
+		\topcaption{Публичные методы класса MassiveParticleIsotropicDistribution }
 		\label{MassiveParticleMethods}
-		\begin{small}
-			\begin{tabularx}{\textwidth}{|X|X|}
+			\begin{xtabular}{|p{0.45\textwidth}|p{0.55\textwidth}|}
 				\hline
 				\textbf{MassiveParticleIsotropicDistribution} & Абстрактный класс для изотропных распределений\\
 				\hline
@@ -171,12 +167,10 @@ FAINA позволяет рассчитывать электромагнитно
 				\hline
 				void writeDistribution(const char* fileName, int Ne, const double\& Emin, const double\& Emax) & записывает распределение в файл с данным именем, в диапазоне межджу данными минимальной и максимальной енергиями с заданным количеством точек, которые распределяются логарифмически\\
 				\hline
-			\end{tabularx}
-		\end{small}
-	\end{center}
-\end{table}
+	\end{xtabular}
+\end{small}
 
-\begin{figure}
+\begin{figure}[h]
 	\centering
 	\includegraphics[width=14.5 cm]{./fig/massiveParticleDistribution2.png} 
 	\caption{Схема наследования классов распределения массивных частиц}
@@ -185,7 +179,7 @@ FAINA позволяет рассчитывать электромагнитно
 
 Абстрактный класс изотропных распределений имеет семь наследников, предназначенных для создания конкретных распределений: MassiveParticlePowerLawDistribution - для степенных распределений, MassiveParticleBrokenPowerLawDistribution - для степенных распределений с изломом, MassiveParticlePowerLawCutoffDistribution - для степенных распределений с экспоненциальным завалом, MassiveParticleMaxwellDistribution - для максвелловского распределения (обратите внимание, что в отличие от остальных распределений, максвелловское подразумевает под энергией только кинетическую энергию), MassiveParticleMaxwellJuttnerDistribution - для релятивистского распределения Максвелла-Юттнера, MassiveParticleTabulatedIsotropicDistribution - для таблично заданных распределений и MassiveParticleMonoenergeticDistribution - для моноэнергичного изотропного распределения.
 
-Так же имеется пять реализаций анизотропных распределений: MassiveParticleTabulatedPolarDistribution - для таблично заданных распределений с зависимостью только от энергии и полярного угла, MassiveParticleAnisotropicDistribution - для таблично заданных распределений с зависимостью от всех переменных, MassiveParticleMonoenergeticDirectedDistribution - для моноэнергичного пучка частиц, с импульсами направленными в заданный телесный угол, CompoundMassiveParticleDistribution - для суммы распредлений общего вида, CompoundWeightedMassiveParticleDistribution - для взвешенной суммы распределений общего вида. В некоторых случаях оперировать весами распределений удобнее, чем непосредственно концентрациями. Полная схема наследования классов распределений массивных частиц представлена на рисунке \ref{massiveDistribution}, список публичных методов классов распределений массивных частиц приведен в Таблице \ref{MassiveParticleMethods1}. Пользователь может сам реализовывать необходимые ему виды распределений излучающих частиц, создав наследника класса MassiveParticleDistribution или MassiveParticleIsotropicDistribution и определив необходимые виртуальные методы.
+Так же имеется шесть реализаций анизотропных распределений: MassiveParticleTabulatedPolarDistribution - для таблично заданных распределений с зависимостью только от энергии и полярного угла, MassiveParticleAnisotropicDistribution - для таблично заданных распределений с зависимостью от всех переменных, MassiveParticleMonoenergeticDirectedDistribution - для моноэнергичного пучка частиц, с импульсами направленными в заданный телесный угол, MassiveParticleMovingDistribution - для перевода функций распределения в движущуюся систему отсчета, CompoundMassiveParticleDistribution - для суммы распредлений общего вида, CompoundWeightedMassiveParticleDistribution - для взвешенной суммы распределений общего вида. В некоторых случаях оперировать весами распределений удобнее, чем непосредственно концентрациями. Полная схема наследования классов распределений массивных частиц представлена на рисунке \ref{massiveDistribution}, список публичных методов классов распределений массивных частиц приведен в Таблице \ref{MassiveParticleMethods1}. Пользователь может сам реализовывать необходимые ему виды распределений излучающих частиц, создав наследника класса MassiveParticleDistribution или MassiveParticleIsotropicDistribution и определив необходимые виртуальные методы.
 
 \subsection{Считывание распределений из файла}
 Классы таблично-заданных распределений, такие как например MassiveParticleTabulatedIsotropicDistribution, имеют конструктор принимающие на вход имена файлов, из которых будет считана функция распределения. Это должны быть текстовые файлы, содержащие таблицы с данными, причем формат единиц, в которых измеряется функция распределения может быть разным. Для задания формата входных файлов используется перечислимы тип DistributionInputType, имеющий пять значений:
@@ -336,6 +330,10 @@ FAINA позволяет рассчитывать электромагнитно
 		\hline
 		MassiveParticleMonoenergeticDirectedDistribution(const double\& mass, const double\& Energy, const double\& halfWidth, const double\& concentration, const double\& theta0, const double\& phi0, const double\& deltaTheta) & конструктор, принимающий массу частиц, среднюю энергию, полуширину разброса, концентрацию, углы задающие направление пучка и угол полуширины раствора конуса\\
 		\hline
+		\textbf{MassiveParticleMovingDistribution} & Класс осуществляющий перевод функций распределения в движущуюся систему отсчета\\
+		\hline
+		MassiveParticleMovingDistribution( MassiveParticleDistribution* distribution, const double\& velocity) & конструктор, принимающий функцию распределения в собственной системе отсчета и скорость движения этой системы вдоль оси z относительно лабораторной системы\\
+		\hline
 		\textbf{CompoundMassiveParticleDistribution} & Класс для распределения, состоящего из суммы других распределений\\
 		\hline
 		CompoundMassiveParticleDistribution( int N, MassiveParticleDistribution** distributions) & конструктор, создает экземпляр класса содержащий смесь заданного количества указанных распределений\\
@@ -383,7 +381,12 @@ FAINA позволяет рассчитывать электромагнитно
 
 Класс RadiationSource имеет три абстрактных класса-наследника: DiskSource - для источников в форме диска, перпендикулярного лучу зрения, и SphericalLayerSource - для источников в форме шарового слоя и SectoralSphericalLayerSource - источник, который нужен тогда, когда рассматривается только сектор шарового слоя, "долька апельсина". 
 
-Источники в форме диска имеют три реализации: SimpleFlatSource - однородный диск, состоящий из одной пространственной ячейки с заданными параметрами, и TabulatedDiskSource - источник, в котором все характеристики таблично заданы на пространственной сетке и отнаследованный от него TabulatedDiskSourceWithSynchCutoff, который нужен для феноменологического учета синхротронных потерь функции распределения. В данном источнике энергия обрезания функции распределения в каждой точке выбирается так, что характерное время потерь электронов с данной энергии равно времени их движения от ударной волны к данной точке.
+Источники в форме диска имеют три реализации: SimpleFlatSource - однородный диск, состоящий из одной пространственной ячейки с заданными параметрами, и TabulatedDiskSource - источник, в котором все характеристики таблично заданы на пространственной сетке и отнаследованный от него TabulatedDiskSourceWithSynchCutoff, который нужен для учета синхротронных потерь функции распределения. В можели данного источника считается, что распределение частиц генерирутся на границе источника (верхней грани, соответствующей ударной волне), а в дальнейшем конвекционно переносятся вглубь него, испытывая при этом синхротронные потери. Изменение функции распределения в зависимости от расстояния до границы в случае однородного поля определеяется формулой:
+
+\begin{equation}
+	f_l(E)=f\left(\frac{E}{1-4e^4 B^2 E~l/9m^4 c^7 v}\right)\cdot\frac{1}{\left(1-4e^4 B^2 E~l/9m^4 c^7 v\right)^2}
+\end{equation}
+где $f(E)$ исходная функция распределения, $E$ - энергия частицы, $B$ - магнитное поле, $l$ - расстояние до границы, $v$ - скорость конвекционного движения, $e$ - заряд частицы, $m$ - масса частицц, $c$ - скорость света.
 
 Источники в форме шарового слоя имеют следующие реализации: TabulatedSphericalSource - источник, в котором все характеристики таблично заданы на пространственной сетке, и отнаследованные от него  TabulatedSLSourceWithSynchCutoff и AngleDependentElectronsSphericalSource. Первый из них нужен для учета синхротронных потерь, аналогично тому как это сделано в TabulatedDiskSourceWithSynchCutoff, а второй - для реализации важного случая, когда функция распределения излучающих частиц зависит от угла наклона магнитного поля по отношению к направлению распространения ударной волны \cite{SironiSpitkovsky2009pair, GuoSironi2014_1,Crumley2019, Romansky2018, еще}. В AngleDependentElectronsSphericalSource такие параметры, как концентрация, магнитное поле и его угол наклона к лучу зрения заданы таблично на пространственной сетке, а функция распределения излучающих частиц - в виде таблицы по углам наклона магнитного поля к направлению распространения ударной волны, которая в данном случае считается сферически симметричной. Функция распределения в каждой ячейке выбирается в зависимости от вычисленного угла наклона магнитного поля к ударной волне.
 
@@ -398,12 +401,14 @@ FAINA позволяет рассчитывать электромагнитно
 		\hline
 		\textbf{RadiationSource} & абстрактный класс для источников излучения общего вида\\
 		\hline
-		virtual double getMaxRho() & чисто виртуальный метод, возвращает максимальный цилиндрический радиус источника\\
+		virtual double getMaxRho() & чисто виртуальный метод, возвращает границу источника по радиальной оси в цилиндрических координатах\\
 		\hline
 		virtual double getMinZ() & чисто виртуальный метод, возвращает минимальную границу источника по оси z\\
 		\hline
 		virtual double getMaxZ() & чисто виртуальный метод, возвращает максимальную границу источника по оси z\\
+		\hline
 		virtual double getMaxB() & чисто виртуальный метод, возвращает максимальное магнитное поле\\
+		\hline
 		virtual double getAverageSigma() & чисто виртуальный метод, возвращает среднюю магнетизацию $\sigma=\frac{B^2}{4\pi n m_p c^2}$\\
 		\hline
 		virtual double getAverageConcentration() &чисто виртуальный метод, возвращает среднюю конценрацию\\
@@ -436,11 +441,14 @@ FAINA позволяет рассчитывать электромагнитно
 		\hline
 		virtual getSinTheta(int irho, int iz, int iphi) & чисто виртуальный метод, возвращает синус угла наклона магнитного поля к лучу зрения\\
 		\hline
+		virtual void getVelocity(int irho, int iz, int iphi, double\& velocity, double\& theta, double\& phi) &\\
+		чисто виртуальный метод, возвращает скорость данной ячейки источника\\
+		\hline
 		virtual getTotalVolume() & чисто виртуальный метод, возвращает полный объем источника\\
 		\hline
 		virtual getLength(int irho, int iz, int iphi) & чисто виртуальный метод, возвращает среднюю толщину ячейки, заполненную веществом источника\\
 		\hline
-		virtual resetParameters(const double* parameters, const double* normalizationUnits) & чисто виртуальный метод, меняющий параметры источника. Список параметров, их количество, их влияние на источник определяются пользователем в конкретных реализациях класса. Принимет массив параметров и массив единиц в которых они измеряны. Данный метод используется в процедурах оптимизации, либо при учете изменения источника со временем\\
+		virtual resetParameters(const double* parameters, const double* normalizationUnits) & чисто виртуальный метод, меняющий параметры источника. Список параметров, их количество, их влияние на источник определяются пользователем в конкретных реализациях класса. Принимет массив параметров и массив единиц в которых они измерены. Данный метод используется в процедурах оптимизации, либо при учете изменения источника со временем\\
 		\hline
 		virtual getParticleDistribution(int irho, int iz, int iphi) & чисто виртуальный метод, возвращает распределение излучающих частиц в ячейке\\
 		\hline
@@ -448,13 +456,20 @@ FAINA позволяет рассчитывать электромагнитно
 		\hline
 		\textbf{SimpleFlatSource} & Класс для источников в форме однородного диска\\
 		\hline
-		SimpleFlatSource( MassiveParticleIsotropicDistribution* electronDistribution, const double\& B, const double\& sinTheta, const double\& rho, const double\& z, const double\& distance) & конструктор, возвращает экземпляр с заданными распределением частиц, магнитным полем, синусом угла его наклона, радиусом диска, толщиной диска и расстоянием до источника\\
+		SimpleFlatSource( MassiveParticleDistribution* electronDistribution, const double\& B, const double\& sinTheta, const double\& rho, const double\& z, const double\& distance, const double\& velocity = 0) & конструктор, возвращает экземпляр с заданными распределением частиц, магнитным полем, синусом угла его наклона, радиусом диска, толщиной диска, расстоянием до источника и скоростью движения вещества\\
 		\hline
 		\textbf{TabulatedDiskSource} & Класс для источников в форме диска с таблично заданными значениями параметров\\
 		\hline
-		TabulatedDiskSource( int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta, double*** concentration, const double\& rho, const double\& z, const double\& distance) & конструктор, возвращает экземпляр с заданными с помощью массивов распределением частиц, магнитным полем, синусом угла его наклона, а так же заданными радиусом диска, толщиной диска и расстоянием до источника\\
+		TabulatedDiskSource( int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** sinTheta, double*** concentration, const double\& rho, const double\& z, const double\& distance, const double\& velocity = 0) & конструктор, возвращает экземпляр с заданными с помощью массивов распределением частиц, магнитным полем, синусом угла его наклона, а так же заданными радиусом диска, толщиной диска, расстоянием до источника и скоростью движения вещества\\
 		\hline
-		TabulatedDiskSource( int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double\& B, const double\& sinTheta, const double\& concentration , const double\& rho, const double\& z, const double\& distance) & конструктор, возвращает экземпляр с заданными однородными распределением частиц, магнитным полем, синусом угла его наклона, а так же заданными радиусом диска, толщиной диска и расстоянием до источника\\
+		TabulatedDiskSource( int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double\& B, const double\& sinTheta, const double\& concentration , const double\& rho, const double\& z, const double\& distance, const double\& velocity = 0) & конструктор, возвращает экземпляр с заданными однородными распределением частиц, магнитным полем, синусом угла его наклона, а так же заданными радиусом диска, толщиной диска, расстоянием до источника и скоростью движения вещества\\
+		\hline
+		\textbf{TabulatedDiskSourceWithSynchCutoff} & Класс для источников в форме диска с таблично заданными значениями параметров и учетом синхротронных потерь энергии частиц\\
+		\hline
+		TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double\& rho, const double\& z, const double\& distance, const double\& downstreamVelocity, const double\& velocity = 0) &
+		конструктор, возвращает экземпляр с заданными с помощью массивов распределением частиц, магнитным полем, синусом угла его наклона, а так же заданными радиусом диска, толщиной диска, расстоянием до источника, скоростью конвекции частиц и скоростью движения вещества\\
+		\hline
+		TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double\& B, const double\& concentration, const double\& theta, const double\& rho, const double\& z, const double\& distance, const double\& downstreamVelocity, const double\& velocity = 0) & конструктор, возвращает экземпляр с заданными однородными распределением частиц, магнитным полем, синусом угла его наклона, а так же заданными радиусом диска, толщиной диска, расстоянием до источника, скоростью конвекции частиц и скоростью движения вещества\\
 		\hline
 		\textbf{SphericalLayerSource} & Абстрактный класс для источников в форме шарового слоя\\
 		\hline
@@ -462,15 +477,36 @@ FAINA позволяет рассчитывать электромагнитно
 		\hline
 		\textbf{TabulatedSphericalLayerSource} & Класс для источников в форме шарового слоя с таблично заданными значениями параметров\\
 		\hline
-		TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, double*** B, double*** sinTheta, double*** concentration, const double\& rho, const double\& rhoin, const double\& distance) & конструктор, возвращает экземпляр с заданными с помощью массивов распределением частиц, магнитным полем, синусом угла его наклона к лучу зрения, а так же заданными внешним и внутренним радиусом диска и расстоянием до источника\\
+		TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** sinTheta, double*** concentration, const double\& rho, const double\& rhoin, const double\& distance, const double\& velocity = 0) & конструктор, возвращает экземпляр с заданными с помощью массивов распределением частиц, магнитным полем, синусом угла его наклона к лучу зрения, а так же заданными внешним и внутренним радиусом шарового слоя, расстоянием до источника и скоростью движения вещества\\
 		\hline
-		TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleIsotropicDistribution* electronDistribution, const double\& B, const double\& concentration, const double\& sinTheta, const double\& rho, const double\& rhoin, const double\& distance) &  конструктор, возвращает экземпляр с заданными однородными распределением частиц, магнитным полем, синусом угла его наклона, а так же заданными внутренним и внешним радиусом диска и расстоянием до источника \\
+		TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double\& B, const double\& concentration, const double\& sinTheta, const double\& rho, const double\& rhoin, const double\& distance, const double\& velocity = 0) &  конструктор, возвращает экземпляр с заданными однородными распределением частиц, магнитным полем, синусом угла его наклона, а так же заданными внутренним и внешним радиусом шарового слоя, расстоянием до источника и скоростью движения вещества\\
 		\hline
 		\textbf{AngleDependentElectronsSphericalSource} & Класс для источников в форме шарового слоя с таблично заданными значениями концентрации и магнитного поля и функцией распределения излучающих частиц, зависящей от угла наклона магнитного поля к направлению распространения ударной волны\\
 		\hline
-		AngleDependentElectronsSphericalSource( int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, double*** B, double*** sinTheta, double*** phi, double*** concentration, const double\& rho, const double\& rhoin, const double\& distance) & конструктор, возвращает экземпляр с заданными с помощью массивов магнитным полем, синусом угла его наклона к лучу зрения, а так же заданными внешним и внутренним радиусом диска и расстоянием до источника. Распределение частиц задается в виде массива табличных значений в зависимости от угла наклона магнитного поля к направлению распространения ударной волны\\
+		AngleDependentElectronsSphericalSource( int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleDistribution** electronDistributions, double*** B, double*** sinTheta, double*** phi, double*** concentration, const double\& rho, const double\& rhoin, const double\& distance, const double\& velocity = 0) & конструктор, возвращает экземпляр с заданными с помощью массивов магнитным полем, синусом угла его наклона к лучу зрения, а так же заданными внешним и внутренним радиусом шарового слоя, расстоянием до источника и скоростью движения вещества. Распределение частиц задается в виде массива табличных значений в зависимости от угла наклона магнитного поля к направлению распространения ударной волны\\
 		\hline
-		AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleIsotropicDistribution** electronDistributions, const double\& B, const double\& sinTheta, const double\& phi, const double\& concentration, const double\& rho, const double\& rhoin, const double\& distance) & конструктор, возвращает экземпляр с заданными однородными  магнитным полем, синусом угла его наклона, а так же заданными внутренним и внешним радиусом диска и расстоянием до источника. Распределение частиц задается в виде массива табличных значений в зависимости от угла наклона магнитного поля к направлению распространения ударной волны\\
+		AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleDistribution** electronDistributions, const double\& B, const double\& sinTheta, const double\& phi, const double\& concentration, const double\& rho, const double\& rhoin, const double\& distance, const double\& velocity = 0) & конструктор, возвращает экземпляр с заданными однородными  магнитным полем, синусом угла его наклона, а так же заданными внутренним и внешним радиусом шарового слоя, расстоянием до источника и скоростью движения вещества. Распределение частиц задается в виде массива табличных значений в зависимости от угла наклона магнитного поля к направлению распространения ударной волны\\
+		\hline
+		\textbf{TabulatedSLSourceWithSynchCutoff} & Класс для источников в форме шарового слоя с таблично заданными значениями параметров и учетом синхротронных потерь энергии частиц\\
+		\hline
+		TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double\& rho, const double\& rhoin, const double\& distance, const double\& downstreamVelocity, const double\& velocity = 0) & конструктор, возвращает экземпляр с заданными с помощью массивов распределением частиц, магнитным полем, синусом угла его наклона к лучу зрения, а так же заданными внешним и внутренним радиусом шарового слоя, расстоянием до источника, скоростью конвекции частиц и скоростью движения вещества\\
+		\hline
+		TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double\& B, const double\& concentration, const double\& theta, const double\& rho, const double\& rhoin, const double\& distance, const double\& downstreamVelocity, const double\& velocity = 0) & конструктор, возвращает экземпляр с заданными однородными распределением частиц, магнитным полем, синусом угла его наклона, а так же заданными внутренним и внешним радиусом шарового слоя, расстоянием до источника, скоростью конвекции частиц и скоростью движения вещества\\
+		\hline
+		\textbf{SectoralSphericalLayerSource} & абстрактный класс для источников в форме сектора шарового слоя (дольки апельсина)\\
+		\hline
+		double getRhoin() & возвращает внутренний радиус шарового слоя\\
+		\hline
+		\textbf{TabulatedSectoralSphericalLayerSource} & Класс для источников в форме сектора шарового слоя с таблично заданными значениями параметров\\
+		\hline
+		TabulatedSectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double\& rho, const double\& rhoin, const double\& minrho, const double\& phi, const double\& distance, const double\& velocity = 0) & конструктор, возвращает экземпляр с заданными с помощью массивов распределением частиц, магнитным полем, синусом угла его наклона к лучу зрения, а так же заданными внешним и внутренним радиусом шарового слоя, углом раствора сектора, расстоянием до источника и скоростью движения вещества\\
+		TabulatedSectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double\& B, const double\& concentration, const double\& theta, const double\& rho, const double\& rhoin, const double\& minrho, const double\& phi, const double\& distance, const double\& velocity = 0) & конструктор, возвращает экземпляр с заданными однородными распределением частиц, магнитным полем, синусом угла его наклона, а так же заданными внутренним и внешним радиусом шарового слоя, углом раствора сектора, расстоянием до источника и скоростью движения вещества\\
+		\hline
+		\textbf{TabulatedSectoralSLSourceWithSynchCutoff} & Класс для источников в форме сектора шарового слоя с таблично заданными значениями параметров и учетом синхротронных потерь энергии частиц\\
+		\hline
+		TabulatedSectoralSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double\& rho, const double\& rhoin, const double\& minrho, const double\& phi, const double\& distance, const double\& downstreamVelocity, const double\& velocity = 0) & конструктор, возвращает экземпляр с заданными с помощью массивов распределением частиц, магнитным полем, синусом угла его наклона к лучу зрения, а так же заданными внешним и внутренним радиусом шарового слоя, углом раствора сектора, расстоянием до источника, скоростью конвекции частиц и скоростью движения вещества\\
+		\hline
+		TabulatedSectoralSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double\& B, const double\& concentration, const double\& theta, const double\& rho, const double\& rhoin, const double\& minrho, const double\& phi, const double\& distance, const double\& downstreamVelocity, const double\& velocity = 0) & конструктор, возвращает экземпляр с заданными однородными распределением частиц, магнитным полем, синусом угла его наклона, а так же заданными внутренним и внешним радиусом шарового слоя, углом раствора сектора, расстоянием до источника, скоростью конвекции частиц и скоростью движения вещества\\
 		\hline
 	\end{xtabular}
 \end{small}
@@ -485,7 +521,7 @@ FAINA позволяет рассчитывать электромагнитно
 		\hline
 		\textbf{RadiationTimeDependentSource} & Абстрактный класс для учета изменений источников излучения со временем\\
 		\hline
-		virtual resetParameters(const double* parameters, const double* normalizationUnits) & чисто виртуальный метод, меняющий параметры источника. Список параметров, их количество, их влияние на источник определяются пользователем в конкретных реализациях класса. Принимет массив параметров и массив единиц в которых они измеряны. Данный метод применяется в процедурах оптимизации\\
+		virtual resetParameters(const double* parameters, const double* normalizationUnits) & чисто виртуальный метод, меняющий параметры источника. Список параметров, их количество, их влияние на источник определяются пользователем в конкретных реализациях класса. Принимает массив параметров и массив единиц в которых они измерены. Данный метод применяется в процедурах оптимизации\\
 		\hline
 		virtual getRadiationSource(double\& time, const double* normalizationUnits) & возвращает источник излучения с параметрами соответствующими заданному моменту времени. Так же принимает на вход массив единиц, в которых измеряются параметры этого источника.\\
 		\hline
