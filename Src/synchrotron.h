@@ -51,16 +51,16 @@ const double UvarovValue[Napprox] = { 0.0021495, 0.00367, 0.00463, 0.00792, 0.00
 class SynchrotronEvaluator : public RadiationEvaluator{
 protected:
 	bool my_selfAbsorption;
-	double my_defaultB;
-	double my_defaultSinTheta;
-	double my_defaultLength;
+	//double my_defaultB;
+	//double my_defaultSinTheta;
+	//double my_defaultLength;
 	bool my_doppler;
 public:
-	SynchrotronEvaluator(int Ne, double Emin, double Emax, bool selfAbsorption = true, bool doppler = false, const double& defaultB = 0, const double& defaultSinTheta = 1.0, const double& defaultLength = 0);
+	SynchrotronEvaluator(int Ne, double Emin, double Emax, bool selfAbsorption = true, bool doppler = false);
     virtual ~SynchrotronEvaluator();
-    void resetParameters(const double *parameters, const double *normalizationUnits);
 	void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, const double& concentration, MassiveParticleIsotropicDistribution* electronDistribution, double& I, double& A);
-    double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
+    void resetParameters(const double *parameters, const double *normalizationUnits);
+    //double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
 	virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
 };
 

@@ -111,12 +111,12 @@ double criticalNu(const double& E, const double& sinhi, const double& H, const d
 	return coef * H * sinhi * E * E;
 }
 
-SynchrotronEvaluator::SynchrotronEvaluator(int Ne, double Emin, double Emax, bool selfAbsorption, bool doppler, const double& defaultB, const double& defaultSinTheta, const double& defaultLength):RadiationEvaluator(Ne, Emin, Emax)
+SynchrotronEvaluator::SynchrotronEvaluator(int Ne, double Emin, double Emax, bool selfAbsorption, bool doppler):RadiationEvaluator(Ne, Emin, Emax)
 {
 	my_selfAbsorption = selfAbsorption;
-	my_defaultB = defaultB;
-	my_defaultSinTheta = defaultSinTheta;
-	my_defaultLength = defaultLength;
+	//my_defaultB = defaultB;
+	//my_defaultSinTheta = defaultSinTheta;
+	//my_defaultLength = defaultLength;
 	my_doppler = doppler;
 }
 
@@ -259,7 +259,7 @@ void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFre
     }
 }
 
-double SynchrotronEvaluator::evaluateFluxFromIsotropicFunction(const double &photonFinalEnergy, MassiveParticleIsotropicDistribution *electronDistribution, const double &volume, const double &distance)
+/*double SynchrotronEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance)
 {
 	printf("don't use direct flux evaluation with distribution for synchrotron radiation\n");
 	printLog("don't use direct flux evaluation with distribution for synchrotron radiation\n");
@@ -292,77 +292,6 @@ double SynchrotronEvaluator::evaluateFluxFromIsotropicFunction(const double &pho
 	}
 
     return localI/sqr(distance);
-}
-
-/*double SynchrotronEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)
-{
-	int Nrho = source->getNrho();
-	int Nz = source->getNz();
-	int Nphi = source->getNphi();
-    double photonFinalFrequency = photonFinalEnergy/hplank;
-
-
-	double result = 0;
-	int irho = 0;
-
-	omp_init_lock(&my_lock);
-#pragma omp parallel for private(irho) shared(photonFinalEnergy, source, Nrho, Nz, Nphi, photonFinalFrequency) reduction(+:result)
-
-	for (irho = 0; irho < Nrho; ++irho) {
-		for (int iphi = 0; iphi < Nphi; ++iphi) {
-			double localI = 0;
-			for (int iz = 0; iz < Nz; ++iz) {
-				double area = source->getArea(irho, iz, iphi);
-				double A = 0;
-				double I = 0;
-				double v;
-				double theta;
-				double phi;
-				source->getVelocity(irho, iz, iphi, v, theta, phi);
-				if (!my_doppler) {
-					v = 0;
-				}
-				double beta = v / speed_of_light;
-				double gamma = 1.0 / sqrt(1 - beta * beta);
-				double mu = cos(theta);
-
-				double D = gamma * (1.0 - beta * mu);
-				double photonFinalFrequencyPrimed = photonFinalFrequency * D;
-				//evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), source->getParticleDistribution(irho, iz, iphi), I, A);
-				evaluateSynchrotronIandA(photonFinalFrequencyPrimed, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), source->getParticleDistribution(irho, iz, iphi), I, A);
-				double length = source->getLength(irho, iz, iphi);
-				if (length > 0) {
-					if (my_selfAbsorption) {
-						double I0 = localI*D*D;
-						double Q = I * area;
-						//todo lorentz length
-						double lnorm = fabs(length * sin(theta));
-						double lpar = fabs(length * cos(theta));
-						double lengthPrimed = sqrt(lnorm * lnorm + lpar * lpar * gamma * gamma);
-						double tau = A * lengthPrimed;
-						double S = 0;
-						if (A > 0) {
-							S = Q / A;
-						}
-						if (fabs(tau) < 1E-10) {
-							localI = (I0 * (1.0 - tau) + S * tau)/(D*D);
-						}
-						else {
-							localI = (S + (I0 - S) * exp(-tau))/(D*D);
-						}
-					}
-					else {
-						localI = localI + I * area * length/(D*D);
-					}
-				}
-			}
-			result += localI;
-		}
-	}
-
-	omp_destroy_lock(&my_lock);
-
-	return result / sqr(source->getDistance());
 }*/
 
 double SynchrotronEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi) {

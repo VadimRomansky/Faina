@@ -208,7 +208,7 @@ void evaluateFluxSNRtoWind() {
 	bool optPar[Nparams] = { false, true, true, false, false };
 	int Niterations = 5;
 	//creating KPIevaluator
-	KPIevaluator* KPIevaluator = new SpectrumKPIevaluator(energy1, observedFlux1, observedError1, Nenergy1, source);
+	LossEvaluator* KPIevaluator = new SpectrumLossEvaluator(energy1, observedFlux1, observedError1, Nenergy1, source);
 	//creating gradient descent optimizer
 	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	//RadiationOptimizer* synchrotronOptimizer = new CoordinateRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
@@ -855,7 +855,7 @@ void fitTychoProfile() {
 
 	bool optPar[Nparams] = { true, true, true, false, false };
 	int Niterations = 5;
-	KPIevaluator* KPIevaluator = new RadialProfileKPIevaluator(energyPoints[0], observedFlux, observedError, rhoPoints, Ndata, source);
+	LossEvaluator* KPIevaluator = new RadialProfileLossEvaluator(energyPoints[0], observedFlux, observedError, rhoPoints, Ndata, source);
 	GradientDescentRadiationOptimizer* optimizer = new GradientDescentRadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	int Npoints[Nparams] = { 5,5,5,10,2 };
 	GridEnumRadiationOptimizer* gridOptimizer = new GridEnumRadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);

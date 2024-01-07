@@ -8,7 +8,7 @@
 
 #include "KPIevaluator.h"
 
-SpectrumKPIevaluator::SpectrumKPIevaluator(double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* radiationSource) {
+SpectrumLossEvaluator::SpectrumLossEvaluator(double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* radiationSource) {
 	my_Ne = Ne;
 	my_energy = new double[my_Ne];
 	my_observedFlux = new double[my_Ne];
@@ -21,14 +21,14 @@ SpectrumKPIevaluator::SpectrumKPIevaluator(double* energy, double* observedFlux,
 	my_radiationSource = radiationSource;
 }
 
-SpectrumKPIevaluator::~SpectrumKPIevaluator()
+SpectrumLossEvaluator::~SpectrumLossEvaluator()
 {
 	delete[] my_energy;
 	delete[] my_observedFlux;
 	delete[] my_observedError;
 }
 
-double SpectrumKPIevaluator::evaluate(const double* vector, const double* maxParameters, RadiationEvaluator* evaluator)
+double SpectrumLossEvaluator::evaluate(const double* vector, const double* maxParameters, RadiationEvaluator* evaluator)
 {
 	double* totalInu = new double[my_Ne];
 
@@ -54,7 +54,7 @@ double SpectrumKPIevaluator::evaluate(const double* vector, const double* maxPar
 	return err;
 }
 
-RadialProfileKPIevaluator::RadialProfileKPIevaluator(double energy, double* observedFlux, double* observedError, double* rhoPoints, int Nrho, RadiationSource* radiationSource)
+RadialProfileLossEvaluator::RadialProfileLossEvaluator(double energy, double* observedFlux, double* observedError, double* rhoPoints, int Nrho, RadiationSource* radiationSource)
 {
 	my_energy = energy;
 	my_Nrho = Nrho;
@@ -69,14 +69,14 @@ RadialProfileKPIevaluator::RadialProfileKPIevaluator(double energy, double* obse
 	my_radiationSource = radiationSource;
 }
 
-RadialProfileKPIevaluator::~RadialProfileKPIevaluator()
+RadialProfileLossEvaluator::~RadialProfileLossEvaluator()
 {
 	delete[] my_observedFlux;
 	delete[] my_observedError;
 	delete[] my_rhoPoints;
 }
 
-double RadialProfileKPIevaluator::evaluate(const double* vector, const double* maxParameters, RadiationEvaluator* evaluator)
+double RadialProfileLossEvaluator::evaluate(const double* vector, const double* maxParameters, RadiationEvaluator* evaluator)
 {
 	double* totalInu = new double[my_Nrho];
 
@@ -109,7 +109,7 @@ double RadialProfileKPIevaluator::evaluate(const double* vector, const double* m
 	return err;
 }
 
-TimeDependentSpectrumKPIevaluator::TimeDependentSpectrumKPIevaluator(double** energy, double** observedFlux, double** observedError, int* Ne, double* times, int Ntimes, RadiationTimeDependentSource* radiationSource)
+TimeDependentSpectrumLossEvaluator::TimeDependentSpectrumLossEvaluator(double** energy, double** observedFlux, double** observedError, int* Ne, double* times, int Ntimes, RadiationTimeDependentSource* radiationSource)
 {
 	my_Ntimes = Ntimes;
 
@@ -133,7 +133,7 @@ TimeDependentSpectrumKPIevaluator::TimeDependentSpectrumKPIevaluator(double** en
 	my_radiationSource = radiationSource;
 }
 
-TimeDependentSpectrumKPIevaluator::~TimeDependentSpectrumKPIevaluator()
+TimeDependentSpectrumLossEvaluator::~TimeDependentSpectrumLossEvaluator()
 {
 	for (int i = 0; i < my_Ntimes; ++i) {
 		delete[] my_energy[i];
@@ -148,7 +148,7 @@ TimeDependentSpectrumKPIevaluator::~TimeDependentSpectrumKPIevaluator()
 	delete[] my_Ne;
 }
 
-double TimeDependentSpectrumKPIevaluator::evaluate(const double* vector, const double* maxParameters, RadiationEvaluator* evaluator)
+double TimeDependentSpectrumLossEvaluator::evaluate(const double* vector, const double* maxParameters, RadiationEvaluator* evaluator)
 {
 	my_radiationSource->resetParameters(vector, maxParameters);
 	evaluator->resetParameters(vector, maxParameters);

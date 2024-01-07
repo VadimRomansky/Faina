@@ -303,7 +303,7 @@ void fitCSS161010withPowerLawDistribition() {
 	bool optPar[Nparams] = { false, true, true, true };
 	int Niterations = 20;
 	//creating KPIevaluator
-	KPIevaluator* KPIevaluator = new SpectrumKPIevaluator(energy1, observedFlux, observedError, Nenergy1, source);
+	LossEvaluator* KPIevaluator = new SpectrumLossEvaluator(energy1, observedFlux, observedError, Nenergy1, source);
 	//creating gradient descent optimizer
 	RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	//number of points per axis in gridEnumOptimizer
@@ -495,7 +495,7 @@ void fitCSS161010withTabulatedDistributions() {
 	bool optPar[Nparams] = { false, true, true, false };
 	int Niterations = 10;
 	//creating KPIevaluator
-	KPIevaluator* KPIevaluator = new SpectrumKPIevaluator(energy1, observedFlux, observedError, Nenergy1, angleDependentSource);
+	LossEvaluator* KPIevaluator = new SpectrumLossEvaluator(energy1, observedFlux, observedError, Nenergy1, angleDependentSource);
 	//creating gradient descent optimizer
 	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	//number of points per axis in gridEnumOptimizer
@@ -689,7 +689,7 @@ void fitTimeDependentCSS161010() {
 	double Emin = me_c2;
 	double Emax = 10000 * me_c2;
 	//creating KPI evaluator
-	KPIevaluator* KPIevaluator = new TimeDependentSpectrumKPIevaluator(energy, F, Error, Nenergy, times, Ntimes, source);
+	LossEvaluator* KPIevaluator = new TimeDependentSpectrumLossEvaluator(energy, F, Error, Nenergy, times, Ntimes, source);
 	//creating time dependent synchrotron evaluator
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax, true, true);
 	//creating time depedent grid enumeration optimizer, which will chose the best starting poin for gradien descent

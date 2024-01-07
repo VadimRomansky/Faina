@@ -12,9 +12,9 @@
 #include "optimization.h"
 
 
-RadiationOptimizer::RadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, KPIevaluator* KPIevaluator) {
+RadiationOptimizer::RadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, LossEvaluator* KPIevaluator) {
 	my_evaluator = evaluator;
-	my_KPIevaluator = KPIevaluator;
+	my_lossEvaluator = KPIevaluator;
 	my_Nparams = Nparams;
 	my_minParameters = new double[my_Nparams];
 	my_maxParameters = new double[my_Nparams];
@@ -32,7 +32,7 @@ RadiationOptimizer::~RadiationOptimizer() {
 }
 
 double RadiationOptimizer::evaluateOptimizationFunction(const double* vector) {
-	return my_KPIevaluator->evaluate(vector, my_maxParameters, my_evaluator);
+	return my_lossEvaluator->evaluate(vector, my_maxParameters, my_evaluator);
 }
 
 
@@ -182,7 +182,7 @@ void RadiationOptimizer::outputOptimizedProfileDiagram(const double* vector, boo
 	delete[] paramPoints;
 }
 
-GradientDescentRadiationOptimizer::GradientDescentRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, KPIevaluator* KPIevaluator) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, KPIevaluator) {
+GradientDescentRadiationOptimizer::GradientDescentRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, LossEvaluator* KPIevaluator) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, KPIevaluator) {
 	my_Niterations = Niterations;
 
 	tempVector = new double[my_Nparams];
@@ -629,7 +629,7 @@ void GradientDescentRadiationOptimizer::optimize(double* vector, bool* optPar) {
 	printLog("finish optimization\n");
 }
 
-GridEnumRadiationOptimizer::GridEnumRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints, KPIevaluator* KPIevaluator) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, KPIevaluator)
+GridEnumRadiationOptimizer::GridEnumRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints, LossEvaluator* KPIevaluator) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, KPIevaluator)
 {
 	my_Npoints = new int[my_Nparams];
 	for (int i = 0; i < my_Nparams; ++i) {
@@ -924,14 +924,14 @@ void CoordinateRadiationOptimizer::gradientStep(int iterationNumber, const doubl
 	}
 }
 
-CoordinateRadiationOptimizer::CoordinateRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, KPIevaluator* KPIevaluator) : GradientDescentRadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator) {
+CoordinateRadiationOptimizer::CoordinateRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, LossEvaluator* KPIevaluator) : GradientDescentRadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator) {
 
 }
 CoordinateRadiationOptimizer::~CoordinateRadiationOptimizer(){
 
 }
 
-CombinedRadiationOptimizer::CombinedRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, const int* Npoints, KPIevaluator* KPIevaluator) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, KPIevaluator)
+CombinedRadiationOptimizer::CombinedRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, const int* Npoints, LossEvaluator* KPIevaluator) : RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, KPIevaluator)
 {
 	my_EnumOptimizer = new GridEnumRadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
 	my_GradientOptimzer = new GradientDescentRadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);

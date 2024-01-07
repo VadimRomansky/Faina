@@ -17,9 +17,9 @@ protected:
 	double* my_maxParameters;
 
 	double* my_minVector;
-	KPIevaluator* my_KPIevaluator;
+	LossEvaluator* my_lossEvaluator;
 public:
-    RadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, KPIevaluator* KPIevaluator);
+    RadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, LossEvaluator* KPIevaluator);
     virtual ~RadiationOptimizer();
 	virtual double evaluateOptimizationFunction(const double* vector);
 	virtual void optimize(double* vector, bool* optPar) = 0;
@@ -44,7 +44,7 @@ protected:
 	double getDerivativeByCoordinate(double* vector, int direction);
 	virtual void gradientStep(int iterationNumber, const double& currentF, double* vector, bool* optPar);
 public:
-    GradientDescentRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, KPIevaluator* KPIevaluator);
+    GradientDescentRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, LossEvaluator* lossEvaluator);
     virtual ~GradientDescentRadiationOptimizer();
 	virtual void optimize(double* vector, bool* optPar);
 };
@@ -54,7 +54,7 @@ protected:
 	void findMinParametersAtCoordinate(double* vector, bool* optPar, const double& der, int ncoord, const double& currentF);
 	virtual void gradientStep(int iterationNumber, const double& currentF, double* vector, bool* optPar);
 public:
-	CoordinateRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, KPIevaluator* KPIevaluator);
+	CoordinateRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, LossEvaluator* lossEvaluator);
 	virtual ~CoordinateRadiationOptimizer();
 	//virtual void optimize(double* vector, bool* optPar, double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* source);
 };
@@ -64,7 +64,7 @@ protected:
 	int* my_Npoints;
 	double** my_points;
 public:
-    GridEnumRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints, KPIevaluator* KPIevaluator);
+    GridEnumRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints, LossEvaluator* lossEvaluator);
     virtual ~GridEnumRadiationOptimizer();
 	virtual void optimize(double* vector, bool* optPar);
 };
@@ -74,7 +74,7 @@ protected:
 	GradientDescentRadiationOptimizer* my_GradientOptimzer;
 	GridEnumRadiationOptimizer* my_EnumOptimizer;
 public:
-	CombinedRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, const int* Npoints, KPIevaluator* KPIevaluator);
+	CombinedRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, const int* Npoints, LossEvaluator* lossEvaluator);
 	//CombinedRadiationOptimizer(GridEnumRadiationOptimizer* enumOptimizer, GradientDescentRadiationOptimizer* gradientOptimizer);
 	virtual ~CombinedRadiationOptimizer();
 	virtual void optimize(double* vector, bool* optPar);

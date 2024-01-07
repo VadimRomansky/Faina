@@ -4,12 +4,12 @@
 #include "radiation.h"
 #include "radiationSource.h"
 
-class KPIevaluator {
+class LossEvaluator {
 public:
 	virtual double evaluate(const double* vector, const double* maxParameters, RadiationEvaluator* evaluator) = 0;
 };
 
-class SpectrumKPIevaluator : public KPIevaluator {
+class SpectrumLossEvaluator : public LossEvaluator {
 protected:
 	RadiationSource* my_radiationSource;
 	int my_Ne;
@@ -17,13 +17,13 @@ protected:
 	double* my_observedFlux;
 	double* my_observedError;
 public:
-	SpectrumKPIevaluator(double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* radiatiornSource);
-	~SpectrumKPIevaluator();
+	SpectrumLossEvaluator(double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* radiatiornSource);
+	~SpectrumLossEvaluator();
 
 	virtual double evaluate(const double* vector, const double* maxParameters, RadiationEvaluator* evaluator);
 };
 
-class TimeDependentSpectrumKPIevaluator : public KPIevaluator {
+class TimeDependentSpectrumLossEvaluator : public LossEvaluator {
 protected:
 	RadiationTimeDependentSource* my_radiationSource;
 	int my_Ntimes;
@@ -33,13 +33,13 @@ protected:
 	double** my_observedFlux;
 	double** my_observedError;
 public:
-	TimeDependentSpectrumKPIevaluator(double** energy, double** observedFlux, double** observedError, int* Ne, double* times, int Ntimes, RadiationTimeDependentSource* radiationSource);
-	~TimeDependentSpectrumKPIevaluator();
+	TimeDependentSpectrumLossEvaluator(double** energy, double** observedFlux, double** observedError, int* Ne, double* times, int Ntimes, RadiationTimeDependentSource* radiationSource);
+	~TimeDependentSpectrumLossEvaluator();
 
 	virtual double evaluate(const double* vector, const double* maxParameters, RadiationEvaluator* evaluator);
 };
 
-class RadialProfileKPIevaluator : public KPIevaluator {
+class RadialProfileLossEvaluator : public LossEvaluator {
 protected:
 	RadiationSource* my_radiationSource;
 	int my_Nrho;
@@ -48,8 +48,8 @@ protected:
 	double* my_observedError;
 	double* my_rhoPoints;
 public:
-	RadialProfileKPIevaluator(double energy, double* observedFlux, double* observedError, double* rhoPoints, int Nrho, RadiationSource* radiaionSource);
-	~RadialProfileKPIevaluator();
+	RadialProfileLossEvaluator(double energy, double* observedFlux, double* observedError, double* rhoPoints, int Nrho, RadiationSource* radiaionSource);
+	~RadialProfileLossEvaluator();
 
 	virtual double evaluate(const double* vector, const double* maxParameters, RadiationEvaluator* evaluator);
 };
