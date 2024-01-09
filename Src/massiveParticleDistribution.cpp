@@ -377,17 +377,17 @@ MassiveParticleMaxwellDistribution::MassiveParticleMaxwellDistribution(const dou
 
 double MassiveParticleMaxwellDistribution::distributionNormalized(const double& energy)
 {
-	return my_A*sqrt(energy)*exp(-energy/(kBoltzman*my_temperature));
+	return my_A*sqrt((energy- my_mass*speed_of_light2))*exp(-(energy-my_mass*speed_of_light2)/(kBoltzman*my_temperature));
 }
 
 double MassiveParticleMaxwellDistribution::getMeanEnergy()
 {
-	return 3.0 * kBoltzman * my_temperature / 2.0;
+	return my_mass*speed_of_light2*3.0 * kBoltzman * my_temperature / 2.0;
 }
 
 double MassiveParticleMaxwellDistribution::minEnergy()
 {
-	return 0.0;
+	return my_mass*speed_of_light2;
 }
 
 double MassiveParticleMaxwellDistribution::maxEnergy()

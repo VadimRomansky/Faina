@@ -51,7 +51,7 @@ double SpectrumLossEvaluator::evaluate(const double* vector, const double* maxPa
 
 	delete[] totalInu;
 
-	return err;
+	return err/my_Ne;
 }
 
 RadialProfileLossEvaluator::RadialProfileLossEvaluator(double energy, double* observedFlux, double* observedError, double* rhoPoints, int Nrho, RadiationSource* radiationSource)

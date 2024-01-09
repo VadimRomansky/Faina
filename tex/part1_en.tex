@@ -82,58 +82,55 @@ Methods of PhotonDistribution and it's inherited classes are listed in Table \re
 				\hline
 				virtual double distributionNormalized(const double\& energy) & virtual method, returns probability density function in polar coordinates with dropped angular arguments (mormalized to the $1/4\pi$)\\
 				\hline
-				void writeDistribution(const char* fileName, int Ne, const double\& Emin, const double\& Emax) & записывает распределение в файл в виде двух столбцов с точками распределенными логарифмически\\
+				void writeDistribution(const char* fileName, int Ne, const double\& Emin, const double\& Emax) & writes distribution into given file as to columns - energy and distribution from Emin to Emax with Ne logarithmically distributed points\\
 				\hline
-				\textbf{PhotonPowerLawDistribution} & Класс для степенного распределения фотонов\\
+				\textbf{PhotonPowerLawDistribution} & class representing powerlaw distribution of photons\\
 				\hline
-				PhotonPowerLawDistribution(const double\& index, const double\& E0, const double\& concentration) & конструктор, создающий экземпляр с заданными показателем наклона, начальной энергией и полной концентрацией \\
+				PhotonPowerLawDistribution(const double\& index, const double\& E0, const double\& concentration) & constructor, creates distribution with given power-law index p such as $F(E)~1/E^p$, starting energy and number density \\
 				\hline
-				double getIndex() & возвращает показатель наклона спектра\\
+				double getIndex() & returns power-law index\\
 				\hline
-				double getE0() & возвращает минимальную энергию степенного распределения\\
+				double getE0() & returns starting energy of distribution\\
 				\hline
-				\textbf{PhotonPlankDistribution} & Класс для планковского распределения фотонов\\
+				\textbf{PhotonPlankDistribution} & class representing Plank distribution\\
 				\hline
-				PhotonPlankDistribution(const double\& temperature, const double\& amplitude) & конструктор, создающий экземпляр с заданными температурой и апмплитудой - то есть отношением концентрации к равновесному планковскому распределению с данной температурой\\
+				PhotonPlankDistribution(const double\& temperature, const double\& amplitude) & constructor, creates distribution with given temperature and amplitude - relation of number density to the number density of photons in equilibrium black-body radiation\\
 				\hline
-				static PhotonPlankDistribution* getCMBRadiation() & статический метод, возвращающий экземпляр, соответствующий реликтовому излучению (температура $2.725 K$, амплитуда $1$)\\
+				static PhotonPlankDistribution* getCMBRadiation() & static method, returns object representing Cosmic Microwave Background Radiation (temperature $2.725~\rm K$, amplitude $1$)\\
 				\hline
-				double getTemperature() & возвращает температуру распределения\\
+				double getTemperature() & returns temperature of distribution\\
 				\hline
-				\textbf{PhotonMultiPlankDistribution} & Класс для распределения фотонов, состоящего из суммы планковских распределений\\
+				\textbf{PhotonMultiPlankDistribution} & class representing sum of several Plank distributions\\
 				\hline
-				PhotonMultiPlankDistribution(int Nplank, const double* const temperatures, const double* const amplitudes) & конструктор, принимающий количество планковских распределений, участвующих в смеси, массив их температур и массив амплитуд\\
+				PhotonMultiPlankDistribution(int N, const double* const temperatures, const double* const amplitudes) & constructor, creates distribution constisting of N plank distributions with given temperatures and amplitudes\\
 				\hline
-				static PhotonMultiPlankDistribution* getGalacticField() & статический метод, возвращающий экземпляр, соответствующий среднегалактическому фотонному распределению, по данным статьи \cite{Mathis1983}. Данное распределение состоит из пяти планковских компонент, с температурами $2.725K, 20K, 3000K, 4000K, 7000K$ и амплитудами $1.0, 4\cdot10^{4}, 4\cdot10^{-13}, 1.65\cdot10^{-13}, 1.0\cdot10^{-14}$ соответственно\\
+				static PhotonMultiPlankDistribution* getGalacticField() & static method, returns object representing mean Galactic photon field described in \cite{Mathis1983}. This distribution consists of five plank components with temperatures $2.725K, 20K, 3000K, 4000K, 7000K$ and amplitudes $1.0, 4\cdot10^{-4}, 4\cdot10^{-13}, 1.65\cdot10^{-13}, 1.0\cdot10^{-14}$ respectively\\
 				\hline
-				\textbf{PhotonMonoenergeticDistribution} & Класс для моноэнергетического изотропного распределения фотонов\\
+				\textbf{PhotonMonoenergeticDistribution} & class representing population of isotropic photons with close energy\\
 				\hline
-				PhotonMonoenergeticDistribution(const double\& Energy, const double\& halfWidth, const double\& concentration) & конструктор, принимающий среднюю энергию распределения, полуширину разброса вокруг нее и концентрацию\\
+				PhotonMonoenergeticDistribution(const double\& Energy, const double\& halfWidth, const double\& concentration) & constructor, creates object with given mean energy, half-width of uniform distribution around mean energy and number density\\
 				\hline
-				\textbf{CompoundPhotonDistribution} & Класс для распределения фотонов, состоящего из суммы других распределений\\
+				\textbf{CompoundPhotonDistribution} & class representing sum of several arbitrary distributions\\
 				\hline
-				CompoundPhotonDistribution(int N, PhotonDistribution** distributions) & конструктор, создающий экземпляр с заданным количеством распределений в смеси и массивом этих распределений \\
+				CompoundPhotonDistribution(int N, PhotonDistribution** distributions) & constructor, creates distribution consisting of N arbitrary distributions\\
 				\hline
-				CompoundPhotonDistribution( PhotonDistribution* dist1, PhotonDistribution* dist2) & конструктор, создающий экземпляр содержащий смесь из двух распределений\\
+				CompoundPhotonDistribution( PhotonDistribution* dist1, PhotonDistribution* dist2) & constructor, creates distribution which is sum of two given distributions\\
 				\hline
-				CompoundPhotonDistribution( PhotonDistribution* dist1, PhotonDistribution* dist2, PhotonDistribution* dist3) & конструкторб создающий экземпляр содержащий смесь из трех распределений\\
+				CompoundPhotonDistribution( PhotonDistribution* dist1, PhotonDistribution* dist2, PhotonDistribution* dist3) & constructor, creats distribution which is sum of three given distributions\\
 				\hline
-				\textbf{PhotonPlankDirectedDistribution} & Класс для направленного планковского распределения фотонов\\
+				\textbf{PhotonPlankDirectedDistribution} & class representing distribution which is Plank-like with respect to energy, but collimated into given direction\\
 				\hline
-				PhotonPlankDirectedDistribution(const double\& temperature, const double\& amplitude, const double\& theta0, const double\& phi0, const double\& deltaTheta) & конструктор, принимающий температуру, амплитуду, углы задающие направление излучения и угол задающий полуширину раствора конуса излучения\\
+				PhotonPlankDirectedDistribution(const double\& temperature, const double\& amplitude, const double\& theta0, const double\& phi0, const double\& deltaTheta) & constructor, creates distribution with given temperature, amplitude, angles determining mean direction of photons and half-width angle of cone in which photons propagate\\
 				\hline
-				double getTemperature() & возвращает температуру распределения\\
+				double getTemperature() & return temperature of distribution\\
 				\hline
 	\end{xtabular}
 \end{small}
 
-Класс CompoundPhotonDistribution предназначен для представления смеси различных распределений фотонов, не обязательно планковских, как PhotonMultiPlankDistribution, и не обязательно изотропных. Его методы описаны в Таблице \ref{CompoundPhotonMethods}
+User can define other photons distribution, creating class inherited from PhotonDistribution or PhotonIsotropicDistribution and overriding virtual method distributionNormalized.
 
 
-Единственное реализованное в коде анизотропное распределение фотонов - это PhotonPlankDirectedDistribution, представляющий направленное планковское излучение. Пользователь может реализовать другие виды анизотропных излучений самостоятельно, создав класс, наследующий от PhotonDistribution и определив необходимый виртуальный метод distributionNormalized(const double\& energy, const double\& mu, const double\& phi). Методы класса PhotonPlankDirectedDistribution описаны в Таблице \ref{PhotonPlankDirectedDistributionMethods}
-
-
-\subsection{Распределения массивных частиц}
+\subsection{Distributions of massive particles}
 Распределения массивных частиц представлены наследниками класса MassiveParticleDistribution. Так же как и в случае с фотонами важную роль играет абстрактный клас для представления изотропных распределений - MassiveParticleIsotropicDistribution. У этого класса есть методы возвращающие значение функции распределения в зависимости от энергии, и опять же, это не функция распределения, проинтегрированная по углам, а полная функция распределения с отброшенными угловыми аргументами. Для получения значения функции распределения по энергии нужно домножить значение, возвращенное данным методом на $4 \pi$. 
 
 \begin{small}

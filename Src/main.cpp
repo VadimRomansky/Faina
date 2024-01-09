@@ -225,7 +225,7 @@ void evaluateFluxSNRtoWind() {
 	
 	//enumOptimizer->optimize(vector, optPar, source);
 	//gradient descent optimization
-	synchrotronOptimizer->optimize(vector, optPar);
+	//synchrotronOptimizer->optimize(vector, optPar);
 	//reseting source parameters to found values
 	//synchrotronOptimizer->outputProfileDiagrams(vector, source, 10);
 	//synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, source, 10, 1, 2);
