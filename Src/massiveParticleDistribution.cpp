@@ -26,7 +26,7 @@ void MassiveParticleIsotropicDistribution::writeDistribution(const char* fileNam
 	delete[] energy;
 }
 
-double MassiveParticleIsotropicDistribution::distributionNormalizedTransformedByLosses(const double& energy, const double& lossRate, const double& time)
+double MassiveParticleIsotropicDistribution::distributionNormalizedWithLosses(const double& energy, const double& lossRate, const double& time)
 {
 	double factor = energy * lossRate * time;
 	if (factor >= 1) {

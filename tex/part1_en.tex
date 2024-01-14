@@ -131,125 +131,82 @@ User can define other photons distribution, creating class inherited from Photon
 
 
 \subsection{Distributions of massive particles}
-Распределения массивных частиц представлены наследниками класса MassiveParticleDistribution. Так же как и в случае с фотонами важную роль играет абстрактный клас для представления изотропных распределений - MassiveParticleIsotropicDistribution. У этого класса есть методы возвращающие значение функции распределения в зависимости от энергии, и опять же, это не функция распределения, проинтегрированная по углам, а полная функция распределения с отброшенными угловыми аргументами. Для получения значения функции распределения по энергии нужно домножить значение, возвращенное данным методом на $4 \pi$. 
+Distributions of massive particles are represented by class MassiveParticleDistribution and inherited classes. Similarly to the photon distributions, isotropic distrinutions are important type, represented by class
+MassiveParticleIsotropicDistribution. This class also has methods distributionNormalized(const double\& energy) and distribution(const double\& energy), which are not distribution with respect to energy, but just full distribution with dropped angular arguments. So to obtain distribution with respect to energy one should multiply result of this functions by $4\pi$.
 
-\begin{small}
-		\topcaption{Публичные методы класса MassiveParticleIsotropicDistribution }
-		\label{MassiveParticleMethods}
-			\begin{xtabular}{|p{0.45\textwidth}|p{0.55\textwidth}|}
-				\hline
-				\textbf{MassiveParticleIsotropicDistribution} & Абстрактный класс для изотропных распределений\\
-				\hline
-				double distribution(const double\& energy) & возвращает функцию распределения с отброшенными угловыми аргументами, то есть нормированную на концентрацию, деленную на $4 \pi$ \\
-				\hline
-				virtual double distributionNormalized(const double\& energy) & чисто виртуальный метод, возвращает функцию распределения с отброшенными угловыми аргументами, нормированную на  $ 1 / 4 \pi$\\
-				\hline
-				void writeDistribution(const char* fileName, int Ne, const double\& Emin, const double\& Emax) & записывает распределение в файл с данным именем, в диапазоне межджу данными минимальной и максимальной енергиями с заданным количеством точек, которые распределяются логарифмически\\
-				\hline
-	\end{xtabular}
-\end{small}
+Abstract class of isotropic distributions has seven inherited classes for specific distributions: MassiveParticlePowerLawDistribution - for power-law distributions, MassiveParticleBrokenPowerLawDistribution - for double power-law distibutions with knee, MassiveParticlePowerLawCutoffDistribution - for power-law distributions with exponential cutoff, MassiveParticleMaxwellDistribution - for non-relativistic maxwellian distribution (but it use full energy, including rest energy), MassiveParticleMaxwellJuttnerDistribution - for Maxwell
+-Juttner distribution, MassiveParticleTabulatedIsotropicDistribution - for arbitrary distributions, described with array of values and MassiveParticleMonoenergeticDistribution - for beam of particles with close energies. Also there are six anisotropic distributions, implemented in the code. MassiveParticleTabulatedPolarDistribution - for tabulated distribution with dependence on energy and polar angle, MassiveParticleAnisotropicDistribution - for arbitrary tabulated anisotropic distributions, MassiveParticleMonoenergeticDirectedDistribution - for distributions represented narrow beam of particles with close energies, MassiveParticleMovingDistribution - for transformation the distributions from one frame to another, CompoundMassiveParticleDistribution - for sum of arbitraty distributions and CompoundWeightedMassiveParticleDistribution - for weighted sum of arbitrary distributions. In some cases operating with relative weghts of distributions is more useful than with absolute concentrations. Class hierarchy of distributions of massive particles is shown in Figure \ref{massiveDistribution}.
+
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=14.5 cm]{./fig/massiveParticleDistribution2.png} 
-	\caption{Схема наследования классов распределения массивных частиц}
+	\caption{Class hierarchy of massive particles distributions}
 	\label{massiveDistribution}
 \end{figure}
 
-Абстрактный класс изотропных распределений имеет семь наследников, предназначенных для создания конкретных распределений: MassiveParticlePowerLawDistribution - для степенных распределений, MassiveParticleBrokenPowerLawDistribution - для степенных распределений с изломом, MassiveParticlePowerLawCutoffDistribution - для степенных распределений с экспоненциальным завалом, MassiveParticleMaxwellDistribution - для максвелловского распределения (обратите внимание, что в отличие от остальных распределений, максвелловское подразумевает под энергией только кинетическую энергию), MassiveParticleMaxwellJuttnerDistribution - для релятивистского распределения Максвелла-Юттнера, MassiveParticleTabulatedIsotropicDistribution - для таблично заданных распределений и MassiveParticleMonoenergeticDistribution - для моноэнергичного изотропного распределения.
-
-Так же имеется шесть реализаций анизотропных распределений: MassiveParticleTabulatedPolarDistribution - для таблично заданных распределений с зависимостью только от энергии и полярного угла, MassiveParticleAnisotropicDistribution - для таблично заданных распределений с зависимостью от всех переменных, MassiveParticleMonoenergeticDirectedDistribution - для моноэнергичного пучка частиц, с импульсами направленными в заданный телесный угол, MassiveParticleMovingDistribution - для перевода функций распределения в движущуюся систему отсчета, CompoundMassiveParticleDistribution - для суммы распредлений общего вида, CompoundWeightedMassiveParticleDistribution - для взвешенной суммы распределений общего вида. В некоторых случаях оперировать весами распределений удобнее, чем непосредственно концентрациями. Полная схема наследования классов распределений массивных частиц представлена на рисунке \ref{massiveDistribution}, список публичных методов классов распределений массивных частиц приведен в Таблице \ref{MassiveParticleMethods1}. Пользователь может сам реализовывать необходимые ему виды распределений излучающих частиц, создав наследника класса MassiveParticleDistribution или MassiveParticleIsotropicDistribution и определив необходимые виртуальные методы.
-
-\subsection{Считывание распределений из файла}
-Классы таблично-заданных распределений, такие как например MassiveParticleTabulatedIsotropicDistribution, имеют конструктор принимающие на вход имена файлов, из которых будет считана функция распределения. Это должны быть текстовые файлы, содержащие таблицы с данными, причем формат единиц, в которых измеряется функция распределения может быть разным. Для задания формата входных файлов используется перечислимы тип DistributionInputType, имеющий пять значений:
-
-\begin{itemize}
-	\item ENERGY\_FE - во входных файлах заданы энергия и функция распределения по энергии
-	\item ENERGY\_KIN\_FE - заданы кинетическая энергия и функция распределения по энергии
-	\item GAMMA\_FGAMMA - задан лоренц-фактор и функция распределения по нему
-	\item GAMMA\_KIN\_FGAMMA - задан лоренц-фактор, уменьшенный на единицу, и функция распределения по нему
-	\item MOMENTUM\_FP - задан импульс и функция распределения по импульсу
-\end{itemize}
-
-Вне зависимости от формата входного файла, функция распределения будет преобразована к единицам энергия - распределение по энергии. С помощью этих параметров можно считывать табличные распределения из файлов, например так:
-
-\begin{lstlisting}[language=c++]
-	double electronConcentration = 1.0;
-	int N = 100;
-	MassiveParticleIsotropicDistribution* distribution = new
-	MassiveParticleTabulatedIsotropicDistribution(massElectron,
-	"energy.dat", "distribution.dat", N, electronConcentration,
-	DistributionInputType::ENERGY_FE);
-\end{lstlisting}
-
-Для облегчения создания распределений из файла в сложных случаях реализован класс MassiveParticleDistributionFactory. У него есть несколько методов, позволяющих считывать целые серии распределений из набора пронумерованных файлов. Что может быть полезно, если функция распределения зависит от некоторого параметра, как в примере вычисления синхротронного излучения описанном в следующей главе \ref{}. Считать серию из десяти распределений электронов, содержащихся в файлах с именами  "Fe0.dat"\ , "Fe1.dat"\  и так далее, состоящих из двух колонок - лоренц-фактор и функция распределения, и добавить к этим распределениям степенной хвост с показателем 3, начиная с энергий в 100 энергий покоя можно вызовом одной функции: 
-
-\begin{lstlisting}[language=c++]
-	double electronConcentration = 1.0;
-	int Nenergy = 100;
-	int Ndistribution = 100;
-	double powerLawEnergy = 100*me_c2;
-	double index = 3.0;
-	MassiveParticleIsotropicDistribution** distributions = 
-	MassiveParticleDistributionFactory::
-	readTabulatedIsotropicDistributionsAddPowerLawTail(
-	massElectron, "./input/Fe", ".dat", Ndistribution, 
-	DistributionInputType::GAMMA_FGAMMA, electronConcentration, Nenergy,
-	powerLawEnergy, index);
-\end{lstlisting}
-
-Так же у пользователя есть возможность использовать конструкторы табличных распределений, принимающие не имена файлов, а непосредственно массивы со значениями функции распределения, которые пользователь может создать любым удобным ему способом.
+public methods of classes for massive particle distributions are listed in Table \ref{MassiveParticleMethods}. User can define his own specific distributions, creating class inherited from MassiveParticleDistribution or MassiveParticleIsotropicDistribution.
 
 \begin{small}
-	\topcaption{Публичные методы классов распределений массивных частиц }
-	\label{MassiveParticleMethods1}
-	\begin{xtabular}{|p{0.52\textwidth}|p{0.48\textwidth}|}
+	\topcaption{Public methods of classes derived from MassiveParticleDistribution }
+	\label{MassiveParticleMethods}
+	\begin{xtabular}{|p{0.52\textwidth}|p{0.48\textwidth}|}				
 		\hline
-		\textbf{MassiveParticlePowerLawDistribution} & Класс для степенного распределения\\
+		\textbf{MassiveParticleIsotropicDistribution} & Abstract class for isotropic distributions of massive particles\\
 		\hline
-		MassiveParticlePowerLawDistribution( const double\& mass, const double\& index, const double\& E0, const double\& concentration) & конструктор, создает экземпляр степенного распределния частиц с заданными массой, степенным индексом, начальной энергией распределения и полной концентрацией\\
+		double distribution(const double\& energy) & returns probability density function in polar coordinates with dropped angular arguments (normalized to the number density divided by $4\pi$)\\
 		\hline
-		double getIndex() & возвращает степенной индекс распределения\\
+		virtual double distributionNormalized(const double\& energy) & virtual method, returns probability density function in polar coordinates with dropped angular arguments (mormalized to the $1/4\pi$)\\
 		\hline
-		double getE0() & возвращает начальную энергию распределения\\
+		void writeDistribution(const char* fileName, int Ne, const double\& Emin, const double\& Emax) &writes distribution into given file as to columns - energy and distribution from Emin to Emax with Ne logarithmically distributed points\\
 		\hline
-		\textbf{MassiveParticleBrokenPowerLawDistribution} & Класс для степенного распределения с изломом\\
+		double distributionNormalizedWithLosses( const double\& energy, const double\& lossRate, const double\& time) & returns a distribution which evaluted till time t via synchrotron losses with equation $f_t(E)=f\left(\frac{E}{1-E l t}\right)\cdot\frac{1}{\left(1- E l t\right)^2}$ and loss rate $l = 4e^4 B^2 /9m^4 c^7$\\
 		\hline
-		MassiveParticleBrokenPowerLawDistribution( const double\& mass, const double\& index1, const double\& index2, const double\& E0, const double\& Etran, const double\& concentration) & конструктор, создает экземпляр степенного распределния с изломом частиц с заданными массой, степенными индексоми на низких и высоких энергиях, начальной энергией распределения, энергией соответствующей излому и полной концентрацией\\
+		\textbf{MassiveParticlePowerLawDistribution} & class representibg power-law distribution\\
 		\hline
-		double getIndex1() & возвращает степенной индекс распределения на низких энергиях\\
+		MassiveParticlePowerLawDistribution( const double\& mass, const double\& index, const double\& E0, const double\& concentration) & cobstructor, creates distribution with given particle mass, power-law index, starting energy and concentration\\
 		\hline
-		double getIndex2() & возвращает степенной индекс распределения на высоких энергиях\\
+		double getIndex() &returns power-law index\\
 		\hline
-		double getE0() & возвращает начальную энергию распределения\\
+		double getE0() & returns starting energy of distribution\\
 		\hline
-		double getEtran() & возвращает энергию излома\\
+		\textbf{MassiveParticleBrokenPowerLawDistribution} & class representing double power-law distribution with knee\\
 		\hline
-		\textbf{MassiveParticlePowerLawCutoffDistribution} & Класс для степенного распределения с экспоненциальным завалом\\
+		MassiveParticleBrokenPowerLawDistribution( const double\& mass, const double\& index1, const double\& index2, const double\& E0, const double\& Etran, const double\& concentration) & constructor, creates distribution with given particle mass, power-law indexes at low and high energies, starting energy, energy of transition from one index to another and concentration\\
 		\hline
-		MassiveParticlePowerLawCutoffDistribution(const double\& mass, const double\& index, const double\& E0, const double\& beta, const double\& Ecut, const double\& concentration) & конструктор, создает экземпляр степенного распределния с экспоненциальным завалом частиц с заданными массой, степенным индексом, начальной энергией распределения, параметром завала, энергией завала и полной концентрацией. $F(E)\propto (E/E_0)^{-index}\cdot\exp(-(E/E_{cut})^\beta)$\\
+		double getIndex1() & returns power-law index at low energies\\
 		\hline
-		double getIndex() & возвращает степенной индекс распределения \\
+		double getIndex2() & returns power-law index at high energies\\
 		\hline
-		double getBeta() & возвращает параметр завала распределения \\
+		double getE0() & returns starting energy of distribution\\
 		\hline
-		double getE0() & возвращает начальную энергию распределения\\
+		double getEtran() & returns energy of transition fron one index to another\\
 		\hline
-		double getEcutoff() & возвращает энергию экспоненциального завала\\
+		\textbf{MassiveParticlePowerLawCutoffDistribution} & class representing power-law distribution with exponential cutoff\\
 		\hline
-		\textbf{MassiveParticleMaxwellDistribution} & Класс для распределения Максвелла\\
+		MassiveParticlePowerLawCutoffDistribution(const double\& mass, const double\& index, const double\& E0, const double\& beta, const double\& Ecut, const double\& concentration) & constructor, creates distribution with given particle mass, power-law index, starting energy, power of cutoff and cutoff energy and concentration $F(E)\propto (E/E_0)^{-index}\cdot\exp(-(E/E_{cut})^\beta)$\\
 		\hline
-		MassiveParticleMaxwellDistribution( const double\& mass, const double\& temperature, const double\& concentration) & конструктор, создает экземпляр распределния Максвелла частиц с заданными массой, температурой и полной концентрацией\\
+		double getIndex() & returns power-law index \\
 		\hline
-		double getTemperature() & возвращает температуру распределения\\
+		double getBeta() & returns cutoff power parameter \\
 		\hline
-		\textbf{MassiveParticleMaxwellJuttnerDistribution} & Класс для распределения Максвелла-Юттнера\\
+		double getE0() & returns starting energy of distribution\\
 		\hline
-		MassiveParticleMaxwellJuttnerDistribution( const double\& mass, const double\& temperature, const double\& concentration) & конструктор, создает экземпляр распределния Максвелла-Юттнера частиц с заданными массой, температурой и полной концентрацией\\
+		double getEcutoff() & returns cutoff energy\\
 		\hline
-		double getTemperature() & возвращает температуру распределения\\
+		\textbf{MassiveParticleMaxwellDistribution} & class representing non-relativistic maxwellian distribution\\
 		\hline
-		\textbf{MassiveParticleTabulatedIsotropicDistribution} & Класс для таблично заданного изотропного распределения\\
+		MassiveParticleMaxwellDistribution( const double\& mass, const double\& temperature, const double\& concentration) & creates distribution with given particles mass, temperature and concentration\\
+		\hline
+		double getTemperature() & returns temperature\\
+		\hline
+		\textbf{MassiveParticleMaxwellJuttnerDistribution} & class representing Maxwell-Juttner distribution\\
+		\hline
+		MassiveParticleMaxwellJuttnerDistribution( const double\& mass, const double\& temperature, const double\& concentration) & creates distribution with given particle mass, temperature and concentration\\
+		\hline
+		double getTemperature() & returns temperature\\
+		\hline
+		\textbf{MassiveParticleTabulatedIsotropicDistribution} & class for tabulated isotropic distribution\\
 		\hline
 		MassiveParticleTabulatedIsotropicDistribution( const double\& mass, const char* fileName, const int N, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью указанного файла, состоящего из двух колнок с данными указанной длины. Так же указывается формат входных данных.\\
 		\hline
@@ -329,9 +286,49 @@ User can define other photons distribution, creating class inherited from Photon
 		\hline
 		CompoundWeightedMassiveParticleDistribution( MassiveParticleDistribution* dist1, const double\& w1, MassiveParticleDistribution* dist2, const double\& w2, MassiveParticleDistribution* dist3, const double\& w3) & конструктор, создает экземпляр класса, содержащий смесь трех распределений с указанными весами \\
 		\hline
-				
+		
 	\end{xtabular}
 \end{small}
+
+\subsection{Считывание распределений из файла}
+Классы таблично-заданных распределений, такие как например MassiveParticleTabulatedIsotropicDistribution, имеют конструктор принимающие на вход имена файлов, из которых будет считана функция распределения. Это должны быть текстовые файлы, содержащие таблицы с данными, причем формат единиц, в которых измеряется функция распределения может быть разным. Для задания формата входных файлов используется перечислимы тип DistributionInputType, имеющий пять значений:
+
+\begin{itemize}
+	\item ENERGY\_FE - во входных файлах заданы энергия и функция распределения по энергии
+	\item ENERGY\_KIN\_FE - заданы кинетическая энергия и функция распределения по энергии
+	\item GAMMA\_FGAMMA - задан лоренц-фактор и функция распределения по нему
+	\item GAMMA\_KIN\_FGAMMA - задан лоренц-фактор, уменьшенный на единицу, и функция распределения по нему
+	\item MOMENTUM\_FP - задан импульс и функция распределения по импульсу
+\end{itemize}
+
+Вне зависимости от формата входного файла, функция распределения будет преобразована к единицам энергия - распределение по энергии. С помощью этих параметров можно считывать табличные распределения из файлов, например так:
+
+\begin{lstlisting}[language=c++]
+	double electronConcentration = 1.0;
+	int N = 100;
+	MassiveParticleIsotropicDistribution* distribution = new
+	MassiveParticleTabulatedIsotropicDistribution(massElectron,
+	"energy.dat", "distribution.dat", N, electronConcentration,
+	DistributionInputType::ENERGY_FE);
+\end{lstlisting}
+
+Для облегчения создания распределений из файла в сложных случаях реализован класс MassiveParticleDistributionFactory. У него есть несколько методов, позволяющих считывать целые серии распределений из набора пронумерованных файлов. Что может быть полезно, если функция распределения зависит от некоторого параметра, как в примере вычисления синхротронного излучения описанном в следующей главе \ref{}. Считать серию из десяти распределений электронов, содержащихся в файлах с именами  "Fe0.dat"\ , "Fe1.dat"\  и так далее, состоящих из двух колонок - лоренц-фактор и функция распределения, и добавить к этим распределениям степенной хвост с показателем 3, начиная с энергий в 100 энергий покоя можно вызовом одной функции: 
+
+\begin{lstlisting}[language=c++]
+	double electronConcentration = 1.0;
+	int Nenergy = 100;
+	int Ndistribution = 100;
+	double powerLawEnergy = 100*me_c2;
+	double index = 3.0;
+	MassiveParticleIsotropicDistribution** distributions = 
+	MassiveParticleDistributionFactory::
+	readTabulatedIsotropicDistributionsAddPowerLawTail(
+	massElectron, "./input/Fe", ".dat", Ndistribution, 
+	DistributionInputType::GAMMA_FGAMMA, electronConcentration, Nenergy,
+	powerLawEnergy, index);
+\end{lstlisting}
+
+Так же у пользователя есть возможность использовать конструкторы табличных распределений, принимающие не имена файлов, а непосредственно массивы со значениями функции распределения, которые пользователь может создать любым удобным ему способом.
 
 \section{Источники излучения}
 

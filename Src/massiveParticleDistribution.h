@@ -36,7 +36,7 @@ public:
 	virtual double distributionNormalized(const double& energy) = 0;
 	void writeDistribution(const char* fileName, int Ne, const double& Emin, const double& Emax);
 
-	double distributionNormalizedTransformedByLosses(const double& energy, const double& lossRate, const double& time);
+	double distributionNormalizedWithLosses(const double& energy, const double& lossRate, const double& time);
 
 };
 
