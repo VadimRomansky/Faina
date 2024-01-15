@@ -208,61 +208,50 @@ public methods of classes for massive particle distributions are listed in Table
 		\hline
 		\textbf{MassiveParticleTabulatedIsotropicDistribution} & class for tabulated isotropic distribution\\
 		\hline
-		MassiveParticleTabulatedIsotropicDistribution( const double\& mass, const char* fileName, const int N, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью указанного файла, состоящего из двух колнок с данными указанной длины. Так же указывается формат входных данных.\\
+		MassiveParticleTabulatedIsotropicDistribution( const double\& mass, const char* fileName, const int N, const double\& concentration, DistributionInputType inputType) & constructor, creates distribution with given mass and concentraion, reading table with N lines from given file. inpuType - enum variable determining in which coordinates distribution is defined in file\\
 		\hline
-		MassiveParticleTabulatedIsotropicDistribution( const double\& mass, const char* energyFileName, const char* distributionFileName, const int N, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью указанных двух файлов, состоящих из колнок с данными указанной длины. Так же указывается формат входных данных. \\
+		MassiveParticleTabulatedIsotropicDistribution( const double\& mass, const char* energyFileName, const char* distributionFileName, const int N, const double\& concentration, DistributionInputType inputType) & constructor, creates distribution with given mass and concentraion, reading Nx2 table with from two given files. inpuType - enum variable determining in which coordinates distribution is defined in files\\
 		\hline
-		MassiveParticleTabulatedIsotropicDistribution( const double\& mass, const double* energy, const double* distribution, const int N, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью двух переданных массивов данных указанной длины. Так же указывается формат входных данных.\\
+		MassiveParticleTabulatedIsotropicDistribution( const double\& mass, const double* energy, const double* distribution, const int N, const double\& concentration, DistributionInputType inputType) & constructor, creates distribution with given mass and concentraion, reading two data columns from given arrays. inpuType - enum variable determining in which coordinates distribution is defined in arrays\\
 		\hline
-		int getN() & возвращает количество ячеек в таблице задающей функцию\\
+		int getN() & returns number of grid points in distribution array\\
 		\hline
-		double getEmin() & возвращает минимальную энергию распределения\\
+		double rescaleDistribution(const double\& k) & rescales distribution through the energy axis using fourmula $E' = mc^2 + k\cdot(E-mc^2)$, $F(E')=F(E)/k$. It may be useful when e.g. distribution of electrons is obtained by numerical code with increased electron mass\\
 		\hline
-		double getEmax() & возвращает максимальную энергию распределения\\
+		void addPowerLaw( const double\& Epower, const double\& index) & replaces the tail of distribution with power-law distribution with given spectral index starting from Epower. Also renorms distribution\\
 		\hline
-		double rescaleDistribution(const double\& k) & масштабирует распределение, вытягивая его по оси энергии по формуле $E' = mc^2 + k\cdot(E-mc^2)$, $F(E')=F(E)/k$. Данная функция может быть полезна, например, в случае когда исходная функция распределения получена в результате работы численного кода с измененной массой электронов\\
+		\textbf{MassiveParticleMonoenergeticDistribution} & class representing population of isotropic particles with close energy\\
 		\hline
-		void addPowerLaw( const double\& Epower, const double\& index) & добавляет к функции распределения степенной с указанным индексом, начиная с указанной энергии. Функция распределения при этом остается нормированной на указанную ранее концентрацию\\
-		\hline
-		\textbf{MassiveParticleMonoenergeticDistribution} & Класс для моноэнергичного изотропного распределения\\
-		\hline
-		MassiveParticleMonoenergeticDistribution(const double\& mass, const double\& Energy, const double\& halfWidth, const double\& concentration) & конструктор, принимающий массу, среднюю энергию, полуширину разброса по энергии и концентрацию\\
+		MassiveParticleMonoenergeticDistribution(const double\& mass, const double\& Energy, const double\& halfWidth, const double\& concentration) & constructor, creates distribution with given particle mass, mean energy, half-width of uniform distribution around mean energy and number density\\
 		\hline 
-		\textbf{MassiveParticleTabulatedPolarDistribution} & Класс для таблично заданного распределения с зависимостью от полярного угла\\
+		\textbf{MassiveParticleTabulatedPolarDistribution} & class for tabulated distribution with dependence on energy and polar angle\\
 		\hline
-		MassiveParticleTabulatedPolarDistribution( const double\& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью  трех указанных файлов, в двух из которых содержатся сетки по энергии и косинусу полярного угла с указанными размерами, а в третьем двумерный массив функции распределения. Так же указывается формат входных данных.\\
+		MassiveParticleTabulatedPolarDistribution( const double\& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const double\& concentration, DistributionInputType inputType) & constuctor, creates distribution with given particle mass and concentration, reading it from files with energy grid points, angular grid points and distribution. inpuType - enum variable determining in which coordinates distribution is defined in files\\
 		\hline
-		MassiveParticleTabulatedPolarDistribution( const double\& mass, const double* energy, const double* mu, const double** distribution, const int Ne, const int Nmu, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью трех переданных массивов данных, в двух из которых содержатся сетки по энергии и косинусу полярного угла с указанными размерами, а в третьем двумерный массив функции распределения. Так же указывается формат входных данных.\\
+		MassiveParticleTabulatedPolarDistribution( const double\& mass, const double* energy, const double* mu, const double** distribution, const int Ne, const int Nmu, const double\& concentration, DistributionInputType inputType) & constuctor, creates distribution with given particle mass and concentration, using arrays with energy grid points, angular grid points and distribution. inpuType - enum variable determining in which coordinates distribution is defined in arrays\\
 		\hline
-		int getNe() & возвращает количество ячеек по энергии в таблице задающей функцию распределения\\
+		int getNe() & returns number of energy grid points in distribution array\\
 		\hline
-		double getEmin() & возвращает минимальную энергию распределения\\
+		int getNmu() & returns number of polar angle grid points in distribution array\\
 		\hline
-		double getEmax() & возвращает максимальную энергию распределения\\
+		void double rescaleDistribution(const double\& k) & 
+		rescales distribution through the energy axis using fourmula $E' = mc^2 + k\cdot(E-mc^2)$, $F(E',\mu)=F(E,\mu)/k$. It may be useful when e.g. distribution of electrons is obtained by numerical code with increased electron mass\\
 		\hline
-		int getNmu() & возвращает количество ячеек по полярному углу в таблице задающей функцию распределения\\
+		\textbf{MassiveParticleTabulatedAnisotropicDistribution} & class for arbitrary tabulated distribution\\
 		\hline
-		void double rescaleDistribution(const double\& k) & масштабирует распределение, вытягивая его по оси энергии по формуле $E' = mc^2 + k\cdot(E-mc^2)$, $F(E',\mu)=F(E,\mu)/k$. Данная функция может быть полезна, например, в случае когда исходная функция распределения получена в результате работы численного кода с измененной массой электронов\\
+		MassiveParticleTabulatedAnisotropicDistribution( const double\& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const int Nphi, const double\& concentration, DistributionInputType inputType) & constuctor, creates distribution with given particle mass and concentration, reading it from files with energy grid points, angular grid points and distribution. Grid with respect to azimuthal angle considered uniform and depends only on number of drid points Nphi. inpuType - enum variable determining in which coordinates distribution is defined in files\
 		\hline
-		\textbf{MassiveParticleTabulatedAnisotropicDistribution} & Класс для таблично заданного анизотропного распределения общего вида\\
+		MassiveParticleTabulatedAnisotropicDistribution( const double\& mass, const double* energy, const double* mu, const double*** distribution, const int Ne, const int Nmu, const int Nphi, const double\& concentration, DistributionInputType inputType) & concentration, DistributionInputType inputType) & constuctor, creates distribution with given particle mass and concentration, using arrays with energy grid points, angular grid points and distribution. Grid with respect to azimuthal angle considered uniform and depends only on number of drid points Nphi. inpuType - enum variable determining in which coordinates distribution is defined in arrays\\
 		\hline
-		MassiveParticleTabulatedAnisotropicDistribution( const double\& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const int Nphi, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью  трех указанных файлов, в двух из которых содержатся сетки по энергии и косинусу полярного угла с указанными размерами, а в третьем двумерный массив функции распределения. Сетка по азимутальному углу считается расномерной и определяется только размером. Так же указывается формат входных данных.\\
+		int getNe() & returns number of energy grid points in distribution array\\
 		\hline
-		MassiveParticleTabulatedAnisotropicDistribution( const double\& mass, const double* energy, const double* mu, const double*** distribution, const int Ne, const int Nmu, const int Nphi, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью трех переданных массивов данных, в двух из которых содержатся сетки по энергии и косинусу полярного угла с указанными размерами, а в третьем двумерный массив функции распределения. Сетка по азимутальному углу считается расномерной и определяется только размером. Так же указывается формат входных данных.\\
+		int getNmu() & returns number of polar angle grid points in distribution array\\
 		\hline
-		int getNe() & возвращает количество ячеек по энергии в таблице задающей функцию распределения\\
+		int getNphi() & returns number of azimuthal angle grid points in distribution array\\
 		\hline
-		double getEmin() & возвращает минимальную энергию распределения\\
+		void rescaleDistribution(const double\& k) & rescales distribution through the energy axis using fourmula $E' = mc^2 + k\cdot(E-mc^2)$, $F(E',\mu, \phi)=F(E,\mu, \phi)/k$. It may be useful when e.g. distribution of electrons is obtained by numerical code with increased electron mass\\
 		\hline
-		double getEmax() & возвращает максимальную энергию распределения\\
-		\hline
-		int getNmu() & возвращает количество ячеек по полярному углу в таблице задающей функцию распределения\\
-		\hline
-		int getNphi() & возвращает количество ячеек по азимутальному углу в таблице задающей функцию распределения\\
-		\hline
-		void rescaleDistribution(const double\& k) & масштабирует распределение, вытягивая его по оси энергии по формуле $E' = mc^2 + k\cdot(E-mc^2)$, $F(E',\mu, \phi)=F(E,\mu, \phi)/k$. Данная функция может быть полезна, например, в случае когда исходная функция распределения получена в результате работы численного кода с измененной массой электронов\\
-		\hline
-		\textbf{MassiveParticleMonoenergeticDirectedDistribution} & Класс для моноэнергичного направленного пучка частиц\\
+		\textbf{MassiveParticleMonoenergeticDirectedDistribution} & class representing narrow beam of particles with close energies\\
 		\hline
 		MassiveParticleMonoenergeticDirectedDistribution(const double\& mass, const double\& Energy, const double\& halfWidth, const double\& concentration, const double\& theta0, const double\& phi0, const double\& deltaTheta) & конструктор, принимающий массу частиц, среднюю энергию, полуширину разброса, концентрацию, углы задающие направление пучка и угол полуширины раствора конуса\\
 		\hline

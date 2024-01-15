@@ -745,14 +745,6 @@ int MassiveParticleTabulatedIsotropicDistribution::getN() {
 	return my_Ne;
 }
 
-double MassiveParticleTabulatedIsotropicDistribution::getEmin() {
-	return my_energy[0];
-}
-
-double MassiveParticleTabulatedIsotropicDistribution::getEmax() {
-	return my_energy[my_Ne - 1];
-}
-
 void MassiveParticleTabulatedIsotropicDistribution::rescaleDistribution(const double& k)
 {
 	double m_c2 = my_mass * speed_of_light2;
@@ -1184,14 +1176,6 @@ void MassiveParticleTabulatedPolarDistribution::resetConcentration(const double&
 int MassiveParticleTabulatedPolarDistribution::getNe()
 {
 	return my_Ne;
-}
-
-double MassiveParticleTabulatedPolarDistribution::getEmin() {
-	return my_energy[0];
-}
-
-double MassiveParticleTabulatedPolarDistribution::getEmax() {
-	return my_energy[my_Ne - 1];
 }
 
 int MassiveParticleTabulatedPolarDistribution::getNmu()
@@ -1637,14 +1621,6 @@ void MassiveParticleTabulatedAnisotropicDistribution::resetConcentration(const d
 int MassiveParticleTabulatedAnisotropicDistribution::getNe()
 {
 	return my_Ne;
-}
-
-double MassiveParticleTabulatedAnisotropicDistribution::getEmin() {
-	return my_energy[0];
-}
-
-double MassiveParticleTabulatedAnisotropicDistribution::getEmax() {
-	return my_energy[my_Ne - 1];
 }
 
 int MassiveParticleTabulatedAnisotropicDistribution::getNmu()

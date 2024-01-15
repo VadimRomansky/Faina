@@ -196,8 +196,6 @@ public:
 	virtual double maxEnergy();
 	virtual void resetConcentration(const double& concentration);
 	int getN();
-	double getEmin();
-	double getEmax();
 	void rescaleDistribution(const double& k);
 	void addPowerLaw(const double& Epower, const double& index);
 	void prolongEnergyRange(const double& Emax, int N);
@@ -229,8 +227,6 @@ public:
 	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi);
 	virtual void resetConcentration(const double& concentration);
 	int getNe();
-	double getEmin();
-	double getEmax();
 	int getNmu();
 	void rescaleDistribution(const double& k);
 };
@@ -261,8 +257,6 @@ public:
 	virtual double maxEnergy();
 	virtual void resetConcentration(const double& concentration);
 	int getNe();
-	double getEmin();
-	double getEmax();
 	int getNmu();
 	int getNphi();
 	void rescaleDistribution(const double& k);
