@@ -1,146 +1,300 @@
-\chapter{Формулы расчета излучения}\label{Formulae}
+\chapter{Оптимизация параметров}\label{optimization}
+Код FAINA позволяет не только расчитывать излучение заданных источников, но и фитировать наблюдательные данные модельными, подбирая необходимые параметры. Реализованы методы оптимизации, пригодные для произвольного числа параметров и широкого класса моделей источников.
+%В качестве целевой функции используется взвешенная сумма квадратов отклонений по всем наблюдательным точкам $f = \sum \frac{(F_i - F_{obs,i})^2}{\sigma_i^2}$, где $F_i$ - расчетная спектральная плотность потока излучения, $F_{obs,i}$ - наблюдаемая спектральная плотность потока излучения, $\sigma_i$ - её погрешность. В текущей версии учитывается лишь погрешность измеряемого потока, ширина бина и неопределенность энергии, на которой принят сигнал не учитываются.
 
-\section{Преобразование функции распределения фотонов}
-Функция распределения фотонов задана в сферических координатах $n_{ph}(\epsilon,\mu,\phi)$. Рассмотрим переход в систему отсчета, движущуюся в направлении оси $z$ с лоренц-фактором $\gamma = 1/\sqrt{1-\beta^2}$. Количество частиц в элементе фазового пространства $N$ - инвариант.
-\begin{equation}
-	N = n_{ph}(\epsilon,\mu,\phi)d\epsilon d\mu d\phi dV = n'_{ph}(\epsilon',\mu',\phi')d\epsilon' d\mu' d\phi' dV'
-\end{equation}
-Рассмотрим преобразование вектора четырех-импульса. Поперечные компоненты не изменяются, а временная и продольная меняются следющим образом, учитывая что $p_z = \mu \epsilon$:
-\begin{equation}\label{lorentz_ph}
-	\left(\begin{array}{c}
-		\epsilon'\\
-		\mu'\epsilon'
-	\end{array}
-	\right)
-	= \left(
-	\begin{array}{cc}
-		\gamma & -\beta\gamma\\
-		-\beta\gamma & \gamma
-	\end{array}
-	\right)
-	\times
-	\left(\begin{array}{c}
-		\epsilon\\
-		\mu\epsilon
-	\end{array}
-	\right)
-\end{equation}
-Из первой строчки матрицы получаем уравнение для допплеровского сдвига энергии
-\begin{equation}\label{doppler_ph}
-	\epsilon'=\gamma(1-\mu\beta)\epsilon
-\end{equation}
-Вычислим производные новой энергии по старым координатам
-\begin{equation}
-	\frac{d\epsilon'}{d\epsilon}=\gamma(1-\mu\beta)
-\end{equation}
-\begin{equation}
-	\frac{d\epsilon'}{d\mu}=-\gamma\beta\epsilon
-\end{equation}
-Из второй строчки матрицы получаем $\mu'\epsilon'=-\beta\gamma\epsilon+\gamma\mu\epsilon$. Подставив значение $\epsilon'$ из \ref{doppler_ph} и сократив $\epsilon$ получим уравнение аберрации света
-\begin{equation}\label{aberration_ph}
-	\mu'=\frac{\mu-\beta}{1-\mu\beta}
-\end{equation}
-Заметим, что угол наклона луча в новой системе не зависит от энергии в старой системе. Вычислим частноую производную $\frac{d\mu'}{d\mu}$
-\begin{equation}
-	\frac{d\mu'}{d\mu}=\frac{d}{d\mu}\frac{1}{\beta}\frac{\beta\mu-1+1-\beta^2}{1-\mu\beta}=\frac{d}{d\mu}\frac{1}{\beta}\frac{1-\beta^2}{1-\mu\beta}=\frac{1-\beta^2}{(1-\mu\beta)^2}=\frac{1}{\gamma^2(1-\mu\beta)^2}
-\end{equation}
-Азимутальный угол не зависит от системы отсчета $\phi' = \phi$. Преобразование элемента объема описывается выражением $\frac{dV'}{dV} = \frac{\epsilon}{\epsilon'}$ см. ЛЛ Т2 параграф 10, вот только там используется переход в собственную систему. То есть
-\begin{equation}
-	\frac{dV'}{dV} = \frac{1}{\gamma(1-\mu\beta)}
-\end{equation}
-Матрица якоби преобразования координат выглядит следующим образом
-\begin{equation}
-	J=\left(
-	\begin{array}{cccc}
-		\frac{d\epsilon'}{d\epsilon} & \frac{d\epsilon'}{d\mu}& 0 & 0\\
-		0 & \frac{d\mu'}{d\mu} & 0 & 0\\
-		0 & 0 & 1 & 0\\
-		0 & \frac{dV'}{d\mu} & 0 & \frac{dV'}{dV}
-	\end{array}
-	\right)
-\end{equation}
-При такой матрице якобиан, к счастью, равен произведению диагональных членов
-\begin{equation}\label{jacobian_ph}
-	\frac{D(\epsilon',\mu',\phi',V')}{D(\epsilon,\mu,\phi,V)}=\frac{d\epsilon'}{d\epsilon}\frac{d\mu'}{d\mu}\frac{dV'}{dV}=\gamma(1-\mu\beta)\frac{1}{\gamma^2(1-\mu\beta)^2}\frac{1}{\gamma(1-\mu\beta)}=\frac{1}{\gamma^2(1-\mu\beta)^2}
-\end{equation}
-И в итоге функция распределения фотонов преобразуется с помощью деления на вычисленный якобиан
-\begin{equation}\label{distribution_ph}
-	n'_{ph}(\epsilon',\mu',\phi') = \frac{n_{ph}(\epsilon,\mu,\phi)}{\frac{D(\epsilon',\mu',\phi',V')}{D(\epsilon,\mu,\phi,V)}}=\gamma^2(1-\mu\beta)^2 n_{ph}(\epsilon,\mu,\phi)
-\end{equation}
-\section{Комптоновское рассеяние}
-Рассмотрим рассеяние фотонов на одном электроне, движущемся вдоль ось z, см \cite{Dubus}. Сечение Клейна-Нишины в системе покоя электрона равно
-\begin{equation}
-	\frac{d\sigma}{d\epsilon_1'd\Omega_1'}=\frac{{r_e}^2}{2}\left(\frac{\epsilon_1'}{\epsilon_0'}\right)^2(\frac{\epsilon_1'}{\epsilon_0'}+\frac{\epsilon_0'}{\epsilon_1'}-\sin^2\Theta') \delta(\epsilon_1' - \frac{\epsilon_0'}{1+\frac{\epsilon_0'}{m_e c^2}(1 - \cos \Theta')})
-\end{equation}
-Где $r_e$ - классический радиус электрона, $\epsilon_0'$ и $\epsilon_1'$ - энергии начального и конечного фотона, соответственно, $\Theta'$ - угол между начальным и конечным фотоном, определяемый выражением $\cos\Theta' =\cos \theta_0' \cos \theta_1' + \sin \theta_0' \sin \theta_1' \cos(\phi_1' - \phi_0')$. Штрихованные индексы относятся к системе отсчета электрона. При этом начальная и конечная энергии фотонов оказываются связаны соотношениями
-\begin{equation}
-	\epsilon_1'=\frac{\epsilon_0'}{1+\frac{\epsilon_0'}{m_e c^2}(1 - \cos \Theta')}	
-\end{equation}
-\begin{equation}
-	\epsilon_0'=\frac{\epsilon_1'}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')}
-\end{equation}
-Число фотонов, рассеявшихся в заданный телесный угол в единицу времени в промежуток энергии в системе покоя электрона равно
-\begin{equation}
-\frac{dN'}{dt'd\epsilon_1'd\Omega_1'}=\int c \frac{d\sigma}{d\epsilon_1'd\Omega_1'} \frac{dn'}{d\epsilon_0'd\Omega_0'}d\Omega_0'd\epsilon_0'
-\end{equation}
+\section{Вычислители целевой функции}
 
-Перепишем дельта-функцию через энергию начального фотона с помощью соотношения 
-\begin{equation}
-	\delta(f(x)) = \sum \frac{\delta(x-x_k)}{|f'(x_k)|}
-\end{equation}
-где $x_k$ - корни функции $f(x)$. Производная выражения внутри дельта-функции равна
-\begin{equation}
-	\frac{d\epsilon_1'}{d\epsilon_0'}=\frac{1}{(1+\frac{\epsilon_0'}{m_e c^2}(1 - \cos \Theta'))^2}
-\end{equation}
-и она сократится с квадратом отношения энергий в формуле для сечения. Функцию распределения начальных фотонов выразим в лабораторной системе с помощью выражения \ref{distribution_ph}.
-\begin{equation}
-	\frac{dN'}{dt'd\epsilon_1'd\Omega_1'}=\int \frac{r_e^2 c}{2} \gamma_e^2 (1 - \mu_0 \beta_e)^2 (\frac{\epsilon_1'}{\epsilon_0'}+\frac{\epsilon_0'}{\epsilon_1'}-\sin^2\Theta')\frac{dn}{d\epsilon_0 d\Omega_0} \delta(\epsilon_0' - \frac{\epsilon_1'}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')}) d\epsilon_0'd\mu_0' d\phi_0'
-\end{equation}
-Теперь избавимся от дельта-функции, проинтегрировав по $\epsilon_0'$.
-\begin{equation}
-	\frac{dN'}{dt'd\epsilon_1'd\Omega_1'}=\int \frac{r_e^2 c}{2} \gamma_e^2 (1 - \mu_0 \beta_e)^2 (1 + \cos^2\Theta'+(\frac{\epsilon_1'}{m_e c^2})^2\frac{(1-\cos\Theta')^2}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')})\frac{dn}{d\epsilon_0 d\Omega_0}d\mu_0' d\phi_0'
-\end{equation}
-Осталось перевести поток рассеяных фотонов в лабораторную систему отсчета $\frac{dN}{dt d\epsilon_1 d\Omega_1} = \frac{dN'}{dt' d\epsilon_1' d\Omega_1'}\frac{dt'}{dt}\frac{d\epsilon_1'}{d\epsilon_1}\frac{d\Omega_1'}{d\Omega_1}$. Используя то, что $dt = \gamma_e dt'$, $\epsilon = \frac{1}{\gamma_e(1 -\mu_1\beta_e)}\epsilon'$ и $\mu_1' = \frac{\mu_1-\beta_e}{1-\mu_1 \beta_e}$ получим
-\begin{equation} \label{compton_elframe}
-	\frac{dN}{dt d\epsilon_1 d\Omega_1}=\int \frac{r_e^2 c}{2} \frac{(1 - \mu_0 \beta_e)^2}{1-\mu_1\beta_e} (1 + \cos^2\Theta'+(\frac{\epsilon_1'}{m_e c^2})^2\frac{(1-\cos\Theta')^2}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')})\frac{dn}{d\epsilon_0 d\Omega_0}d\mu_0' d\phi_0'	
-\end{equation}
-При интегрировании нужно выразить углы в лабораторной системе отсчета $\mu_0, \phi_0$ через переменные интегрирования $\mu_0', \phi_0'$. Для расчета рассеяния на распределении электронов нужно проинтегрировать формулу \ref{compton_elframe} с функцией распределения электронов, нормированной на количество частиц. При этом надо учесть разные направления движения электронов и произвести повороты углов.
+Для оптимизации в первую очередь нужно указать целевую функцию, которую требуется минимизировать. Для этой цели используется абстрактный класс LossEvaluator и его наследники. В реализованных наследниках используются квадратичные функции оптимизации, взвешенные с учетом наблюдательных ошибок $f = \sum \frac{(F(x_i) - F_{obs,i})^2}{\sigma_i^2}$, где $F(x_i)$ - некая расчетная функция излучения (спектральная плотность потока, например) вычисленная при неком фиксированном значении параметра $x_i$ (например при данной частоте), $F_{obs,i}$ - наблюдаемая величина этой функции, $\sigma_i$ - её погрешность. В коде реализованы следующие классы целевых функций SpectrumLossEvaluator - для фитирования спектральной плотности потока излучения в данный момент времени, TimeDependentSpectrumLossEvaluator - для фитирования спектральной плотности потока излучения переменного источника, измеренного в несколько моментов времени и RadialProfileLossEvaluator - для фитирования зависимости яркости различных точек источника в зависимости от радиуса. Публичные методы этих классов перечислены в Таблице \ref{LossEvaluators}.
 
-Так же может быть удобно интегрировать в переменных лабораторной системы расчета, тогда выражение для потока фотонов будет следующим
-\begin{equation}\label{compton_labframe}
-	\frac{dN}{dt d\epsilon_1 d\Omega_1}=\int \frac{r_e^2 c}{2} \frac{1}{\gamma_e^2(1-\mu_1\beta_e)} (1 + \cos^2\Theta'+(\frac{\epsilon_1'}{m_e c^2})^2\frac{(1-\cos\Theta')^2}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')})\frac{dn}{d\epsilon_0 d\Omega_0}d\mu_0 d\phi_0
-\end{equation}
-При рассмотрении процессов, связанных с электронами высоких энергий $\gamma_e \approx 10^8$ относительные численные погрешности вычислений могут быть очень велики, так как $\beta_e$ и $\mu_0, \mu_1, \cos \Theta'$ оказываются слишком близки к единице и стандартный тип double может не разрешать это отличие. Поэтому для численных вычислений оказывается полезным ввести следующие вспомогательные величины:
-\begin{equation}
-	\delta_e = 1 - \beta_e
-\end{equation}
-\begin{equation}
-	\text{versin}~\theta = 1 - \cos \theta
-\end{equation}
-Тогда выражения вида $1 - \mu \beta_e$ в этих величинах перепишется как
-\begin{equation}
-	1 - \mu \beta_e =\text{versin}~\theta + \delta_e - \text{versin}~\theta~\delta_e
-\end{equation}
-а выражение для угла между конечным и начальным фотоном как
-\begin{equation}
-	1 - \cos \Theta' = \text{versin}~\theta_0' + \text{versin}~\theta_1' - \text{versin}~ \theta_0' \text{versin}~\theta_1' - \sin \theta_0'\sin \theta_1' \cos(\phi_1'-\phi_0')
-\end{equation}
-С использованием данных выражений значительно повышается точность и максимальные доступные к рассмотрению энергии фотонов и электронов.
+\begin{small}
+	\topcaption{Публичные методы классов вычислителей целевых функций }
+	\label{LossEvaluators}
+	\begin{xtabular}{|p{0.5\textwidth}|p{0.5\textwidth}|}
+		\hline
+		\textbf{LossEvaluator} & абстрактный класс вычислителя целевой функции\\
+		\hline
+		virtual double evaluate(const double* vector, const double* maxParameters, RadiationEvaluator* evaluator) & чисто виртуальный метод, возвращающий значение целевой функции при данных параметрах. Так же на вход принимает вектор нормироваочных значений и вычислитель излучения\\
+		\hline
+		\textbf{SpectrumLossEvaluator} & класс, в котором целевая функция характеризует отличие вычисленной спектральной плотности излучения от наблюдательных данных, $f = \sum \frac{(F(E_i) - F_{obs,i})^2}{\sigma_i^2}$, где $F(E_i)$ - расчетная спектральная плотность потока излучения при данной энергии $E_i$, $F_{obs,i}$ - наблюдаемая спектральная плотность потока излучения, $\sigma_i$ - её погрешность.\\
+		\hline
+		SpectrumLossEvaluator(double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* radiatiornSource) & конструктор, принимает на вход наблюдаемые значения спектральной плотности энергии, их количество и источник, для которого нужно вычислять излучение \textcolor{red}{в каких единицах?}\\
+		\hline
+		\textbf{TimeDependentSpectrumLossEvaluator} & класс, в котором целевая функция характеризует отличие вычисленной спектральной плотности излучения от наблюдательных данных, собранных в различные моменты времени, $f = \sum \frac{(F(E_{ij}, t_j) - F_{obs,i,j})^2}{\sigma_{ij}^2}$, где $F(E_{ij},t_j)$ - расчетная спектральная плотность потока излучения при данной энергии $E_{ij}$ в момент времени $t_j$, $F_{obs,i,j}$ - наблюдаемая спектральная плотность потока излучения, $\sigma_{ij}$ - её погрешность. ОБРАТИТЕ ВНИМАНИЕ, что количество наблюдательных точек в разные моменты времени может быть разным\\
+		\hline
+		TimeDependentSpectrumLossEvaluator(double** energy, double** observedFlux, double** observedError, int* Ne, double* times, int Ntimes, RadiationTimeDependentSource* radiationSource) & конструктор, принимает на вход двумерные массиы наблюдаемых значений спектральной плотности энергии, массив количества точек в разные моменты времени и зависящий от времени источник, для которого нужно вычислять излучение \textcolor{red}{в каких единицах?}\\
+		\hline
+		\textbf{RadialProfileLossEvaluator} & класс, в котором целевая функция характеризует отличие радиальной зависимости яркости источника в заданном дипазоне от наблюдательных данных. $f = \sum \frac{(F(R_i) - F_{obs,i})^2}{\sigma_i^2}$, где $F(R_i)$ - расчетная яркость источника при данном радиусе $R_i$, $F_{obs,i}$ - наблюдаемая яркость, $\sigma_i$ - её погрешность\\
+		\hline
+		RadialProfileLossEvaluator(double energy, double* observedFlux, double* observedError, double* rhoPoints, int Nrho, RadiationSource* radiaionSource) & конструктор, принимающий на вход значение энергии, для которого нужно вычислять яркость, наблюдаемые потоки, погрешности и соответствующие значения радиуса, количество точек и источник, для которого нужно рассчитывать излучение\\
+		\hline
+	\end{xtabular}
+\end{small}
 
-В случае изотропных функций распределения фотонов и релятивистских электронов можно произвести аналитическое интегрирование по угловым переменным \cite{JonesCompton, BykovUvarov2000}, и тогда для вычисления излучения достаточно лишь провести интегрирования по энергиям по формуле
-\begin{equation}
-	\frac{dN}{dt d\epsilon_1 d\Omega_1}=\int \frac{2 \pi r_e^2 m_e c^3 }{\epsilon_0 \gamma_e^2} \frac{dn_{ph}}{d\epsilon_0}\frac{dn_e}{d\epsilon_e}(2 q~ \ln(q)+1+q-2q^2+\frac{q^2(1-q)\Gamma^2}{2(1+q\Gamma)})d\epsilon_0d\epsilon_e
-\end{equation}
-где $\Gamma=4\epsilon_0\gamma_e/m_e c^2$, $q=\epsilon_1/((\gamma_e m_e c^2-\epsilon_1)\Gamma)$.
-\section{Синхротронное излучение}
-Процесс синхротронного излучения хороши известен и описан в классических работах. Но с точки зрения квантовой электродинамки, любому процессу излучения можно так же сопоставить процесс поглощения. Сечение процесса синхротронного самопоглощения описано в работе Гизеллини и Свенсона \cite{Ghisellini1991}. Спектральная плотность мощности излучения единицы объема вещества определеяется формулой
-\begin{equation} \label{emission}
-	I(\nu)=\int_{E_{min}}^{E_{max}} dE \frac {\sqrt {3}{e}^{3}n F(E) B \sin ( \phi)}{{m_e}{c}^{2}}
-	\frac{\nu}{\nu_c}\int_{\frac {\nu}{\nu_c}}^{\infty }\it K_{5/3}(x)dx,
-\end{equation}
-где $\phi$ это угол межде вектором магнитного поля и лучом зрения, $\displaystyle\nu_{c}$ критическая частота, определяемая выражением $\displaystyle\nu_{c} = 3 e^{2} B \sin(\phi) E^{2}/4\pi {m_{e}}^{3} c^{5}$, и~$K_{5/3}$ - функция МакДональда.
-Коэффициент поглощения для фотонов, распростроняющихся вдоль луча зрения равен
-\begin{equation}\label{absorption}
-	k(\nu)=\int_{E_{min}}^{E_{max}}dE\frac {\sqrt {3}{e}^{3}}{8\pi m_e \nu^2}\frac{n B\sin(\phi)}{E^2}
-	\frac{d}{dE} E^2 F(E)\frac {\nu}{ \nu_c}\int_{\frac {\nu}{ \nu_c}}^{\infty }K_{5/3}(x) dx.
-\end{equation}
+\section{Оптимизаторы целевой функции}
+Для фитирования постоянных во времени кривых блеска предназначен абстрактный класс RadiationOptimizer. В нем определена виртуальныя функция optimize(double* vector, bool* optPar), которая и производит процесс оптимизации. Входными параметрами являются: vector - массив подбираемых параметров, в который будет записан результат работы программы, optPar - массив булевских переменных, определяющих оптимизировать соответствующий параметр, или считать его фиксированным. Функция изменения параметров источника source->resetParameters, который будет использоваться в процессе оптимизации, описанная в разделе \ref{sourcesSection}, должна быть согласована с массивом оптимизируемых параметров vector, так как в процессе оптимизации он будет передаваться в нее в качестве аргумента.
+
+В коде реализованы три наследника класса RadiationOptimazer: GridEnumRadiationOptimizer - производящий поиск минимума простым перебором по сетке параметров с заданным количеством распределенных равномерно логарифмически точек, GradientDescentRadiationOptimizer - в котором минимум находится методом градиентного спуска, и CombinedRadiationOptimizer, который выполняет оптимизацию двумя этими методами последовательно, используя результат работы первого как начальную точку для второго. Схема насследования классов оптимизаторов показана на рисунке \ref{radiationOptimizer}, а список их публичных методов приведен в Таблице \ref{RadiationOptimizerMethods}. Реализованные методы оптимизации применимы для всех описанных выше типов источников, видов электромагнитного излучения и вычислителей целевых функций.
+\begin{figure}
+	\centering
+	\includegraphics[width=11.5 cm]{./fig/radiationOptimizer.png} 
+	\caption{Схема наследования классов оптимизаторов}
+	\label{radiationOptimizer}
+\end{figure}
+
+\begin{small}
+	\topcaption{Публичные методы классов оптимизаторов параметров источников }
+	\label{RadiationOptimizerMethods}
+	\begin{xtabular}{|p{0.41\textwidth}|p{0.59\textwidth}|}
+		\hline
+		\textbf{RadiationOptimizer} & абстрактный класс для оптимизации параметров источника \\
+		\hline
+		double evaluateOptimizationFunction(const double* vector) & вычисляет целевую функцию - взвешенную при данном векторе параметров\\
+		\hline
+		void optimize(double* vector, bool* optPar) & функция, осуществляющая оптимизацию, принимает на вход массив подбираемых параметров, в который будет записан результат и массив булевских переменных, определяющих оптимизировать соответствующий параметр, или считать его фиксированным\\
+		\hline
+		void outputProfileDiagrams(const double* vector, int Npoints) & функция, которая строит и записывает в файлы двухмерные сечения целевой функции по всем комбинациям параметров, проходящие через точку определяемую заданным вектором параметров\\
+		\hline
+		void outputOptimizedProfileDiagram(const double* vector, bool* optPar, int Npoints, int Nparam1, int Nparam2) & функция, которая строит и записывает в файлы двухмерные сечения целевой функции, в которых два параметра с номерами Nparam1 и Nparam2 фиксируются и пробегают соответствующую плоскость, а остальные оптимизируются\\
+		\hline
+		\textbf{GridEnumRadiationOptimizer} & класс предназначенный для оптимизации параметров с помощью перебора по сетке\\
+		\hline
+		GridEnumRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints, LossEvaluator* lossEvaluator) & конструктор, создает экземпляр класса с указанным вычислителем излучения, минимальными и максимальными значениями оптимизируемых параметров, количеством этих параметров, массивом с количеством перебираемых точек по каждому параметру и вычислителем целевой функции. При переборе точки будут распределены логарифмически по оси.\\
+		\hline
+		\textbf{GradientDescentRadiationOptimizer} & класс, предназначенный для оптимизации параметров методом градиентного спуска\\
+		\hline
+		GradientDescentRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, LossEvaluator* lossEvaluator) & конструктор, создает экземпляр класса с указанным вычислителем излучения, минимальными и максимальными значеними оптимизируемых параметров, количеством этих параметров,  максимальным количеством итераций градиентного спуска и вычислителем целевой функции\\
+		\hline
+		\textbf{CombinedRadiationOptimizer} & класс, предназначенный для совместного использования сеточного поиска и градиентного спуска\\
+		\hline
+		CombinedRadiationOptimizer( RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, const int* Npoints, LossEvaluator* lossEvaluator) & конструктор, создает экземпляр класса с указанным вычислителем излучения, минимальными и максимальными значеними оптимизируемых параметров, количеством этих параметров,  максимальным количеством итераций градиентного спуска, количеством точек для сеточного поиска и вычислителем целевой функции\\
+		\hline
+	\end{xtabular}
+\end{small}
+
+Пример фитирования параметров источника по наблюдательным данным приведен в функции fitCSS161010withPowerLawDistribition в файле examples.cpp. Следуя авторам работы \cite{Coppejans2020} произведем расчет синхротронного излучения источника с учетом самопоглощения, считая функцию распределения электронов чисто степенной с показателем 3.6. Но мы не будем накладывать дополнительную связь на параметры и предполагать равенство распределения энергии между магнитным полем и ускоренными частицами, вместо этого магнитное поле и концентрация электронов будут независимыми параметрами.
+
+Подберем параметры Быстрого Оптического Голубого Транзиента CSS161010 на 98 день после вспышки на основе радиоизлучения. Зададим параметры источника на основе дынных статьи \cite{Coppejans2020}, которые будут использоваться в качестве начального приближения, а так же расстояние до него.
+\begin{lstlisting}[language=c++]
+    double electronConcentration = 25;
+    double B = 0.6;
+    double R = 1.4E17;
+    double fraction = 0.5;
+    const double distance = 150 * 1E6 * parsec;
+\end{lstlisting}
+Далее зададим степенное распределение электронов, с показателем 3.6 и источник в форме плоского диска, перпендикулярного лучу зрения, и вычислитель синхротронного излучения.
+\begin{lstlisting}[language=c++]
+    double Emin = me_c2;
+    double Emax = 10000 * me_c2;
+    double index = 3.6;
+	
+    SynchrotronEvaluator* synchrotronEvaluator = new
+        SynchrotronEvaluator(200, Emin, Emax);
+
+    MassiveParticlePowerLawDistribution* electrons = 
+        new MassiveParticlePowerLawDistribution(
+        massElectron, index, Emin, electronConcentration);
+
+    SimpleFlatSource* source = new
+        SimpleFlatSource(electrons, B, pi/2, R, fraction * R, distance);
+\end{lstlisting}
+Теперь определим вектор оптимизируемых параметров - это размер, магнитное поле, концентрация электронов и доля толщины, показывающая какю долю от радиуса диска составляет его толщина. И именно такие параметры ожидает функция resetParameters у источника SimpleFlatSource. Так же нужно указать минимальные и максимальные значения параметров, которые ограничат область поиска. Максимальные значения так же будут использоваться как константы нормировки.
+\begin{lstlisting}[language=c++]
+    const int Nparams = 4;
+    double minParameters[Nparams] = { 1E17, 0.01, 0.5, 0.1 };
+    double maxParameters[Nparams] = { 2E17, 10, 200, 1.0 };
+    double vector[Nparams] = { R, B, electronConcentration, fraction};
+    for (int i = 0; i < Nparams; ++i) {
+	    vector[i] = vector[i] / maxParameters[i];
+    }
+\end{lstlisting}
+Зададим наблюдательные данные, которые и будем фитировать. Обратите внимание, что частоты нужно перевести в энергии, а спектральную плотность потока - в энергетическую (в единицы $\text{см}^{-2}\text{с}^{-1}$).
+\begin{lstlisting}[language=c++]
+    const int Nenergy1 = 4;
+    double energy1[Nenergy1] = { 1.5E9*hplank, 3.0E9 * hplank, 
+    	6.1E9 * hplank, 9.8E9 * hplank };
+    double observedFlux[Nenergy1] = { 1.5/(hplank*1E26), 
+    	4.3/(hplank*1E26), 6.1/(hplank*1E26), 4.2 /(hplank*1E26)};
+    double observedError[Nenergy1] = { 0.1 / (hplank * 1E26), 
+    	0.2/(hplank*1E26), 0.3/(hplank*1E26), 0.2/(hplank*1E26)};
+\end{lstlisting}
+Далее создадим вычислитель целевой функции, фитирующий спектр и комбинированный оптимизатор, и укажем количество точек для перебора и количество итераци градиентного спуска. Так же укажем, что оптимизируем все параметры.
+\begin{lstlisting}[language=c++]
+    bool optPar[Nparams] = { true, true, true, true };
+    int Niterations = 20;
+    int Npoints[Nparams] = { 10,10,10,10 };
+    
+    LossEvaluator* lossEvaluator = new SpectrumLossEvaluator(energy1, observedFlux, observedError, Nenergy1, source);
+    RadiationOptimizer* optimizer = new CombinedRadiationOptimizer(
+        synchrotronEvaluator,minParameters,maxParameters,Nparams, Niterations,Npoints, lossEvaluator);
+\end{lstlisting}
+Применим функцию optimize и изменим параметры источника на оптимальные
+\begin{lstlisting}[language=c++]
+    optimizer->optimize(vector, optPar, energy1, observedFlux, 
+        observedError, Nenergy1, source);
+    source->resetParameters(vector, maxParameters);
+\end{lstlisting}
+Полученные в результате оптимизации парметры источника равны: радиус диска $R = 1.8\times10^17 \text{ см}$, магнитное поле $B = 1.6 \text{ Гс}$, концентрация электронов $n = 2.3 \text{ см}^{-3}$, доля толщины $fraction = 0.54 $. Значение целевой функции $f \approx 50$. Модельный спектр излучения  с данными параметрами и наблюдательные данные изображены на рисунке \ref{synchrotron1}.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=12.5 cm]{./fig/synchrotron1.png} 
+	\caption{Наблюдаемый и расчетный спектр радиоизлучения объекта CSS161010 на 98 день после вспышки}
+	\label{synchrotron1}
+\end{figure}
+
+
+%Пример фитирования параметров источника по наблюдательным данным приведен в функции fitTimeDependentCSS161010() в файле examples.cpp. Подберем параметры Быстрого Оптического Голубого Транзиента CSS161010 на основе наблюдений радиоизлучения, проведенных на 98, 162, 357 день после вспышки.  Расчет синхротронного излучения учитывает самопоглощение и раширение источника. Источник будем считать шаровым слоем с однородной плотностью и однороным магнитным полем, направленным перпендикулярно лучу зрения. Функцию распределения излучающих электронов возьмем на основе Particle-in-Cell расчетов для ударной волны со скоростью 0.3c,как сделано в работе \cite{BykovUniverse}. Учтена зависимость функции распределения от угла между магнитным полем и направлением распространения ударной волны.
+
+%Подберем параметры Быстрого Оптического Голубого Транзиента CSS161010 на основе наблюдений радиоизлучения, проведенных на 98, 162, 357 день после вспышки.  Зададим сначала массивы наблюдательных точек, переведя при этом из единиц герцы и милиянские в эрги и $\text{см}^{-2} \text{c}^{-1}$
+%\begin{lstlisting}[language=c++]
+%const double cssx1[4] = 
+%{1.5*hplank*1E9, 3.0*hplank*1E9, 6.1*hplank*1E9, %9.87*hplank*1E9};
+%const double cssy1[4] =  {1.5/(hplank*1E26), 
+%4.3/(hplank*1E26), 6.1/(hplank*1E26), 4.2/(hplank*1E26)};
+%const double cssError1[4] = {0.1/(hplank*1E26), 
+%0.2/(hplank*1E26), 0.3/(hplank*1E26), 0.2/(hplank*1E26)};
+	
+%const double cssx2[4] = 
+%{2.94*hplank*1E9, 6.1*hplank*1E9, 9.74*hplank*1E9, %22.0*hplank*1E9};
+%const double cssy2[4] = {2.9/(hplank*1E26), 
+%2.3/(hplank*1E26), 1.74/(hplank*1E26), %0.56/(hplank*1E26)};
+%const double cssError2[4] = {0.2/(hplank*1E26), 
+%0.1/(hplank*1E26), 0.09/(hplank*1E26), %0.03/(hplank*1E26)};
+	
+%const double cssx3[6] = {0.33*hplank*1E9, %0.61*hplank*1E9, 
+%1.5*hplank*1E9, 3.0*hplank*1E9, 6.05*hplank*1E9, %10.0*hplank*1E9};
+%const double cssy3[6] = {0.375/(hplank*1E26), %0.79/(hplank*1E26), 
+%0.27/(hplank*1E26),0.17/(hplank*1E26),0.07/(hplank*1E26),0.32/(hplank*1E27)};
+%const double cssError3[6] = {0.375/(hplank*1E26), 0.09/(hplank*1E26),
+%0.07/(hplank*1E26),0.03/(hplank*1E26),0.01/(hplank*1E26),0.8/(hplank * 1E28)};
+%\end{lstlisting}
+
+%Определим моменты времени инаблюдений и соответствующие им количества точек
+
+%\begin{lstlisting}[language=c++]
+%const int Ntimes = 3;
+%double times[Ntimes] = { 99 * 24 * 3600, 162 * 24 * 3600, 357 * 24 * 3600 };
+%int Nenergy[Ntimes];
+%Nenergy[0] = 4;
+%Nenergy[1] = 4;
+%Nenergy[2] = 6;
+%\end{lstlisting}
+%Создадим и инициализируем необходимые массивы с наблюдательными данными
+%\begin{lstlisting}[language=c++]
+%double** energy = new double* [Ntimes];
+%double** F = new double* [Ntimes];
+%double** Error = new double* [Ntimes];
+%for (int m = 0; m < Ntimes; ++m) {
+%	energy[m] = new double[Nenergy[m]];
+%	F[m] = new double[Nenergy[m]];
+%	Error[m] = new double[Nenergy[m]];
+%}
+
+%for (int i = 0; i < Nenergy[0]; ++i) {
+%	energy[0][i] = cssx1[i];
+%	F[0][i] = cssy1[i];
+%	Error[0][i] = cssError1[i];
+%}
+
+%for (int i = 0; i < Nenergy[1]; ++i) {
+%	energy[1][i] = cssx2[i];
+%	F[1][i] = cssy2[i];
+%	Error[1][i] = cssError2[i];
+%}
+
+%for (int i = 0; i < Nenergy[2]; ++i) {
+%	energy[2][i] = cssx3[i];
+%	F[2][i] = cssy3[i];
+%	Error[2][i] = cssError3[i];
+%}
+%\end{lstlisting}
+
+%Зададим физические параметры источника (или их начальные приближения) - расстояние, размер, концентрацию, магнитное поле, долю толщины шара, занятую излучающим веществом, скорость расширения и магнетизацию.
+
+%\begin{lstlisting}[language=c++]
+%const double distance = 150 * 1E6 * parsec;
+%double rmax = 1.3E17;
+%double electronConcentration = 150;
+%double B = 0.6;
+%double widthFraction = 0.5;
+%double v = 0.3 * speed_of_light;
+%double sigma = B * B / (4 * pi * massProton * 
+%electronConcentration * speed_of_light2);
+%\end{lstlisting}
+
+%Укажем для оптимизаторов количество параметров, ихи минимальные и максимальные значения и соответствие вектора параметров и физических величин. Оптимизируемыми параметрами являются - размер источника, магнетизация, доля заполнения и скорость расширения в первый момент времени, а так же показатели степени расширения со временем и изменения магнитного поля и концентрации с радиусом, то есть $\alpha, \beta, \gamma$ где эти величины определены через уравнения $R(t) = R_0 + \frac{1}{\alpha-1}\cdot V(0) \cdot t_0 \cdot ({t/t_0}^{\alpha-1}-1 )$, $B(R) = B(R_0)\cdot{R_0/R}^{\beta-1}$, $n(R) = n(R_0)\cdot{R_0/R}^{\gamma - 1}$. Единица добавлена к показателям степени для удобства численных расчетов при близости величин к нулю.
+%\begin{lstlisting}[language=c++]
+%const int Nparams = 8;
+%double minParameters[Nparams] = { 1E16, 0.0001, 0.01, 0.1, 
+%0.01 * speed_of_light, 1.1, 1.0, 1.0 };
+%double maxParameters[Nparams] = { 2E17, 1, 1000, 1.0, 0.6 * 
+%speed_of_light, 2.0, 3.5, 3.5 };
+%double vector[Nparams] = { rmax, sigma, electronConcentration, 
+%widthFraction, v, 2.0, 2.0, 3.0 };
+%for (int i = 0; i < Nparams; ++i) {
+%    vector[i] = vector[i] / maxParameters[i];
+%}
+%bool optPar[Nparams] = { true, true, true, true, true, %true, true, true };
+%\end{lstlisting}
+
+%Далее создадим источник излучения. Воспользуемся моделью расширяющейся однородной сферической оболочки, с однородным магнитным полем, перпендикулярным лучу зрения и функцией распределения электронов, зависящей от угла между направлением магнитного поля и направлением расширения оболочки. Функции распределения получены с использованием Particle-in-Cell кода Smilei \cite{Derouillat} и содержатся в директории examplesData. Методика расчетов описана в статье \cite{BykovUnirse}. Количетсво распределений, посчитанных для углов от 0 до 90 градусов равно десяти. Их можно считать из соответствующих файлов, используя метод класса MassiveParticleDistributionFactory. Так же будет добавлено продолжение мтепенного хвоста, так как PIC расчеты не пользволяют получать длинные спектры из-за большой вычислительной сложности. Так же необходимо провести масштабирование распределения, так как в PIC расчетах испольовалось уменьшенное отношение масс протонов и электронов $m_p/m_e = 100$. Имея массив распределений создадим источник, учитывающий угловую зависимость, и передим его далее источнику. учитывающему зависимость от времени.
+
+%\begin{lstlisting}[language=c++]
+%const int Ndistributions = 10;
+
+%MassiveParticleIsotropicDistribution** angleDependentDistributions = 
+%MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail
+%(massElectron, "./input/Ee", "./input/Fs", ".dat", 10, 
+%DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200, 20 * me_c2, 3.5);
+%for (int i = 0; i < Ndistributions; ++i) {
+%(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>
+%(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
+%}
+
+%AngleDependentElectronsSphericalSource* angleDependentSource = new 
+%AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, 
+%angleDependentDistributions,B,1.0,0,electronConcentration,rmax,0.5*rmax,distance);
+
+%RadiationTimeDependentSource* source = new 
+%ExpandingRemnantSource(rmax, B, electronConcentration, 0.3 * speed_of_light,
+%0.5, angleDependentSource, times[0]);
+
+%\end{lstlisting}
+
+%Теперь создадим вычислитель синхротронного излучения и два оптимизатора параметров - первый будет работать перебором параметров по сетке, а второй - градиентным спуском. Укажем количество точек по осям для перебора, количество итераций для градиентного спуска и диапазон энергий электронов, который будет рассматривать вычислитель синхротронного излучения.
+
+%\begin{lstlisting}[language=c++]
+%int Npoints[Nparams] = { 3, 3, 3, 3, 3, 3, 3, 3 };
+%int Niterations = 5;
+
+%double Emin = me_c2;
+%double Emax = 10000 * me_c2;
+
+%SynchrotronEvaluator* synchrotronEvaluator=new %SynchrotronEvaluator(200, Emin, Emax);
+
+%RadiationTimeOptimizer* gridEnumOptimizer = 
+%new GridEnumRadiationTimeOptimizer(synchrotronEvaluator, minParameters, 
+%maxParameters, Nparams, Npoints);
+%RadiationTimeOptimizer* gradientOptimizer = 
+%new GradientDescentRadiationTimeOptimizer(synchrotronEvaluator,minParameters, 
+%maxParameters, Nparams, Niterations);
+%\end{lstlisting}
+
+%Применим созданые оптимизаторы и изменим параметры источника на найденные, соответствующие минимуму.
+
+%\begin{lstlisting}[language=c++]
+
+%gridEnumOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
+
+%gradientOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
+
+%source->resetParameters(vector, maxParameters);
+%\end{lstlisting}
+
+%Полученные в результате оптимизации парметры источника равны: радиус диска в начальный момент времени $R = 1.8\times10^17 \text{ см}$, магнитное поле $B = 1.6 \text{ Гс}$, концентрация электронов $n = 2.3 \text{ см}^{-3}$, доля толщины $fraction = 0.54 $, степени зависимости . Значение целевой функции $f \approx 50$. Модельный спектр излучения  с данными параметрами и наблюдательные данные изображены на рисунке \ref{synchrotronSeries}.
+
+%\begin{figure}
+%	\centering
+%	%\includegraphics[width=12.5 cm]{./fig/synchrotronSeries.png} 
+%	\caption{Наблюдаемый и расчетный спектр радиоизлучения объекта CSS161010 на 99, 162 и 357 дни после вспышки}
+%	\label{synchrotronSeries}
+%\end{figure}

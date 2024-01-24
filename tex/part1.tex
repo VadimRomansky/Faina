@@ -1,5 +1,5 @@
-\chapter{Расчет излучения источников}\label{radiation}
-FAINA позволяет рассчитывать электромагнитное излучение от источников с заданными функциями распределения излучающих частиц и другими параметрами. Построены модели следующих типов излучения: синхротронного, обратного комптоновского рассеяния, пионного распада в результате свободно-свободного взаимодействия протонов и тормозного излучения.
+\chapter{Источники излучения}\label{radiation}
+FAINA позволяет рассчитывать электромагнитное излучение от источников с заданными функциями распределения излучающих частиц и другими параметрами.
 
 \section{Функции распределения частиц}
 
@@ -54,15 +54,16 @@ FAINA позволяет рассчитывать электромагнитно
 				\hline
 				double getMass() & возвращает массу частиц \\
 				\hline
-				void resetConcentration(const double\& n) & позволяет изменить полную концентрацию частиц в распределении\\
-				\hline
 			\end{tabularx}
 		\end{small}
 	\end{center}
 \end{table}
 \subsection{Распределения фотонов}
 
-От абстрактного класса PhotonDistribution наследуются следующие классы: абстрактный PhotonIsotropicDistribution, предназначенный для представления изотропных распределений фотонов, PhotonPlankDirectedDistribution, представляющий планковское распределение по энергии, но сконцентрированное в некотором телесном угле, такое распределение удобно для модели излучения звезды на некотором расстоянии от нее, и CompoundPhotonDistribution, представляющий из себя сумму нескольких распределений фотонов общего вида. Схема наследования классов фотонных распределений представлена на рисунке \ref{photonDistribution}.
+От абстрактного класса PhotonDistribution наследуются следующие классы: абстрактный PhotonIsotropicDistribution, предназначенный для представления изотропных распределений фотонов, PhotonPlankDirectedDistribution, представляющий планковское распределение по энергии, но сконцентрированное в некотором телесном угле, такое распределение удобно для модели излучения звезды на некотором расстоянии от нее, и CompoundPhotonDistribution, представляющий из себя сумму нескольких распределений фотонов общего вида.
+
+У изотропного распределения PhotonIsotropicDistribution добавляются методы, возвращающие значение функции распределения только в зависимости от энергии. Важно понимать, что это не функция распределения по энергии, а полная функция распределения с отброшенными угловыми аргументами. Другими словами, для получения значения функции распределения по энергии нужно домножить значение, возвращенное данным методом на $4 \pi$.
+У класса PhotonIsotropicDistribution есть четыре наследника, которые являются не абстрактными классами, а непосредственно предназначены для создания распределений. Это PhotonPowerLawDistribution для представления степенных распределений, PhotonPlankDistribution, для планковских распределений, PhotonMultiPlankDistribution, для суммы планковских распределений, и PhotonMonoenergeticDistribution для моноэнергетичного изотропного распределения. Схема наследования классов фотонных распределений представлена на рисунке \ref{photonDistribution}.
 
 \begin{figure}
 	\centering
@@ -71,12 +72,10 @@ FAINA позволяет рассчитывать электромагнитно
 	\label{photonDistribution}
 \end{figure}
 
-У изотропного распределения PhotonIsotropicDistribution добавляются методы, возвращающие значение функции распределения только в зависимости от энергии. Важно понимать, что это не функция распределения по энергии, а полная функция распределения с отброшенными угловыми аргументами. Другими словами, для получения значения функции распределения по энергии нужно домножить значение, возвращенное данным методом на $4 \pi$.
-
-У класса PhotonIsotropicDistribution есть четыре наследника, которые являются не абстрактными классами, а непосредственно предназначены для создания распределений. Это PhotonPowerLawDistribution для представления степенных распределений, PhotonPlankDistribution, для планковских распределений, PhotonMultiPlankDistribution, для суммы планковских распределений, и PhotonMonoenergeticDistribution для моноэнергетичного изотропного распределения. Метода класса PhotonIsotropicDistribution и его наследников перечислены в таблице \ref{photonDistributionMethods}
+Методы класса PhotonDistribution и его наследников перечислены в таблице \ref{photonDistributionMethods}
 
 \begin{small}
-	\topcaption{Публичные методы классов изотропных распределений фотонов }
+	\topcaption{Публичные методы классов распределений фотонов }
 	\label{photonDistributionMethods}
 	\begin{xtabular}{|p{0.45\textwidth}|p{0.55\textwidth}|}
 				\hline
@@ -113,17 +112,7 @@ FAINA позволяет рассчитывать электромагнитно
 				\textbf{PhotonMonoenergeticDistribution} & Класс для моноэнергетического изотропного распределения фотонов\\
 				\hline
 				PhotonMonoenergeticDistribution(const double\& Energy, const double\& halfWidth, const double\& concentration) & конструктор, принимающий среднюю энергию распределения, полуширину разброса вокруг нее и концентрацию\\
-				\hline
-	\end{xtabular}
-\end{small}
-
-Класс CompoundPhotonDistribution предназначен для представления смеси различных распределений фотонов, не обязательно планковских, как PhotonMultiPlankDistribution, и не обязательно изотропных. Его методы описаны в Таблице \ref{CompoundPhotonMethods}
-
-\begin{small}
-		\topcaption{Публичные методы класса CompoundPhotonDistribution }
-		\label{CompoundPhotonMethods}
-			\begin{xtabular}{|p{0.45\textwidth}|p{0.55\textwidth}|}
-				\hline
+								\hline
 				\textbf{CompoundPhotonDistribution} & Класс для распределения фотонов, состоящего из суммы других распределений\\
 				\hline
 				CompoundPhotonDistribution(int N, PhotonDistribution** distributions) & конструктор, создающий экземпляр с заданным количеством распределений в смеси и массивом этих распределений \\
@@ -131,17 +120,7 @@ FAINA позволяет рассчитывать электромагнитно
 				CompoundPhotonDistribution( PhotonDistribution* dist1, PhotonDistribution* dist2) & конструктор, создающий экземпляр содержащий смесь из двух распределений\\
 				\hline
 				CompoundPhotonDistribution( PhotonDistribution* dist1, PhotonDistribution* dist2, PhotonDistribution* dist3) & конструкторб создающий экземпляр содержащий смесь из трех распределений\\
-				\hline
-	\end{xtabular}
-\end{small}
-
-Единственное реализованное в коде анизотропное распределение фотонов - это PhotonPlankDirectedDistribution, представляющий направленное планковское излучение. Пользователь может реализовать другие виды анизотропных излучений самостоятельно, создав класс, наследующий от PhotonDistribution и определив необходимый виртуальный метод distributionNormalized(const double\& energy, const double\& mu, const double\& phi). Методы класса PhotonPlankDirectedDistribution описаны в Таблице \ref{PhotonPlankDirectedDistributionMethods}
-
-\begin{small}
-		\topcaption{Публичные методы класса PhotonPlankDirectedDistribution }
-		\label{PhotonPlankDirectedDistributionMethods}
-			\begin{xtabular}{|p{0.45\textwidth}|p{0.55\textwidth}|}
-				\hline
+								\hline
 				\textbf{PhotonPlankDirectedDistribution} & Класс для направленного планковского распределения фотонов\\
 				\hline
 				PhotonPlankDirectedDistribution(const double\& temperature, const double\& amplitude, const double\& theta0, const double\& phi0, const double\& deltaTheta) & конструктор, принимающий температуру, амплитуду, углы задающие направление излучения и угол задающий полуширину раствора конуса излучения\\
@@ -151,13 +130,30 @@ FAINA позволяет рассчитывать электромагнитно
 	\end{xtabular}
 \end{small}
 
+
+Пользователь может реализовать другие виды  излучений самостоятельно, создав класс, наследующий от PhotonDistribution или PhotonIsotropicDistribution определив необходимый виртуальный метод distributionNormalized.
+
+
 \subsection{Распределения массивных частиц}
 Распределения массивных частиц представлены наследниками класса MassiveParticleDistribution. Так же как и в случае с фотонами важную роль играет абстрактный клас для представления изотропных распределений - MassiveParticleIsotropicDistribution. У этого класса есть методы возвращающие значение функции распределения в зависимости от энергии, и опять же, это не функция распределения, проинтегрированная по углам, а полная функция распределения с отброшенными угловыми аргументами. Для получения значения функции распределения по энергии нужно домножить значение, возвращенное данным методом на $4 \pi$. 
 
+Абстрактный класс изотропных распределений имеет семь наследников, предназначенных для создания конкретных распределений: MassiveParticlePowerLawDistribution - для степенных распределений, MassiveParticleBrokenPowerLawDistribution - для степенных распределений с изломом, MassiveParticlePowerLawCutoffDistribution - для степенных распределений с экспоненциальным завалом, MassiveParticleMaxwellDistribution - для максвелловского распределения (обратите внимание, что в отличие от остальных распределений, максвелловское подразумевает под энергией только кинетическую энергию), MassiveParticleMaxwellJuttnerDistribution - для релятивистского распределения Максвелла-Юттнера, MassiveParticleTabulatedIsotropicDistribution - для таблично заданных распределений и MassiveParticleMonoenergeticDistribution - для моноэнергичного изотропного распределения.
+
+Так же имеется шесть реализаций анизотропных распределений: MassiveParticleTabulatedPolarDistribution - для таблично заданных распределений с зависимостью только от энергии и полярного угла, MassiveParticleAnisotropicDistribution - для таблично заданных распределений с зависимостью от всех переменных, MassiveParticleMonoenergeticDirectedDistribution - для моноэнергичного пучка частиц, с импульсами направленными в заданный телесный угол, MassiveParticleMovingDistribution - для перевода функций распределения в движущуюся систему отсчета, CompoundMassiveParticleDistribution - для суммы распредлений общего вида, CompoundWeightedMassiveParticleDistribution - для взвешенной суммы распределений общего вида. В некоторых случаях оперировать весами распределений удобнее, чем непосредственно концентрациями. Полная схема наследования классов распределений массивных частиц представлена на рисунке \ref{massiveDistribution}. 
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=14.5 cm]{./fig/massiveParticleDistribution2.png} 
+	\caption{Схема наследования классов распределения массивных частиц}
+	\label{massiveDistribution}
+\end{figure}
+
+Cписок публичных методов классов распределений массивных частиц приведен в Таблице \ref{MassiveParticleMethods}.Пользователь может сам реализовывать необходимые ему виды распределений излучающих частиц, создав наследника класса MassiveParticleDistribution или MassiveParticleIsotropicDistribution и определив необходимые виртуальные методы.
+
 \begin{small}
-		\topcaption{Публичные методы класса MassiveParticleIsotropicDistribution }
+		\topcaption{Публичные методы классов распределений массивных частиц }
 		\label{MassiveParticleMethods}
-			\begin{xtabular}{|p{0.45\textwidth}|p{0.55\textwidth}|}
+			\begin{xtabular}{|p{0.57\textwidth}|p{0.43\textwidth}|}
 				\hline
 				\textbf{MassiveParticleIsotropicDistribution} & Абстрактный класс для изотропных распределений\\
 				\hline
@@ -167,19 +163,122 @@ FAINA позволяет рассчитывать электромагнитно
 				\hline
 				void writeDistribution(const char* fileName, int Ne, const double\& Emin, const double\& Emax) & записывает распределение в файл с данным именем, в диапазоне межджу данными минимальной и максимальной енергиями с заданным количеством точек, которые распределяются логарифмически\\
 				\hline
+				double distributionNormalizedWithLosses( const double\& energy, const double\& lossRate, const double\& time) & возвращает распределение с учетом эволюции во времени за счет синхротронных потерь до времени t определяемое уравнением $f_t(E)=f\left(\frac{E}{1-E l t}\right)\cdot\frac{1}{\left(1- E l t\right)^2}$ and loss rate $l = 4e^4 B^2 /9m^4 c^7$\\
+				\hline
+				\textbf{MassiveParticlePowerLawDistribution} & Класс для степенного распределения\\
+				\hline
+				MassiveParticlePowerLawDistribution( const double\& mass, const double\& index, const double\& E0, const double\& concentration) & конструктор, создает экземпляр степенного распределния частиц с заданными массой, степенным индексом, начальной энергией распределения и полной концентрацией\\
+				\hline
+				double getIndex() & возвращает степенной индекс распределения\\
+				\hline
+				double getE0() & возвращает начальную энергию распределения\\
+				\hline
+				\textbf{MassiveParticleBrokenPowerLawDistribution} & Класс для степенного распределения с изломом\\
+				\hline
+				MassiveParticleBrokenPowerLawDistribution( const double\& mass, const double\& index1, const double\& index2, const double\& E0, const double\& Etran, const double\& concentration) & конструктор, создает экземпляр степенного распределния с изломом частиц с заданными массой, степенными индексоми на низких и высоких энергиях, начальной энергией распределения, энергией соответствующей излому и полной концентрацией\\
+				\hline
+				double getIndex1() & возвращает степенной индекс распределения на низких энергиях\\
+				\hline
+				double getIndex2() & возвращает степенной индекс распределения на высоких энергиях\\
+				\hline
+				double getE0() & возвращает начальную энергию распределения\\
+				\hline
+				double getEtran() & возвращает энергию излома\\
+				\hline
+				\textbf{MassiveParticlePowerLawCutoffDistribution} & Класс для степенного распределения с экспоненциальным завалом\\
+				\hline
+				MassiveParticlePowerLawCutoffDistribution(const double\& mass, const double\& index, const double\& E0, const double\& beta, const double\& Ecut, const double\& concentration) & конструктор, создает экземпляр степенного распределния с экспоненциальным завалом частиц с заданными массой, степенным индексом, начальной энергией распределения, параметром завала, энергией завала и полной концентрацией. $F(E)\propto (E/E_0)^{-index}\cdot\exp(-(E/E_{cut})^\beta)$\\
+				\hline
+				double getIndex() & возвращает степенной индекс распределения \\
+				\hline
+				double getBeta() & возвращает параметр завала распределения \\
+				\hline
+				double getE0() & возвращает начальную энергию распределения\\
+				\hline
+				double getEcutoff() & возвращает энергию экспоненциального завала\\
+				\hline
+				\textbf{MassiveParticleMaxwellDistribution} & Класс для распределения Максвелла\\
+				\hline
+				MassiveParticleMaxwellDistribution( const double\& mass, const double\& temperature, const double\& concentration) & конструктор, создает экземпляр распределния Максвелла частиц с заданными массой, температурой и полной концентрацией\\
+				\hline
+				double getTemperature() & возвращает температуру распределения\\
+				\hline
+				\textbf{MassiveParticleMaxwellJuttnerDistribution} & Класс для распределения Максвелла-Юттнера\\
+				\hline
+				MassiveParticleMaxwellJuttnerDistribution( const double\& mass, const double\& temperature, const double\& concentration) & конструктор, создает экземпляр распределния Максвелла-Юттнера частиц с заданными массой, температурой и полной концентрацией\\
+				\hline
+				double getTemperature() & возвращает температуру распределения\\
+				\hline
+				\textbf{MassiveParticleTabulatedIsotropicDistribution} & Класс для таблично заданного изотропного распределения\\
+				\hline
+				MassiveParticleTabulatedIsotropicDistribution( const double\& mass, const char* fileName, const int N, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью указанного файла, состоящего из двух колнок с данными указанной длины. Так же указывается формат входных данных.\\
+				\hline
+				MassiveParticleTabulatedIsotropicDistribution( const double\& mass, const char* energyFileName, const char* distributionFileName, const int N, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью указанных двух файлов, состоящих из колнок с данными указанной длины. Так же указывается формат входных данных. \\
+				\hline
+				MassiveParticleTabulatedIsotropicDistribution( const double\& mass, const double* energy, const double* distribution, const int N, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью двух переданных массивов данных указанной длины. Так же указывается формат входных данных.\\
+				\hline
+				int getN() & возвращает количество ячеек в таблице задающей функцию\\
+				\hline
+				double rescaleDistribution(const double\& k) & масштабирует распределение, вытягивая его по оси энергии по формуле $E' = mc^2 + k\cdot(E-mc^2)$, $F(E')=F(E)/k$. Данная функция может быть полезна, например, в случае когда исходная функция распределения получена в результате работы численного кода с измененной массой электронов\\
+				\hline
+				void addPowerLaw( const double\& Epower, const double\& index) & добавляет к функции распределения степенной с указанным индексом, начиная с указанной энергии. Функция распределения при этом остается нормированной на указанную ранее концентрацию\\
+				\hline
+				\textbf{MassiveParticleMonoenergeticDistribution} & Класс для моноэнергичного изотропного распределения\\
+				\hline
+				MassiveParticleMonoenergeticDistribution(const double\& mass, const double\& Energy, const double\& halfWidth, const double\& concentration) & конструктор, принимающий массу, среднюю энергию, полуширину разброса по энергии и концентрацию\\
+				\hline 
+				\textbf{MassiveParticleTabulatedPolarDistribution} & Класс для таблично заданного распределения с зависимостью от полярного угла\\
+				\hline
+				MassiveParticleTabulatedPolarDistribution( const double\& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью  трех указанных файлов, в двух из которых содержатся сетки по энергии и косинусу полярного угла с указанными размерами, а в третьем двумерный массив функции распределения. Так же указывается формат входных данных.\\
+				\hline
+				MassiveParticleTabulatedPolarDistribution( const double\& mass, const double* energy, const double* mu, const double** distribution, const int Ne, const int Nmu, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью трех переданных массивов данных, в двух из которых содержатся сетки по энергии и косинусу полярного угла с указанными размерами, а в третьем двумерный массив функции распределения. Так же указывается формат входных данных.\\
+				\hline
+				int getNe() & возвращает количество ячеек по энергии в таблице задающей функцию распределения\\
+				\hline
+				int getNmu() & возвращает количество ячеек по полярному углу в таблице задающей функцию распределения\\
+				\hline
+				void double rescaleDistribution(const double\& k) & масштабирует распределение, вытягивая его по оси энергии по формуле $E' = mc^2 + k\cdot(E-mc^2)$, $F(E',\mu)=F(E,\mu)/k$. Данная функция может быть полезна, например, в случае когда исходная функция распределения получена в результате работы численного кода с измененной массой электронов\\
+				\hline
+				\textbf{MassiveParticleTabulatedAnisotropicDistribution} & Класс для таблично заданного анизотропного распределения общего вида\\
+				\hline
+				MassiveParticleTabulatedAnisotropicDistribution( const double\& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const int Nphi, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью  трех указанных файлов, в двух из которых содержатся сетки по энергии и косинусу полярного угла с указанными размерами, а в третьем двумерный массив функции распределения. Сетка по азимутальному углу считается расномерной и определяется только размером. Так же указывается формат входных данных.\\
+				\hline
+				MassiveParticleTabulatedAnisotropicDistribution( const double\& mass, const double* energy, const double* mu, const double*** distribution, const int Ne, const int Nmu, const int Nphi, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью трех переданных массивов данных, в двух из которых содержатся сетки по энергии и косинусу полярного угла с указанными размерами, а в третьем двумерный массив функции распределения. Сетка по азимутальному углу считается расномерной и определяется только размером. Так же указывается формат входных данных.\\
+				\hline
+				int getNe() & возвращает количество ячеек по энергии в таблице задающей функцию распределения\\
+				\hline
+				int getNmu() & возвращает количество ячеек по полярному углу в таблице задающей функцию распределения\\
+				\hline
+				int getNphi() & возвращает количество ячеек по азимутальному углу в таблице задающей функцию распределения\\
+				\hline
+				void rescaleDistribution(const double\& k) & масштабирует распределение, вытягивая его по оси энергии по формуле $E' = mc^2 + k\cdot(E-mc^2)$, $F(E',\mu, \phi)=F(E,\mu, \phi)/k$. Данная функция может быть полезна, например, в случае когда исходная функция распределения получена в результате работы численного кода с измененной массой электронов\\
+				\hline
+				\textbf{MassiveParticleMonoenergeticDirectedDistribution} & Класс для моноэнергичного направленного пучка частиц\\
+				\hline
+				MassiveParticleMonoenergeticDirectedDistribution(const double\& mass, const double\& Energy, const double\& halfWidth, const double\& concentration, const double\& theta0, const double\& phi0, const double\& deltaTheta) & конструктор, принимающий массу частиц, среднюю энергию, полуширину разброса, концентрацию, углы задающие направление пучка и угол полуширины раствора конуса\\
+				\hline
+				\textbf{MassiveParticleMovingDistribution} & Класс осуществляющий перевод функций распределения в движущуюся систему отсчета\\
+				\hline
+				MassiveParticleMovingDistribution( MassiveParticleDistribution* distribution, const double\& velocity) & конструктор, принимающий функцию распределения в собственной системе отсчета и скорость движения этой системы вдоль оси z относительно лабораторной системы\\
+				\hline
+				\textbf{CompoundMassiveParticleDistribution} & Класс для распределения, состоящего из суммы других распределений\\
+				\hline
+				CompoundMassiveParticleDistribution( int N, MassiveParticleDistribution** distributions) & конструктор, создает экземпляр класса содержащий смесь заданного количества указанных распределений\\
+				\hline
+				CompoundMassiveParticleDistribution( MassiveParticleDistribution* dist1, MassiveParticleDistribution* dist2) & конструктор, создает экземпляр класса, содержащий смесь двух распределений \\
+				\hline
+				CompoundMassiveParticleDistribution( MassiveParticleDistribution* dist1, MassiveParticleDistribution* dist2, MassiveParticleDistribution* dist3) & конструктор, создает экземпляр класса, содержащий смесь трех распределений\\
+				\hline
+				\textbf{CompoundWeightedMassiveParticleDistribution} & Класс для распределения, состоящего из взвешенной суммы других распределений \\
+				\hline
+				CompoundWeightedMassiveParticleDistribution( int N, const double* weights, MassiveParticleDistribution** distributions) & конструктор, создает экземпляр класса содержащий смесь заданного количества указанных распределений с заданными весами \\
+				\hline
+				CompoundWeightedMassiveParticleDistribution( MassiveParticleDistribution* dist1, const double\& w1, MassiveParticleDistribution* dist2, const double\& w2) & конструктор, создает экземпляр класса, содержащий смесь двух распределений с указанными весами \\
+				\hline
+				CompoundWeightedMassiveParticleDistribution( MassiveParticleDistribution* dist1, const double\& w1, MassiveParticleDistribution* dist2, const double\& w2, MassiveParticleDistribution* dist3, const double\& w3) & конструктор, создает экземпляр класса, содержащий смесь трех распределений с указанными весами \\
+				\hline
 	\end{xtabular}
 \end{small}
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=14.5 cm]{./fig/massiveParticleDistribution2.png} 
-	\caption{Схема наследования классов распределения массивных частиц}
-	\label{massiveDistribution}
-\end{figure}
-
-Абстрактный класс изотропных распределений имеет семь наследников, предназначенных для создания конкретных распределений: MassiveParticlePowerLawDistribution - для степенных распределений, MassiveParticleBrokenPowerLawDistribution - для степенных распределений с изломом, MassiveParticlePowerLawCutoffDistribution - для степенных распределений с экспоненциальным завалом, MassiveParticleMaxwellDistribution - для максвелловского распределения (обратите внимание, что в отличие от остальных распределений, максвелловское подразумевает под энергией только кинетическую энергию), MassiveParticleMaxwellJuttnerDistribution - для релятивистского распределения Максвелла-Юттнера, MassiveParticleTabulatedIsotropicDistribution - для таблично заданных распределений и MassiveParticleMonoenergeticDistribution - для моноэнергичного изотропного распределения.
-
-Так же имеется шесть реализаций анизотропных распределений: MassiveParticleTabulatedPolarDistribution - для таблично заданных распределений с зависимостью только от энергии и полярного угла, MassiveParticleAnisotropicDistribution - для таблично заданных распределений с зависимостью от всех переменных, MassiveParticleMonoenergeticDirectedDistribution - для моноэнергичного пучка частиц, с импульсами направленными в заданный телесный угол, MassiveParticleMovingDistribution - для перевода функций распределения в движущуюся систему отсчета, CompoundMassiveParticleDistribution - для суммы распредлений общего вида, CompoundWeightedMassiveParticleDistribution - для взвешенной суммы распределений общего вида. В некоторых случаях оперировать весами распределений удобнее, чем непосредственно концентрациями. Полная схема наследования классов распределений массивных частиц представлена на рисунке \ref{massiveDistribution}, список публичных методов классов распределений массивных частиц приведен в Таблице \ref{MassiveParticleMethods1}. Пользователь может сам реализовывать необходимые ему виды распределений излучающих частиц, создав наследника класса MassiveParticleDistribution или MassiveParticleIsotropicDistribution и определив необходимые виртуальные методы.
 
 \subsection{Считывание распределений из файла}
 Классы таблично-заданных распределений, такие как например MassiveParticleTabulatedIsotropicDistribution, имеют конструктор принимающие на вход имена файлов, из которых будет считана функция распределения. Это должны быть текстовые файлы, содержащие таблицы с данными, причем формат единиц, в которых измеряется функция распределения может быть разным. Для задания формата входных файлов используется перечислимы тип DistributionInputType, имеющий пять значений:
@@ -220,139 +319,6 @@ FAINA позволяет рассчитывать электромагнитно
 \end{lstlisting}
 
 Так же у пользователя есть возможность использовать конструкторы табличных распределений, принимающие не имена файлов, а непосредственно массивы со значениями функции распределения, которые пользователь может создать любым удобным ему способом.
-
-\begin{small}
-	\topcaption{Публичные методы классов распределений массивных частиц }
-	\label{MassiveParticleMethods1}
-	\begin{xtabular}{|p{0.52\textwidth}|p{0.48\textwidth}|}
-		\hline
-		\textbf{MassiveParticlePowerLawDistribution} & Класс для степенного распределения\\
-		\hline
-		MassiveParticlePowerLawDistribution( const double\& mass, const double\& index, const double\& E0, const double\& concentration) & конструктор, создает экземпляр степенного распределния частиц с заданными массой, степенным индексом, начальной энергией распределения и полной концентрацией\\
-		\hline
-		double getIndex() & возвращает степенной индекс распределения\\
-		\hline
-		double getE0() & возвращает начальную энергию распределения\\
-		\hline
-		\textbf{MassiveParticleBrokenPowerLawDistribution} & Класс для степенного распределения с изломом\\
-		\hline
-		MassiveParticleBrokenPowerLawDistribution( const double\& mass, const double\& index1, const double\& index2, const double\& E0, const double\& Etran, const double\& concentration) & конструктор, создает экземпляр степенного распределния с изломом частиц с заданными массой, степенными индексоми на низких и высоких энергиях, начальной энергией распределения, энергией соответствующей излому и полной концентрацией\\
-		\hline
-		double getIndex1() & возвращает степенной индекс распределения на низких энергиях\\
-		\hline
-		double getIndex2() & возвращает степенной индекс распределения на высоких энергиях\\
-		\hline
-		double getE0() & возвращает начальную энергию распределения\\
-		\hline
-		double getEtran() & возвращает энергию излома\\
-		\hline
-		\textbf{MassiveParticlePowerLawCutoffDistribution} & Класс для степенного распределения с экспоненциальным завалом\\
-		\hline
-		MassiveParticlePowerLawCutoffDistribution(const double\& mass, const double\& index, const double\& E0, const double\& beta, const double\& Ecut, const double\& concentration) & конструктор, создает экземпляр степенного распределния с экспоненциальным завалом частиц с заданными массой, степенным индексом, начальной энергией распределения, параметром завала, энергией завала и полной концентрацией. $F(E)\propto (E/E_0)^{-index}\cdot\exp(-(E/E_{cut})^\beta)$\\
-		\hline
-		double getIndex() & возвращает степенной индекс распределения \\
-		\hline
-		double getBeta() & возвращает параметр завала распределения \\
-		\hline
-		double getE0() & возвращает начальную энергию распределения\\
-		\hline
-		double getEcutoff() & возвращает энергию экспоненциального завала\\
-		\hline
-		\textbf{MassiveParticleMaxwellDistribution} & Класс для распределения Максвелла\\
-		\hline
-		MassiveParticleMaxwellDistribution( const double\& mass, const double\& temperature, const double\& concentration) & конструктор, создает экземпляр распределния Максвелла частиц с заданными массой, температурой и полной концентрацией\\
-		\hline
-		double getTemperature() & возвращает температуру распределения\\
-		\hline
-		\textbf{MassiveParticleMaxwellJuttnerDistribution} & Класс для распределения Максвелла-Юттнера\\
-		\hline
-		MassiveParticleMaxwellJuttnerDistribution( const double\& mass, const double\& temperature, const double\& concentration) & конструктор, создает экземпляр распределния Максвелла-Юттнера частиц с заданными массой, температурой и полной концентрацией\\
-		\hline
-		double getTemperature() & возвращает температуру распределения\\
-		\hline
-		\textbf{MassiveParticleTabulatedIsotropicDistribution} & Класс для таблично заданного изотропного распределения\\
-		\hline
-		MassiveParticleTabulatedIsotropicDistribution( const double\& mass, const char* fileName, const int N, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью указанного файла, состоящего из двух колнок с данными указанной длины. Так же указывается формат входных данных.\\
-		\hline
-		MassiveParticleTabulatedIsotropicDistribution( const double\& mass, const char* energyFileName, const char* distributionFileName, const int N, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью указанных двух файлов, состоящих из колнок с данными указанной длины. Так же указывается формат входных данных. \\
-		\hline
-		MassiveParticleTabulatedIsotropicDistribution( const double\& mass, const double* energy, const double* distribution, const int N, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью двух переданных массивов данных указанной длины. Так же указывается формат входных данных.\\
-		\hline
-		int getN() & возвращает количество ячеек в таблице задающей функцию\\
-		\hline
-		double getEmin() & возвращает минимальную энергию распределения\\
-		\hline
-		double getEmax() & возвращает максимальную энергию распределения\\
-		\hline
-		double rescaleDistribution(const double\& k) & масштабирует распределение, вытягивая его по оси энергии по формуле $E' = mc^2 + k\cdot(E-mc^2)$, $F(E')=F(E)/k$. Данная функция может быть полезна, например, в случае когда исходная функция распределения получена в результате работы численного кода с измененной массой электронов\\
-		\hline
-		void addPowerLaw( const double\& Epower, const double\& index) & добавляет к функции распределения степенной с указанным индексом, начиная с указанной энергии. Функция распределения при этом остается нормированной на указанную ранее концентрацию\\
-		\hline
-		\textbf{MassiveParticleMonoenergeticDistribution} & Класс для моноэнергичного изотропного распределения\\
-		\hline
-		MassiveParticleMonoenergeticDistribution(const double\& mass, const double\& Energy, const double\& halfWidth, const double\& concentration) & конструктор, принимающий массу, среднюю энергию, полуширину разброса по энергии и концентрацию\\
-		\hline 
-		\textbf{MassiveParticleTabulatedPolarDistribution} & Класс для таблично заданного распределения с зависимостью от полярного угла\\
-		\hline
-		MassiveParticleTabulatedPolarDistribution( const double\& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью  трех указанных файлов, в двух из которых содержатся сетки по энергии и косинусу полярного угла с указанными размерами, а в третьем двумерный массив функции распределения. Так же указывается формат входных данных.\\
-		\hline
-		MassiveParticleTabulatedPolarDistribution( const double\& mass, const double* energy, const double* mu, const double** distribution, const int Ne, const int Nmu, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью трех переданных массивов данных, в двух из которых содержатся сетки по энергии и косинусу полярного угла с указанными размерами, а в третьем двумерный массив функции распределения. Так же указывается формат входных данных.\\
-		\hline
-		int getNe() & возвращает количество ячеек по энергии в таблице задающей функцию распределения\\
-		\hline
-		double getEmin() & возвращает минимальную энергию распределения\\
-		\hline
-		double getEmax() & возвращает максимальную энергию распределения\\
-		\hline
-		int getNmu() & возвращает количество ячеек по полярному углу в таблице задающей функцию распределения\\
-		\hline
-		void double rescaleDistribution(const double\& k) & масштабирует распределение, вытягивая его по оси энергии по формуле $E' = mc^2 + k\cdot(E-mc^2)$, $F(E',\mu)=F(E,\mu)/k$. Данная функция может быть полезна, например, в случае когда исходная функция распределения получена в результате работы численного кода с измененной массой электронов\\
-		\hline
-		\textbf{MassiveParticleTabulatedAnisotropicDistribution} & Класс для таблично заданного анизотропного распределения общего вида\\
-		\hline
-		MassiveParticleTabulatedAnisotropicDistribution( const double\& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const int Nphi, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью  трех указанных файлов, в двух из которых содержатся сетки по энергии и косинусу полярного угла с указанными размерами, а в третьем двумерный массив функции распределения. Сетка по азимутальному углу считается расномерной и определяется только размером. Так же указывается формат входных данных.\\
-		\hline
-		MassiveParticleTabulatedAnisotropicDistribution( const double\& mass, const double* energy, const double* mu, const double*** distribution, const int Ne, const int Nmu, const int Nphi, const double\& concentration, DistributionInputType inputType) & конструктор, создает экземпляр табличного распределния частиц с заданными массой и полной концентрацией с помощью трех переданных массивов данных, в двух из которых содержатся сетки по энергии и косинусу полярного угла с указанными размерами, а в третьем двумерный массив функции распределения. Сетка по азимутальному углу считается расномерной и определяется только размером. Так же указывается формат входных данных.\\
-		\hline
-		int getNe() & возвращает количество ячеек по энергии в таблице задающей функцию распределения\\
-		\hline
-		double getEmin() & возвращает минимальную энергию распределения\\
-		\hline
-		double getEmax() & возвращает максимальную энергию распределения\\
-		\hline
-		int getNmu() & возвращает количество ячеек по полярному углу в таблице задающей функцию распределения\\
-		\hline
-		int getNphi() & возвращает количество ячеек по азимутальному углу в таблице задающей функцию распределения\\
-		\hline
-		void rescaleDistribution(const double\& k) & масштабирует распределение, вытягивая его по оси энергии по формуле $E' = mc^2 + k\cdot(E-mc^2)$, $F(E',\mu, \phi)=F(E,\mu, \phi)/k$. Данная функция может быть полезна, например, в случае когда исходная функция распределения получена в результате работы численного кода с измененной массой электронов\\
-		\hline
-		\textbf{MassiveParticleMonoenergeticDirectedDistribution} & Класс для моноэнергичного направленного пучка частиц\\
-		\hline
-		MassiveParticleMonoenergeticDirectedDistribution(const double\& mass, const double\& Energy, const double\& halfWidth, const double\& concentration, const double\& theta0, const double\& phi0, const double\& deltaTheta) & конструктор, принимающий массу частиц, среднюю энергию, полуширину разброса, концентрацию, углы задающие направление пучка и угол полуширины раствора конуса\\
-		\hline
-		\textbf{MassiveParticleMovingDistribution} & Класс осуществляющий перевод функций распределения в движущуюся систему отсчета\\
-		\hline
-		MassiveParticleMovingDistribution( MassiveParticleDistribution* distribution, const double\& velocity) & конструктор, принимающий функцию распределения в собственной системе отсчета и скорость движения этой системы вдоль оси z относительно лабораторной системы\\
-		\hline
-		\textbf{CompoundMassiveParticleDistribution} & Класс для распределения, состоящего из суммы других распределений\\
-		\hline
-		CompoundMassiveParticleDistribution( int N, MassiveParticleDistribution** distributions) & конструктор, создает экземпляр класса содержащий смесь заданного количества указанных распределений\\
-		\hline
-		CompoundMassiveParticleDistribution( MassiveParticleDistribution* dist1, MassiveParticleDistribution* dist2) & конструктор, создает экземпляр класса, содержащий смесь двух распределений \\
-		\hline
-		CompoundMassiveParticleDistribution( MassiveParticleDistribution* dist1, MassiveParticleDistribution* dist2, MassiveParticleDistribution* dist3) & конструктор, создает экземпляр класса, содержащий смесь трех распределений\\
-		\hline
-		\textbf{CompoundWeightedMassiveParticleDistribution} & Класс для распределения, состоящего из взвешенной суммы других распределений \\
-		\hline
-		CompoundWeightedMassiveParticleDistribution( int N, const double* weights, MassiveParticleDistribution** distributions) & конструктор, создает экземпляр класса содержащий смесь заданного количества указанных распределений с заданными весами \\
-		\hline
-		CompoundWeightedMassiveParticleDistribution( MassiveParticleDistribution* dist1, const double\& w1, MassiveParticleDistribution* dist2, const double\& w2) & конструктор, создает экземпляр класса, содержащий смесь двух распределений с указанными весами \\
-		\hline
-		CompoundWeightedMassiveParticleDistribution( MassiveParticleDistribution* dist1, const double\& w1, MassiveParticleDistribution* dist2, const double\& w2, MassiveParticleDistribution* dist3, const double\& w3) & конструктор, создает экземпляр класса, содержащий смесь трех распределений с указанными весами \\
-		\hline
-				
-	\end{xtabular}
-\end{small}
 
 \section{Источники излучения}
 
@@ -531,236 +497,3 @@ FAINA позволяет рассчитывать электромагнитно
 		\hline
 	\end{xtabular}
 \end{small}
-
-\section{Вычисление излучения}
-
-Для расчета излучения источников используется абстрактный класс RadiationEvaluator и его наследники, предназначенные для конкретных видов излучения. Так же есть класс RadiationSumEvaluator, предназначенный для суммирования нескольких различных видов излучения. Список публичных методов этих двух классов приведен в Таблице \ref{radiationEvaluator}. Общая схема расчета излучения такова: создать источник излучения, используя один из классов описанных в предыдущем разделе или написанный самостоятельно, затем создать вычислитель излучения нужного типа, и вызвать у него метод evaluateFluxFromSource(const double\& photonFinalEnergy, RadiationSource* source), вычисляющий энергетическую плотность потока излучения источника на данной энергии принимаемого фотона в единицах  $\text{см}^{-2} \text{с}^{-1}$. Далее в данном разделе описаны реализации класса RadiationEvaluator для конкретных видов излучения. Схема наследования классов вычислителей излучения представлена на рисунке \ref{radiationEvaluators}. Физическая сторона вопроса, формулы по которым расчитывается излучение подробно описаны в Главе \ref{Formulae}.
-
-\begin{small}
-	\topcaption{Публичные методы классa RadiationEvaluator }
-	\label{radiationEvaluator}
-	\begin{xtabular}{|p{0.5\textwidth}|p{0.5\textwidth}|} 
-		\hline
-		\textbf{RadiationEvaluator} & абстрактный класс для вычисления излучения \\
-		\hline
-		virtual evaluateFluxFromSource(const double\& photonFinalEnergy, RadiationSource* source) & чисто виртуальный метод, возвращает энергетическую плотность потока излучаемого данным источником в единицах $\text{см}^{-2} \text{с}^{-1}$ \\
-		\hline
-		virtual double evaluateFluxFromSourceAtPoint(const double\& photonFinalEnergy, RadiationSource* source, int rhoi, int phi) & чисто виртуальный метод, возвращает энергетическую плотность потока, излучаемого данной областью источника на картинной плоскости\\
-		double evaluateTotalFluxInEnergyRange(const double\& Ephmin, const double\& Ephmax, int Nph, RadiationSource* source) & возвращает интегральны поток излучаемый источником в заданном диапазоне энергий (проинтегрированный по Nph точкам) в единицах  $\text{эрг} \text{см}^{-2} \text{с}^{-1}$\\
-		\hline
-		virtual resetParameters( const double* parameters, const double* normalizationUnits) & чисто виртуальный метод, позволяет изменить внутренние параметры вычислителя излучения. Список параметров, их количество, их влияние на источник определяются  в конкретных реализациях класса, данный метод используется при оптимизации\\
-		\hline
-		writeFluxFromSourceToFile(const char* fileName, RadiationSource* source, const double\& Ephmin, const double\& Ephmax, const int Nph) & записывает в файл с данным именем излучение источника в единицах $\text{см}^{-2} \text{с}^{-1}$ в диапазоне от минимальной до максимальной энергии, с заданным количеством точек, распределенных логарифмически\\
-		\hline
-		void writeImageFromSourceToFile(const char* fileName, RadiationSource* source, const double\& Ephmin, const double\& Ephmax, const int Nph) & записывает в файл с данным именем изображение - двумерный массив с интегральным потоком излучаемым разными областями источника в единицах $\text{эрг} \text{см}^{-2} \text{с}^{-1}$ в диапазоне от минимальной до максимальной энергии, проинтегрированым по заданныму количеству точек, распределенных логарифмически\\
-		\hline
-		void writeImageFromSourceAtEToFile(const double\& photonFinalEnergy, const char* fileName, RadiationSource* source) & записывает в файл с данным именем изображение - двумерный массив с энергетической плотностью потока излучаемого разными областями источника на данных энергиях в единицах $\text{см}^{-2} \text{с}^{-1}$\\
-		\hline
-		\textbf{RadiationSumEvaluator} & класс предназначенный для суммирования нескольких видов излучения\\
-		\hline
-		RadiationSumEvaluator(int Ne, const double\& Emin, const double\& Emax, RadiationEvaluator* evaluator1, RadiationEvaluator* evaluator2) & конструктор, создающий экземпляр с указанным диапазоном рассматриваемых энергий излучающих частиц, вычисляющий и складывающий результаты двух указанных вычислителей \\
-		\hline
-		RadiationSumEvaluator(int Ne, const double\& Emin, const double\& Emax, int Nev, RadiationEvaluator** evaluators) & конструктор, создающий экземпляр с указанным диапазоном рассматриваемых энергий излучающих частиц, вычисляющий и складывающий результаты вычислителей излучения в указанном массиве\\
-		\hline
-	\end{xtabular}
-\end{small}
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=10.5 cm]{./fig/radiationEvaluator.png} 
-	\caption{Схема наследования классов вычислителей излучения.}
-	\label{radiationEvaluators}
-\end{figure}
-
-\subsection{Синхротронное излучение}
-Для расчета синхротронного излучения используется класс SynchrotronEvaluator. В нем используется приближение непрерывного спектра, то есть рассматриваемые частоты фотонов предполагаются намного большими, чем частота вращения излучающих частиц в магнитном поле. Реализован случай только изотропной функции распределения излучающих частиц. Так же возможен учет синхротронного самопоглощения. Используемая геометрия источников, показанная на рисунке \ref{sphericalLayer}, позволяет легко интегрировать излучение по лучу зрения, и учитывать при этом поглощение внутри источника. При создании объекта класса необходимо указать рассматриваемый диапазон энергий частиц и количество точек в нем, параметр отвечающий за учет самопоглощения (значение по умолчанию true), а так же значения магнитного поля, синуса угла наклона к лучу зрения и толщины излучаемой области, которые будут использоваться в случае расчета излучения без указания источника, а только с использованием распределения частиц. Публичные методы класса SynchrotronEvaluator перечислены в Таблице \ref{SynchrotronEvaluator}. Пример вычисления синхотронного излучения приведен в разделе \ref{quickStart}.
-\begin{table}
-	\begin{center}
-	\begin{small}
-	\caption{Публичные методы классa SynchrotronEvaluator }
-	\label{SynchrotronEvaluator}
-	\begin{tabularx}{\textwidth}{|X|X|} 
-		\hline
-		\textbf{SynchrotronEvaluator} & класс предназначенный для вычисления синхротронного излучения\\
-		\hline
-		SynchrotronEvaluator( int Ne, double Emin, double Emax, bool selfAbsorption = true, bool doppler = false) & конструктор, создает экземпляр с указанным диапазоном рассматриваемых энергий излучающих частиц,и параметрами учета самопоглощения и допплеровского эффекта\\
-		\hline
-		evaluateSynchrotronIandA(const double\& photonFinalFrequency, const double\& photonFinalTheta, const double\& photonFinalPhi, const double\& B, const double\& sinhi, const double\& concentration, MassiveParticleIsotropicDistribution* electronDistribution, double\& I, double\& A) & вычисляет значения плотности излучательной способности и коэффициента поглощения для фотона с данной энергией и направлением, в области с данными концентрацией и распределением излучающих частиц в данном магнитном поле\\
-		\hline
-	\end{tabularx}
-\end{small}
-\end{center}
-\end{table}
-\subsection{Обратное комптоновское рассеяние}
-Для расчета излучения, получающегося в результате процесса обратного комптоновского рассеяния, использеуются классы InverseComptonEvaluator и его наследник InverseComptonEvaluatorWithSource. Отличие между ними в том, что в первом функция распределения рассеиваемых фотонов одинакова во всем излучающем объеме, а во втором изменяется обратно пропорционально квадрату расстояния до источника фотонов. Внутри класса  InverseComptonEvaluator реализованы четыре различных метода расчета излучения, для обозначения которых используется перечислимый тип ComptonSolverType, имеющий следующие значения:
-
-\begin{itemize}
-	\item ISOTROPIC\_THOMSON - модель рассеяния в томсоновсков режиме. Реализовано только для степенного распределения электронов и теплового фотонов \cite{Ginzburg1975} глава 17, с. 466
-	\item ANISOTROPIC\_KLEIN\_NISHINA - модель расчитывающее излучение напрямую из сечения Клейна-Нишины, возможен учет анизотропных функций распределения \cite{KleinNishina, Dubus}
-	\item ISOTROPIC\_KLEIN\_NISHINA - модель расчитывающее излучение напрямую из сечения Клейна-Нишины, но для изотропных функций распределения, что позволяет уменьшить количество интегрирований
-	\item ISOTROPIC\_JONES - модель, использующая аналитически проинтегрированное по углам сечение Клейна-Нишины \cite{JonesCompton, BykovUvarov2000}
-\end{itemize}
-
-При создании объекта класса InverseComptonEvaluator необходимо указать рассматриваемый диапазон энергий частиц и количество точек в нем, количество ячеек в сетке по полярному и азимутальному углу, изотропную функцию распределения фотонов, которая будет использоваться по умолчанию и метод расчета излучения. Публичные методы классов InverseComptonEvaluator и InverseComptonEvaluatorWithSource перечислены в Таблице \ref{InverseComptonEvaluator}.
-\begin{small}
-	\topcaption{Публичные методы классa InverseComptonEvaluator }
-	\label{InverseComptonEvaluator}
-	\begin{xtabular}{|p{0.5\textwidth}|p{0.5\textwidth}|} 
-		\hline
-		\textbf{InverseComptonEvaluator} & класс предназначенный для вычисления излучения рождащегося в результате обратного комптоновского рассеяния\\
-		\hline
-		InverseComptonEvaluator( int Ne, int Nmu, int Nphi, double Emin, double Emax, PhotonDistribution* photonDistribution, ComptonSolverType solverType) & конструктор, создает экземпляр с заданным рассматриваемым диапазоном энергии, количеством ячеек в сетке по полярному и азимутальному углу, функцией распределения фотонов, которая будет использоваться по умолчанию и методом расчета излучения\\
-		\hline
-		evaluateComptonFluxKleinNishinaAnisotropic const double\& photonFinalEnergy, const double\& photonFinalTheta, const double\& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double\& volume, const double\& distance) & возвращает энергетическую плотность потока энергии в заданном направлении, излучением созданным заданными функциями распределения фотонов и рассеивющих частиц (которые могут быть анизотропными) в заданном объеме на данном расстоянии\\
-		\hline
-		evaluateFluxFromSourceAnisotropic( const double\& photonFinalEnergy, const double\& photonFinalTheta, const double\& photonFinalPhi, PhotonDistribution* photonDistribution, RadiationSource* source) & возвращает энергетическую плотность потока энергии в заданном направлении, излучением созданным заданными распределения фотонов и источником, содержащим распределения рассеивающих частиц\\
-		\hline
-		\textbf{InverseComptonEvaluatorWithSource} & класс предназначенный для вычисления излучения рождащегося в результате обратного комптоновского рассеяния с учетом зависимости функции распределения фотонов от расстояния до их источника\\
-		\hline
-		InverseComptonEvaluatorWithSource(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonDistribution* photonDistribution, ComptonSolverType solverType, const double\& sourceR, const double\& sourceZ, const double\& sourcePhi) & конструктор, создает экземпляр с заданным рассматриваемым диапазоном энергии, количеством ячеек в сетке по полярному и азимутальному углу, функцией распределения фотонов, методом расчета излучения и координатами источника фотонов\\
-		\hline
-	\end{xtabular}
-\end{small}
-
-Пример вычисления излучения от обратного комптоновского рассеяние содержится в процедуре evaluateComtonWithPowerLawDistribution() в файле examples.cpp. В ней расчитывается рентгеновское излучение, исходящее от объекта CSS161010 при рассеивании степенного распределения электронов, определенного в работе \cite{Coppejans2020}, на среднегалактическом распределении фотонов.  Сначала определим переменные, задающие основные параметры источника - концентрацию частиц, его размер и магнитное поле. Для вычисления обратного комптоновского рассеяния магнитное поле не используется, но в источнике нужно его задать, поэтому положим его равным нулю. Так же зададим параметры сетки по энергиям и углам, которая будет использоваться вычислителем
-
-\begin{lstlisting}[language=c++]
-	double electronConcentration = 150;
-	double sinTheta = 1.0;
-	double rmax = 1.3E17;
-	double B = 0.0;
-	double distance = 150*1E6*parsec;
-	
-	double Emin = me_c2;
-	double Emax = 1000 * me_c2;
-	int Ne = 200;
-	int Nmu = 20;
-	int Nphi = 4;
-\end{lstlisting}
-
-Далее создадим распределение фотонов, воспользовавшись статическим методом класса MultiPlankDistribution getGalacticField, который возвращает среднегалактическое фотонное распределение, и распределение электронов - возьмем степенное рспределение с показателем 3.5.
-\begin{lstlisting}[language=c++]
-	PhotonIsotropicDistribution* photonDistribution = 
-	    PhotonMultiPlankDistribution::getGalacticField();
-	MassiveParticlePowerLawDistribution* electrons = new 
-	    MassiveParticlePowerLawDistribution(massElectron, 3.5,
-	    Emin, electronConcentration);
-\end{lstlisting}
-
-С помощью введенных ранее переменных создадим источник излучения и вычислитель излучения. В качестве метода расчета выберем самый универсальный - ANISOTROPIC\_KLEIN\_NISHINA
-
-\begin{lstlisting}[language=c++]
-	RadiationSource* source = new SimpleFlatSource(
-	  electrons, B, sinTheta, rmax, rmax, distance);
-	
-	InverseComptonEvaluator* comptonEvaluator = new 
-	    InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, 
-	    photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-\end{lstlisting}
-
-Предположим, что мы не хотим пользоваться встроенным методом вывода излучения в файл, так как хотим получить конечный результат в других единицах, например энергию фотона измерять в электронвольтах, а поток вывести в формате $E F(E)$ - $\text{эрг}\text{см}^{-2}\text{с}^{-1}$. Создадим тогда сетку значений энергии фотонов
-\begin{lstlisting}[language=c++]
-	int Nnu = 200;
-	double* E = new double[Nnu];
-	double* F = new double[Nnu];
-	double Ephmin = 0.01 * kBoltzman * 2.725;
-	double Ephmax = 2 * Emax;
-	double factor = pow(Ephmax / Ephmin, 1.0 / (Nnu - 1));
-	E[0] = Ephmin;
-	F[0] = 0;
-	for (int i = 1; i < Nnu; ++i) {
-		E[i] = E[i - 1] * factor;
-		F[i] = 0;
-	}
-\end{lstlisting}
-после этого вычислим в цикле желаемые потоки излучения
-\begin{lstlisting}[language=c++]
-	for (int i = 0; i < Nnu; ++i) {
-		F[i] = comptonEvaluator->evaluateFluxFromSource(
-		    E[i], source);
-	}
-\end{lstlisting}
-и запишем их в файл, переведя в желаемые единицы
-\begin{lstlisting}[language=c++]
-	FILE* output_ev_EFE = fopen("output.dat", "w");
-	
-	for (int i = 0; i < Nnu; ++i) {
-		double nu = E[i] / hplank;
-		fprintf(output_ev_EFE, "%g %g\n",
-		    E[i] / (1.6E-12), E[i] * F[i]);
-	}
-
-	fclose(output_ev_EFE);
-\end{lstlisting}
-Спектр излучения, полученный в результате работы данной программы приведен на рисунке \ref{compton}
-\begin{figure}
-	\centering
-	\includegraphics[width=12.5 cm]{./fig/compton.png} 
-	\caption{Энергетическая плотность потока синхротронного излучения от тестового источника}
-	\label{compton}
-\end{figure}
-
-\subsection{Распад пионов}
-
-Для расчета излучения, получающегося в результате распада пионов, родившихся в результате свободно-свободного взаимодействия протонов использеутся абастрактный класс PionDecayEvaluatorBase и двае его наследника: PionDecayEvaluatorKelner, в котором сечение излучения гамма-фотона считается долей от полного сечения неупругого взаимодействия протонов, как описано в статье \cite{Kelner}, и PionDecayEvaluator, в котором используется более точное описание сечения рождения пионов на низких энергиях по методу, описанному в \cite{Kafexhiu}. В текущей версии предполагается, что характерное время потерь энергии протонов при неупругом взаимодействии намного больше времени их удержания в источнике, система является прозрачной для протонов, и каждый из них взаимодействует не более одного раза. В противном случае используемая модель излучения не применима.
-
-При создании объекта класса PionDecayEvaluator необходимо указать рассматриваемый диапазон энергий частиц и количество точек в нем, а так же концентрацию фоновых протонов, так как предполагается рассеяние высокоэнергичных фотонов на покоящихся, а не взаимодействие высокоэнергичных между собой. Публичные методы класса PionDecayEvaluatorBase и его наследников приведены в Таблице \ref{pionDecay}
-
-		\begin{small}
-			\topcaption{Публичные методы классa PionDecayEvaluatorBase и его наследников }
-			\label{pionDecay}
-			\begin{xtabular}{|p{0.5\textwidth}|p{0.5\textwidth}|}  
-				\hline
-				\textbf{PionDecayEvaluatorBase} & абстрактный класс для вычисления гамма излучения от распада пионов\\
-				\hline
-				sigmaInelastic(const double\& energy) & возвращает полное сечение неупругого взаимодействия протонов в лабораторной системе, принимает кинетическую энергию движущегося протона\\
-				\hline
-				\textbf{PionDecayEvaluatorKelner} & класс для вычисления гамма излучения от распада пионов по методу из статьи \cite{Kelner}\\
-				\hline
-				PionDecayEvaluatorKelner(int Ne, double Emin, double Emax, const double\& ambientConcentration) & конструктор, создает экземпляр с заданным рассматриваемым диапазоном энергии и концентрацией фоновых протонов\\
-				\hline
-				\textbf{PionDecayEvaluator} & класс для вычисления гамма излучения от распада пионов по методу из статьи \cite{Kafexhiu}\\
-				\hline
-				PionDecayEvaluator(int Ne, double Emin, double Emax, const double\& ambientConcentration) & конструктор, создает экземпляр с заданным рассматриваемым диапазоном энергии и концентрацией фоновых протонов\\
-				\hline
-				sigmaGamma(const double\& photonEnergy, const double\& protonEnergy) & возвращает дифференциальное сечение рождения фотона с данной энергией при данной кинетической энергии протона, усредненное по углам\\
-				\hline
-			\end{xtabular}
-		\end{small}
-
-Пример вычисления излучения от гамма излучения от распада пионов показан в функции evaluatePionDecay() в файлк examples.cpp. В нем рассмотрено моделирование излучение объекта Кокон Лебедя в модели ускорения частиц на вторичных ударных волнах, следуя статье \cite{BykovKalyashova2022}. В данной работе вычислено, что спектр ускоренных протонов имеет вид степенной функции с изломом со следующими параметрами - показатели спектра 2.1 и 2.64 на низких и высоких энергиях соответственно, энергия излома - 2.2 ТэВ. Размер излучающей области брался равным размеру сверхкаверны Лебедя - 55 пк. Как и ранее, сначала определим переменные, задающие основные параметры источника - концентрацию частиц, его размер и магнитное поле, которое опять положим равным нулю. Диапазон энергий протонов рассмотрим от 0.01 ГэВ до 10 ТэВ. Так же укажем энергию излома.
-\begin{lstlisting}[language=c++]
-	double protonConcentration = 150;
-	double rmax = 55 * parsec;
-	double B = 0;
-	double sinTheta = 1.0;
-
-	double distance = 1400 * parsec;
-	double Emin = massProton*speed_of_light2 + 0.01E9 * 1.6E-12;
-	double Emax = 1E13 * 1.6E-12;
-	double Etrans = 2.2E12 * 1.6E-12;
-\end{lstlisting}
-После этого создадим распределение протонов и источник излучения
-\begin{lstlisting}[language=c++]
-	MassiveParticleBrokenPowerLawDistribution* protons = new 
-		MassiveParticleBrokenPowerLawDistribution(
-		massProton, 2.1, 2.64, Emin, Etrans, protonConcentration);
-	RadiationSource* source = new SimpleFlatSource(
-		protons, B, sinTheta, rmax, rmax, distance);
-\end{lstlisting}
-Далее потребуется вычислитель излучения. В случае пионного распада необходимо указать концентрацию фоновых протонов.
-\begin{lstlisting}[language=c++]
-double protonAmbientConcentration = 20;
-PionDecayEvaluator* pionDecayEvaluator = new PionDecayEvaluator(
-	200, Emin, Emax, protonAmbientConcentration);
-\end{lstlisting}
-Как и в предыдущих случаях далее необходимо внутри цикла вычислить излучение в интересующем диапазоне энергий, используя функцию evaluateFluxFromSource, и вывести результат в файл в удобных единицах. Спектр излучения, полученный в результате работы данной программы и результаты наблюдений Кокона Лебедя на Fermi LAT, ARGO и HAWC \cite{Ackermann2011, Bartoli2014, Abeysekara2021} приведены на рисунке \ref{pion}
-\begin{figure}
-	\centering
-	\includegraphics[width=12.5 cm]{./fig/compton.png} 
-	\caption{Расчетная энергетическая плотность потока гамма излучения Кокона Лебедя и данные наблюдений}
-	\label{pion}
-\end{figure}
-\subsection{Тормозное излучение}
-В текущей версии кода реализовано вычисление тормозного излучения электронов в плазме только для случая теплового распределения. Для этого предназначен класс BremsstrahlungThermalEvaluator. В процессе расчета предполагается, что плазма электрон-протонная, с одинаковыми температурами электронов и протонов, в вычислении используются Гаунт-факторы, приведенные в \cite{Rybicki}. Пример вычисления тормохного излучения приведен в функции evaluateBremsstrahlung в файле examples.cpp.
-

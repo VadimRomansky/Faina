@@ -1,300 +1,233 @@
-\chapter{Оптимизация параметров}\label{optimization}
-Код FAINA позволяет не только расчитывать излучение заданных источников, но и фитировать наблюдательные данные модельными, подбирая необходимые параметры. Реализованы методы оптимизации, пригодные для произвольного числа параметров и широкого класса моделей источников.
-%В качестве целевой функции используется взвешенная сумма квадратов отклонений по всем наблюдательным точкам $f = \sum \frac{(F_i - F_{obs,i})^2}{\sigma_i^2}$, где $F_i$ - расчетная спектральная плотность потока излучения, $F_{obs,i}$ - наблюдаемая спектральная плотность потока излучения, $\sigma_i$ - её погрешность. В текущей версии учитывается лишь погрешность измеряемого потока, ширина бина и неопределенность энергии, на которой принят сигнал не учитываются.
+\chapter{Расчет излучения}\label{evaluation}
+В коде FAINA построены модели следующих типов излучения: синхротронного, обратного комптоновского рассеяния, пионного распада в результате свободно-свободного взаимодействия протонов и тормозного излучения.
 
-\section{Вычислители целевой функции}
-
-Для оптимизации в первую очередь нужно указать целевую функцию, которую требуется минимизировать. Для этой цели используется абстрактный класс LossEvaluator и его наследники. В реализованных наследниках используются квадратичные функции оптимизации, взвешенные с учетом наблюдательных ошибок $f = \sum \frac{(F(x_i) - F_{obs,i})^2}{\sigma_i^2}$, где $F(x_i)$ - некая расчетная функция излучения (спектральная плотность потока, например) вычисленная при неком фиксированном значении параметра $x_i$ (например при данной частоте), $F_{obs,i}$ - наблюдаемая величина этой функции, $\sigma_i$ - её погрешность. В коде реализованы следующие классы целевых функций SpectrumLossEvaluator - для фитирования спектральной плотности потока излучения в данный момент времени, TimeDependentSpectrumLossEvaluator - для фитирования спектральной плотности потока излучения переменного источника, измеренного в несколько моментов времени и RadialProfileLossEvaluator - для фитирования зависимости яркости различных точек источника в зависимости от радиуса. Публичные методы этих классов перечислены в Таблице \ref{LossEvaluators}.
+Для расчета излучения источников используется абстрактный класс RadiationEvaluator и его наследники, предназначенные для конкретных видов излучения. Так же есть класс RadiationSumEvaluator, предназначенный для суммирования нескольких различных видов излучения. Список публичных методов этих двух классов приведен в Таблице \ref{radiationEvaluator}. Общая схема расчета излучения такова: создать источник излучения, используя один из классов описанных в предыдущем разделе или написанный самостоятельно, затем создать вычислитель излучения нужного типа, и вызвать у него метод evaluateFluxFromSource(const double\& photonFinalEnergy, RadiationSource* source), вычисляющий энергетическую плотность потока излучения источника на данной энергии принимаемого фотона в единицах  $\text{см}^{-2} \text{с}^{-1}$. Далее в данном разделе описаны реализации класса RadiationEvaluator для конкретных видов излучения. Схема наследования классов вычислителей излучения представлена на рисунке \ref{radiationEvaluators}. Физическая сторона вопроса, формулы по которым расчитывается излучение подробно описаны в Главе \ref{Formulae}.
 
 \begin{small}
-	\topcaption{Публичные методы классов вычислителей целевых функций }
-	\label{LossEvaluators}
-	\begin{xtabular}{|p{0.5\textwidth}|p{0.5\textwidth}|}
+	\topcaption{Публичные методы классa RadiationEvaluator }
+	\label{radiationEvaluator}
+	\begin{xtabular}{|p{0.5\textwidth}|p{0.5\textwidth}|} 
 		\hline
-		\textbf{LossEvaluator} & абстрактный класс вычислителя целевой функции\\
+		\textbf{RadiationEvaluator} & абстрактный класс для вычисления излучения \\
 		\hline
-		virtual double evaluate(const double* vector, const double* maxParameters, RadiationEvaluator* evaluator) & чисто виртуальный метод, возвращающий значение целевой функции при данных параметрах. Так же на вход принимает вектор нормироваочных значений и вычислитель излучения\\
+		virtual evaluateFluxFromSource(const double\& photonFinalEnergy, RadiationSource* source) & чисто виртуальный метод, возвращает энергетическую плотность потока излучаемого данным источником в единицах $\text{см}^{-2} \text{с}^{-1}$ \\
 		\hline
-		\textbf{SpectrumLossEvaluator} & класс, в котором целевая функция характеризует отличие вычисленной спектральной плотности излучения от наблюдательных данных, $f = \sum \frac{(F(E_i) - F_{obs,i})^2}{\sigma_i^2}$, где $F(E_i)$ - расчетная спектральная плотность потока излучения при данной энергии $E_i$, $F_{obs,i}$ - наблюдаемая спектральная плотность потока излучения, $\sigma_i$ - её погрешность.\\
+		virtual double evaluateFluxFromSourceAtPoint(const double\& photonFinalEnergy, RadiationSource* source, int rhoi, int phi) & чисто виртуальный метод, возвращает энергетическую плотность потока, излучаемого данной областью источника на картинной плоскости\\
+		double evaluateTotalFluxInEnergyRange(const double\& Ephmin, const double\& Ephmax, int Nph, RadiationSource* source) & возвращает интегральны поток излучаемый источником в заданном диапазоне энергий (проинтегрированный по Nph точкам) в единицах  $\text{эрг} \text{см}^{-2} \text{с}^{-1}$\\
 		\hline
-		SpectrumLossEvaluator(double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* radiatiornSource) & конструктор, принимает на вход наблюдаемые значения спектральной плотности энергии, их количество и источник, для которого нужно вычислять излучение \textcolor{red}{в каких единицах?}\\
+		virtual resetParameters( const double* parameters, const double* normalizationUnits) & чисто виртуальный метод, позволяет изменить внутренние параметры вычислителя излучения. Список параметров, их количество, их влияние на источник определяются  в конкретных реализациях класса, данный метод используется при оптимизации\\
 		\hline
-		\textbf{TimeDependentSpectrumLossEvaluator} & класс, в котором целевая функция характеризует отличие вычисленной спектральной плотности излучения от наблюдательных данных, собранных в различные моменты времени, $f = \sum \frac{(F(E_{ij}, t_j) - F_{obs,i,j})^2}{\sigma_{ij}^2}$, где $F(E_{ij},t_j)$ - расчетная спектральная плотность потока излучения при данной энергии $E_{ij}$ в момент времени $t_j$, $F_{obs,i,j}$ - наблюдаемая спектральная плотность потока излучения, $\sigma_{ij}$ - её погрешность. ОБРАТИТЕ ВНИМАНИЕ, что количество наблюдательных точек в разные моменты времени может быть разным\\
+		writeFluxFromSourceToFile(const char* fileName, RadiationSource* source, const double\& Ephmin, const double\& Ephmax, const int Nph) & записывает в файл с данным именем излучение источника в единицах $\text{см}^{-2} \text{с}^{-1}$ в диапазоне от минимальной до максимальной энергии, с заданным количеством точек, распределенных логарифмически\\
 		\hline
-		TimeDependentSpectrumLossEvaluator(double** energy, double** observedFlux, double** observedError, int* Ne, double* times, int Ntimes, RadiationTimeDependentSource* radiationSource) & конструктор, принимает на вход двумерные массиы наблюдаемых значений спектральной плотности энергии, массив количества точек в разные моменты времени и зависящий от времени источник, для которого нужно вычислять излучение \textcolor{red}{в каких единицах?}\\
+		void writeImageFromSourceToFile(const char* fileName, RadiationSource* source, const double\& Ephmin, const double\& Ephmax, const int Nph) & записывает в файл с данным именем изображение - двумерный массив с интегральным потоком излучаемым разными областями источника в единицах $\text{эрг} \text{см}^{-2} \text{с}^{-1}$ в диапазоне от минимальной до максимальной энергии, проинтегрированым по заданныму количеству точек, распределенных логарифмически\\
 		\hline
-		\textbf{RadialProfileLossEvaluator} & класс, в котором целевая функция характеризует отличие радиальной зависимости яркости источника в заданном дипазоне от наблюдательных данных. $f = \sum \frac{(F(R_i) - F_{obs,i})^2}{\sigma_i^2}$, где $F(R_i)$ - расчетная яркость источника при данном радиусе $R_i$, $F_{obs,i}$ - наблюдаемая яркость, $\sigma_i$ - её погрешность\\
+		void writeImageFromSourceAtEToFile(const double\& photonFinalEnergy, const char* fileName, RadiationSource* source) & записывает в файл с данным именем изображение - двумерный массив с энергетической плотностью потока излучаемого разными областями источника на данных энергиях в единицах $\text{см}^{-2} \text{с}^{-1}$\\
 		\hline
-		RadialProfileLossEvaluator(double energy, double* observedFlux, double* observedError, double* rhoPoints, int Nrho, RadiationSource* radiaionSource) & конструктор, принимающий на вход значение энергии, для которого нужно вычислять яркость, наблюдаемые потоки, погрешности и соответствующие значения радиуса, количество точек и источник, для которого нужно рассчитывать излучение\\
+		\textbf{RadiationSumEvaluator} & класс предназначенный для суммирования нескольких видов излучения\\
+		\hline
+		RadiationSumEvaluator(int Ne, const double\& Emin, const double\& Emax, RadiationEvaluator* evaluator1, RadiationEvaluator* evaluator2) & конструктор, создающий экземпляр с указанным диапазоном рассматриваемых энергий излучающих частиц, вычисляющий и складывающий результаты двух указанных вычислителей \\
+		\hline
+		RadiationSumEvaluator(int Ne, const double\& Emin, const double\& Emax, int Nev, RadiationEvaluator** evaluators) & конструктор, создающий экземпляр с указанным диапазоном рассматриваемых энергий излучающих частиц, вычисляющий и складывающий результаты вычислителей излучения в указанном массиве\\
 		\hline
 	\end{xtabular}
 \end{small}
 
-\section{Оптимизаторы целевой функции}
-Для фитирования постоянных во времени кривых блеска предназначен абстрактный класс RadiationOptimizer. В нем определена виртуальныя функция optimize(double* vector, bool* optPar), которая и производит процесс оптимизации. Входными параметрами являются: vector - массив подбираемых параметров, в который будет записан результат работы программы, optPar - массив булевских переменных, определяющих оптимизировать соответствующий параметр, или считать его фиксированным. Функция изменения параметров источника source->resetParameters, который будет использоваться в процессе оптимизации, описанная в разделе \ref{sourcesSection}, должна быть согласована с массивом оптимизируемых параметров vector, так как в процессе оптимизации он будет передаваться в нее в качестве аргумента.
-
-В коде реализованы три наследника класса RadiationOptimazer: GridEnumRadiationOptimizer - производящий поиск минимума простым перебором по сетке параметров с заданным количеством распределенных равномерно логарифмически точек, GradientDescentRadiationOptimizer - в котором минимум находится методом градиентного спуска, и CombinedRadiationOptimizer, который выполняет оптимизацию двумя этими методами последовательно, используя результат работы первого как начальную точку для второго. Схема насследования классов оптимизаторов показана на рисунке \ref{radiationOptimizer}, а список их публичных методов приведен в Таблице \ref{RadiationOptimizerMethods}. Реализованные методы оптимизации применимы для всех описанных выше типов источников, видов электромагнитного излучения и вычислителей целевых функций.
-\begin{figure}
-	\centering
-	\includegraphics[width=11.5 cm]{./fig/radiationOptimizer.png} 
-	\caption{Схема наследования классов оптимизаторов}
-	\label{radiationOptimizer}
-\end{figure}
-
-\begin{small}
-	\topcaption{Публичные методы классов оптимизаторов параметров источников }
-	\label{RadiationOptimizerMethods}
-	\begin{xtabular}{|p{0.41\textwidth}|p{0.59\textwidth}|}
-		\hline
-		\textbf{RadiationOptimizer} & абстрактный класс для оптимизации параметров источника \\
-		\hline
-		double evaluateOptimizationFunction(const double* vector) & вычисляет целевую функцию - взвешенную при данном векторе параметров\\
-		\hline
-		void optimize(double* vector, bool* optPar) & функция, осуществляющая оптимизацию, принимает на вход массив подбираемых параметров, в который будет записан результат и массив булевских переменных, определяющих оптимизировать соответствующий параметр, или считать его фиксированным\\
-		\hline
-		void outputProfileDiagrams(const double* vector, int Npoints) & функция, которая строит и записывает в файлы двухмерные сечения целевой функции по всем комбинациям параметров, проходящие через точку определяемую заданным вектором параметров\\
-		\hline
-		void outputOptimizedProfileDiagram(const double* vector, bool* optPar, int Npoints, int Nparam1, int Nparam2) & функция, которая строит и записывает в файлы двухмерные сечения целевой функции, в которых два параметра с номерами Nparam1 и Nparam2 фиксируются и пробегают соответствующую плоскость, а остальные оптимизируются\\
-		\hline
-		\textbf{GridEnumRadiationOptimizer} & класс предназначенный для оптимизации параметров с помощью перебора по сетке\\
-		\hline
-		GridEnumRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints, LossEvaluator* lossEvaluator) & конструктор, создает экземпляр класса с указанным вычислителем излучения, минимальными и максимальными значениями оптимизируемых параметров, количеством этих параметров, массивом с количеством перебираемых точек по каждому параметру и вычислителем целевой функции. При переборе точки будут распределены логарифмически по оси.\\
-		\hline
-		\textbf{GradientDescentRadiationOptimizer} & класс, предназначенный для оптимизации параметров методом градиентного спуска\\
-		\hline
-		GradientDescentRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, LossEvaluator* lossEvaluator) & конструктор, создает экземпляр класса с указанным вычислителем излучения, минимальными и максимальными значеними оптимизируемых параметров, количеством этих параметров,  максимальным количеством итераций градиентного спуска и вычислителем целевой функции\\
-		\hline
-		\textbf{CombinedRadiationOptimizer} & класс, предназначенный для совместного использования сеточного поиска и градиентного спуска\\
-		\hline
-		CombinedRadiationOptimizer( RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, const int* Npoints, LossEvaluator* lossEvaluator) & конструктор, создает экземпляр класса с указанным вычислителем излучения, минимальными и максимальными значеними оптимизируемых параметров, количеством этих параметров,  максимальным количеством итераций градиентного спуска, количеством точек для сеточного поиска и вычислителем целевой функции\\
-		\hline
-	\end{xtabular}
-\end{small}
-
-Пример фитирования параметров источника по наблюдательным данным приведен в функции fitCSS161010withPowerLawDistribition в файле examples.cpp. Следуя авторам работы \cite{Coppejans2020} произведем расчет синхротронного излучения источника с учетом самопоглощения, считая функцию распределения электронов чисто степенной с показателем 3.6. Но мы не будем накладывать дополнительную связь на параметры и предполагать равенство распределения энергии между магнитным полем и ускоренными частицами, вместо этого магнитное поле и концентрация электронов будут независимыми параметрами.
-
-Подберем параметры Быстрого Оптического Голубого Транзиента CSS161010 на 98 день после вспышки на основе радиоизлучения. Зададим параметры источника на основе дынных статьи \cite{Coppejans2020}, которые будут использоваться в качестве начального приближения, а так же расстояние до него.
-\begin{lstlisting}[language=c++]
-    double electronConcentration = 25;
-    double B = 0.6;
-    double R = 1.4E17;
-    double fraction = 0.5;
-    const double distance = 150 * 1E6 * parsec;
-\end{lstlisting}
-Далее зададим степенное распределение электронов, с показателем 3.6 и источник в форме плоского диска, перпендикулярного лучу зрения, и вычислитель синхротронного излучения.
-\begin{lstlisting}[language=c++]
-    double Emin = me_c2;
-    double Emax = 10000 * me_c2;
-    double index = 3.6;
-	
-    SynchrotronEvaluator* synchrotronEvaluator = new
-        SynchrotronEvaluator(200, Emin, Emax);
-
-    MassiveParticlePowerLawDistribution* electrons = 
-        new MassiveParticlePowerLawDistribution(
-        massElectron, index, Emin, electronConcentration);
-
-    SimpleFlatSource* source = new
-        SimpleFlatSource(electrons, B, pi/2, R, fraction * R, distance);
-\end{lstlisting}
-Теперь определим вектор оптимизируемых параметров - это размер, магнитное поле, концентрация электронов и доля толщины, показывающая какю долю от радиуса диска составляет его толщина. И именно такие параметры ожидает функция resetParameters у источника SimpleFlatSource. Так же нужно указать минимальные и максимальные значения параметров, которые ограничат область поиска. Максимальные значения так же будут использоваться как константы нормировки.
-\begin{lstlisting}[language=c++]
-    const int Nparams = 4;
-    double minParameters[Nparams] = { 1E17, 0.01, 0.5, 0.1 };
-    double maxParameters[Nparams] = { 2E17, 10, 200, 1.0 };
-    double vector[Nparams] = { R, B, electronConcentration, fraction};
-    for (int i = 0; i < Nparams; ++i) {
-	    vector[i] = vector[i] / maxParameters[i];
-    }
-\end{lstlisting}
-Зададим наблюдательные данные, которые и будем фитировать. Обратите внимание, что частоты нужно перевести в энергии, а спектральную плотность потока - в энергетическую (в единицы $\text{см}^{-2}\text{с}^{-1}$).
-\begin{lstlisting}[language=c++]
-    const int Nenergy1 = 4;
-    double energy1[Nenergy1] = { 1.5E9*hplank, 3.0E9 * hplank, 
-    	6.1E9 * hplank, 9.8E9 * hplank };
-    double observedFlux[Nenergy1] = { 1.5/(hplank*1E26), 
-    	4.3/(hplank*1E26), 6.1/(hplank*1E26), 4.2 /(hplank*1E26)};
-    double observedError[Nenergy1] = { 0.1 / (hplank * 1E26), 
-    	0.2/(hplank*1E26), 0.3/(hplank*1E26), 0.2/(hplank*1E26)};
-\end{lstlisting}
-Далее создадим вычислитель целевой функции, фитирующий спектр и комбинированный оптимизатор, и укажем количество точек для перебора и количество итераци градиентного спуска. Так же укажем, что оптимизируем все параметры.
-\begin{lstlisting}[language=c++]
-    bool optPar[Nparams] = { true, true, true, true };
-    int Niterations = 20;
-    int Npoints[Nparams] = { 10,10,10,10 };
-    
-    LossEvaluator* lossEvaluator = new SpectrumLossEvaluator(energy1, observedFlux, observedError, Nenergy1, source);
-    RadiationOptimizer* optimizer = new CombinedRadiationOptimizer(
-        synchrotronEvaluator,minParameters,maxParameters,Nparams, Niterations,Npoints, lossEvaluator);
-\end{lstlisting}
-Применим функцию optimize и изменим параметры источника на оптимальные
-\begin{lstlisting}[language=c++]
-    optimizer->optimize(vector, optPar, energy1, observedFlux, 
-        observedError, Nenergy1, source);
-    source->resetParameters(vector, maxParameters);
-\end{lstlisting}
-Полученные в результате оптимизации парметры источника равны: радиус диска $R = 1.8\times10^17 \text{ см}$, магнитное поле $B = 1.6 \text{ Гс}$, концентрация электронов $n = 2.3 \text{ см}^{-3}$, доля толщины $fraction = 0.54 $. Значение целевой функции $f \approx 50$. Модельный спектр излучения  с данными параметрами и наблюдательные данные изображены на рисунке \ref{synchrotron1}.
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=12.5 cm]{./fig/synchrotron1.png} 
-	\caption{Наблюдаемый и расчетный спектр радиоизлучения объекта CSS161010 на 98 день после вспышки}
-	\label{synchrotron1}
+	\includegraphics[width=10.5 cm]{./fig/radiationEvaluator.png} 
+	\caption{Схема наследования классов вычислителей излучения.}
+	\label{radiationEvaluators}
 \end{figure}
 
+\section{Синхротронное излучение}
+Для расчета синхротронного излучения используется класс SynchrotronEvaluator. В нем используется приближение непрерывного спектра, то есть рассматриваемые частоты фотонов предполагаются намного большими, чем частота вращения излучающих частиц в магнитном поле. Реализован случай только изотропной функции распределения излучающих частиц. Так же возможен учет синхротронного самопоглощения. Используемая геометрия источников, показанная на рисунке \ref{sphericalLayer}, позволяет легко интегрировать излучение по лучу зрения, и учитывать при этом поглощение внутри источника. При создании объекта класса необходимо указать рассматриваемый диапазон энергий частиц и количество точек в нем, параметр отвечающий за учет самопоглощения (значение по умолчанию true), а так же значения магнитного поля, синуса угла наклона к лучу зрения и толщины излучаемой области, которые будут использоваться в случае расчета излучения без указания источника, а только с использованием распределения частиц. Публичные методы класса SynchrotronEvaluator перечислены в Таблице \ref{SynchrotronEvaluator}. Пример вычисления синхотронного излучения приведен в разделе \ref{quickStart}.
+\begin{table}
+	\begin{center}
+	\begin{small}
+	\caption{Публичные методы классa SynchrotronEvaluator }
+	\label{SynchrotronEvaluator}
+	\begin{tabularx}{\textwidth}{|X|X|} 
+		\hline
+		\textbf{SynchrotronEvaluator} & класс предназначенный для вычисления синхротронного излучения\\
+		\hline
+		SynchrotronEvaluator( int Ne, double Emin, double Emax, bool selfAbsorption = true, bool doppler = false) & конструктор, создает экземпляр с указанным диапазоном рассматриваемых энергий излучающих частиц,и параметрами учета самопоглощения и допплеровского эффекта\\
+		\hline
+		evaluateSynchrotronIandA(const double\& photonFinalFrequency, const double\& photonFinalTheta, const double\& photonFinalPhi, const double\& B, const double\& sinhi, const double\& concentration, MassiveParticleIsotropicDistribution* electronDistribution, double\& I, double\& A) & вычисляет значения плотности излучательной способности и коэффициента поглощения для фотона с данной энергией и направлением, в области с данными концентрацией и распределением излучающих частиц в данном магнитном поле\\
+		\hline
+	\end{tabularx}
+\end{small}
+\end{center}
+\end{table}
+\section{Обратное комптоновское рассеяние}
+Для расчета излучения, получающегося в результате процесса обратного комптоновского рассеяния, использеуются классы InverseComptonEvaluator и его наследник InverseComptonEvaluatorWithSource. Отличие между ними в том, что в первом функция распределения рассеиваемых фотонов одинакова во всем излучающем объеме, а во втором изменяется обратно пропорционально квадрату расстояния до источника фотонов. Внутри класса  InverseComptonEvaluator реализованы четыре различных метода расчета излучения, для обозначения которых используется перечислимый тип ComptonSolverType, имеющий следующие значения:
 
-%Пример фитирования параметров источника по наблюдательным данным приведен в функции fitTimeDependentCSS161010() в файле examples.cpp. Подберем параметры Быстрого Оптического Голубого Транзиента CSS161010 на основе наблюдений радиоизлучения, проведенных на 98, 162, 357 день после вспышки.  Расчет синхротронного излучения учитывает самопоглощение и раширение источника. Источник будем считать шаровым слоем с однородной плотностью и однороным магнитным полем, направленным перпендикулярно лучу зрения. Функцию распределения излучающих электронов возьмем на основе Particle-in-Cell расчетов для ударной волны со скоростью 0.3c,как сделано в работе \cite{BykovUniverse}. Учтена зависимость функции распределения от угла между магнитным полем и направлением распространения ударной волны.
+\begin{itemize}
+	\item ISOTROPIC\_THOMSON - модель рассеяния в томсоновсков режиме. Реализовано только для степенного распределения электронов и теплового фотонов \cite{Ginzburg1975} глава 17, с. 466
+	\item ANISOTROPIC\_KLEIN\_NISHINA - модель расчитывающее излучение напрямую из сечения Клейна-Нишины, возможен учет анизотропных функций распределения \cite{KleinNishina, Dubus}
+	\item ISOTROPIC\_KLEIN\_NISHINA - модель расчитывающее излучение напрямую из сечения Клейна-Нишины, но для изотропных функций распределения, что позволяет уменьшить количество интегрирований
+	\item ISOTROPIC\_JONES - модель, использующая аналитически проинтегрированное по углам сечение Клейна-Нишины \cite{JonesCompton, BykovUvarov2000}
+\end{itemize}
 
-%Подберем параметры Быстрого Оптического Голубого Транзиента CSS161010 на основе наблюдений радиоизлучения, проведенных на 98, 162, 357 день после вспышки.  Зададим сначала массивы наблюдательных точек, переведя при этом из единиц герцы и милиянские в эрги и $\text{см}^{-2} \text{c}^{-1}$
-%\begin{lstlisting}[language=c++]
-%const double cssx1[4] = 
-%{1.5*hplank*1E9, 3.0*hplank*1E9, 6.1*hplank*1E9, %9.87*hplank*1E9};
-%const double cssy1[4] =  {1.5/(hplank*1E26), 
-%4.3/(hplank*1E26), 6.1/(hplank*1E26), 4.2/(hplank*1E26)};
-%const double cssError1[4] = {0.1/(hplank*1E26), 
-%0.2/(hplank*1E26), 0.3/(hplank*1E26), 0.2/(hplank*1E26)};
+При создании объекта класса InverseComptonEvaluator необходимо указать рассматриваемый диапазон энергий частиц и количество точек в нем, количество ячеек в сетке по полярному и азимутальному углу, изотропную функцию распределения фотонов, которая будет использоваться по умолчанию и метод расчета излучения. Публичные методы классов InverseComptonEvaluator и InverseComptonEvaluatorWithSource перечислены в Таблице \ref{InverseComptonEvaluator}.
+\begin{small}
+	\topcaption{Публичные методы классa InverseComptonEvaluator }
+	\label{InverseComptonEvaluator}
+	\begin{xtabular}{|p{0.5\textwidth}|p{0.5\textwidth}|} 
+		\hline
+		\textbf{InverseComptonEvaluator} & класс предназначенный для вычисления излучения рождащегося в результате обратного комптоновского рассеяния\\
+		\hline
+		InverseComptonEvaluator( int Ne, int Nmu, int Nphi, double Emin, double Emax, PhotonDistribution* photonDistribution, ComptonSolverType solverType) & конструктор, создает экземпляр с заданным рассматриваемым диапазоном энергии, количеством ячеек в сетке по полярному и азимутальному углу, функцией распределения фотонов, которая будет использоваться по умолчанию и методом расчета излучения\\
+		\hline
+		evaluateComptonFluxKleinNishinaAnisotropic const double\& photonFinalEnergy, const double\& photonFinalTheta, const double\& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double\& volume, const double\& distance) & возвращает энергетическую плотность потока энергии в заданном направлении, излучением созданным заданными функциями распределения фотонов и рассеивющих частиц (которые могут быть анизотропными) в заданном объеме на данном расстоянии\\
+		\hline
+		evaluateFluxFromSourceAnisotropic( const double\& photonFinalEnergy, const double\& photonFinalTheta, const double\& photonFinalPhi, PhotonDistribution* photonDistribution, RadiationSource* source) & возвращает энергетическую плотность потока энергии в заданном направлении, излучением созданным заданными распределения фотонов и источником, содержащим распределения рассеивающих частиц\\
+		\hline
+		\textbf{InverseComptonEvaluatorWithSource} & класс предназначенный для вычисления излучения рождащегося в результате обратного комптоновского рассеяния с учетом зависимости функции распределения фотонов от расстояния до их источника\\
+		\hline
+		InverseComptonEvaluatorWithSource(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonDistribution* photonDistribution, ComptonSolverType solverType, const double\& sourceR, const double\& sourceZ, const double\& sourcePhi) & конструктор, создает экземпляр с заданным рассматриваемым диапазоном энергии, количеством ячеек в сетке по полярному и азимутальному углу, функцией распределения фотонов, методом расчета излучения и координатами источника фотонов\\
+		\hline
+	\end{xtabular}
+\end{small}
+
+Пример вычисления излучения от обратного комптоновского рассеяние содержится в процедуре evaluateComtonWithPowerLawDistribution() в файле examples.cpp. В ней расчитывается рентгеновское излучение, исходящее от объекта CSS161010 при рассеивании степенного распределения электронов, определенного в работе \cite{Coppejans2020}, на среднегалактическом распределении фотонов.  Сначала определим переменные, задающие основные параметры источника - концентрацию частиц, его размер и магнитное поле. Для вычисления обратного комптоновского рассеяния магнитное поле не используется, но в источнике нужно его задать, поэтому положим его равным нулю. Так же зададим параметры сетки по энергиям и углам, которая будет использоваться вычислителем
+
+\begin{lstlisting}[language=c++]
+	double electronConcentration = 150;
+	double sinTheta = 1.0;
+	double rmax = 1.3E17;
+	double B = 0.0;
+	double distance = 150*1E6*parsec;
 	
-%const double cssx2[4] = 
-%{2.94*hplank*1E9, 6.1*hplank*1E9, 9.74*hplank*1E9, %22.0*hplank*1E9};
-%const double cssy2[4] = {2.9/(hplank*1E26), 
-%2.3/(hplank*1E26), 1.74/(hplank*1E26), %0.56/(hplank*1E26)};
-%const double cssError2[4] = {0.2/(hplank*1E26), 
-%0.1/(hplank*1E26), 0.09/(hplank*1E26), %0.03/(hplank*1E26)};
+	double Emin = me_c2;
+	double Emax = 1000 * me_c2;
+	int Ne = 200;
+	int Nmu = 20;
+	int Nphi = 4;
+\end{lstlisting}
+
+Далее создадим распределение фотонов, воспользовавшись статическим методом класса MultiPlankDistribution getGalacticField, который возвращает среднегалактическое фотонное распределение, и распределение электронов - возьмем степенное рспределение с показателем 3.5.
+\begin{lstlisting}[language=c++]
+	PhotonIsotropicDistribution* photonDistribution = 
+	    PhotonMultiPlankDistribution::getGalacticField();
+	MassiveParticlePowerLawDistribution* electrons = new 
+	    MassiveParticlePowerLawDistribution(massElectron, 3.5,
+	    Emin, electronConcentration);
+\end{lstlisting}
+
+С помощью введенных ранее переменных создадим источник излучения и вычислитель излучения. В качестве метода расчета выберем самый универсальный - ANISOTROPIC\_KLEIN\_NISHINA
+
+\begin{lstlisting}[language=c++]
+	RadiationSource* source = new SimpleFlatSource(
+	  electrons, B, sinTheta, rmax, rmax, distance);
 	
-%const double cssx3[6] = {0.33*hplank*1E9, %0.61*hplank*1E9, 
-%1.5*hplank*1E9, 3.0*hplank*1E9, 6.05*hplank*1E9, %10.0*hplank*1E9};
-%const double cssy3[6] = {0.375/(hplank*1E26), %0.79/(hplank*1E26), 
-%0.27/(hplank*1E26),0.17/(hplank*1E26),0.07/(hplank*1E26),0.32/(hplank*1E27)};
-%const double cssError3[6] = {0.375/(hplank*1E26), 0.09/(hplank*1E26),
-%0.07/(hplank*1E26),0.03/(hplank*1E26),0.01/(hplank*1E26),0.8/(hplank * 1E28)};
-%\end{lstlisting}
+	InverseComptonEvaluator* comptonEvaluator = new 
+	    InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, 
+	    photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+\end{lstlisting}
 
-%Определим моменты времени инаблюдений и соответствующие им количества точек
+Предположим, что мы не хотим пользоваться встроенным методом вывода излучения в файл, так как хотим получить конечный результат в других единицах, например энергию фотона измерять в электронвольтах, а поток вывести в формате $E F(E)$ - $\text{эрг}\text{см}^{-2}\text{с}^{-1}$. Создадим тогда сетку значений энергии фотонов
+\begin{lstlisting}[language=c++]
+	int Nnu = 200;
+	double* E = new double[Nnu];
+	double* F = new double[Nnu];
+	double Ephmin = 0.01 * kBoltzman * 2.725;
+	double Ephmax = 2 * Emax;
+	double factor = pow(Ephmax / Ephmin, 1.0 / (Nnu - 1));
+	E[0] = Ephmin;
+	F[0] = 0;
+	for (int i = 1; i < Nnu; ++i) {
+		E[i] = E[i - 1] * factor;
+		F[i] = 0;
+	}
+\end{lstlisting}
+после этого вычислим в цикле желаемые потоки излучения
+\begin{lstlisting}[language=c++]
+	for (int i = 0; i < Nnu; ++i) {
+		F[i] = comptonEvaluator->evaluateFluxFromSource(
+		    E[i], source);
+	}
+\end{lstlisting}
+и запишем их в файл, переведя в желаемые единицы
+\begin{lstlisting}[language=c++]
+	FILE* output_ev_EFE = fopen("output.dat", "w");
+	
+	for (int i = 0; i < Nnu; ++i) {
+		double nu = E[i] / hplank;
+		fprintf(output_ev_EFE, "%g %g\n",
+		    E[i] / (1.6E-12), E[i] * F[i]);
+	}
 
-%\begin{lstlisting}[language=c++]
-%const int Ntimes = 3;
-%double times[Ntimes] = { 99 * 24 * 3600, 162 * 24 * 3600, 357 * 24 * 3600 };
-%int Nenergy[Ntimes];
-%Nenergy[0] = 4;
-%Nenergy[1] = 4;
-%Nenergy[2] = 6;
-%\end{lstlisting}
-%Создадим и инициализируем необходимые массивы с наблюдательными данными
-%\begin{lstlisting}[language=c++]
-%double** energy = new double* [Ntimes];
-%double** F = new double* [Ntimes];
-%double** Error = new double* [Ntimes];
-%for (int m = 0; m < Ntimes; ++m) {
-%	energy[m] = new double[Nenergy[m]];
-%	F[m] = new double[Nenergy[m]];
-%	Error[m] = new double[Nenergy[m]];
-%}
+	fclose(output_ev_EFE);
+\end{lstlisting}
+Спектр излучения, полученный в результате работы данной программы приведен на рисунке \ref{compton}
+\begin{figure}
+	\centering
+	\includegraphics[width=12.5 cm]{./fig/compton.png} 
+	\caption{Энергетическая плотность потока синхротронного излучения от тестового источника}
+	\label{compton}
+\end{figure}
 
-%for (int i = 0; i < Nenergy[0]; ++i) {
-%	energy[0][i] = cssx1[i];
-%	F[0][i] = cssy1[i];
-%	Error[0][i] = cssError1[i];
-%}
+\section{Распад пионов}
 
-%for (int i = 0; i < Nenergy[1]; ++i) {
-%	energy[1][i] = cssx2[i];
-%	F[1][i] = cssy2[i];
-%	Error[1][i] = cssError2[i];
-%}
+Для расчета излучения, получающегося в результате распада пионов, родившихся в результате свободно-свободного взаимодействия протонов использеутся абастрактный класс PionDecayEvaluatorBase и двае его наследника: PionDecayEvaluatorKelner, в котором сечение излучения гамма-фотона считается долей от полного сечения неупругого взаимодействия протонов, как описано в статье \cite{Kelner}, и PionDecayEvaluator, в котором используется более точное описание сечения рождения пионов на низких энергиях по методу, описанному в \cite{Kafexhiu}. В текущей версии предполагается, что характерное время потерь энергии протонов при неупругом взаимодействии намного больше времени их удержания в источнике, система является прозрачной для протонов, и каждый из них взаимодействует не более одного раза. В противном случае используемая модель излучения не применима.
 
-%for (int i = 0; i < Nenergy[2]; ++i) {
-%	energy[2][i] = cssx3[i];
-%	F[2][i] = cssy3[i];
-%	Error[2][i] = cssError3[i];
-%}
-%\end{lstlisting}
+При создании объекта класса PionDecayEvaluator необходимо указать рассматриваемый диапазон энергий частиц и количество точек в нем, а так же концентрацию фоновых протонов, так как предполагается рассеяние высокоэнергичных фотонов на покоящихся, а не взаимодействие высокоэнергичных между собой. Публичные методы класса PionDecayEvaluatorBase и его наследников приведены в Таблице \ref{pionDecay}
 
-%Зададим физические параметры источника (или их начальные приближения) - расстояние, размер, концентрацию, магнитное поле, долю толщины шара, занятую излучающим веществом, скорость расширения и магнетизацию.
+		\begin{small}
+			\topcaption{Публичные методы классa PionDecayEvaluatorBase и его наследников }
+			\label{pionDecay}
+			\begin{xtabular}{|p{0.5\textwidth}|p{0.5\textwidth}|}  
+				\hline
+				\textbf{PionDecayEvaluatorBase} & абстрактный класс для вычисления гамма излучения от распада пионов\\
+				\hline
+				sigmaInelastic(const double\& energy) & возвращает полное сечение неупругого взаимодействия протонов в лабораторной системе, принимает кинетическую энергию движущегося протона\\
+				\hline
+				\textbf{PionDecayEvaluatorKelner} & класс для вычисления гамма излучения от распада пионов по методу из статьи \cite{Kelner}\\
+				\hline
+				PionDecayEvaluatorKelner(int Ne, double Emin, double Emax, const double\& ambientConcentration) & конструктор, создает экземпляр с заданным рассматриваемым диапазоном энергии и концентрацией фоновых протонов\\
+				\hline
+				\textbf{PionDecayEvaluator} & класс для вычисления гамма излучения от распада пионов по методу из статьи \cite{Kafexhiu}\\
+				\hline
+				PionDecayEvaluator(int Ne, double Emin, double Emax, const double\& ambientConcentration) & конструктор, создает экземпляр с заданным рассматриваемым диапазоном энергии и концентрацией фоновых протонов\\
+				\hline
+				sigmaGamma(const double\& photonEnergy, const double\& protonEnergy) & возвращает дифференциальное сечение рождения фотона с данной энергией при данной кинетической энергии протона, усредненное по углам\\
+				\hline
+			\end{xtabular}
+		\end{small}
 
-%\begin{lstlisting}[language=c++]
-%const double distance = 150 * 1E6 * parsec;
-%double rmax = 1.3E17;
-%double electronConcentration = 150;
-%double B = 0.6;
-%double widthFraction = 0.5;
-%double v = 0.3 * speed_of_light;
-%double sigma = B * B / (4 * pi * massProton * 
-%electronConcentration * speed_of_light2);
-%\end{lstlisting}
+Пример вычисления излучения от гамма излучения от распада пионов показан в функции evaluatePionDecay() в файлк examples.cpp. В нем рассмотрено моделирование излучение объекта Кокон Лебедя в модели ускорения частиц на вторичных ударных волнах, следуя статье \cite{BykovKalyashova2022}. В данной работе вычислено, что спектр ускоренных протонов имеет вид степенной функции с изломом со следующими параметрами - показатели спектра 2.1 и 2.64 на низких и высоких энергиях соответственно, энергия излома - 2.2 ТэВ. Размер излучающей области брался равным размеру сверхкаверны Лебедя - 55 пк. Как и ранее, сначала определим переменные, задающие основные параметры источника - концентрацию частиц, его размер и магнитное поле, которое опять положим равным нулю. Диапазон энергий протонов рассмотрим от 0.01 ГэВ до 10 ТэВ. Так же укажем энергию излома.
+\begin{lstlisting}[language=c++]
+	double protonConcentration = 150;
+	double rmax = 55 * parsec;
+	double B = 0;
+	double sinTheta = 1.0;
 
-%Укажем для оптимизаторов количество параметров, ихи минимальные и максимальные значения и соответствие вектора параметров и физических величин. Оптимизируемыми параметрами являются - размер источника, магнетизация, доля заполнения и скорость расширения в первый момент времени, а так же показатели степени расширения со временем и изменения магнитного поля и концентрации с радиусом, то есть $\alpha, \beta, \gamma$ где эти величины определены через уравнения $R(t) = R_0 + \frac{1}{\alpha-1}\cdot V(0) \cdot t_0 \cdot ({t/t_0}^{\alpha-1}-1 )$, $B(R) = B(R_0)\cdot{R_0/R}^{\beta-1}$, $n(R) = n(R_0)\cdot{R_0/R}^{\gamma - 1}$. Единица добавлена к показателям степени для удобства численных расчетов при близости величин к нулю.
-%\begin{lstlisting}[language=c++]
-%const int Nparams = 8;
-%double minParameters[Nparams] = { 1E16, 0.0001, 0.01, 0.1, 
-%0.01 * speed_of_light, 1.1, 1.0, 1.0 };
-%double maxParameters[Nparams] = { 2E17, 1, 1000, 1.0, 0.6 * 
-%speed_of_light, 2.0, 3.5, 3.5 };
-%double vector[Nparams] = { rmax, sigma, electronConcentration, 
-%widthFraction, v, 2.0, 2.0, 3.0 };
-%for (int i = 0; i < Nparams; ++i) {
-%    vector[i] = vector[i] / maxParameters[i];
-%}
-%bool optPar[Nparams] = { true, true, true, true, true, %true, true, true };
-%\end{lstlisting}
+	double distance = 1400 * parsec;
+	double Emin = massProton*speed_of_light2 + 0.01E9 * 1.6E-12;
+	double Emax = 1E13 * 1.6E-12;
+	double Etrans = 2.2E12 * 1.6E-12;
+\end{lstlisting}
+После этого создадим распределение протонов и источник излучения
+\begin{lstlisting}[language=c++]
+	MassiveParticleBrokenPowerLawDistribution* protons = new 
+		MassiveParticleBrokenPowerLawDistribution(
+		massProton, 2.1, 2.64, Emin, Etrans, protonConcentration);
+	RadiationSource* source = new SimpleFlatSource(
+		protons, B, sinTheta, rmax, rmax, distance);
+\end{lstlisting}
+Далее потребуется вычислитель излучения. В случае пионного распада необходимо указать концентрацию фоновых протонов.
+\begin{lstlisting}[language=c++]
+double protonAmbientConcentration = 20;
+PionDecayEvaluator* pionDecayEvaluator = new PionDecayEvaluator(
+	200, Emin, Emax, protonAmbientConcentration);
+\end{lstlisting}
+Как и в предыдущих случаях далее необходимо внутри цикла вычислить излучение в интересующем диапазоне энергий, используя функцию evaluateFluxFromSource, и вывести результат в файл в удобных единицах. Спектр излучения, полученный в результате работы данной программы и результаты наблюдений Кокона Лебедя на Fermi LAT, ARGO и HAWC \cite{Ackermann2011, Bartoli2014, Abeysekara2021} приведены на рисунке \ref{pion}
+\begin{figure}
+	\centering
+	\includegraphics[width=12.5 cm]{./fig/compton.png} 
+	\caption{Расчетная энергетическая плотность потока гамма излучения Кокона Лебедя и данные наблюдений}
+	\label{pion}
+\end{figure}
+\section{Тормозное излучение}
+В текущей версии кода реализовано вычисление тормозного излучения электронов в плазме только для случая теплового распределения. Для этого предназначен класс BremsstrahlungThermalEvaluator. В процессе расчета предполагается, что плазма электрон-протонная, с одинаковыми температурами электронов и протонов, в вычислении используются Гаунт-факторы, приведенные в \cite{Rybicki}. Пример вычисления тормохного излучения приведен в функции evaluateBremsstrahlung в файле examples.cpp.
 
-%Далее создадим источник излучения. Воспользуемся моделью расширяющейся однородной сферической оболочки, с однородным магнитным полем, перпендикулярным лучу зрения и функцией распределения электронов, зависящей от угла между направлением магнитного поля и направлением расширения оболочки. Функции распределения получены с использованием Particle-in-Cell кода Smilei \cite{Derouillat} и содержатся в директории examplesData. Методика расчетов описана в статье \cite{BykovUnirse}. Количетсво распределений, посчитанных для углов от 0 до 90 градусов равно десяти. Их можно считать из соответствующих файлов, используя метод класса MassiveParticleDistributionFactory. Так же будет добавлено продолжение мтепенного хвоста, так как PIC расчеты не пользволяют получать длинные спектры из-за большой вычислительной сложности. Так же необходимо провести масштабирование распределения, так как в PIC расчетах испольовалось уменьшенное отношение масс протонов и электронов $m_p/m_e = 100$. Имея массив распределений создадим источник, учитывающий угловую зависимость, и передим его далее источнику. учитывающему зависимость от времени.
-
-%\begin{lstlisting}[language=c++]
-%const int Ndistributions = 10;
-
-%MassiveParticleIsotropicDistribution** angleDependentDistributions = 
-%MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail
-%(massElectron, "./input/Ee", "./input/Fs", ".dat", 10, 
-%DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200, 20 * me_c2, 3.5);
-%for (int i = 0; i < Ndistributions; ++i) {
-%(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>
-%(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
-%}
-
-%AngleDependentElectronsSphericalSource* angleDependentSource = new 
-%AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, 
-%angleDependentDistributions,B,1.0,0,electronConcentration,rmax,0.5*rmax,distance);
-
-%RadiationTimeDependentSource* source = new 
-%ExpandingRemnantSource(rmax, B, electronConcentration, 0.3 * speed_of_light,
-%0.5, angleDependentSource, times[0]);
-
-%\end{lstlisting}
-
-%Теперь создадим вычислитель синхротронного излучения и два оптимизатора параметров - первый будет работать перебором параметров по сетке, а второй - градиентным спуском. Укажем количество точек по осям для перебора, количество итераций для градиентного спуска и диапазон энергий электронов, который будет рассматривать вычислитель синхротронного излучения.
-
-%\begin{lstlisting}[language=c++]
-%int Npoints[Nparams] = { 3, 3, 3, 3, 3, 3, 3, 3 };
-%int Niterations = 5;
-
-%double Emin = me_c2;
-%double Emax = 10000 * me_c2;
-
-%SynchrotronEvaluator* synchrotronEvaluator=new %SynchrotronEvaluator(200, Emin, Emax);
-
-%RadiationTimeOptimizer* gridEnumOptimizer = 
-%new GridEnumRadiationTimeOptimizer(synchrotronEvaluator, minParameters, 
-%maxParameters, Nparams, Npoints);
-%RadiationTimeOptimizer* gradientOptimizer = 
-%new GradientDescentRadiationTimeOptimizer(synchrotronEvaluator,minParameters, 
-%maxParameters, Nparams, Niterations);
-%\end{lstlisting}
-
-%Применим созданые оптимизаторы и изменим параметры источника на найденные, соответствующие минимуму.
-
-%\begin{lstlisting}[language=c++]
-
-%gridEnumOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
-
-%gradientOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
-
-%source->resetParameters(vector, maxParameters);
-%\end{lstlisting}
-
-%Полученные в результате оптимизации парметры источника равны: радиус диска в начальный момент времени $R = 1.8\times10^17 \text{ см}$, магнитное поле $B = 1.6 \text{ Гс}$, концентрация электронов $n = 2.3 \text{ см}^{-3}$, доля толщины $fraction = 0.54 $, степени зависимости . Значение целевой функции $f \approx 50$. Модельный спектр излучения  с данными параметрами и наблюдательные данные изображены на рисунке \ref{synchrotronSeries}.
-
-%\begin{figure}
-%	\centering
-%	%\includegraphics[width=12.5 cm]{./fig/synchrotronSeries.png} 
-%	\caption{Наблюдаемый и расчетный спектр радиоизлучения объекта CSS161010 на 99, 162 и 357 дни после вспышки}
-%	\label{synchrotronSeries}
-%\end{figure}
