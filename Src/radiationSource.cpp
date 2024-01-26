@@ -1422,15 +1422,15 @@ MassiveParticleDistribution* AngleDependentElectronsSphericalSource::getParticle
 
 }
 
-ExpandingRemnantSource::ExpandingRemnantSource(const double& R0, const double& B0, const double& concentration0, const double& v, const double& widthFraction, RadiationSource* source, const double& t0) : RadiationTimeDependentSource(source, t0) {
+ExpandingRemnantSource::ExpandingRemnantSource(const double& R0, const double& B0, const double& concentration0, const double& v, const double& widthFraction, RadiationSource* source, const double& t0, const double& radiusPower, const double& Bpower, const double& concentrationPower) : RadiationTimeDependentSource(source, t0) {
 	my_R0 = R0;
 	my_B0 = B0;
 	my_concentration0 = concentration0;
 	my_widthFraction = widthFraction;
 	my_v = v;
-	my_radiusPower = 1.0;
-	my_Bpower = 1.0;
-	my_concentrationPower = 2.0;
+	my_radiusPower = radiusPower;
+	my_Bpower = Bpower;
+	my_concentrationPower = concentrationPower;
 }
 
 void ExpandingRemnantSource::resetParameters(const double* parameters, const double* normalizationUnits) {
