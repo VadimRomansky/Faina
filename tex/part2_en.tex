@@ -1,90 +1,97 @@
 \chapter{Evaluation of radiation}\label{evaluation}
 In current version of the code following types of radiation are implemented: synchrotron radiation, inverse Compton scattering, gamma-ray emission due to pion decay in free-free proton interaction and also bremsstrahlung.
 
-Для расчета излучения источников используется абстрактный класс RadiationEvaluator и его наследники, предназначенные для конкретных видов излучения. Так же есть класс RadiationSumEvaluator, предназначенный для суммирования нескольких различных видов излучения. Список публичных методов этих двух классов приведен в Таблице \ref{radiationEvaluator}. Общая схема расчета излучения такова: создать источник излучения, используя один из классов описанных в предыдущем разделе или написанный самостоятельно, затем создать вычислитель излучения нужного типа, и вызвать у него метод evaluateFluxFromSource(const double\& photonFinalEnergy, RadiationSource* source), вычисляющий энергетическую плотность потока излучения источника на данной энергии принимаемого фотона в единицах  $\text{см}^{-2} \text{с}^{-1}$. Далее в данном разделе описаны реализации класса RadiationEvaluator для конкретных видов излучения. Схема наследования классов вычислителей излучения представлена на рисунке \ref{radiationEvaluators}. Физическая сторона вопроса, формулы по которым расчитывается излучение подробно описаны в Главе \ref{Formulae}.
+Abstract class RadiationEvaluator and it's inherited classes are used for evaluation of radiation. There are derved classes for every specific type of radiation and also class RadiationSumEvaluator which allows to sum several different types of radiation. Public methods of this two classes are listed in Table \ref{radiationEvaluator}. 
 
-\begin{small}
-	\topcaption{Публичные методы классa RadiationEvaluator }
-	\label{radiationEvaluator}
-	\begin{xtabular}{|p{0.5\textwidth}|p{0.5\textwidth}|} 
-		\hline
-		\textbf{RadiationEvaluator} & абстрактный класс для вычисления излучения \\
-		\hline
-		virtual evaluateFluxFromSource(const double\& photonFinalEnergy, RadiationSource* source) & чисто виртуальный метод, возвращает энергетическую плотность потока излучаемого данным источником в единицах $\text{см}^{-2} \text{с}^{-1}$ \\
-		\hline
-		virtual double evaluateFluxFromSourceAtPoint(const double\& photonFinalEnergy, RadiationSource* source, int rhoi, int phi) & чисто виртуальный метод, возвращает энергетическую плотность потока, излучаемого данной областью источника на картинной плоскости\\
-		double evaluateTotalFluxInEnergyRange(const double\& Ephmin, const double\& Ephmax, int Nph, RadiationSource* source) & возвращает интегральны поток излучаемый источником в заданном диапазоне энергий (проинтегрированный по Nph точкам) в единицах  $\text{эрг} \text{см}^{-2} \text{с}^{-1}$\\
-		\hline
-		virtual resetParameters( const double* parameters, const double* normalizationUnits) & чисто виртуальный метод, позволяет изменить внутренние параметры вычислителя излучения. Список параметров, их количество, их влияние на источник определяются  в конкретных реализациях класса, данный метод используется при оптимизации\\
-		\hline
-		writeFluxFromSourceToFile(const char* fileName, RadiationSource* source, const double\& Ephmin, const double\& Ephmax, const int Nph) & записывает в файл с данным именем излучение источника в единицах $\text{см}^{-2} \text{с}^{-1}$ в диапазоне от минимальной до максимальной энергии, с заданным количеством точек, распределенных логарифмически\\
-		\hline
-		void writeImageFromSourceToFile(const char* fileName, RadiationSource* source, const double\& Ephmin, const double\& Ephmax, const int Nph) & записывает в файл с данным именем изображение - двумерный массив с интегральным потоком излучаемым разными областями источника в единицах $\text{эрг} \text{см}^{-2} \text{с}^{-1}$ в диапазоне от минимальной до максимальной энергии, проинтегрированым по заданныму количеству точек, распределенных логарифмически\\
-		\hline
-		void writeImageFromSourceAtEToFile(const double\& photonFinalEnergy, const char* fileName, RadiationSource* source) & записывает в файл с данным именем изображение - двумерный массив с энергетической плотностью потока излучаемого разными областями источника на данных энергиях в единицах $\text{см}^{-2} \text{с}^{-1}$\\
-		\hline
-		\textbf{RadiationSumEvaluator} & класс предназначенный для суммирования нескольких видов излучения\\
-		\hline
-		RadiationSumEvaluator(int Ne, const double\& Emin, const double\& Emax, RadiationEvaluator* evaluator1, RadiationEvaluator* evaluator2) & конструктор, создающий экземпляр с указанным диапазоном рассматриваемых энергий излучающих частиц, вычисляющий и складывающий результаты двух указанных вычислителей \\
-		\hline
-		RadiationSumEvaluator(int Ne, const double\& Emin, const double\& Emax, int Nev, RadiationEvaluator** evaluators) & конструктор, создающий экземпляр с указанным диапазоном рассматриваемых энергий излучающих частиц, вычисляющий и складывающий результаты вычислителей излучения в указанном массиве\\
-		\hline
-	\end{xtabular}
-\end{small}
+General approach to evaluation of radiation is following: create radiation source, using one of the classes, described in Section \ref{sourcesSection}, or user-defined, then create object of radiation evaluator, which types are described below, and then call method evaluateFluxFromSource(const double\& photonFinalEnergy, RadiationSource* source) of this object, which evaluates energy density of the energy flux from source in units $\rm cm^{-2} s^{-1}$.
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=10.5 cm]{./fig/radiationEvaluator.png} 
-	\caption{Схема наследования классов вычислителей излучения.}
+	\caption{class hierarchy of radiation evaluators}
 	\label{radiationEvaluators}
 \end{figure}
 
-\section{Синхротронное излучение}
-Для расчета синхротронного излучения используется класс SynchrotronEvaluator. В нем используется приближение непрерывного спектра, то есть рассматриваемые частоты фотонов предполагаются намного большими, чем частота вращения излучающих частиц в магнитном поле. Реализован случай только изотропной функции распределения излучающих частиц. Так же возможен учет синхротронного самопоглощения. Используемая геометрия источников, показанная на рисунке \ref{sphericalLayer}, позволяет легко интегрировать излучение по лучу зрения, и учитывать при этом поглощение внутри источника. При создании объекта класса необходимо указать рассматриваемый диапазон энергий частиц и количество точек в нем, параметр отвечающий за учет самопоглощения (значение по умолчанию true), а так же значения магнитного поля, синуса угла наклона к лучу зрения и толщины излучаемой области, которые будут использоваться в случае расчета излучения без указания источника, а только с использованием распределения частиц. Публичные методы класса SynchrotronEvaluator перечислены в Таблице \ref{SynchrotronEvaluator}. Пример вычисления синхотронного излучения приведен в разделе \ref{quickStart}.
-\begin{table}
+Classes for every specific type of electromagnetic radiation are described below in this chapter. Class hierarchy of radiation evaluators is shown in Figure \ref{radiationEvaluators}. Equations used for evaluation are discussed in Chapter \ref{Formulae}.
+
+\begin{small}
+	\topcaption{Public methods of RadiationEvaluator class}
+	\label{radiationEvaluator}
+	\begin{xtabular}{|p{0.51\textwidth}|p{0.49\textwidth}|} 
+		\hline
+		\textbf{RadiationEvaluator} & astract class for evaluation of radiation \\
+		\hline
+		virtual evaluateFluxFromSource(const double\& photonFinalEnergy, RadiationSource* source) & virtual method, returns energy density of radiation energy flux in units $\text{cm}^{-2} \text{s}^{-1}$ \\
+		\hline
+		virtual double evaluateFluxFromSourceAtPoint(const double\& photonFinalEnergy, RadiationSource* source, int rhoi, int phi) & virtual method, returns energy density of radiatio energy flux from given grid cell on tangent plane\\
+		\hline
+		double evaluateTotalFluxInEnergyRange(const double\& Ephmin, const double\& Ephmax, int Nph, RadiationSource* source) & returns integrated energy flux in the given energy range, evaluted by Nph points distributied logarithmically, in units $\text{erg} \text{cm}^{-2} \text{s}^{-1}$\\
+		\hline
+		virtual resetParameters( const double* parameters, const double* normalizationUnits) & virtual method, reseting parameters of the radiation evaluator. Lists of parameters are different for different types of evaluators. Method takes for input array of parameters in normalized units, and array of normalization conctants. This method for example is used for fitting modelled radiation to the observational data and optimization.\\
+		\hline
+		writeFluxFromSourceToFile(const char* fileName, RadiationSource* source, const double\& Ephmin, const double\& Ephmax, const int Nph) & evaluates and writes into the file energy density of radiation energy flux in given energy range with Nph points distributed logarithmically. Writes two columns of data in units $\text{erg}$  and $\text{cm}^{-2} \text{s}^{-1}$\\
+		\hline
+		writeImageFromSourceToFile(const char* fileName, RadiationSource* source, const double\& Ephmin, const double\& Ephmax, const int Nph) & evaluates and writes to file image - energy flux from every cell of the tangent plane in units $\text{erg} \text{cm}^{-2} \text{s}^{-1}$ integrated in given energy range with Nph points distributed logarithmically\\
+		\hline
+		writeImageFromSourceAtEToFile(const double\& photonFinalEnergy, const char* fileName, RadiationSource* source) & evaluates and writes to file image - energy density of radiation energy flux from every cell of the tangent plane in units $\text{cm}^{-2} \text{s}^{-1}$\\
+		\hline
+		\textbf{RadiationSumEvaluator} & class for sum of several types of radiation\\
+		\hline
+		RadiationSumEvaluator(int Ne, const double\& Emin, const double\& Emax, RadiationEvaluator* evaluator1, RadiationEvaluator* evaluator2) & constructor, creates evaluator which sums results of two given evaluators, and takes into accaunt emmiting particles in given energy range\\
+		\hline
+		RadiationSumEvaluator(int Ne, const double\& Emin, const double\& Emax, int Nev, RadiationEvaluator** evaluators) & constructor, creates evaluator which sums results of given array of evaluators, and takes into accaunt emmiting particles in given energy range\\
+		\hline
+	\end{xtabular}
+\end{small}
+
+\section{Synchrotron radiation}\label{synchrotronSection}
+Class SynchrotronEvaluator is implemented for evaluation of synchrotron radiation. It uses standard approximation of continious spectrum, described in \cite{Ginzburg1975, Ghisellini} and in section \ref{synchrotronFormulaSection},  - it is valid for frequencies of emitted photons much higher than gyrofrequency of emitting particles. Also it is possible to take into account synchrotron self-absorption. Cylindrical geomtry, shown in Figure \ref{sphericalLayer} allows to integrate flux through the line of sight and take into account absorption inside the source. To create SynchrotronEvaluator object user should provide energy range of particles to be taken into account, numbers of integration points in it, and also two boolean parameters - for accounting self absorption and doppler shifting due to source matter velocity. Public methods of Synchrotron evaluator are listed in Table  \ref{SynchrotronEvaluator}. Example of evaliation of synchrotron radiation is shown in section \ref{quickStart}.
+\begin{table}[h]
 	\begin{center}
 	\begin{small}
-	\caption{Публичные методы классa SynchrotronEvaluator }
+	\caption{Public methods of SynchrotronEvaluator}
 	\label{SynchrotronEvaluator}
 	\begin{tabularx}{\textwidth}{|X|X|} 
 		\hline
-		\textbf{SynchrotronEvaluator} & класс предназначенный для вычисления синхротронного излучения\\
+		\textbf{SynchrotronEvaluator} & class for evaluation synchrotron radiation\\
 		\hline
-		SynchrotronEvaluator( int Ne, double Emin, double Emax, bool selfAbsorption = true, bool doppler = false) & конструктор, создает экземпляр с указанным диапазоном рассматриваемых энергий излучающих частиц,и параметрами учета самопоглощения и допплеровского эффекта\\
+		SynchrotronEvaluator( int Ne, double Emin, double Emax, bool selfAbsorption = true, bool doppler = false) & constructor, creates evaluator with given energy range of particles taken into account and parameters corresponding to self-absorption and doppler effect\\
 		\hline
-		evaluateSynchrotronIandA(const double\& photonFinalFrequency, const double\& photonFinalTheta, const double\& photonFinalPhi, const double\& B, const double\& sinhi, const double\& concentration, MassiveParticleIsotropicDistribution* electronDistribution, double\& I, double\& A) & вычисляет значения плотности излучательной способности и коэффициента поглощения для фотона с данной энергией и направлением, в области с данными концентрацией и распределением излучающих частиц в данном магнитном поле\\
+		evaluateSynchrotronIandA(const double\& photonFinalFrequency, const double\& photonFinalTheta, const double\& photonFinalPhi, const double\& B, const double\& sinhi, const double\& concentration, MassiveParticleIsotropicDistribution* electronDistribution, double\& I, double\& A) & evaluates emissivity per unit volume and absorption coefficient for photon of given energy and direction in given magnetic field and number density and distribution of emitting particles\\
 		\hline
 	\end{tabularx}
 \end{small}
 \end{center}
 \end{table}
-\section{Обратное комптоновское рассеяние}
-Для расчета излучения, получающегося в результате процесса обратного комптоновского рассеяния, использеуются классы InverseComptonEvaluator и его наследник InverseComptonEvaluatorWithSource. Отличие между ними в том, что в первом функция распределения рассеиваемых фотонов одинакова во всем излучающем объеме, а во втором изменяется обратно пропорционально квадрату расстояния до источника фотонов. Внутри класса  InverseComptonEvaluator реализованы четыре различных метода расчета излучения, для обозначения которых используется перечислимый тип ComptonSolverType, имеющий следующие значения:
+\section{Inverse Compton scattering}
+Class InverseComptonEvaluator is implemented for evaluation of radiation produced in inverce compton scattering. Also it has one derived class InverseComptonEvaluatorWithSource. The difference between them is that in the first one distribution of seed photons is constant inside the source, and in the second one photons number density is change proportionaly inverse square of the distance to the source of seed photons.
+
+There are four different algorithmes of evaluation IC radiation that can be used by InverseComptonEvaluator. They are listed by enum-type ComptonSolverType, having following values:
 
 \begin{itemize}
-	\item ISOTROPIC\_THOMSON - модель рассеяния в томсоновсков режиме. Реализовано только для степенного распределения электронов и теплового фотонов \cite{Ginzburg1975} глава 17, с. 466
-	\item ANISOTROPIC\_KLEIN\_NISHINA - модель расчитывающее излучение напрямую из сечения Клейна-Нишины, возможен учет анизотропных функций распределения \cite{KleinNishina, Dubus}
-	\item ISOTROPIC\_KLEIN\_NISHINA - модель расчитывающее излучение напрямую из сечения Клейна-Нишины, но для изотропных функций распределения, что позволяет уменьшить количество интегрирований
-	\item ISOTROPIC\_JONES - модель, использующая аналитически проинтегрированное по углам сечение Клейна-Нишины \cite{JonesCompton, BykovUvarov2000}
+	\item ISOTROPIC\_THOMSON - simple model of scattering in thomson regime with power-law distribution of electrons and thermal distribution of seed photons, as described in \cite{Ginzburg1975} ch 17, p. 466.
+	\item ANISOTROPIC\_KLEIN\_NISHINA - model computing radiation directly by integrating Klein-Nishina cros-section as described in \cite{KleinNishina, Dubus} and in section \ref{comptonFormulaSection}. With this model is possible to evaluate radiation produced by anisotropic distributions of initial particles
+	\item ISOTROPIC\_KLEIN\_NISHINA - model similar to the previous, it uses integration of Klein-Nishina cross-section, but isotropy of distributions of initial particles is assumed, and it allows to reduce number of integrations through the azimuthal angle
+	\item ISOTROPIC\_JONES - model, using analytical integration through the all angular variables, in case of isotropic distributions of initial particles. It is described in \cite{JonesCompton, BykovUvarov2000} and in section??
 \end{itemize}
 
-При создании объекта класса InverseComptonEvaluator необходимо указать рассматриваемый диапазон энергий частиц и количество точек в нем, количество ячеек в сетке по полярному и азимутальному углу, изотропную функцию распределения фотонов, которая будет использоваться по умолчанию и метод расчета излучения. Публичные методы классов InverseComptonEvaluator и InverseComptonEvaluatorWithSource перечислены в Таблице \ref{InverseComptonEvaluator}.
+To create object of InverseComptobEvaluator type user needs to provide energy range of particles taken into account and nimber of points to integrate through it, number of points through the polar and azimutal angle, distribution function of seed photons and algorithm of computation the radiation. Public methods of InverseComptonEvaluator and InverseComptonEvaluatorWithSource are listed in Table \ref{InverseComptonEvaluator}.
 \begin{small}
-	\topcaption{Публичные методы классa InverseComptonEvaluator }
+	\topcaption{Public methods of inverse compton scattering evaluators}
 	\label{InverseComptonEvaluator}
 	\begin{xtabular}{|p{0.5\textwidth}|p{0.5\textwidth}|} 
 		\hline
-		\textbf{InverseComptonEvaluator} & класс предназначенный для вычисления излучения рождащегося в результате обратного комптоновского рассеяния\\
+		\textbf{InverseComptonEvaluator} & class for evaluation radiation from inverse compton scattering\\
 		\hline
-		InverseComptonEvaluator( int Ne, int Nmu, int Nphi, double Emin, double Emax, PhotonDistribution* photonDistribution, ComptonSolverType solverType) & конструктор, создает экземпляр с заданным рассматриваемым диапазоном энергии, количеством ячеек в сетке по полярному и азимутальному углу, функцией распределения фотонов, которая будет использоваться по умолчанию и методом расчета излучения\\
+		InverseComptonEvaluator( int Ne, int Nmu, int Nphi, double Emin, double Emax, PhotonDistribution* photonDistribution, ComptonSolverType solverType) & constructor, creates evaluator with given energy range of particles taken into account, numbers of integration points throught the energy and angular variables, distribution function of seed photons and method of computation the radiation\\
 		\hline
-		evaluateComptonFluxKleinNishinaAnisotropic const double\& photonFinalEnergy, const double\& photonFinalTheta, const double\& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double\& volume, const double\& distance) & возвращает энергетическую плотность потока энергии в заданном направлении, излучением созданным заданными функциями распределения фотонов и рассеивющих частиц (которые могут быть анизотропными) в заданном объеме на данном расстоянии\\
+		evaluateFluxFromSourceAnisotropic( const double\& photonFinalEnergy, const double\& photonFinalTheta, const double\& photonFinalPhi, PhotonDistribution* photonDistribution, RadiationSource* source) & returns energy density of radiation energy flux created by given seed photons distribution and source containing scattering particles in given direction\\
 		\hline
-		evaluateFluxFromSourceAnisotropic( const double\& photonFinalEnergy, const double\& photonFinalTheta, const double\& photonFinalPhi, PhotonDistribution* photonDistribution, RadiationSource* source) & возвращает энергетическую плотность потока энергии в заданном направлении, излучением созданным заданными распределения фотонов и источником, содержащим распределения рассеивающих частиц\\
+		evaluateTotalFluxInEnergyRangeAnisotropic( const double\& Ephmin, const double\& Ephmax, const double\& photonFinalTheta, const double\& photonFinalPhi, int Nph, PhotonDistribution* photonDistribution, RadiationSource* source, ComptonSolverType solverType) & returns total energy flux of radiation created by given seed photons distribution and source containing scattering particles in given direction integrated in given energy range through Nph point distributed logarithmically.\\
 		\hline
-		\textbf{InverseComptonEvaluatorWithSource} & класс предназначенный для вычисления излучения рождащегося в результате обратного комптоновского рассеяния с учетом зависимости функции распределения фотонов от расстояния до их источника\\
+		\textbf{InverseComptonEvaluatorWithSource} & class for evaluation radiation from inverce comton scattering takin into account dependency of photons number density on distance to the source of photons\\
 		\hline
-		InverseComptonEvaluatorWithSource(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonDistribution* photonDistribution, ComptonSolverType solverType, const double\& sourceR, const double\& sourceZ, const double\& sourcePhi) & конструктор, создает экземпляр с заданным рассматриваемым диапазоном энергии, количеством ячеек в сетке по полярному и азимутальному углу, функцией распределения фотонов, методом расчета излучения и координатами источника фотонов\\
+		InverseComptonEvaluatorWithSource(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonDistribution* photonDistribution, ComptonSolverType solverType, const double\& sourceR, const double\& sourceZ, const double\& sourcePhi) & constructor, creates evaluator with given energy range of particles taken into account, numbers of integration points throught the energy and angular variables, distribution function of seed photons with number density corresponding to the origin of coordinates, method of computation the radiation and coordinates of the source of seed photons\\
 		\hline
 	\end{xtabular}
 \end{small}

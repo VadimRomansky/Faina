@@ -113,7 +113,7 @@ void evaluateComtonWithPowerLawDistribution() {
 	double minEev = 0.3 * 1000 * 1.6E-12;
 	double maxEev = 10 * 1000 * 1.6E-12;
 	int Nph = 10;
-	double kevFlux = comptonEvaluator1->evaluateTotalFluxInEnergyRangeAnisotropic(minEev, maxEev, pi/18, 0, Nph, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA2);
+	double kevFlux = comptonEvaluator1->evaluateTotalFluxInEnergyRange(minEev, maxEev, pi/18, source);
 	double kevAnisotropicFlux2 = 0;
 	double kevAnisotropicFlux3 = 0;
 	double kevAnisotropicFlux4 = 0;

@@ -321,7 +321,7 @@ Also it is possible to create tabulated distributions not by reading them from f
 
 \section{Radiation sources}
 
-Evaluation of radiation directly with distribution function, using some additional parameters like source volume and distance to it is implemented in code FAINA. But more useful, flexible and recommended way to do it is using the source model. It allows to take into account geomtry of the source, it's inhomogenuity and other features.
+To evaluate electromagnetic radiation with FAINA code user should create object, representing radiation source. It allows to take into account geomtry of the source, it's inhomogenuity and other features.
 
 There are two types of radiation sources - sources without time dependency, represented with class RadiationSource, and cources depending on time, represented with class RadiationTimeDependentSource. This two classes are not related with each other through inheritance, but the object of class RadiationTimeDependentSource contains the object of class RadiationSource inside. Diagram of class hierarchy of radiation sources is shown in Figure \ref{radiationSource}.
 
