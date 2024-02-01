@@ -96,7 +96,9 @@ To create object of InverseComptobEvaluator type user needs to provide energy ra
 	\end{xtabular}
 \end{small}
 
-Пример вычисления излучения от обратного комптоновского рассеяние содержится в процедуре evaluateComtonWithPowerLawDistribution() в файле examples.cpp. В ней расчитывается рентгеновское излучение, исходящее от объекта CSS161010 при рассеивании степенного распределения электронов, определенного в работе \cite{Coppejans2020}, на среднегалактическом распределении фотонов.  Сначала определим переменные, задающие основные параметры источника - концентрацию частиц, его размер и магнитное поле. Для вычисления обратного комптоновского рассеяния магнитное поле не используется, но в источнике нужно его задать, поэтому положим его равным нулю. Так же зададим параметры сетки по энергиям и углам, которая будет использоваться вычислителем
+Example of the evaluation of radiation produced by Inverse Compton scattering is shown in the function  evaluateComtonWithPowerLawDistribution() in the file examples.cpp. In this function X-ray radiation from Fast Blue Optical Transient CSS161010 is evaluated. Electrons distribution is assumed power-law as in paper \cite{Coppejans2020} and seed photons are taken from mean galactic photon field \cite{Mathis1983}.
+
+At first let define main parameters of the source - it's size, distance to observer, electrons number density and magnetic field. Magnetic field doesn't matter for inverse compton scattering, so assume it equal to zero. Also we define numbers of grid points for integration through the energy and angular variables
 
 \begin{lstlisting}[language=c++]
 	double electronConcentration = 150;
@@ -112,7 +114,8 @@ To create object of InverseComptobEvaluator type user needs to provide energy ra
 	int Nphi = 4;
 \end{lstlisting}
 
-Далее создадим распределение фотонов, воспользовавшись статическим методом класса MultiPlankDistribution getGalacticField, который возвращает среднегалактическое фотонное распределение, и распределение электронов - возьмем степенное рспределение с показателем 3.5.
+Then we create distribution of seed photons, using static method of class MultiPlankDistribution getGalacticField wich returns mean galactic photon distribution. And also we create electron power-law distribution with spectral index 3.5
+
 \begin{lstlisting}[language=c++]
 	PhotonIsotropicDistribution* photonDistribution = 
 	    PhotonMultiPlankDistribution::getGalacticField();
@@ -121,7 +124,7 @@ To create object of InverseComptobEvaluator type user needs to provide energy ra
 	    Emin, electronConcentration);
 \end{lstlisting}
 
-С помощью введенных ранее переменных создадим источник излучения и вычислитель излучения. В качестве метода расчета выберем самый универсальный - ANISOTROPIC\_KLEIN\_NISHINA
+Then we create radiation source as homogenous disk and radiation evaluator for inverse Compton scattering. Let use the most universal method of comutation inverse compton radiation - ANISOTROPIC\_KLEIN\_NISHINA
 
 \begin{lstlisting}[language=c++]
 	RadiationSource* source = new SimpleFlatSource(
@@ -132,7 +135,8 @@ To create object of InverseComptobEvaluator type user needs to provide energy ra
 	    photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
 \end{lstlisting}
 
-Предположим, что мы не хотим пользоваться встроенным методом вывода излучения в файл, так как хотим получить конечный результат в других единицах, например энергию фотона измерять в электронвольтах, а поток вывести в формате $E F(E)$ - $\text{эрг}\text{см}^{-2}\text{с}^{-1}$. Создадим тогда сетку значений энергии фотонов
+If user don't want to use standard method to writing radiation in to the file, in case of one need result in some other units - electron-volts for energy and write energy density flux in units 
+$E F(E)$ - $\text{erg}~\text{cm}^{-2}\text{s}^{-1}$, user should write result to file manually. Let create grid for energy of radiated photons
 \begin{lstlisting}[language=c++]
 	int Nnu = 200;
 	double* E = new double[Nnu];
@@ -147,30 +151,29 @@ To create object of InverseComptobEvaluator type user needs to provide energy ra
 		F[i] = 0;
 	}
 \end{lstlisting}
-после этого вычислим в цикле желаемые потоки излучения
+and then compute energy density fluxes for this energies
 \begin{lstlisting}[language=c++]
 	for (int i = 0; i < Nnu; ++i) {
 		F[i] = comptonEvaluator->evaluateFluxFromSource(
 		    E[i], source);
 	}
 \end{lstlisting}
-и запишем их в файл, переведя в желаемые единицы
+and wrtie them to file transforming to the prefered units
 \begin{lstlisting}[language=c++]
 	FILE* output_ev_EFE = fopen("output.dat", "w");
 	
 	for (int i = 0; i < Nnu; ++i) {
-		double nu = E[i] / hplank;
 		fprintf(output_ev_EFE, "%g %g\n",
 		    E[i] / (1.6E-12), E[i] * F[i]);
 	}
 
 	fclose(output_ev_EFE);
 \end{lstlisting}
-Спектр излучения, полученный в результате работы данной программы приведен на рисунке \ref{compton}
-\begin{figure}
+Spectrum of radiation, obtained with this code is shown in Figure \ref{compton}
+\begin{figure}[h]
 	\centering
 	\includegraphics[width=12.5 cm]{./fig/compton.png} 
-	\caption{Энергетическая плотность потока синхротронного излучения от тестового источника}
+	\caption{Energy density flux of inverse compton radiation}
 	\label{compton}
 \end{figure}
 
