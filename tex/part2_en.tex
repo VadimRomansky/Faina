@@ -177,35 +177,39 @@ Spectrum of radiation, obtained with this code is shown in Figure \ref{compton}
 	\label{compton}
 \end{figure}
 
-\section{Распад пионов}
+\section{Pion decay}
 
-Для расчета излучения, получающегося в результате распада пионов, родившихся в результате свободно-свободного взаимодействия протонов использеутся абастрактный класс PionDecayEvaluatorBase и двае его наследника: PionDecayEvaluatorKelner, в котором сечение излучения гамма-фотона считается долей от полного сечения неупругого взаимодействия протонов, как описано в статье \cite{Kelner}, и PionDecayEvaluator, в котором используется более точное описание сечения рождения пионов на низких энергиях по методу, описанному в \cite{Kafexhiu}. В текущей версии предполагается, что характерное время потерь энергии протонов при неупругом взаимодействии намного больше времени их удержания в источнике, система является прозрачной для протонов, и каждый из них взаимодействует не более одного раза. В противном случае используемая модель излучения не применима.
+For evaluation of gamma-radiation, produced in proton-proton inelastic collision due to pion decay, abstract class PionDecayEvaluatorBase is implemented. Also there are two derived class for different methods of computation: PionDecayEvaluatorKelner, in wich cross-section of gamma-photon remission considered a fraction of cross-section of inelastic p-p interaction as it isdescribed in paper \cite{Kelner}, and PionDecayEvaluator in which more accurate evaluation of cross-section at low energy is used, see \cite{Kafexhiu}. In both models it is assumed, that high energy protons with isotropic distribution are scattered on cold protons of ambient medium, and that time of energy losses of fast protons due to p-p scattering is mush larger than time of particle confinment in the source, so each proton can be scattered at most one time.
 
-При создании объекта класса PionDecayEvaluator необходимо указать рассматриваемый диапазон энергий частиц и количество точек в нем, а так же концентрацию фоновых протонов, так как предполагается рассеяние высокоэнергичных фотонов на покоящихся, а не взаимодействие высокоэнергичных между собой. Публичные методы класса PionDecayEvaluatorBase и его наследников приведены в Таблице \ref{pionDecay}
+To create object of pion decay evaluator user should provide energy range of particles to be taken into account, number of integration points in it and number density of ambient protons. Public methods of class PionEvaluatorBase and derived classes are listed in Table \ref{pionDecay}
 
 		\begin{small}
-			\topcaption{Публичные методы классa PionDecayEvaluatorBase и его наследников }
+			\topcaption{Public methods of class PionEvaluatorBase and inherited classes}
 			\label{pionDecay}
 			\begin{xtabular}{|p{0.5\textwidth}|p{0.5\textwidth}|}  
 				\hline
-				\textbf{PionDecayEvaluatorBase} & абстрактный класс для вычисления гамма излучения от распада пионов\\
+				\textbf{PionDecayEvaluatorBase} & abstract class for evaluation gamma radiation due to pion decay\\
 				\hline
-				sigmaInelastic(const double\& energy) & возвращает полное сечение неупругого взаимодействия протонов в лабораторной системе, принимает кинетическую энергию движущегося протона\\
+				sigmaInelastic(const double\& energy) & returns cross-section of inelastic scattering moving proton on the resting in the lab frame. NOTE! method takes kinetic energy of moving proton\\
 				\hline
-				\textbf{PionDecayEvaluatorKelner} & класс для вычисления гамма излучения от распада пионов по методу из статьи \cite{Kelner}\\
+				\textbf{PionDecayEvaluatorKelner} &
+				class for evaluation gamma radiation assuming cross-section of emission is fraction of inelastic cross-section as it is described in \cite{Kelner}\\
 				\hline
-				PionDecayEvaluatorKelner(int Ne, double Emin, double Emax, const double\& ambientConcentration) & конструктор, создает экземпляр с заданным рассматриваемым диапазоном энергии и концентрацией фоновых протонов\\
+				PionDecayEvaluatorKelner(int Ne, double Emin, double Emax, const double\& ambientConcentration) & constructor, creates evaluator with given range of protons energy taken into account, number of integration grid points in it and number density of ambient protons \\
 				\hline
-				\textbf{PionDecayEvaluator} & класс для вычисления гамма излучения от распада пионов по методу из статьи \cite{Kafexhiu}\\
+				\textbf{PionDecayEvaluator} & class for evaluation gamma radiation with method described in \cite{Kafexhiu}\\
 				\hline
-				PionDecayEvaluator(int Ne, double Emin, double Emax, const double\& ambientConcentration) & конструктор, создает экземпляр с заданным рассматриваемым диапазоном энергии и концентрацией фоновых протонов\\
+				PionDecayEvaluator(int Ne, double Emin, double Emax, const double\& ambientConcentration) & constructor, creates evaluator with given range of protons energy taken into account, number of integration grid points in it and number density of ambient protons\\
 				\hline
-				sigmaGamma(const double\& photonEnergy, const double\& protonEnergy) & возвращает дифференциальное сечение рождения фотона с данной энергией при данной кинетической энергии протона, усредненное по углам\\
+				sigmaGamma(const double\& photonEnergy, const double\& protonEnergy) & returns cross-section of emission of gamma photon with given energy by scattering of proton with given kinetic energy.
+		        NOTE! method takes kinetic energy of moving proton\\
 				\hline
 			\end{xtabular}
 		\end{small}
+	
+Example of evaluation of gamma radiation, produced by pion decay is shown in the function evaluatePionDecay() in the file examples.cpp. In this example gamma radiation from Cygnus Сocoon is evaluated. Protons are considered accelerated on the system of secondary shock as it is described in \cite{BykovKalyashova2022}. In this paper it is shown, that accelerated protons distribution is power-law with break at energy 2.2 TeV. Spectral index at low energies is 2.1 and 2.64 at high. Size of the emitting region is taken equal to the size of  Sygnus Cocoon Superbubble - 55 pc.
 
-Пример вычисления излучения от гамма излучения от распада пионов показан в функции evaluatePionDecay() в файлк examples.cpp. В нем рассмотрено моделирование излучение объекта Кокон Лебедя в модели ускорения частиц на вторичных ударных волнах, следуя статье \cite{BykovKalyashova2022}. В данной работе вычислено, что спектр ускоренных протонов имеет вид степенной функции с изломом со следующими параметрами - показатели спектра 2.1 и 2.64 на низких и высоких энергиях соответственно, энергия излома - 2.2 ТэВ. Размер излучающей области брался равным размеру сверхкаверны Лебедя - 55 пк. Как и ранее, сначала определим переменные, задающие основные параметры источника - концентрацию частиц, его размер и магнитное поле, которое опять положим равным нулю. Диапазон энергий протонов рассмотрим от 0.01 ГэВ до 10 ТэВ. Так же укажем энергию излома.
+As usual, let define general parameters of the source - number density, it's size and distance to it and magnetic field which can be set to zero in this example. Energu range of protons is from 0.01 GeV to 10 TeV, and the energy of break of the spectrum is 2.2 TeV
 \begin{lstlisting}[language=c++]
 	double protonConcentration = 150;
 	double rmax = 55 * parsec;
@@ -217,7 +221,7 @@ Spectrum of radiation, obtained with this code is shown in Figure \ref{compton}
 	double Emax = 1E13 * 1.6E-12;
 	double Etrans = 2.2E12 * 1.6E-12;
 \end{lstlisting}
-После этого создадим распределение протонов и источник излучения
+After that let create protons distribution and radiation source
 \begin{lstlisting}[language=c++]
 	MassiveParticleBrokenPowerLawDistribution* protons = new 
 		MassiveParticleBrokenPowerLawDistribution(
@@ -225,17 +229,44 @@ Spectrum of radiation, obtained with this code is shown in Figure \ref{compton}
 	RadiationSource* source = new SimpleFlatSource(
 		protons, B, sinTheta, rmax, rmax, distance);
 \end{lstlisting}
-Далее потребуется вычислитель излучения. В случае пионного распада необходимо указать концентрацию фоновых протонов.
+Then one should create radiation evaluator. It is necessary to provide number density of ambient protons for it
 \begin{lstlisting}[language=c++]
 double protonAmbientConcentration = 20;
 PionDecayEvaluator* pionDecayEvaluator = new PionDecayEvaluator(
 	200, Emin, Emax, protonAmbientConcentration);
 \end{lstlisting}
-Как и в предыдущих случаях далее необходимо внутри цикла вычислить излучение в интересующем диапазоне энергий, используя функцию evaluateFluxFromSource, и вывести результат в файл в удобных единицах. Спектр излучения, полученный в результате работы данной программы и результаты наблюдений Кокона Лебедя на Fermi LAT, ARGO и HAWC \cite{Ackermann2011, Bartoli2014, Abeysekara2021} приведены на рисунке \ref{pion}
+Let create energy grid for radiated gamma photons, which will be used for manual output of radiation spectrum
+\begin{lstlisting}[language=c++]
+    int Nnu = 200;
+    double* E = new double[Nnu];
+    double* F = new double[Nnu];
+    double Ephmin = 0.01 * Emin;
+    double Ephmax = 1E16 * 1.6E-12;
+    double factor = pow(Ephmax / Ephmin, 1.0 / (Nnu -  1));
+    E[0] = Ephmin;
+    F[0] = 0;
+    for (int i = 1; i < Nnu; ++i) {
+	    E[i] = E[i - 1] * factor;
+    	F[i] = 0;
+    }
+\end{lstlisting}
+and then we can evaluate radiation energy density flux and write it into the file in preffred units
+\begin{lstlisting}[language=c++]
+	for (int i = 0; i < Nnu; ++i) {
+		F[i] = pionDecayEvaluator->evaluateFluxFromSource(E[i], source);
+	}	
+	FILE* output_ev_dNdE = fopen("outputPionE.dat", "w");
+	for (int i = 0; i < Nnu; ++i) {
+		double nu = E[i] / hplank;
+		fprintf(output_ev_dNdE, "%g %g\n", E[i] / (1.6E-12), F[i] / E[i]);
+	}
+	fclose(output_ev_dNdE);
+\end{lstlisting}
+Spectrum of radiation from Cygnus Cocoon, obtained with this code, and observational data by Fermi LAT, ARGO and HAWC \cite{Ackermann2011, Bartoli2014, Abeysekara2021} are shown in Figure \ref{pion}
 \begin{figure}
 	\centering
 	\includegraphics[width=12.5 cm]{./fig/compton.png} 
-	\caption{Расчетная энергетическая плотность потока гамма излучения Кокона Лебедя и данные наблюдений}
+	\caption{Modeled energy flux energy density from Cygnus Cocoon and observational data}
 	\label{pion}
 \end{figure}
 \section{Тормозное излучение}
