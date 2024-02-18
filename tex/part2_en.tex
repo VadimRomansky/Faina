@@ -269,6 +269,5 @@ Spectrum of radiation from Cygnus Cocoon, obtained with this code, and observati
 	\caption{Modeled energy flux energy density from Cygnus Cocoon and observational data}
 	\label{pion}
 \end{figure}
-\section{Тормозное излучение}
-В текущей версии кода реализовано вычисление тормозного излучения электронов в плазме только для случая теплового распределения. Для этого предназначен класс BremsstrahlungThermalEvaluator. В процессе расчета предполагается, что плазма электрон-протонная, с одинаковыми температурами электронов и протонов, в вычислении используются Гаунт-факторы, приведенные в \cite{Rybicki}. Пример вычисления тормохного излучения приведен в функции evaluateBremsstrahlung в файле examples.cpp.
-
+\section{Bremsstrahlung}
+In current version of the code only simple case of thermal particle distribution is implemented with class BremsstrahlungThermalEvaluator. In this model thermal plasma with the same electron and positrons temperatures is assumed. Gaunt-factors for radiation are used as in \cite{Rybicki}. Example of evaluation of bremsstrahlung is shown in function  evaluateBremsstrahlung in the file examples.cpp.
