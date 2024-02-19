@@ -11,62 +11,63 @@ $L = \sum \frac{(F_i - F_{obs,i})^2}{\sigma_i^2}$, where $F_i$ - is some modeled
 	\label{LossEvaluators}
 	\begin{xtabular}{|p{0.5\textwidth}|p{0.5\textwidth}|}
 		\hline
-		\textbf{LossEvaluator} & абстрактный класс вычислителя целевой функции\\
+		\textbf{LossEvaluator} & abstract class for evaluator of loss function\\
 		\hline
-		virtual double evaluate(const double* vector, const double* maxParameters, RadiationEvaluator* evaluator) & чисто виртуальный метод, возвращающий значение целевой функции при данных параметрах. Так же на вход принимает вектор нормироваочных значений и вычислитель излучения\\
+		virtual double evaluate(const double* vector, const double* maxParameters, RadiationEvaluator* evaluator) & virtual method, returns value of loss function with given parameters. Also takes vector of normalization units for parameters and radiation evaluator\\
 		\hline
-		\textbf{SpectrumLossEvaluator} & класс, в котором целевая функция характеризует отличие вычисленной спектральной плотности излучения от наблюдательных данных, $f = \sum \frac{(F(E_i) - F_{obs,i})^2}{\sigma_i^2}$, где $F(E_i)$ - расчетная спектральная плотность потока излучения при данной энергии $E_i$, $F_{obs,i}$ - наблюдаемая спектральная плотность потока излучения, $\sigma_i$ - её погрешность.\\
+		\textbf{SpectrumLossEvaluator} & class for fitting energy flux energy density. Loss function is $L = \sum \frac{(F(E_i) - F_{obs,i})^2}{\sigma_i^2}$, where $F(E_i)$ - modeled energy flux energy density evaluated at energy $E_i$, $F_{obs,i}$ - corresponding observed value, $\sigma_i$ - it's uncertancy.\\
 		\hline
-		SpectrumLossEvaluator(double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* radiatiornSource) & конструктор, принимает на вход наблюдаемые значения спектральной плотности энергии, их количество и источник, для которого нужно вычислять излучение \textcolor{red}{в каких единицах?}\\
+		SpectrumLossEvaluator(double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* radiatiornSource) & constructor, creates loss evaluator, with given values of energies of observational points, observed fluxes and it's uncertancies, number of points and radiation source\\
 		\hline
-		\textbf{TimeDependentSpectrumLossEvaluator} & класс, в котором целевая функция характеризует отличие вычисленной спектральной плотности излучения от наблюдательных данных, собранных в различные моменты времени, $f = \sum \frac{(F(E_{ij}, t_j) - F_{obs,i,j})^2}{\sigma_{ij}^2}$, где $F(E_{ij},t_j)$ - расчетная спектральная плотность потока излучения при данной энергии $E_{ij}$ в момент времени $t_j$, $F_{obs,i,j}$ - наблюдаемая спектральная плотность потока излучения, $\sigma_{ij}$ - её погрешность. ОБРАТИТЕ ВНИМАНИЕ, что количество наблюдательных точек в разные моменты времени может быть разным\\
+		\textbf{TimeDependentSpectrumLossEvaluator} & class fitting energy flux energy density at different time moments. Loss function is $L = \sum \frac{(F(E_{ij}, t_j) - F_{obs,i,j})^2}{\sigma_{ij}^2}$, where $F(E_{ij},t_j)$ - modeled energy flux energy density evaluated at energy $E_{ij}$ at time moment $t_j$, $F_{obs,i,j}$ - corresponding observed value, $\sigma_{ij}$ - it's uncertancies. NOTE that number of energy grid point may be different at different time moments\\
 		\hline
-		TimeDependentSpectrumLossEvaluator(double** energy, double** observedFlux, double** observedError, int* Ne, double* times, int Ntimes, RadiationTimeDependentSource* radiationSource) & конструктор, принимает на вход двумерные массиы наблюдаемых значений спектральной плотности энергии, массив количества точек в разные моменты времени и зависящий от времени источник, для которого нужно вычислять излучение \textcolor{red}{в каких единицах?}\\
+		TimeDependentSpectrumLossEvaluator(double** energy, double** observedFlux, double** observedError, int* Ne, double* times, int Ntimes, RadiationTimeDependentSource* radiationSource) & constructor, creates loss evaluator with given values of energies of observational points, observed fluxes and it's uncertancies, numbers of energy grid points, time moments, number of time grid points and radiation source\\
 		\hline
-		\textbf{RadialProfileLossEvaluator} & класс, в котором целевая функция характеризует отличие радиальной зависимости яркости источника в заданном дипазоне от наблюдательных данных. $f = \sum \frac{(F(R_i) - F_{obs,i})^2}{\sigma_i^2}$, где $F(R_i)$ - расчетная яркость источника при данном радиусе $R_i$, $F_{obs,i}$ - наблюдаемая яркость, $\sigma_i$ - её погрешность\\
+		\textbf{RadialProfileLossEvaluator} & class for fitting luminocity of different points of the source, depending of radius in tangent plane. Loss function is $L = \sum \frac{(F(R_i) - F_{obs,i})^2}{\sigma_i^2}$, where $F(R_i)$ - energy flux surface density, at given radius $R_i$, $F_{obs,i}$ - corresponding observed value, $\sigma_i$ - it's uncertancy\\
 		\hline
-		RadialProfileLossEvaluator(double energy, double* observedFlux, double* observedError, double* rhoPoints, int Nrho, RadiationSource* radiaionSource) & конструктор, принимающий на вход значение энергии, для которого нужно вычислять яркость, наблюдаемые потоки, погрешности и соответствующие значения радиуса, количество точек и источник, для которого нужно рассчитывать излучение\\
+		RadialProfileLossEvaluator(double energy, double* observedFlux, double* observedError, double* rhoPoints, int Nrho, RadiationSource* radiaionSource) & constructor, creates loss evaluator, wuth given value of energy to evaluate flux density, observed value of luminocity surface density, observed value and it's uncertancies, radius grid points, number of grid points and radiation source\\
 		\hline
 	\end{xtabular}
 \end{small}
 
-\section{Оптимизаторы целевой функции}
-Для фитирования постоянных во времени кривых блеска предназначен абстрактный класс RadiationOptimizer. В нем определена виртуальныя функция optimize(double* vector, bool* optPar), которая и производит процесс оптимизации. Входными параметрами являются: vector - массив подбираемых параметров, в который будет записан результат работы программы, optPar - массив булевских переменных, определяющих оптимизировать соответствующий параметр, или считать его фиксированным. Функция изменения параметров источника source->resetParameters, который будет использоваться в процессе оптимизации, описанная в разделе \ref{sourcesSection}, должна быть согласована с массивом оптимизируемых параметров vector, так как в процессе оптимизации он будет передаваться в нее в качестве аргумента.
+\section{Optimizers of loss function}
 
-В коде реализованы три наследника класса RadiationOptimazer: GridEnumRadiationOptimizer - производящий поиск минимума простым перебором по сетке параметров с заданным количеством распределенных равномерно логарифмически точек, GradientDescentRadiationOptimizer - в котором минимум находится методом градиентного спуска, и CombinedRadiationOptimizer, который выполняет оптимизацию двумя этими методами последовательно, используя результат работы первого как начальную точку для второго. Схема насследования классов оптимизаторов показана на рисунке \ref{radiationOptimizer}, а список их публичных методов приведен в Таблице \ref{RadiationOptimizerMethods}. Реализованные методы оптимизации применимы для всех описанных выше типов источников, видов электромагнитного излучения и вычислителей целевых функций.
+For fitting modeled radiation from the source to observational data, abstract class RadiationOptimizer is implemented. It has virtual function optimize(double* vector, bool* optPar) which performs minimization of loss function. This function takes on input array of parameters of the source vector, and boolean array optPar showing for each parameter to optimize it or consider it fixed. Array of parameters must be consistent with function of used radiation source resetParameters, which was described in section \ref{sourcesSection}, because this function will be used during optimization and take the same array of parameters as input.
+
+There are three implemented classes, inherited from RadiationOptimizer: GridEnumRadiationOptimizer, which finds minimum of loss function on the fixed logarithmic grid in the parameters space, GradientDescentRadiationOptimizer, which uses gradient descent method and CombinedRadiationOptimizer, which sequentially applies this method, using result of seqrch on the grid as starting point for gradient descent. Hierarchy scheme of optimizers classes is shown in Figure \ref{radiationOptimizer}, and public methods are listed in Table \ref{RadiationOptimizerMethods}. Implemented optimization methods can be applied to any types of sources, electro-magnetic radiation and loss function evaluators which were described above.
 \begin{figure}
 	\centering
 	\includegraphics[width=11.5 cm]{./fig/radiationOptimizer.png} 
-	\caption{Схема наследования классов оптимизаторов}
+	\caption{class hierarchy of radiation optimizers}
 	\label{radiationOptimizer}
 \end{figure}
 
 \begin{small}
-	\topcaption{Публичные методы классов оптимизаторов параметров источников }
+	\topcaption{Public methods of radiation optimizer classes}
 	\label{RadiationOptimizerMethods}
 	\begin{xtabular}{|p{0.41\textwidth}|p{0.59\textwidth}|}
 		\hline
-		\textbf{RadiationOptimizer} & абстрактный класс для оптимизации параметров источника \\
+		\textbf{RadiationOptimizer} & abstract class for fitting modeled radiation to observations and optimization of source parameters \\
 		\hline
-		double evaluateOptimizationFunction(const double* vector) & вычисляет целевую функцию - взвешенную при данном векторе параметров\\
+		double evaluateOptimizationFunction( const double* vector) & returns value of loss function with given parameters\\
 		\hline
-		void optimize(double* vector, bool* optPar) & функция, осуществляющая оптимизацию, принимает на вход массив подбираемых параметров, в который будет записан результат и массив булевских переменных, определяющих оптимизировать соответствующий параметр, или считать его фиксированным\\
+		void optimize( double* vector, bool* optPar) & performs optimization, takes array of peremeters, where final values would be writen, and array of boolean values showing to optimize corresponding parameter or consider it fixed \\
 		\hline
-		void outputProfileDiagrams(const double* vector, int Npoints) & функция, которая строит и записывает в файлы двухмерные сечения целевой функции по всем комбинациям параметров, проходящие через точку определяемую заданным вектором параметров\\
+		void outputProfileDiagrams( const double* vector, int Npoints) & evaluates and writes into files 2d profiles of loss function in parameters space which contain starting point, defined by array vector, for all possible pairs of parameters\\
 		\hline
-		void outputOptimizedProfileDiagram(const double* vector, bool* optPar, int Npoints, int Nparam1, int Nparam2) & функция, которая строит и записывает в файлы двухмерные сечения целевой функции, в которых два параметра с номерами Nparam1 и Nparam2 фиксируются и пробегают соответствующую плоскость, а остальные оптимизируются\\
+		void outputOptimizedProfileDiagram( const double* vector, bool* optPar, int Npoints, int Nparam1, int Nparam2) & evaluates and writes into file 2d profile of loss function in plane in the parameter space, defined by parameter numbers Nparam1 and Nparam2, containing starting point in it, with given nuber of grid points for this parameters, while other parameters are optimized, if it is allowed by boolean array optPar\\
 		\hline
-		\textbf{GridEnumRadiationOptimizer} & класс предназначенный для оптимизации параметров с помощью перебора по сетке\\
+		\textbf{GridEnumRadiationOptimizer} & class for optimization by search of minimum value on the fixed logarithmic grid in parameters space\\
 		\hline
-		GridEnumRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints, LossEvaluator* lossEvaluator) & конструктор, создает экземпляр класса с указанным вычислителем излучения, минимальными и максимальными значениями оптимизируемых параметров, количеством этих параметров, массивом с количеством перебираемых точек по каждому параметру и вычислителем целевой функции. При переборе точки будут распределены логарифмически по оси.\\
+		GridEnumRadiationOptimizer( RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints, LossEvaluator* lossEvaluator) & constructor, creates optimizer with given radiation evaluator, domain of parameters defined by minimum and maximum values, number of parameters, numbers of grid points for each parameters and loss function evaluator\\
 		\hline
-		\textbf{GradientDescentRadiationOptimizer} & класс, предназначенный для оптимизации параметров методом градиентного спуска\\
+		\textbf{GradientDescentRadiationOptimizer} & class for optimization with gradient descent method\\
 		\hline
-		GradientDescentRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, LossEvaluator* lossEvaluator) & конструктор, создает экземпляр класса с указанным вычислителем излучения, минимальными и максимальными значеними оптимизируемых параметров, количеством этих параметров,  максимальным количеством итераций градиентного спуска и вычислителем целевой функции\\
+		GradientDescentRadiationOptimizer( RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, LossEvaluator* lossEvaluator) & constructor, creates optimizer with given radiation evaluator, domain of parameters defined by minimum and maximum values, number of parameters, number of iterations of gradient descent and loss function evaluator\\
 		\hline
-		\textbf{CombinedRadiationOptimizer} & класс, предназначенный для совместного использования сеточного поиска и градиентного спуска\\
+		\textbf{CombinedRadiationOptimizer} & class for optimization with sequentially use of search of minimum on the fixed grid and gradient descent method\\
 		\hline
-		CombinedRadiationOptimizer( RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, const int* Npoints, LossEvaluator* lossEvaluator) & конструктор, создает экземпляр класса с указанным вычислителем излучения, минимальными и максимальными значеними оптимизируемых параметров, количеством этих параметров,  максимальным количеством итераций градиентного спуска, количеством точек для сеточного поиска и вычислителем целевой функции\\
+		CombinedRadiationOptimizer( RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Niterations, const int* Npoints, LossEvaluator* lossEvaluator) & constructor, creates optimizer with given radiation evaluator, domain of parameters defined by minimum and maximum values, number of parameters, number of iterations for gradient descent, number of pointes through each axis for gread search and loss function evaluator\\
 		\hline
 	\end{xtabular}
 \end{small}
