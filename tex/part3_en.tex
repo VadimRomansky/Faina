@@ -72,9 +72,10 @@ There are three implemented classes, inherited from RadiationOptimizer: GridEnum
 	\end{xtabular}
 \end{small}
 
-Пример фитирования параметров источника по наблюдательным данным приведен в функции fitCSS161010withPowerLawDistribition в файле examples.cpp. Следуя авторам работы \cite{Coppejans2020} произведем расчет синхротронного излучения источника с учетом самопоглощения, считая функцию распределения электронов чисто степенной с показателем 3.6. Но мы не будем накладывать дополнительную связь на параметры и предполагать равенство распределения энергии между магнитным полем и ускоренными частицами, вместо этого магнитное поле и концентрация электронов будут независимыми параметрами.
+Example of optimizing the source parameters with fitting radiation to observationsl data is shown in the function fitCSS161010withPowerLawDistribition in file examples.cpp. Following the work \cite{Coppejans2020} let evaluate synchrotron radiation from the source taking into account synchrotron self-absorption, considering power-law distribution of enitting electrons with index 3.6. But we will not fix such parameters as efractios of energy in magnetic field and accelerated electrons, instead we consider magnetic field and electrons concentration independent parameters, wich optimal values will be found with fitting.
 
-Подберем параметры Быстрого Оптического Голубого Транзиента CSS161010 на 98 день после вспышки на основе радиоизлучения. Зададим параметры источника на основе дынных статьи \cite{Coppejans2020}, которые будут использоваться в качестве начального приближения, а так же расстояние до него.
+Let optimize parameters of the source of Fast Blue Optical Transient CSS161010 at 98 day after explosion. We initialize source parameters using values from \cite{Coppejans2020}, they will be used as starting point of optimization.
+
 \begin{lstlisting}[language=c++]
     double electronConcentration = 25;
     double B = 0.6;
