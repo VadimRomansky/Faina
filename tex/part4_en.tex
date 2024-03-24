@@ -1,11 +1,81 @@
-\chapter{Формулы расчета излучения}\label{Formulae}
+\chapter{Physics behind numerical methods}\label{Formulae}
 
-\section{Преобразование функции распределения фотонов}
-Функция распределения фотонов задана в сферических координатах $n_{ph}(\epsilon,\mu,\phi)$. Рассмотрим переход в систему отсчета, движущуюся в направлении оси $z$ с лоренц-фактором $\gamma = 1/\sqrt{1-\beta^2}$. Количество частиц в элементе фазового пространства $N$ - инвариант.
+\section{Distribution function transform}
+Distribution function of particles in phase space is presented in code in spherical coordinates $n(\epsilon,\mu,\phi)$. Let consider transform to the frame moving along $z$-axis with lorentz-factor $\gamma = 1/\sqrt{1-\beta^2}$. Number of particles in the corresponding phase volumes $N$ is invariant.
+
 \begin{equation}
-	N = n_{ph}(\epsilon,\mu,\phi)d\epsilon d\mu d\phi dV = n'_{ph}(\epsilon',\mu',\phi')d\epsilon' d\mu' d\phi' dV'
+	N = n(\epsilon,\mu,\phi)d\epsilon d\mu d\phi dV = n'(\epsilon',\mu',\phi')d\epsilon' d\mu' d\phi' dV'
 \end{equation}
-Рассмотрим преобразование вектора четырех-импульса. Поперечные компоненты не изменяются, а временная и продольная меняются следющим образом, учитывая что $p_z = \mu \epsilon$:
+
+So, to obtain $n'$ we need to evaluate determinant of Jacobi transformation matrix. Note, that aximuthal angle phi does not changes in transformation to the moving frame $phi' = phi$, and energy and polar angle does not depend on space volume, so in general Jacobi matrix has following non-zero terms
+
+\begin{equation}\label{generalJacobi}
+	J=\left(
+	\begin{array}{cccc}
+		\frac{d\epsilon'}{d\epsilon} & \frac{d\epsilon'}{d\mu}& 0 & 0\\
+		\frac{d\mu'}{d\epsilon} & \frac{d\mu'}{d\mu} & 0 & 0\\
+		0 & 0 & 1 & 0\\
+		\frac{dV'}{d\epsilon} & \frac{dV'}{d\mu} & 0 & \frac{dV'}{dV}
+	\end{array}
+	\right)
+\end{equation}
+
+Let start with transforming space volume $V$. First approach, following Landau-Lifshitz 2, paragraph 10 \cite{LandauLifshitz2}, is to transform volume to the rest-frame of moving beam of particle with given momentum, and then derive that $dV'/dV= \epsilon/\epsilon'$. It is correct result, but proof is not valid for massles particles, which have not physical rest frame.
+
+So we evaluate transformation of volume, containing chosen particles, directly from Lorentz transformations. Let assume flux of particles, aligned with z axis, with uniform interval $L$ between them, moving with same velocity $v$ with angle $\theta$ to the z axis, and $\mu = cos(\theta)$, as it is shown in Figure \ref{VolumeTransform}.
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=12.5 cm]{./fig/VolumeTransform.png} 
+	\caption{Beam of evenly distributed particles}
+	\label{VolumeTransform}
+\end{figure}
+
+So in the lab frame, at the moment $t$ i-th particle is placed at $z_i = i\cdot L + \mu v t$. Let evaluate coordinates of particles in the moving frame.
+
+\begin{equation}\label{lorentz_z}
+	\left(\begin{array}{c}
+		ct'\\
+		z'_i
+	\end{array}
+	\right)
+	= \left(
+	\begin{array}{cc}
+		\gamma & -\beta\gamma\\
+		-\beta\gamma & \gamma
+	\end{array}
+	\right)
+	\times
+	\left(\begin{array}{c}
+		ct\\
+		z_i
+	\end{array}
+	\right)
+\end{equation}
+
+From this we can obtain values $z'_i = \gamma z_i + (\gamma \mu v - c\beta \gamma)t$, but this values are measured at the different time moments in the moving frame, if $t$ is the same for all particles in lab frame. To evaluate volume or number density we should evaluate them at the same moment $t'$. So let express $t$ in terms of $z_i$ and $t'$, and put into the equation for $z'_i$.
+
+\begin{equation}
+	t=\frac{t'+\gamma\beta z_i/c}{\gamma - \beta \mu v/c}
+\end{equation}
+
+and
+
+\begin{equation}
+	z'_i=\gamma z_i +(\gamma \mu v - c\beta \gamma)\frac{t'+\gamma\beta z_i/c}{\gamma - \beta \mu v/c}=z_i\frac{1}{\gamma(1-\beta\mu v/c)} + t'\frac{\mu v/c - \beta}{1 - \beta \mu v/c}
+\end{equation}
+
+Second term, containing $t'$ gives us standard  relativistic velocity-addition formula. And the first one gives a desired expression to the compression of the distance between particles. $L' = z'_{i+1}-z'_i = L/(\gamma(1-\beta\mu v/c))$. The distances in the transversal directions does not comress with Lorentz transformations, so volume also transforms as
+\begin{equation} \label{volume}
+V' = V/(\gamma(1-\beta\mu v/c))
+\end{equation}
+This result is the same, as given by \cite{LandauLifshitz2}.
+
+Next, we need to find expressions for $\epsilon'$ and $\mu'$, but it is better to deal with them in to separate cases - for massless and massive particles.
+
+\subsection{Photons}
+For massles photons, we consider transformation of energy-mometum vector, taking into account that $z$ component of momentum is $p_z = \mu \epsilon/c$, and transversal components stay constant.
+
 \begin{equation}\label{lorentz_ph}
 	\left(\begin{array}{c}
 		\epsilon'\\
@@ -25,30 +95,37 @@
 	\end{array}
 	\right)
 \end{equation}
-Из первой строчки матрицы получаем уравнение для допплеровского сдвига энергии
+
+From the first line we get equation for doppler shift of photon's energy
+
 \begin{equation}\label{doppler_ph}
 	\epsilon'=\gamma(1-\mu\beta)\epsilon
 \end{equation}
-Вычислим производные новой энергии по старым координатам
+
+Derivatives of $\epsilon'$ with respect to $\epsilon$ and $\mu$ are
+
 \begin{equation}
 	\frac{d\epsilon'}{d\epsilon}=\gamma(1-\mu\beta)
 \end{equation}
+
 \begin{equation}
 	\frac{d\epsilon'}{d\mu}=-\gamma\beta\epsilon
 \end{equation}
-Из второй строчки матрицы получаем $\mu'\epsilon'=-\beta\gamma\epsilon+\gamma\mu\epsilon$. Подставив значение $\epsilon'$ из \ref{doppler_ph} и сократив $\epsilon$ получим уравнение аберрации света
+
+From the second line of \ref{lorentz_ph} we get
+ $\mu'\epsilon'=-\beta\gamma\epsilon+\gamma\mu\epsilon$. Then we plug in expression for $\epsilon'$ from \ref{doppler_ph} and obtain equation for aberration of light
+ 
 \begin{equation}\label{aberration_ph}
 	\mu'=\frac{\mu-\beta}{1-\mu\beta}
 \end{equation}
-Заметим, что угол наклона луча в новой системе не зависит от энергии в старой системе. Вычислим частноую производную $\frac{d\mu'}{d\mu}$
+
+Angle of photon's velocity to the z-axis does not depend on their energy. And derivative of $\mu'$ with respect to $\mu$ is
+
 \begin{equation}
-	\frac{d\mu'}{d\mu}=\frac{d}{d\mu}\frac{1}{\beta}\frac{\beta\mu-1+1-\beta^2}{1-\mu\beta}=\frac{d}{d\mu}\frac{1}{\beta}\frac{1-\beta^2}{1-\mu\beta}=\frac{1-\beta^2}{(1-\mu\beta)^2}=\frac{1}{\gamma^2(1-\mu\beta)^2}
+	\frac{d\mu'}{d\mu} = \frac{d\mu'}{d\mu}=\frac{d}{d\mu}\frac{1}{\beta}\frac{\beta\mu-1+1-\beta^2}{1-\mu\beta}=\frac{d}{d\mu}\frac{1}{\beta}\frac{1-\beta^2}{1-\mu\beta}=\frac{1-\beta^2}{(1-\mu\beta)^2}=\frac{1}{\gamma^2(1-\mu\beta)^2}
 \end{equation}
-Азимутальный угол не зависит от системы отсчета $\phi' = \phi$. Преобразование элемента объема описывается выражением $\frac{dV'}{dV} = \frac{\epsilon}{\epsilon'}$ см. ЛЛ Т2 параграф 10, вот только там используется переход в собственную систему. То есть
-\begin{equation}
-	\frac{dV'}{dV} = \frac{1}{\gamma(1-\mu\beta)}
-\end{equation}
-Матрица якоби преобразования координат выглядит следующим образом
+
+And Jacobi matrix of coordinate transformation in case of photons is
 \begin{equation}
 	J=\left(
 	\begin{array}{cccc}
@@ -59,14 +136,60 @@
 	\end{array}
 	\right)
 \end{equation}
-При такой матрице якобиан, к счастью, равен произведению диагональных членов
+
+Determinant of thos matrix, fortunately, equals to the multiple of diagonal terms
+
 \begin{equation}\label{jacobian_ph}
 	\frac{D(\epsilon',\mu',\phi',V')}{D(\epsilon,\mu,\phi,V)}=\frac{d\epsilon'}{d\epsilon}\frac{d\mu'}{d\mu}\frac{dV'}{dV}=\gamma(1-\mu\beta)\frac{1}{\gamma^2(1-\mu\beta)^2}\frac{1}{\gamma(1-\mu\beta)}=\frac{1}{\gamma^2(1-\mu\beta)^2}
 \end{equation}
-И в итоге функция распределения фотонов преобразуется с помощью деления на вычисленный якобиан
+
+And finally, photons distribution function in spherical coordinates transforms as
 \begin{equation}\label{distribution_ph}
 	n'_{ph}(\epsilon',\mu',\phi') = \frac{n_{ph}(\epsilon,\mu,\phi)}{\frac{D(\epsilon',\mu',\phi',V')}{D(\epsilon,\mu,\phi,V)}}=\gamma^2(1-\mu\beta)^2 n_{ph}(\epsilon,\mu,\phi)
 \end{equation}
+\subsection{Massive particles}
+In the case of massive particles, expression for $\epsilon'$ and $\mu'$ are more complicated. Now $p_z = \mu \sqrt{\epsilon^2 - m^2 c^4}/c$, where $m$ is particle mass, and Lorentz transformation of energy-momentum vector is expressed as
+
+\begin{equation}\label{lorentz_m}
+	\left(\begin{array}{c}
+		\epsilon'\\
+		\mu'\sqrt{{\epsilon'}^2 - m^2 c^4}
+	\end{array}
+	\right)
+	= \left(
+	\begin{array}{cc}
+		\gamma & -\beta\gamma\\
+		-\beta\gamma & \gamma
+	\end{array}
+	\right)
+	\times
+	\left(\begin{array}{c}
+		\epsilon\\
+		\mu\sqrt{{\epsilon}^2-m^2 c^4}
+	\end{array}
+	\right)
+\end{equation}
+
+So expressions for $\epsilon'$ and $\mu'$ are
+
+\begin{equation}
+	\epsilon' = \gamma\epsilon-\beta\gamma\mu\sqrt{\epsilon^2-m^2 c^4}
+\end{equation}
+\begin{equation}
+	\mu' = \frac{-\beta\gamma\epsilon+\gamma\mu\sqrt{{\epsilon}^2-m^2 c^4}}{\sqrt{{\epsilon^2 - m^2 c^4}}}
+\end{equation}
+
+And expresson for volume transformation \ref{volume} in terms of $\epsilon$ and $\mu$ is
+\begin{equation}
+	V'=\frac{V}{\gamma(1-\mu\beta\sqrt{{\epsilon}^2-m^2 c^4}/\epsilon)}
+\end{equation}
+
+Expressions for partial derivatives of $\epsilon'$, $\mu'$, $V'$, and especially for Jacobian are really terrible, so here we present only final result for distribution function in units $c = 1$
+
+\begin{equation}
+		\frac{n'_{m}(\epsilon',\mu',\phi')}{n_{m}(\epsilon,\mu,\phi)}= \frac{\gamma(\epsilon-\mu\sqrt{{\epsilon}^2-m^2}\beta)(\gamma^2\epsilon^2-m^2 + \mu^2 ((\epsilon^2-m^2)(\gamma^2-1)) - 2\mu\epsilon\gamma^2\beta\sqrt{\epsilon^2-m^2})^{3/2}}{\epsilon(((\gamma^2-1)(\epsilon^2-m^2)\mu^2 + \gamma^2\epsilon^2 - m^2)\sqrt{\epsilon^2-m^2}-2\mu\epsilon\gamma(\epsilon^2 - m^2)\sqrt{\gamma^2 - 1})}
+\end{equation}
+
 \section{Комптоновское рассеяние}\label{comptonFormulaSection}
 Рассмотрим рассеяние фотонов на одном электроне, движущемся вдоль ось z, см \cite{Dubus}. Сечение Клейна-Нишины в системе покоя электрона равно
 \begin{equation}

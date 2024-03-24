@@ -83,7 +83,9 @@ Let optimize parameters of the source of Fast Blue Optical Transient CSS161010 a
     double fraction = 0.5;
     const double distance = 150 * 1E6 * parsec;
 \end{lstlisting}
-Далее зададим степенное распределение электронов, с показателем 3.6 и источник в форме плоского диска, перпендикулярного лучу зрения, и вычислитель синхротронного излучения.
+
+Then we create power-law distribution of emitting electrons with index 3.6, radiation source as homogenous disk and synchrotron radiation evaluator
+
 \begin{lstlisting}[language=c++]
     double Emin = me_c2;
     double Emax = 10000 * me_c2;
@@ -99,7 +101,9 @@ Let optimize parameters of the source of Fast Blue Optical Transient CSS161010 a
     SimpleFlatSource* source = new
         SimpleFlatSource(electrons, B, pi/2, R, fraction * R, distance);
 \end{lstlisting}
-Теперь определим вектор оптимизируемых параметров - это размер, магнитное поле, концентрация электронов и доля толщины, показывающая какю долю от радиуса диска составляет его толщина. И именно такие параметры ожидает функция resetParameters у источника SimpleFlatSource. Так же нужно указать минимальные и максимальные значения параметров, которые ограничат область поиска. Максимальные значения так же будут использоваться как константы нормировки.
+
+Now we define vector of parameters to be optimized - radius of the source, magnetic field, electron's number density and width fraction of the source. This parameters correspond to the resetParameters function of class SimpleFlatSource. Also one should define search domain with minimum and maximum value of each parameter. Maximum values are also used as normaliztion units.
+
 \begin{lstlisting}[language=c++]
     const int Nparams = 4;
     double minParameters[Nparams] = { 1E17, 0.01, 0.5, 0.1 };
@@ -109,7 +113,8 @@ Let optimize parameters of the source of Fast Blue Optical Transient CSS161010 a
 	    vector[i] = vector[i] / maxParameters[i];
     }
 \end{lstlisting}
-Зададим наблюдательные данные, которые и будем фитировать. Обратите внимание, что частоты нужно перевести в энергии, а спектральную плотность потока - в энергетическую (в единицы $\text{см}^{-2}\text{с}^{-1}$).
+
+Also we create arrays of observational data, which should be fitted. Note, the frequency should be transformed to energy, and flux spectral density to the flux energy density (to the units $\text{cm}^{-2}\text{s}^{-1}$). 
 \begin{lstlisting}[language=c++]
     const int Nenergy1 = 4;
     double energy1[Nenergy1] = { 1.5E9*hplank, 3.0E9 * hplank, 
@@ -119,7 +124,7 @@ Let optimize parameters of the source of Fast Blue Optical Transient CSS161010 a
     double observedError[Nenergy1] = { 0.1 / (hplank * 1E26), 
     	0.2/(hplank*1E26), 0.3/(hplank*1E26), 0.2/(hplank*1E26)};
 \end{lstlisting}
-Далее создадим вычислитель целевой функции, фитирующий спектр и комбинированный оптимизатор, и укажем количество точек для перебора и количество итераци градиентного спуска. Так же укажем, что оптимизируем все параметры.
+Then we create evaluator of loss function and combined optimizer. We define number of grid points to search and number of gradient descent iterations. Also we create array of boolean showing that all parameters should be optimized.
 \begin{lstlisting}[language=c++]
     bool optPar[Nparams] = { true, true, true, true };
     int Niterations = 20;
@@ -129,17 +134,18 @@ Let optimize parameters of the source of Fast Blue Optical Transient CSS161010 a
     RadiationOptimizer* optimizer = new CombinedRadiationOptimizer(
         synchrotronEvaluator,minParameters,maxParameters,Nparams, Niterations,Npoints, lossEvaluator);
 \end{lstlisting}
-Применим функцию optimize и изменим параметры источника на оптимальные
+Let call function optimize and reset source parameters to obtained optimal values.
 \begin{lstlisting}[language=c++]
     optimizer->optimize(vector, optPar, energy1, observedFlux, 
         observedError, Nenergy1, source);
     source->resetParameters(vector, maxParameters);
 \end{lstlisting}
-Полученные в результате оптимизации парметры источника равны: радиус диска $R = 1.8\times10^17 \text{ см}$, магнитное поле $B = 1.6 \text{ Гс}$, концентрация электронов $n = 2.3 \text{ см}^{-3}$, доля толщины $fraction = 0.54 $. Значение целевой функции $f \approx 50$. Модельный спектр излучения  с данными параметрами и наблюдательные данные изображены на рисунке \ref{synchrotron1}.
+Jbtained optimal values of source parameters are: disk radius $R = 1.8\times10^17 \text{ см}$, magnetic field $B = 1.6 \text{ Гс}$, electron's number density $n = 2.3 \text{ см}^{-3}$, width fraction $fraction = 0.54 $. 
+Modeled spectrum of synchrotron radiation of source with this parameters and observational data are shown in Figure \ref{synchrotron1}.
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=12.5 cm]{./fig/synchrotron1.png} 
-	\caption{Наблюдаемый и расчетный спектр радиоизлучения объекта CSS161010 на 98 день после вспышки}
+	\caption{Modeled spectrum of synchrotron radiation and observational data for CSS161010 at 98 day after explosion}
 	\label{synchrotron1}
 \end{figure}
 
