@@ -7,7 +7,7 @@ Distribution function of particles in phase space is presented in code in spheri
 	N = n(\epsilon,\mu,\phi)d\epsilon d\mu d\phi dV = n'(\epsilon',\mu',\phi')d\epsilon' d\mu' d\phi' dV'
 \end{equation}
 
-So, to obtain $n'$ we need to evaluate determinant of Jacobi transformation matrix. Note, that aximuthal angle phi does not changes in transformation to the moving frame $phi' = phi$, and energy and polar angle does not depend on space volume, so in general Jacobi matrix has following non-zero terms
+So, to obtain $n'$ we need to evaluate determinant of Jacobi transformation matrix. Note, that azimuthal angle phi does not changes in transformation to the moving frame $phi' = phi$, and energy and polar angle does not depend on space volume, so in general Jacobi matrix has following non-zero terms
 
 \begin{equation}\label{generalJacobi}
 	J=\left(
@@ -19,6 +19,12 @@ So, to obtain $n'$ we need to evaluate determinant of Jacobi transformation matr
 	\end{array}
 	\right)
 \end{equation}
+
+Note, that determinant of this matrix can be decomposed by the last column and we get
+
+\begin{eqnarray}
+|J|=\frac{dV'}{dV}\left(\frac{d\epsilon'}{d\epsilon}\frac{d\mu'}{d\mu} - \frac{d\epsilon'}{d\mu}\frac{d\mu'}{d\epsilon}\right)
+\end{eqnarray}
 
 Let start with transforming space volume $V$. First approach, following Landau-Lifshitz 2, paragraph 10 \cite{LandauLifshitz2}, is to transform volume to the rest-frame of moving beam of particle with given momentum, and then derive that $dV'/dV= \epsilon/\epsilon'$. It is correct result, but proof is not valid for massles particles, which have not physical rest frame.
 
@@ -96,7 +102,7 @@ For massles photons, we consider transformation of energy-mometum vector, taking
 	\right)
 \end{equation}
 
-From the first line we get equation for doppler shift of photon's energy
+From the first line we get equation for Doppler shift of photon's energy
 
 \begin{equation}\label{doppler_ph}
 	\epsilon'=\gamma(1-\mu\beta)\epsilon
@@ -190,79 +196,114 @@ Expressions for partial derivatives of $\epsilon'$, $\mu'$, $V'$, and especially
 		\frac{n'_{m}(\epsilon',\mu',\phi')}{n_{m}(\epsilon,\mu,\phi)}= \frac{\gamma(\epsilon-\mu\sqrt{{\epsilon}^2-m^2}\beta)(\gamma^2\epsilon^2-m^2 + \mu^2 ((\epsilon^2-m^2)(\gamma^2-1)) - 2\mu\epsilon\gamma^2\beta\sqrt{\epsilon^2-m^2})^{3/2}}{\epsilon(((\gamma^2-1)(\epsilon^2-m^2)\mu^2 + \gamma^2\epsilon^2 - m^2)\sqrt{\epsilon^2-m^2}-2\mu\epsilon\gamma(\epsilon^2 - m^2)\sqrt{\gamma^2 - 1})}
 \end{equation}
 
-\section{Комптоновское рассеяние}\label{comptonFormulaSection}
-Рассмотрим рассеяние фотонов на одном электроне, движущемся вдоль ось z, см \cite{Dubus}. Сечение Клейна-Нишины в системе покоя электрона равно
-\begin{equation}
-	\frac{d\sigma}{d\epsilon_1'd\Omega_1'}=\frac{{r_e}^2}{2}\left(\frac{\epsilon_1'}{\epsilon_0'}\right)^2(\frac{\epsilon_1'}{\epsilon_0'}+\frac{\epsilon_0'}{\epsilon_1'}-\sin^2\Theta') \delta(\epsilon_1' - \frac{\epsilon_0'}{1+\frac{\epsilon_0'}{m_e c^2}(1 - \cos \Theta')})
+\section{Inverse Compton scattering}\label{comptonFormulaSection}
+
+Consider scattering of photons on the one electron, moving along z axis, following \cite{Dubus}. Klein-Nishina cross-section in electron's rest frame is
+
+\begin{equation}\label{KleinNishina}
+	\frac{d\sigma}{d\epsilon_1'd\Omega_1'}=\frac{{r_e}^2}{2}\left(\frac{\epsilon_1'}{\epsilon_0'}\right)^2\left(\frac{\epsilon_1'}{\epsilon_0'}+\frac{\epsilon_0'}{\epsilon_1'}-\sin^2\Theta'\right) \delta\left(\epsilon_1' - \frac{\epsilon_0'}{1+\frac{\epsilon_0'}{m_e c^2}(1 - \cos \Theta')}\right)
 \end{equation}
-Где $r_e$ - классический радиус электрона, $\epsilon_0'$ и $\epsilon_1'$ - энергии начального и конечного фотона, соответственно, $\Theta'$ - угол между начальным и конечным фотоном, определяемый выражением $\cos\Theta' =\cos \theta_0' \cos \theta_1' + \sin \theta_0' \sin \theta_1' \cos(\phi_1' - \phi_0')$. Штрихованные индексы относятся к системе отсчета электрона. При этом начальная и конечная энергии фотонов оказываются связаны соотношениями
+
+Where $r_e$ - classical electron radius, $\epsilon_0'$ and $\epsilon_1'$ - photon initial and final energies respectively $\Theta'$ angle between initial and final photon directions, defined by expression $\cos\Theta' =\cos \theta_0' \cos \theta_1' + \sin \theta_0' \sin \theta_1' \cos(\phi_1' - \phi_0')$. Primed values are measured in the electron's rest frame. Final and initial photon's energies are related as follow:
+
 \begin{equation}
 	\epsilon_1'=\frac{\epsilon_0'}{1+\frac{\epsilon_0'}{m_e c^2}(1 - \cos \Theta')}	
 \end{equation}
+
 \begin{equation}
 	\epsilon_0'=\frac{\epsilon_1'}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')}
 \end{equation}
-Число фотонов, рассеявшихся в заданный телесный угол в единицу времени в промежуток энергии в системе покоя электрона равно
+
+Number of photons, which are scattered in unit solid angle in unit energy range in time unit in electron's rest frame is 
+
 \begin{equation}
 \frac{dN'}{dt'd\epsilon_1'd\Omega_1'}=\int c \frac{d\sigma}{d\epsilon_1'd\Omega_1'} \frac{dn'}{d\epsilon_0'd\Omega_0'}d\Omega_0'd\epsilon_0'
 \end{equation}
 
-Перепишем дельта-функцию через энергию начального фотона с помощью соотношения 
+Let rewrite delta-function in \ref{KleinNishina} with photon initial energy using relation
+
 \begin{equation}
 	\delta(f(x)) = \sum \frac{\delta(x-x_k)}{|f'(x_k)|}
 \end{equation}
-где $x_k$ - корни функции $f(x)$. Производная выражения внутри дельта-функции равна
+
+where $x_k$ - are roots of $f(x)$. Derivative of expression inside delta-function is
+
 \begin{equation}
 	\frac{d\epsilon_1'}{d\epsilon_0'}=\frac{1}{(1+\frac{\epsilon_0'}{m_e c^2}(1 - \cos \Theta'))^2}
 \end{equation}
-и она сократится с квадратом отношения энергий в формуле для сечения. Функцию распределения начальных фотонов выразим в лабораторной системе с помощью выражения \ref{distribution_ph}.
-\begin{equation}
-	\frac{dN'}{dt'd\epsilon_1'd\Omega_1'}=\int \frac{r_e^2 c}{2} \gamma_e^2 (1 - \mu_0 \beta_e)^2 (\frac{\epsilon_1'}{\epsilon_0'}+\frac{\epsilon_0'}{\epsilon_1'}-\sin^2\Theta')\frac{dn}{d\epsilon_0 d\Omega_0} \delta(\epsilon_0' - \frac{\epsilon_1'}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')}) d\epsilon_0'd\mu_0' d\phi_0'
-\end{equation}
-Теперь избавимся от дельта-функции, проинтегрировав по $\epsilon_0'$.
-\begin{equation}
-	\frac{dN'}{dt'd\epsilon_1'd\Omega_1'}=\int \frac{r_e^2 c}{2} \gamma_e^2 (1 - \mu_0 \beta_e)^2 (1 + \cos^2\Theta'+(\frac{\epsilon_1'}{m_e c^2})^2\frac{(1-\cos\Theta')^2}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')})\frac{dn}{d\epsilon_0 d\Omega_0}d\mu_0' d\phi_0'
-\end{equation}
-Осталось перевести поток рассеяных фотонов в лабораторную систему отсчета $\frac{dN}{dt d\epsilon_1 d\Omega_1} = \frac{dN'}{dt' d\epsilon_1' d\Omega_1'}\frac{dt'}{dt}\frac{d\epsilon_1'}{d\epsilon_1}\frac{d\Omega_1'}{d\Omega_1}$. Используя то, что $dt = \gamma_e dt'$, $\epsilon = \frac{1}{\gamma_e(1 -\mu_1\beta_e)}\epsilon'$ и $\mu_1' = \frac{\mu_1-\beta_e}{1-\mu_1 \beta_e}$ получим
-\begin{equation} \label{compton_elframe}
-	\frac{dN}{dt d\epsilon_1 d\Omega_1}=\int \frac{r_e^2 c}{2} \frac{(1 - \mu_0 \beta_e)^2}{1-\mu_1\beta_e} (1 + \cos^2\Theta'+(\frac{\epsilon_1'}{m_e c^2})^2\frac{(1-\cos\Theta')^2}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')})\frac{dn}{d\epsilon_0 d\Omega_0}d\mu_0' d\phi_0'	
-\end{equation}
-При интегрировании нужно выразить углы в лабораторной системе отсчета $\mu_0, \phi_0$ через переменные интегрирования $\mu_0', \phi_0'$. Для расчета рассеяния на распределении электронов нужно проинтегрировать формулу \ref{compton_elframe} с функцией распределения электронов, нормированной на количество частиц. При этом надо учесть разные направления движения электронов и произвести повороты углов.
 
-Так же может быть удобно интегрировать в переменных лабораторной системы расчета, тогда выражение для потока фотонов будет следующим
-\begin{equation}\label{compton_labframe}
-	\frac{dN}{dt d\epsilon_1 d\Omega_1}=\int \frac{r_e^2 c}{2} \frac{1}{\gamma_e^2(1-\mu_1\beta_e)} (1 + \cos^2\Theta'+(\frac{\epsilon_1'}{m_e c^2})^2\frac{(1-\cos\Theta')^2}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')})\frac{dn}{d\epsilon_0 d\Omega_0}d\mu_0 d\phi_0
+and it will cancel out with $\left(\epsilon'_1/\epsilon'_0\right)^2$ in \ref{KleinNishina}.
+и она сократится с квадратом отношения энергий в формуле для сечения. Initial photons distribution function in the lab frame is $\frac{dn}{d \epsilon_0 d \Omega_0}$, and we transform it to the electron frame using \ref{distribution_ph}.
+
+\begin{equation}
+	\frac{dN'}{dt'd\epsilon_1'd\Omega_1'}=\int \frac{r_e^2 c}{2} \gamma_e^2 (1 - \mu_0 \beta_e)^2 \left(\frac{\epsilon_1'}{\epsilon_0'}+\frac{\epsilon_0'}{\epsilon_1'}-\sin^2\Theta'\right)\frac{dn}{d\epsilon_0 d\Omega_0} \delta\left(\epsilon_0' - \frac{\epsilon_1'}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')}\right) d\epsilon_0'd\mu_0' d\phi_0'
 \end{equation}
-При рассмотрении процессов, связанных с электронами высоких энергий $\gamma_e \approx 10^8$ относительные численные погрешности вычислений могут быть очень велики, так как $\beta_e$ и $\mu_0, \mu_1, \cos \Theta'$ оказываются слишком близки к единице и стандартный тип double может не разрешать это отличие. Поэтому для численных вычислений оказывается полезным ввести следующие вспомогательные величины:
+
+Now we get rid of delta-function by integrating over $\epsilon_0'$
+
+\begin{equation}
+	\frac{dN'}{dt'd\epsilon_1'd\Omega_1'}=\int \frac{r_e^2 c}{2} \gamma_e^2 (1 - \mu_0 \beta_e)^2 \left(1 + \cos^2\Theta'+\left(\frac{\epsilon_1'}{m_e c^2}\right)^2\frac{(1-\cos\Theta')^2}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')}\right)\frac{dn}{d\epsilon_0 d\Omega_0}d\mu_0' d\phi_0'
+\end{equation}
+
+Now we need to transform photon flux into the lab frame
+$\frac{dN}{dt d\epsilon_1 d\Omega_1} = \frac{dN'}{dt' d\epsilon_1' d\Omega_1'}\frac{dt'}{dt}\frac{d\epsilon_1'}{d\epsilon_1}\frac{d\Omega_1'}{d\Omega_1}$. Using $dt = \gamma_e dt'$, $\epsilon = \frac{1}{\gamma_e(1 -\mu_1\beta_e)}\epsilon'$ and $\mu_1' = \frac{\mu_1-\beta_e}{1-\mu_1 \beta_e}$ we finally get
+
+\begin{equation} \label{compton_elframe}
+	\frac{dN}{dt d\epsilon_1 d\Omega_1}=\int \frac{r_e^2 c}{2} \frac{(1 - \mu_0 \beta_e)^2}{1-\mu_1\beta_e} \left(1 + \cos^2\Theta'+\left(\frac{\epsilon_1'}{m_e c^2}\right)^2\frac{(1-\cos\Theta')^2}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')}\right)\frac{dn}{d\epsilon_0 d\Omega_0}d\mu_0' d\phi_0'	
+\end{equation}
+
+Also it may be useful to integrate in terms of lab frame, and expression for photons flux would be following
+\begin{equation}\label{compton_labframe}
+	\frac{dN}{dt d\epsilon_1 d\Omega_1}=\int \frac{r_e^2 c}{2} \frac{1}{\gamma_e^2(1-\mu_1\beta_e)} \left(1 + \cos^2\Theta'+\left(\frac{\epsilon_1'}{m_e c^2}\right)^2\frac{(1-\cos\Theta')^2}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')}\right)\frac{dn}{d\epsilon_0 d\Omega_0}d\mu_0 d\phi_0
+\end{equation}
+
+For integration one should express all angles in terms of integration variables. For evaluating photon flux from scattering on electron distribution, one should integrate formula \ref{compton_elframe} or \ref{compton_labframe} with electron distribution, normalized to the number of particles. Note, that it is necessary to take into account different directions of electron movement, and perform corresponding rotations of coordinates.
+
+While considering processes including very high energy electrons ($\gamma_e \approx 10^8$) numerical errors can became very large, because such parameters as $\beta_e$ и $\mu_0, \mu_1, \cos \Theta'$ are very close to 1 in important energy and angle ranges, and standard type double has not enough resolution to deal with such values. So in code we introduce following auxilary variables to reduce numerical errors
+:
 \begin{equation}
 	\delta_e = 1 - \beta_e
 \end{equation}
+
 \begin{equation}
 	\text{versin}~\theta = 1 - \cos \theta
 \end{equation}
-Тогда выражения вида $1 - \mu \beta_e$ в этих величинах перепишется как
+
+Then such expression as $1 - \mu \beta_e$ with this variables can be presented as
+
 \begin{equation}
 	1 - \mu \beta_e =\text{versin}~\theta + \delta_e - \text{versin}~\theta~\delta_e
 \end{equation}
-а выражение для угла между конечным и начальным фотоном как
+
+and expression for angle between final and initial photons as
+
 \begin{equation}
 	1 - \cos \Theta' = \text{versin}~\theta_0' + \text{versin}~\theta_1' - \text{versin}~ \theta_0' \text{versin}~\theta_1' - \sin \theta_0'\sin \theta_1' \cos(\phi_1'-\phi_0')
 \end{equation}
-С использованием данных выражений значительно повышается точность и максимальные доступные к рассмотрению энергии фотонов и электронов.
 
-В случае изотропных функций распределения фотонов и релятивистских электронов можно произвести аналитическое интегрирование по угловым переменным \cite{JonesCompton, BykovUvarov2000}, и тогда для вычисления излучения достаточно лишь провести интегрирования по энергиям по формуле
+Use of this expressions significantly increase accuracy of numerical integration in case of high energy photons and electrons
+
+In case of isotropic distributionfunctions of electrons and initial photons, it is possible to integrate cross-section analytically over the angle variables \cite{JonesCompton, BykovUvarov2000}, and in the equation for photon flux there are only integrations by photons and electrons energy
+
 \begin{equation}
 	\frac{dN}{dt d\epsilon_1 d\Omega_1}=\int \frac{2 \pi r_e^2 m_e c^3 }{\epsilon_0 \gamma_e^2} \frac{dn_{ph}}{d\epsilon_0}\frac{dn_e}{d\epsilon_e}(2 q~ \ln(q)+1+q-2q^2+\frac{q^2(1-q)\Gamma^2}{2(1+q\Gamma)})d\epsilon_0d\epsilon_e
 \end{equation}
-где $\Gamma=4\epsilon_0\gamma_e/m_e c^2$, $q=\epsilon_1/((\gamma_e m_e c^2-\epsilon_1)\Gamma)$.
+
+where $\Gamma=4\epsilon_0\gamma_e/m_e c^2$, $q=\epsilon_1/((\gamma_e m_e c^2-\epsilon_1)\Gamma)$.
+
 \section{Синхротронное излучение}\label{synchrotronFormulaSection}
-Процесс синхротронного излучения хороши известен и описан в классических работах. Но с точки зрения квантовой электродинамки, любому процессу излучения можно так же сопоставить процесс поглощения. Сечение процесса синхротронного самопоглощения описано в работе Гизеллини и Свенсона \cite{Ghisellini1991}. Спектральная плотность мощности излучения единицы объема вещества определеяется формулой
+
+Process of synchrotron radiation of relativistic electrons is well-known and described in classical works as for example \cite{Ginzburg1975}. But synchrotron absorption is also possible. It's cross secction was obtained in \cite{Ghisellini1991}. In code we will use spectral emissivity per unit volume and absorption coefficient, described in\cite{Ghisellini}.
+Emissivity (spectral density of energy radiated per unit time) per unit volume is
+
 \begin{equation} \label{emission}
 	I(\nu)=\int_{E_{min}}^{E_{max}} dE \frac {\sqrt {3}{e}^{3}n F(E) B \sin ( \phi)}{{m_e}{c}^{2}}
 	\frac{\nu}{\nu_c}\int_{\frac {\nu}{\nu_c}}^{\infty }\it K_{5/3}(x)dx,
 \end{equation}
-где $\phi$ это угол межде вектором магнитного поля и лучом зрения, $\displaystyle\nu_{c}$ критическая частота, определяемая выражением $\displaystyle\nu_{c} = 3 e^{2} B \sin(\phi) E^{2}/4\pi {m_{e}}^{3} c^{5}$, и~$K_{5/3}$ - функция МакДональда.
-Коэффициент поглощения для фотонов, распростроняющихся вдоль луча зрения равен
+
+where $\phi$ is angle between magnetic field and line of sight, $\displaystyle\nu_{c}$ is critical frequency defined as $\displaystyle\nu_{c} = 3 e^{2} B \sin(\phi) E^{2}/4\pi {m_{e}}^{3} c^{5}$, and~$K_{5/3}$ - Macdonald function.
+Absorption coefficient for photons, propagating along line of sight is
+
 \begin{equation}\label{absorption}
 	k(\nu)=\int_{E_{min}}^{E_{max}}dE\frac {\sqrt {3}{e}^{3}}{8\pi m_e \nu^2}\frac{n B\sin(\phi)}{E^2}
 	\frac{d}{dE} E^2 F(E)\frac {\nu}{ \nu_c}\int_{\frac {\nu}{ \nu_c}}^{\infty }K_{5/3}(x) dx.
