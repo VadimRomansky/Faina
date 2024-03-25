@@ -232,8 +232,7 @@ where $x_k$ - are roots of $f(x)$. Derivative of expression inside delta-functio
 	\frac{d\epsilon_1'}{d\epsilon_0'}=\frac{1}{(1+\frac{\epsilon_0'}{m_e c^2}(1 - \cos \Theta'))^2}
 \end{equation}
 
-and it will cancel out with $\left(\epsilon'_1/\epsilon'_0\right)^2$ in \ref{KleinNishina}.
-и она сократится с квадратом отношения энергий в формуле для сечения. Initial photons distribution function in the lab frame is $\frac{dn}{d \epsilon_0 d \Omega_0}$, and we transform it to the electron frame using \ref{distribution_ph}.
+and it will cancel out with $\left(\epsilon'_1/\epsilon'_0\right)^2$ in \ref{KleinNishina}. Initial photons distribution function in the lab frame is $\frac{dn}{d \epsilon_0 d \Omega_0}$, and we transform it to the electron frame using \ref{distribution_ph}.
 
 \begin{equation}
 	\frac{dN'}{dt'd\epsilon_1'd\Omega_1'}=\int \frac{r_e^2 c}{2} \gamma_e^2 (1 - \mu_0 \beta_e)^2 \left(\frac{\epsilon_1'}{\epsilon_0'}+\frac{\epsilon_0'}{\epsilon_1'}-\sin^2\Theta'\right)\frac{dn}{d\epsilon_0 d\Omega_0} \delta\left(\epsilon_0' - \frac{\epsilon_1'}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')}\right) d\epsilon_0'd\mu_0' d\phi_0'
@@ -245,19 +244,25 @@ Now we get rid of delta-function by integrating over $\epsilon_0'$
 	\frac{dN'}{dt'd\epsilon_1'd\Omega_1'}=\int \frac{r_e^2 c}{2} \gamma_e^2 (1 - \mu_0 \beta_e)^2 \left(1 + \cos^2\Theta'+\left(\frac{\epsilon_1'}{m_e c^2}\right)^2\frac{(1-\cos\Theta')^2}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')}\right)\frac{dn}{d\epsilon_0 d\Omega_0}d\mu_0' d\phi_0'
 \end{equation}
 
-Now we need to transform photon flux into the lab frame
+Now we need to transform number of scattered photons per time unit per energy unit per solid angle into the lab frame
 $\frac{dN}{dt d\epsilon_1 d\Omega_1} = \frac{dN'}{dt' d\epsilon_1' d\Omega_1'}\frac{dt'}{dt}\frac{d\epsilon_1'}{d\epsilon_1}\frac{d\Omega_1'}{d\Omega_1}$. Using $dt = \gamma_e dt'$, $\epsilon = \frac{1}{\gamma_e(1 -\mu_1\beta_e)}\epsilon'$ and $\mu_1' = \frac{\mu_1-\beta_e}{1-\mu_1 \beta_e}$ we finally get
 
 \begin{equation} \label{compton_elframe}
 	\frac{dN}{dt d\epsilon_1 d\Omega_1}=\int \frac{r_e^2 c}{2} \frac{(1 - \mu_0 \beta_e)^2}{1-\mu_1\beta_e} \left(1 + \cos^2\Theta'+\left(\frac{\epsilon_1'}{m_e c^2}\right)^2\frac{(1-\cos\Theta')^2}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')}\right)\frac{dn}{d\epsilon_0 d\Omega_0}d\mu_0' d\phi_0'	
 \end{equation}
 
-Also it may be useful to integrate in terms of lab frame, and expression for photons flux would be following
+Also it may be useful to integrate in terms of lab frame, and expression for number of scattered photons would be following
 \begin{equation}\label{compton_labframe}
 	\frac{dN}{dt d\epsilon_1 d\Omega_1}=\int \frac{r_e^2 c}{2} \frac{1}{\gamma_e^2(1-\mu_1\beta_e)} \left(1 + \cos^2\Theta'+\left(\frac{\epsilon_1'}{m_e c^2}\right)^2\frac{(1-\cos\Theta')^2}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')}\right)\frac{dn}{d\epsilon_0 d\Omega_0}d\mu_0 d\phi_0
 \end{equation}
 
-For integration one should express all angles in terms of integration variables. For evaluating photon flux from scattering on electron distribution, one should integrate formula \ref{compton_elframe} or \ref{compton_labframe} with electron distribution, normalized to the number of particles. Note, that it is necessary to take into account different directions of electron movement, and perform corresponding rotations of coordinates.
+For integration one should express all angles in terms of integration variables. For evaluating photon flux from scattering on electron distribution, one should integrate formula \ref{compton_elframe} or \ref{compton_labframe} with electron distribution, normalized to the number density of particles. Note, that it is necessary to take into account different directions of electron movement, and perform corresponding rotations of coordinates.
+
+In code compton evaluators return energy density of energy flux from the source in units of $\text{cm}^{-2} \text{s}^{-1}$. To obtain this value we perform integration of $\frac{dN}{dt d\epsilon_1 d\Omega_1}$ through the volume of the source, multiply it by energy of photon and divide by square of the distance to the source $D$.
+
+\begin{equation}\label{comtonKlein}
+	F(\epsilon_1)=\frac{\epsilon_1}{D^2}\int \frac{dN}{dt d\epsilon_1 d\Omega_1} \frac{dn_e}{d\epsilon_e d\Omega_e} dV d\epsilon_e d\Omega_e
+\end{equation}
 
 While considering processes including very high energy electrons ($\gamma_e \approx 10^8$) numerical errors can became very large, because such parameters as $\beta_e$ и $\mu_0, \mu_1, \cos \Theta'$ are very close to 1 in important energy and angle ranges, and standard type double has not enough resolution to deal with such values. So in code we introduce following auxilary variables to reduce numerical errors
 :
@@ -281,12 +286,12 @@ and expression for angle between final and initial photons as
 	1 - \cos \Theta' = \text{versin}~\theta_0' + \text{versin}~\theta_1' - \text{versin}~ \theta_0' \text{versin}~\theta_1' - \sin \theta_0'\sin \theta_1' \cos(\phi_1'-\phi_0')
 \end{equation}
 
-Use of this expressions significantly increase accuracy of numerical integration in case of high energy photons and electrons
+Use of this expressions significantly increase accuracy of numerical integration in case of high energy photons and electrons.
 
-In case of isotropic distributionfunctions of electrons and initial photons, it is possible to integrate cross-section analytically over the angle variables \cite{JonesCompton, BykovUvarov2000}, and in the equation for photon flux there are only integrations by photons and electrons energy
+In case of isotropic distributionfunctions of electrons and initial photons, it is possible to integrate cross-section analytically over the angle variables \cite{JonesCompton, BykovUvarov2000}, and in the equation for enrgy flux there are only integrations by photons and electrons energy
 
 \begin{equation}
-	\frac{dN}{dt d\epsilon_1 d\Omega_1}=\int \frac{2 \pi r_e^2 m_e c^3 }{\epsilon_0 \gamma_e^2} \frac{dn_{ph}}{d\epsilon_0}\frac{dn_e}{d\epsilon_e}(2 q~ \ln(q)+1+q-2q^2+\frac{q^2(1-q)\Gamma^2}{2(1+q\Gamma)})d\epsilon_0d\epsilon_e
+	F(\epsilon_1)=\frac{\epsilon_1}{D^2}\int \frac{2 \pi r_e^2 \beta_e c}{\epsilon_0 \gamma_e^2} \frac{dn_{ph}}{d\epsilon_0}\frac{dn_e}{d\epsilon_e}(2 q~ \ln(q)+1+q-2q^2+\frac{q^2(1-q)\Gamma^2}{2(1+q\Gamma)})d\epsilon_0 d\epsilon_e dV
 \end{equation}
 
 where $\Gamma=4\epsilon_0\gamma_e/m_e c^2$, $q=\epsilon_1/((\gamma_e m_e c^2-\epsilon_1)\Gamma)$.
@@ -308,3 +313,7 @@ Absorption coefficient for photons, propagating along line of sight is
 	k(\nu)=\int_{E_{min}}^{E_{max}}dE\frac {\sqrt {3}{e}^{3}}{8\pi m_e \nu^2}\frac{n B\sin(\phi)}{E^2}
 	\frac{d}{dE} E^2 F(E)\frac {\nu}{ \nu_c}\int_{\frac {\nu}{ \nu_c}}^{\infty }K_{5/3}(x) dx.
 \end{equation}
+
+\section{Pion decay}
+
+\section{Bremsstahlung}
