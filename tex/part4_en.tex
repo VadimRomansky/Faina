@@ -22,9 +22,9 @@ So, to obtain $n'$ we need to evaluate determinant of Jacobi transformation matr
 
 Note, that determinant of this matrix can be decomposed by the last column and we get
 
-\begin{eqnarray}
+\begin{equation}
 |J|=\frac{dV'}{dV}\left(\frac{d\epsilon'}{d\epsilon}\frac{d\mu'}{d\mu} - \frac{d\epsilon'}{d\mu}\frac{d\mu'}{d\epsilon}\right)
-\end{eqnarray}
+\end{equation}
 
 Let start with transforming space volume $V$. First approach, following Landau-Lifshitz 2, paragraph 10 \cite{LandauLifshitz2}, is to transform volume to the rest-frame of moving beam of particle with given momentum, and then derive that $dV'/dV= \epsilon/\epsilon'$. It is correct result, but proof is not valid for massles particles, which have not physical rest frame.
 
@@ -71,16 +71,18 @@ and
 	z'_i=\gamma z_i +(\gamma \mu v - c\beta \gamma)\frac{t'+\gamma\beta z_i/c}{\gamma - \beta \mu v/c}=z_i\frac{1}{\gamma(1-\beta\mu v/c)} + t'\frac{\mu v/c - \beta}{1 - \beta \mu v/c}
 \end{equation}
 
-Second term, containing $t'$ gives us standard  relativistic velocity-addition formula. And the first one gives a desired expression to the compression of the distance between particles. $L' = z'_{i+1}-z'_i = L/(\gamma(1-\beta\mu v/c))$. The distances in the transversal directions does not comress with Lorentz transformations, so volume also transforms as
+Second term, containing $t'$ gives us standard  relativistic velocity-addition formula. And the first one gives a desired expression to the compression of the distance between particles $L' = z'_{i+1}-z'_i = L/(\gamma(1-\beta\mu v/c))$. The distances in the transversal directions does not comress with Lorentz transformations, so volume also transforms as
+
 \begin{equation} \label{volume}
 V' = V/(\gamma(1-\beta\mu v/c))
 \end{equation}
+
 This result is the same, as given by \cite{LandauLifshitz2}.
 
 Next, we need to find expressions for $\epsilon'$ and $\mu'$, but it is better to deal with them in to separate cases - for massless and massive particles.
 
 \subsection{Photons}
-For massles photons, we consider transformation of energy-mometum vector, taking into account that $z$ component of momentum is $p_z = \mu \epsilon/c$, and transversal components stay constant.
+For massless photons, we consider transformation of energy-momentum vector, taking into account that $z$ component of momentum is $p_z = \mu \epsilon/c$, and transversal components stay constant.
 
 \begin{equation}\label{lorentz_ph}
 	\left(\begin{array}{c}
@@ -132,6 +134,7 @@ Angle of photon's velocity to the z-axis does not depend on their energy. And de
 \end{equation}
 
 And Jacobi matrix of coordinate transformation in case of photons is
+
 \begin{equation}
 	J=\left(
 	\begin{array}{cccc}
@@ -143,16 +146,18 @@ And Jacobi matrix of coordinate transformation in case of photons is
 	\right)
 \end{equation}
 
-Determinant of thos matrix, fortunately, equals to the multiple of diagonal terms
+Determinant of this matrix, fortunately, equals to the multiple of diagonal terms
 
 \begin{equation}\label{jacobian_ph}
 	\frac{D(\epsilon',\mu',\phi',V')}{D(\epsilon,\mu,\phi,V)}=\frac{d\epsilon'}{d\epsilon}\frac{d\mu'}{d\mu}\frac{dV'}{dV}=\gamma(1-\mu\beta)\frac{1}{\gamma^2(1-\mu\beta)^2}\frac{1}{\gamma(1-\mu\beta)}=\frac{1}{\gamma^2(1-\mu\beta)^2}
 \end{equation}
 
 And finally, photons distribution function in spherical coordinates transforms as
+
 \begin{equation}\label{distribution_ph}
 	n'_{ph}(\epsilon',\mu',\phi') = \frac{n_{ph}(\epsilon,\mu,\phi)}{\frac{D(\epsilon',\mu',\phi',V')}{D(\epsilon,\mu,\phi,V)}}=\gamma^2(1-\mu\beta)^2 n_{ph}(\epsilon,\mu,\phi)
 \end{equation}
+
 \subsection{Massive particles}
 In the case of massive particles, expression for $\epsilon'$ and $\mu'$ are more complicated. Now $p_z = \mu \sqrt{\epsilon^2 - m^2 c^4}/c$, where $m$ is particle mass, and Lorentz transformation of energy-momentum vector is expressed as
 
@@ -181,11 +186,13 @@ So expressions for $\epsilon'$ and $\mu'$ are
 \begin{equation}
 	\epsilon' = \gamma\epsilon-\beta\gamma\mu\sqrt{\epsilon^2-m^2 c^4}
 \end{equation}
+
 \begin{equation}
 	\mu' = \frac{-\beta\gamma\epsilon+\gamma\mu\sqrt{{\epsilon}^2-m^2 c^4}}{\sqrt{{\epsilon^2 - m^2 c^4}}}
 \end{equation}
 
-And expresson for volume transformation \ref{volume} in terms of $\epsilon$ and $\mu$ is
+And expression for volume transformation \ref{volume} in terms of $\epsilon$ and $\mu$ is
+
 \begin{equation}
 	V'=\frac{V}{\gamma(1-\mu\beta\sqrt{{\epsilon}^2-m^2 c^4}/\epsilon)}
 \end{equation}
@@ -217,7 +224,7 @@ Where $r_e$ - classical electron radius, $\epsilon_0'$ and $\epsilon_1'$ - photo
 Number of photons, which are scattered in unit solid angle in unit energy range in time unit in electron's rest frame is 
 
 \begin{equation}
-\frac{dN'}{dt'd\epsilon_1'd\Omega_1'}=\int c \frac{d\sigma}{d\epsilon_1'd\Omega_1'} \frac{dn'}{d\epsilon_0'd\Omega_0'}d\Omega_0'd\epsilon_0'
+\frac{dN'}{dt'd\epsilon_1'd\Omega_1'}=\int c \frac{d\sigma}{d\epsilon_1'd\Omega_1'} \frac{dn'}{d\epsilon_0'd\Omega_0'}d\Omega_0'd\epsilon'_0
 \end{equation}
 
 Let rewrite delta-function in \ref{KleinNishina} with photon initial energy using relation
@@ -238,7 +245,7 @@ and it will cancel out with $\left(\epsilon'_1/\epsilon'_0\right)^2$ in \ref{Kle
 	\frac{dN'}{dt'd\epsilon_1'd\Omega_1'}=\int \frac{r_e^2 c}{2} \gamma_e^2 (1 - \mu_0 \beta_e)^2 \left(\frac{\epsilon_1'}{\epsilon_0'}+\frac{\epsilon_0'}{\epsilon_1'}-\sin^2\Theta'\right)\frac{dn}{d\epsilon_0 d\Omega_0} \delta\left(\epsilon_0' - \frac{\epsilon_1'}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')}\right) d\epsilon_0'd\mu_0' d\phi_0'
 \end{equation}
 
-Now we get rid of delta-function by integrating over $\epsilon_0'$
+Now we get rid of delta-function by integrating over $\epsilon'_0$
 
 \begin{equation}
 	\frac{dN'}{dt'd\epsilon_1'd\Omega_1'}=\int \frac{r_e^2 c}{2} \gamma_e^2 (1 - \mu_0 \beta_e)^2 \left(1 + \cos^2\Theta'+\left(\frac{\epsilon_1'}{m_e c^2}\right)^2\frac{(1-\cos\Theta')^2}{1-\frac{\epsilon_1'}{m_e c^2}(1 - \cos \Theta')}\right)\frac{dn}{d\epsilon_0 d\Omega_0}d\mu_0' d\phi_0'
@@ -298,7 +305,7 @@ where $\Gamma=4\epsilon_0\gamma_e/m_e c^2$, $q=\epsilon_1/((\gamma_e m_e c^2-\ep
 
 \section{Синхротронное излучение}\label{synchrotronFormulaSection}
 
-Process of synchrotron radiation of relativistic electrons is well-known and described in classical works as for example \cite{Ginzburg1975}. But synchrotron absorption is also possible. It's cross secction was obtained in \cite{Ghisellini1991}. In code we will use spectral emissivity per unit volume and absorption coefficient, described in\cite{Ghisellini}.
+Process of synchrotron radiation of relativistic electrons is well-known and described in classical works as for example \cite{Ginzburg1975}. But synchrotron absorption is also possible. It's cross section was obtained in \cite{Ghisellini1991}. In code we will use spectral emissivity per unit volume and absorption coefficient, described in\cite{Ghisellini}.
 Emissivity (spectral density of energy radiated per unit time) per unit volume is
 
 \begin{equation} \label{emission}
