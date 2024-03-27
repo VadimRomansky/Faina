@@ -125,17 +125,17 @@ double BremsstrahlungEeEvaluator::evaluateSigma1(const double& gammaE, const dou
 	if (epsilonG >= gammaE - 1.0) {
 		return 0;
 	}
-	return (4*re2*alpha/epsilonG)*(1.0 + (1.0/3.0 - epsilonG/(gammaE-1.0))*(1.0 - epsilonG / (gammaE - 1.0)))*(log(2*(gammaE-1.0)*(gammaE-1.0-epsilonG)/epsilonG)-0.5);
+	return (4*re2*alpha/epsilonG)*(1.0 + (1.0/3.0 - epsilonG/(gammaE))*(1.0 - epsilonG / (gammaE)))*(log(2*(gammaE)*(gammaE-epsilonG)/epsilonG)-0.5);
 }
 
 double BremsstrahlungEeEvaluator::evaluateSigma2(const double& gammaE, const double& epsilonG)
 {
 	double coef = re2 * alpha / (3 * epsilonG);
 	if (epsilonG < 0.5) {
-		return coef * (160*(1.0-epsilonG+epsilonG*epsilonG)*log(gammaE/epsilonG) - 1.0/sqr(epsilonG) + 3.0/epsilonG - 4.0 + 4.0*epsilonG - 8.0*epsilonG*epsilonG - 2*(1 - 2*epsilonG)*log(1.0 - 2.0*epsilonG)*(1.0/(4.0*cube(epsilonG))-1/(2.0*sqr(epsilonG)+3.0/epsilonG-2.0+4.0*epsilonG)));
+		return coef * (16*(1.0-epsilonG+epsilonG*epsilonG)*log(gammaE/epsilonG) - 1.0/sqr(epsilonG) + 3.0/epsilonG - 4.0 + 4.0*epsilonG - 8.0*epsilonG*epsilonG - 2*(1 - 2*epsilonG)*log(1.0 - 2.0*epsilonG)*(1.0/(4.0*cube(epsilonG))-1/(2.0*sqr(epsilonG)+3.0/epsilonG-2.0+4.0*epsilonG)));
 	}
 	else {
-		return coef * (2.0/epsilonG)*((4.0 - 1/epsilonG + 1/(4.0*sqr(epsilonG)))*log(2.0*gammaE)-2.0+20/epsilonG-50/(8.0*sqr(epsilonG)));
+		return coef * (2.0/epsilonG)*((4.0 - 1/epsilonG + 1/(4.0*sqr(epsilonG)))*log(2.0*gammaE)-2.0+2/epsilonG-5/(8.0*sqr(epsilonG)));
 	}
 }
 
