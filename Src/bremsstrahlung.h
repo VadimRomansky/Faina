@@ -27,7 +27,10 @@ protected:
 	double evaluateSigma1(const double& gammaE, const double& epsilonG);
 	double evaluateSigma2(const double& gammaE, const double& epsilonG);
 	double evaluateA(const double& gammaE, const double& epsilonG);
+
 	double evaluateSigmaNR(const double& gammaE, const double& epsilonG);
+	double evaluateB(const double& gammaE);
+	double evaluateC(const double& gammaE, const double& x);
 
 	double evaluateSigmaee(const double& gammaE, const double& epsilonG);
 	double evaluateSigmape(const double& gammaE, const double& epsilonG);
@@ -43,3 +46,5 @@ public:
 	virtual double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
 	virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
 };
+
+#endif

@@ -25,13 +25,19 @@ void BremsstrahlungThermalEvaluator::resetParameters(const double* parameters, c
 
 double BremsstrahlungThermalEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance)
 {
-	MassiveParticleMaxwellJuttnerDistribution* maxwellDistribution = dynamic_cast<MassiveParticleMaxwellJuttnerDistribution*>(electronDistribution);
-	if (maxwellDistribution == NULL) {
+	MassiveParticleMaxwellDistribution* maxwellDistribution = dynamic_cast<MassiveParticleMaxwellDistribution*>(electronDistribution);
+	MassiveParticleMaxwellJuttnerDistribution* maxwellJuttnerDistribution = dynamic_cast<MassiveParticleMaxwellJuttnerDistribution*>(electronDistribution);
+	double temperature;
+	if (maxwellDistribution != NULL) {
+		temperature = maxwellDistribution->getTemperature();
+	}
+	else if (maxwellJuttnerDistribution != NULL) {
+		temperature = maxwellJuttnerDistribution->getTemperature();
+	} else {
 		printf("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
 		printLog("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
 		exit(0);
 	}
-	double temperature = maxwellDistribution->getTemperature();
 	double concentration = electronDistribution->getConcentration();
 	double m = electronDistribution->getMass();
 	double theta = photonFinalEnergy / (kBoltzman * temperature);
@@ -125,23 +131,43 @@ double BremsstrahlungEvaluator::evaluateSigma1(const double& gammaE, const doubl
 	if (epsilonG >= gammaE - 1.0) {
 		return 0;
 	}
-	return (4*re2*alpha/epsilonG)*(1.0 + (1.0/3.0 - epsilonG/(gammaE))*(1.0 - epsilonG / (gammaE)))*(log(2*(gammaE)*(gammaE-epsilonG)/epsilonG)-0.5);
+	double sigma = (4*re2*alpha/epsilonG)*(1.0 + (1.0/3.0 - epsilonG/(gammaE))*(1.0 - epsilonG / (gammaE)))*(log(2*(gammaE)*(gammaE-epsilonG)/epsilonG)-0.5);
+
+	if (sigma != sigma) {
+		printf("sigma1 = NaN in bremsstrahlung evaluator\n");
+		printLog("sigma1 = NaN in bremsstrahlung evaluator\n");
+		exit(0);
+	}
+
+	return sigma;
 }
 
 double BremsstrahlungEvaluator::evaluateSigma2(const double& gammaE, const double& epsilonG)
 {
 	double coef = re2 * alpha / (3 * epsilonG);
 	if (epsilonG < 0.5) {
-		return coef * (16*(1.0-epsilonG+epsilonG*epsilonG)*log(gammaE/epsilonG) - 1.0/sqr(epsilonG) + 3.0/epsilonG - 4.0 + 4.0*epsilonG - 8.0*epsilonG*epsilonG - 2*(1 - 2*epsilonG)*log(1.0 - 2.0*epsilonG)*(1.0/(4.0*cube(epsilonG))-1/(2.0*sqr(epsilonG)+3.0/epsilonG-2.0+4.0*epsilonG)));
+		double sigma = coef * (16*(1.0-epsilonG+epsilonG*epsilonG)*log(gammaE/epsilonG) - 1.0/sqr(epsilonG) + 3.0/epsilonG - 4.0 + 4.0*epsilonG - 8.0*epsilonG*epsilonG - 2*(1 - 2*epsilonG)*log(1.0 - 2.0*epsilonG)*(1.0/(4.0*cube(epsilonG))-1/(2.0*sqr(epsilonG)+3.0/epsilonG-2.0+4.0*epsilonG)));
+		if (sigma != sigma) {
+			printf("sigma2 = NaN in bremsstrahlung evaluator\n");
+			printLog("sigma2 = NaN in bremsstrahlung evaluator\n");
+			exit(0);
+		}
+		return sigma;
 	}
 	else {
-		return coef * (2.0/epsilonG)*((4.0 - 1/epsilonG + 1/(4.0*sqr(epsilonG)))*log(2.0*gammaE)-2.0+2/epsilonG-5/(8.0*sqr(epsilonG)));
+		double sigma = coef * (2.0/epsilonG)*((4.0 - 1/epsilonG + 1/(4.0*sqr(epsilonG)))*log(2.0*gammaE)-2.0+2/epsilonG-5/(8.0*sqr(epsilonG)));
+		if (sigma != sigma) {
+			printf("sigma2 = NaN in bremsstrahlung evaluator\n");
+			printLog("sigma2 = NaN in bremsstrahlung evaluator\n");
+			exit(0);
+		}
+		return sigma;
 	}
 }
 
 double BremsstrahlungEvaluator::evaluateA(const double& gammaE, const double& epsilonG)
 {
-	double A = 1.0 - (10.0/3.0)*pow(gammaE - 1.0, 1.0/5.0)/(gammaE + 1.0)*pow(epsilonG/gammaE, 1.0/3.0);
+	double A = 1.0 - (8.0/3.0)*pow(gammaE - 1.0, 1.0/5.0)/(gammaE + 1.0)*pow(epsilonG/gammaE, 1.0/3.0);
 	if (A < 0) {
 		printf("BremsstrahlungEeEvaluator::evaluateA A < 0 gammaE = %g epsilonG = %g\n", gammaE, epsilonG);
 		printLog("BremsstrahlungEeEvaluator::evaluateA A < 0 gammaE = %g epsilonG = %g\n", gammaE, epsilonG);
@@ -151,14 +177,44 @@ double BremsstrahlungEvaluator::evaluateA(const double& gammaE, const double& ep
 }
 
 double BremsstrahlungEvaluator::evaluateSigmaNR(const double& gammaE, const double& epsilonG) {
+	double x = 4 * epsilonG / (gammaE * gammaE - 1.0);
+	if (x >= 1) {
+		return 0;
+	}
+	if (x <= 0) {
+		return 0;
+	}
 
+	double sigma = (4*re2 * alpha / (15.0 * epsilonG))*(evaluateB(gammaE)*(17-3*x*x/sqr(2-x)-evaluateC(gammaE,x))*sqrt(1-x)+(12*(2-x)-7*x*x/(2-x)-3*x*x*x*x/cube(2-x))*log((1+sqrt(1-x))/sqrt(x)));
+	if (sigma != sigma) {
+		printf("sigmaNR = NaN in bremsstrahlung evaluator\n");
+		printLog("sigmaNR = NaN in bremsstrahlung evaluator\n");
+		exit(0);
+	}
+	return sigma;
+}
+
+double BremsstrahlungEvaluator::evaluateB(const double& gammaE) {
+	return 1 + 0.5 * (gammaE * gammaE - 1.0);
+}
+
+double BremsstrahlungEvaluator::evaluateC(const double& gammaE, const double& x) {
+	double betaE = sqrt(1.0 - 1.0 / (gammaE * gammaE));
+	return 10 * x * gammaE * betaE * (2 + gammaE * betaE) / (1 + x * x * (gammaE * gammaE - 1.0));
 }
 
 double BremsstrahlungEvaluator::evaluateSigmaee(const double& gammaE, const double& epsilonG) {
+	if (gammaE > 5.0) {
+		return (evaluateSigma1(gammaE, epsilonG) + evaluateSigma2(gammaE, epsilonG)) * evaluateA(gammaE, epsilonG);
+	}
+	else {
+		return evaluateSigmaNR(gammaE, epsilonG);
+	}
 
 }
 double BremsstrahlungEvaluator::evaluateSigmape(const double& gammaE, const double& epsilonG) {
-
+	//todo
+	return evaluateSigma1(gammaE, epsilonG);
 }
 
 double BremsstrahlungEvaluator::evaluateSigma(const double& gammaE, const double& epsilonG) {
@@ -230,10 +286,11 @@ double BremsstrahlungEvaluator::evaluateFluxFromIsotropicFunction(const double& 
 		double electronBeta = sqrt(1.0 - 1.0 / (electronGamma * electronGamma));
 		double electronKineticEnergy = massElectron * speed_of_light2 * (electronGamma - 1.0);
 		double epsilonG = photonFinalEnergy / (massElectron * speed_of_light2);
+		double concentration = electronDistribution->getConcentration();
 
 		double sigma = evaluateSigma(electronGamma, epsilonG);
 
-		result += photonFinalEnergy * (speed_of_light * electronBeta) * sigma * (4*Pi*electronDistribution->distribution(electronEnergy)) * volume * delectronEnergy / (4*pi*sqr(distance));
+		result += photonFinalEnergy * (speed_of_light * electronBeta) * sigma*concentration * (4*pi*electronDistribution->distribution(electronEnergy)) * volume * delectronEnergy / (4*pi*sqr(distance));
 
 		if (result != result) {
 			printf("result = NaN in bremsstrahlung\n");

@@ -927,14 +927,14 @@ int main() {
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
 	//evaluatePionDecayWithPowerLawDistribution();
-	//evaluateBremsstrahlung();
+	evaluateBremsstrahlung();
 	//compareComptonSynchrotron();
 	//evaluateSynchrotronImage();
 	//testRotation();
 	//testAnisotropicCompton();
 
 
-	evaluateFluxSNRtoWind();
+	//evaluateFluxSNRtoWind();
 	//evaluateComtonFromWind();
 	//evaluateTychoProfile();
 	//fitTychoProfile();

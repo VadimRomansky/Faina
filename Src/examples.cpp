@@ -873,48 +873,56 @@ void evaluateBremsstrahlung() {
 	//CSS161010
 	const double distance = 150 * 3.08 * 1.0E24;
 	double Emin = me_c2;
-	double Emax = 10000 * me_c2;
+	double Emax = me_c2 + 10 * kBoltzman * temperature;
+	int Ne = 100;
 
 	MassiveParticleMaxwellDistribution* electrons = new MassiveParticleMaxwellDistribution(massElectron, temperature, electronConcentration);
 	RadiationSource* source = new SimpleFlatSource(electrons, 0, 0, rmax, rmax, distance);
-	BremsstrahlungThermalEvaluator* bremsstrahlungEvaluator = new BremsstrahlungThermalEvaluator();
+	BremsstrahlungThermalEvaluator* bremsstrahlungEvaluator1 = new BremsstrahlungThermalEvaluator();
+	BremsstrahlungEvaluator* bremsstrahlungEvaluator2 = new BremsstrahlungEvaluator(Ne, Emin, Emax, 1.0);
 
 	int Nnu = 200;
 	double* E = new double[Nnu];
-	double* F = new double[Nnu];
+	double* F1 = new double[Nnu];
+	double* F2 = new double[Nnu];
 
 	double Ephmin = 0.001 * kBoltzman * temperature;
 	double Ephmax = 100 * kBoltzman * temperature;
 	double factor = pow(Ephmax / Ephmin, 1.0 / (Nnu - 1));
 	E[0] = Ephmin;
-	F[0] = 0;
+	F1[0] = 0;
+	F2[0] = 0;
 	for (int i = 1; i < Nnu; ++i) {
 		E[i] = E[i - 1] * factor;
-		F[i] = 0;
+		F1[i] = 0;
+		F2[i] = 0;
 	}
 
 	printLog("evaluating\n");
 	for (int i = 0; i < Nnu; ++i) {
 		printf("%d\n", i);
 		printLog("%d\n", i);
-		F[i] = bremsstrahlungEvaluator->evaluateFluxFromSource(E[i], source);
+		F1[i] = bremsstrahlungEvaluator1->evaluateFluxFromSource(E[i], source);
+		F2[i] = bremsstrahlungEvaluator2->evaluateFluxFromSource(E[i], source);
 	}
 
 	FILE* output_ev_EFE = fopen("outputBremE.dat", "w");
 	FILE* output_GHz_Jansky = fopen("outputBremNu.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		double nu = E[i] / hplank;
-		fprintf(output_ev_EFE, "%g %g\n", E[i] / (1.6E-12), E[i] * F[i]);
-		fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * F[i]);
+		fprintf(output_ev_EFE, "%g %g %g\n", E[i] / (1.6E-12), E[i] * F1[i], E[i] * F2[i]);
+		fprintf(output_GHz_Jansky, "%g %g %g\n", nu / 1E9, 1E26 * hplank * F1[i], 1E26 * hplank * F2[i]);
 	}
 	fclose(output_ev_EFE);
 	fclose(output_GHz_Jansky);
 
 	delete[] E;
-	delete[] F;
+	delete[] F1;
+	delete[] F2;
 	delete electrons;
 	delete source;
-	delete bremsstrahlungEvaluator;
+	delete bremsstrahlungEvaluator1;
+	delete bremsstrahlungEvaluator2;
 }
 
 //example 7 compare compton and synchrotron
