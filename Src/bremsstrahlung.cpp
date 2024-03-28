@@ -120,7 +120,7 @@ double BremsstrahlungThermalEvaluator::evaluateFluxFromSourceAtPoint(const doubl
 	return result;
 }
 
-double BremsstrahlungEeEvaluator::evaluateSigma1(const double& gammaE, const double& epsilonG)
+double BremsstrahlungEvaluator::evaluateSigma1(const double& gammaE, const double& epsilonG)
 {
 	if (epsilonG >= gammaE - 1.0) {
 		return 0;
@@ -128,7 +128,7 @@ double BremsstrahlungEeEvaluator::evaluateSigma1(const double& gammaE, const dou
 	return (4*re2*alpha/epsilonG)*(1.0 + (1.0/3.0 - epsilonG/(gammaE))*(1.0 - epsilonG / (gammaE)))*(log(2*(gammaE)*(gammaE-epsilonG)/epsilonG)-0.5);
 }
 
-double BremsstrahlungEeEvaluator::evaluateSigma2(const double& gammaE, const double& epsilonG)
+double BremsstrahlungEvaluator::evaluateSigma2(const double& gammaE, const double& epsilonG)
 {
 	double coef = re2 * alpha / (3 * epsilonG);
 	if (epsilonG < 0.5) {
@@ -139,7 +139,7 @@ double BremsstrahlungEeEvaluator::evaluateSigma2(const double& gammaE, const dou
 	}
 }
 
-double BremsstrahlungEeEvaluator::evaluateA(const double& gammaE, const double& epsilonG)
+double BremsstrahlungEvaluator::evaluateA(const double& gammaE, const double& epsilonG)
 {
 	double A = 1.0 - (10.0/3.0)*pow(gammaE - 1.0, 1.0/5.0)/(gammaE + 1.0)*pow(epsilonG/gammaE, 1.0/3.0);
 	if (A < 0) {
@@ -150,19 +150,70 @@ double BremsstrahlungEeEvaluator::evaluateA(const double& gammaE, const double& 
 	return A;
 }
 
-BremsstrahlungEeEvaluator::BremsstrahlungEeEvaluator(int Ne, const double& Emin, const double& Emax, const double& ambientConcentration) : RadiationEvaluator(Ne, Emin, Emax) {
-	my_ambientConcentration = ambientConcentration;
+double BremsstrahlungEvaluator::evaluateSigmaNR(const double& gammaE, const double& epsilonG) {
+
 }
 
-BremsstrahlungEeEvaluator::~BremsstrahlungEeEvaluator()
+double BremsstrahlungEvaluator::evaluateSigmaee(const double& gammaE, const double& epsilonG) {
+
+}
+double BremsstrahlungEvaluator::evaluateSigmape(const double& gammaE, const double& epsilonG) {
+
+}
+
+double BremsstrahlungEvaluator::evaluateSigma(const double& gammaE, const double& epsilonG) {
+	double sigma = 0;
+	if (my_ionNumber > 0) {
+		sigma += evaluateSigmape(gammaE, epsilonG) * my_effectiveProtonConcentration;
+	}
+
+	sigma += evaluateSigmaee(gammaE, epsilonG);
+
+	return sigma;
+}
+
+BremsstrahlungEvaluator::BremsstrahlungEvaluator(int Ne, const double& Emin, const double& Emax) : RadiationEvaluator(Ne, Emin, Emax) {
+	my_ionNumber = 0;
+	my_ionConcentrations = NULL;
+	my_ionConcentrations = NULL;
+	my_effectiveProtonConcentration = 0;
+}
+
+BremsstrahlungEvaluator::BremsstrahlungEvaluator(int Ne, const double& Emin, const double& Emax, double protonsRelativeConcentration) : RadiationEvaluator(Ne, Emin, Emax) {
+	my_ionNumber = 1;
+	my_ionConcentrations = new double[my_ionNumber];
+	my_ionConcentrations[0] = protonsRelativeConcentration;
+	my_ionCharges = new int[my_ionNumber];
+	my_ionCharges[0] = 1;
+	my_effectiveProtonConcentration = protonsRelativeConcentration;
+}
+
+
+BremsstrahlungEvaluator::BremsstrahlungEvaluator(int Ne, const double& Emin, const double& Emax, int ionNumber, double* ionConcentrations, int* ionCharges) : RadiationEvaluator(Ne, Emin, Emax) {
+	my_ionNumber = ionNumber;
+	my_ionConcentrations = new double[my_ionNumber];
+	my_ionCharges = new int[my_ionNumber];
+	my_effectiveProtonConcentration = 0;
+	for (int i = 0; i < my_ionNumber; ++i) {
+		my_ionConcentrations[i] = ionConcentrations[i];
+		my_ionCharges[i] = ionCharges[i];
+		my_effectiveProtonConcentration += my_ionConcentrations[i] * my_ionCharges[i] * my_ionCharges[i];
+	}
+}
+
+BremsstrahlungEvaluator::~BremsstrahlungEvaluator()
+{
+	if (my_ionNumber > 0) {
+		delete[] my_ionConcentrations;
+		delete[] my_ionCharges;
+	}
+}
+
+void BremsstrahlungEvaluator::resetParameters(const double* parameters, const double* normalizationUnits)
 {
 }
 
-void BremsstrahlungEeEvaluator::resetParameters(const double* parameters, const double* normalizationUnits)
-{
-}
-
-double BremsstrahlungEeEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance)
+double BremsstrahlungEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance)
 {
 	double result = 0;
 
@@ -180,13 +231,13 @@ double BremsstrahlungEeEvaluator::evaluateFluxFromIsotropicFunction(const double
 		double electronKineticEnergy = massElectron * speed_of_light2 * (electronGamma - 1.0);
 		double epsilonG = photonFinalEnergy / (massElectron * speed_of_light2);
 
-		double sigma = (evaluateSigma1(electronGamma, epsilonG) + evaluateSigma2(electronGamma, epsilonG))*evaluateA(electronGamma, epsilonG);
+		double sigma = evaluateSigma(electronGamma, epsilonG);
 
-		result += photonFinalEnergy * (speed_of_light * electronBeta / (4 * pi)) * sigma * electronDistribution->distribution(electronEnergy) * my_ambientConcentration * volume * delectronEnergy / sqr(distance);
+		result += photonFinalEnergy * (speed_of_light * electronBeta) * sigma * (4*Pi*electronDistribution->distribution(electronEnergy)) * volume * delectronEnergy / (4*pi*sqr(distance));
 
 		if (result != result) {
-			printf("result = NaN in pion decay\n");
-			printLog("result = NaN in pion decay\n");
+			printf("result = NaN in bremsstrahlung\n");
+			printLog("result = NaN in bremsstrahlung\n");
 			exit(0);
 		}
 	}
@@ -194,7 +245,7 @@ double BremsstrahlungEeEvaluator::evaluateFluxFromIsotropicFunction(const double
 	return result;
 }
 
-double BremsstrahlungEeEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi)
+double BremsstrahlungEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi)
 {
 	int Nrho = source->getNrho();
 	int Nz = source->getNz();
@@ -207,85 +258,6 @@ double BremsstrahlungEeEvaluator::evaluateFluxFromSourceAtPoint(const double& ph
 		if (distribution == NULL) {
 			printf("Bremsstrahlung e-e evaluator works only with isotropic electrons distribution\n");
 			printLog("Bremsstrahlung e-e evaluator works only with isotropic electrons distribution\n");
-			exit(0);
-		}
-		result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, distribution, source->getVolume(irho, iz, iphi), source->getDistance());
-	}
-
-	return result;
-}
-
-double BremsstrahlungPeEvaluator::evaluateSigma(const double& p1, const double& p2, const double& epsilonG)
-{
-	printf("gtrf");
-	exit(0);
-	return 0.0;
-}
-
-BremsstrahlungPeEvaluator::BremsstrahlungPeEvaluator(int Ne, const double& Emin, const double& Emax, const double& ambientConcentration) : RadiationEvaluator(Ne, Emin, Emax)
-{
-	my_ambientConcentration = ambientConcentration;
-}
-
-BremsstrahlungPeEvaluator::~BremsstrahlungPeEvaluator()
-{
-}
-
-void BremsstrahlungPeEvaluator::resetParameters(const double* parameters, const double* normalizationUnits)
-{
-}
-
-double BremsstrahlungPeEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance)
-{
-	int Np = 100;
-	double result = 0;
-
-	for (int i = 0; i < my_Ne; ++i) {
-		double electronEnergy = my_Ee[i];
-		double delectronEnergy;
-		if (i == 0) {
-			delectronEnergy = my_Ee[1] - my_Ee[0];
-		}
-		else {
-			delectronEnergy = my_Ee[i] - my_Ee[i - 1];
-		}
-		double electronGamma = electronEnergy / (massElectron * speed_of_light2);
-		double electronBeta = sqrt(1.0 - 1.0 / (electronGamma * electronGamma));
-		double p1 = massElectron * speed_of_light * electronBeta * electronGamma;
-		double electronKineticEnergy = massElectron * speed_of_light2 * (electronGamma - 1.0);
-		double epsilonG = photonFinalEnergy / (massElectron * speed_of_light2);
-
-		for (int j = 0; j < Np; ++j) {
-			double dp = p1 / Np;
-			double p2 = (j + 0.5) * dp;
-
-			double sigma = evaluateSigma(p1, p2, epsilonG);
-			result += photonFinalEnergy * (speed_of_light * electronBeta / (4 * pi)) * sigma * electronDistribution->distribution(electronEnergy) * my_ambientConcentration * volume * delectronEnergy / sqr(distance);
-		}
-
-		if (result != result) {
-			printf("result = NaN in pion decay\n");
-			printLog("result = NaN in pion decay\n");
-			exit(0);
-		}
-	}
-
-	return result;
-}
-
-double BremsstrahlungPeEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi)
-{
-	int Nrho = source->getNrho();
-	int Nz = source->getNz();
-	int Nphi = source->getNphi();
-
-	double result = 0;
-
-	for (int iz = 0; iz < Nz; ++iz) {
-		MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
-		if (distribution == NULL) {
-			printf("Bremsstrahlung p-e evaluator works only with isotropic electrons distribution\n");
-			printLog("Bremsstrahlung p-e evaluator works only with isotropic electrons distribution\n");
 			exit(0);
 		}
 		result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, distribution, source->getVolume(irho, iz, iphi), source->getDistance());
