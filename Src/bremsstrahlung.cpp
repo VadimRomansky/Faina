@@ -74,7 +74,8 @@ double BremsstrahlungThermalEvaluator::evaluateFluxFromIsotropicFunction(const d
 		}
 	}
 
-	double result = (1.0 / hplank) * (32 * pi * pow(electron_charge, 6) / (3 * m * speed_of_light * speed_of_light2)) * sqrt(2 * pi / (3 * kBoltzman * temperature * m)) * concentration * concentration * exp(-theta)*gauntFactor;
+	double a = (32 * pi * pow(electron_charge, 6) / (3 * m * speed_of_light * speed_of_light2)) * sqrt(2 * pi / (3 * kBoltzman * m));
+	double result = (1.0 / hplank) * (a/sqrt(temperature)) * concentration * concentration * exp(-theta) * gauntFactor;
 	result *= volume / (4*pi*sqr(distance));
 	return result;
 }
@@ -144,6 +145,9 @@ double BremsstrahlungEvaluator::evaluateSigma1(const double& gammaE, const doubl
 
 double BremsstrahlungEvaluator::evaluateSigma2(const double& gammaE, const double& epsilonG)
 {
+	if (epsilonG >= gammaE - 1) {
+		return 0;
+	}
 	double coef = re2 * alpha / (3 * epsilonG);
 	if (epsilonG < 0.5) {
 		double sigma = coef * (16*(1.0-epsilonG+epsilonG*epsilonG)*log(gammaE/epsilonG) - 1.0/sqr(epsilonG) + 3.0/epsilonG - 4.0 + 4.0*epsilonG - 8.0*epsilonG*epsilonG - 2*(1 - 2*epsilonG)*log(1.0 - 2.0*epsilonG)*(1.0/(4.0*cube(epsilonG))-1/(2.0*sqr(epsilonG)+3.0/epsilonG-2.0+4.0*epsilonG)));
@@ -167,6 +171,9 @@ double BremsstrahlungEvaluator::evaluateSigma2(const double& gammaE, const doubl
 
 double BremsstrahlungEvaluator::evaluateA(const double& gammaE, const double& epsilonG)
 {
+	if (epsilonG >= gammaE - 1) {
+		return 0;
+	}
 	double A = 1.0 - (8.0/3.0)*pow(gammaE - 1.0, 1.0/5.0)/(gammaE + 1.0)*pow(epsilonG/gammaE, 1.0/3.0);
 	if (A < 0) {
 		printf("BremsstrahlungEeEvaluator::evaluateA A < 0 gammaE = %g epsilonG = %g\n", gammaE, epsilonG);
@@ -225,7 +232,7 @@ double BremsstrahlungEvaluator::evaluateSigma(const double& gammaE, const double
 
 	sigma += evaluateSigmaee(gammaE, epsilonG);
 
-	return sigma;
+	return sigma/me_c2;
 }
 
 BremsstrahlungEvaluator::BremsstrahlungEvaluator(int Ne, const double& Emin, const double& Emax) : RadiationEvaluator(Ne, Emin, Emax) {

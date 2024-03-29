@@ -862,10 +862,10 @@ void evaluatePionDecay() {
 
 // example 6. Evaluating bremsstrahlung radiation from hot gas
 void evaluateBremsstrahlung() {
-	double electronConcentration = 150;
+	double electronConcentration = 1;
 	double rmax = 1.3E17;
 	double B = 0.6;
-	double temperature = 1E6;
+	double temperature = 1E15;
 	//SN2009bb
 	//const double distance = 40*3.08*1.0E24;
 	//AT2018
@@ -873,10 +873,11 @@ void evaluateBremsstrahlung() {
 	//CSS161010
 	const double distance = 150 * 3.08 * 1.0E24;
 	double Emin = me_c2;
-	double Emax = me_c2 + 10 * kBoltzman * temperature;
-	int Ne = 100;
+	double Emax = me_c2 + 100 * kBoltzman * temperature;
+	int Ne = 200;
 
-	MassiveParticleMaxwellDistribution* electrons = new MassiveParticleMaxwellDistribution(massElectron, temperature, electronConcentration);
+	MassiveParticleMaxwellJuttnerDistribution* electrons = new MassiveParticleMaxwellJuttnerDistribution(massElectron, temperature, electronConcentration);
+	//MassiveParticleMaxwellDistribution* electrons = new MassiveParticleMaxwellDistribution(massElectron, temperature, electronConcentration);
 	RadiationSource* source = new SimpleFlatSource(electrons, 0, 0, rmax, rmax, distance);
 	BremsstrahlungThermalEvaluator* bremsstrahlungEvaluator1 = new BremsstrahlungThermalEvaluator();
 	BremsstrahlungEvaluator* bremsstrahlungEvaluator2 = new BremsstrahlungEvaluator(Ne, Emin, Emax, 1.0);
