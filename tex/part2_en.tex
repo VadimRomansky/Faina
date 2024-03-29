@@ -253,12 +253,14 @@ Let create energy grid for radiated gamma photons, which will be used for manual
 and then we can evaluate radiation energy density flux and write it into the file in preffred units
 \begin{lstlisting}[language=c++]
 	for (int i = 0; i < Nnu; ++i) {
-		F[i] = pionDecayEvaluator->evaluateFluxFromSource(E[i], source);
+		F[i] = pionDecayEvaluator->evaluateFluxFromSource(
+		    E[i], source);
 	}	
 	FILE* output_ev_dNdE = fopen("outputPionE.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		double nu = E[i] / hplank;
-		fprintf(output_ev_dNdE, "%g %g\n", E[i] / (1.6E-12), F[i] / E[i]);
+		fprintf(output_ev_dNdE, "%g %g\n",
+		    E[i] / (1.6E-12), F[i] / E[i]);
 	}
 	fclose(output_ev_dNdE);
 \end{lstlisting}
@@ -270,4 +272,106 @@ Spectrum of radiation from Cygnus Cocoon, obtained with this code, and observati
 	\label{pion}
 \end{figure}
 \section{Bremsstrahlung}
-In current version of the code only simple case of thermal particle distribution is implemented with class BremsstrahlungThermalEvaluator. In this model thermal plasma with the same electron and positrons temperatures is assumed. Gaunt-factors for radiation are used as in \cite{Rybicki}. Example of evaluation of bremsstrahlung is shown in function  evaluateBremsstrahlung in the file examples.cpp.
+
+For evaluation of bremsstrahlung radiation, produced by electron-electron and electron-proton collisions, two classes inherited from RadiationEvaluator are implemented. BremsstrahlungThermalEvaluator uses simple analytical model, described in \cite{Rybicki}, for case with thermal distribution of particles. This class should be use for debug and calibration of the second one - BremsstrahlungEvaluator. This class uses more general aproach, which can be applied for any isotropic distribution of emitting electrons. For electron-ion cross section Bethe-Heitler formula is used \cite{BetheHeitler}, which is described in detail in \cite{JauchRohrlich}. Electron-electron scuttering is computed with formulae provided by \cite{Baring1999}. Public methods of this classes are lusted in Table
+
+\begin{small}
+\topcaption{Public methods of classes BremsstrahlungThermalEvaluator and BremsstrahlungEvaluator}
+	\label{vremsstrahlung}
+	\begin{xtabular}{|p{0.5\textwidth}|p{0.5\textwidth}|}  
+		\hline
+		\textbf{BremsstrahlungThermalEvaluator} & class for evaluation bremsstrahlung radiation from plasma with thermal distribution\\
+		\hline
+		BremsstrahlungThermalEvaluator() & default constructor\\
+		\hline
+		\textbf{BremsstrahlungEvaluator} & class for evaluation bremsstrahlung radiation from plasma with isotropic distribution of emitting electrons\\
+		\hline
+		BremsstrahlungEvaluator( int Ne, const double\& Emin, const double\& Emax) & constructor, creates evaluator with given range of electrons energy taken into account and number of integration points in it. With this constructor density of ions is assumed zero, and only electron-electron collisions would be computed.\\
+		\hline
+		BremsstrahlungEvaluator( int Ne, const double\& Emin, const double\& Emax, double protonsRelativeConcentration) & constructor, creates evaluator with given range of electrons energy taken into accoun, number of integration points in it, and relative number density of protons to electrons. If it is equal to 1, number density of protons is considered equal to the number density of protons.\\
+		\hline
+		BremsstrahlungEvaluator( int Ne, const double\& Emin, const double\& Emax, int ionNumber, double* ionConcentrations, int* ionCharges) & constructor, creates evaluator with given range of electrons energy taken into accoun, number of integration points in it, number of types of ions, they relative number densities and charges in units of elementary charge. Note! Electro-neutrality is on user's responsibility.\\
+		\hline
+		double evaluateSigma( const double\& gammaE, const double\& epsilonG) & returns cross-section of emitting photon with energy $\epsilon_G$ in units $m_e c^2$ in energy range $d\epsilon_G$ by electron with Lorentz-factor $\gamma_e$, integrated by all angular variables.\\
+		\hline
+	\end{xtabular}
+\end{small}
+
+Example of evaluation of bremsstrahlung is shown in function  evaluateBremsstrahlung in the file examples.cpp. In this example we compare results of computations of thermal plasma radiation obtained with two bremsstrahlung evaluator classes. As always we start with defining parameters of the source. Now we also define the temperature of hot relativistic plasma.
+
+\begin{lstlisting}[language=c++]
+    double electronConcentration = 1;
+    double rmax = 1.3E17;
+    double B = 0;
+    double temperature = 1E10;
+	
+    double distance = 150 * 3.08 * 1.0E24;
+    double Emin = me_c2;
+    double Emax = me_c2 + 100 * kBoltzman * temperature;
+\end{lstlisting}
+
+Then we create Maxwell-Juttner distribution of electrons, and radiation source as homogenous flat disk
+
+\begin{lstlisting}[language=c++]
+    MassiveParticleMaxwellJuttnerDistribution* electrons = new 
+        MassiveParticleMaxwellJuttnerDistribution( 
+        massElectron, temperature, electronConcentration);
+    RadiationSource* source = new 
+        SimpleFlatSource(electrons, 0, 0, rmax, rmax, distance);
+\end{lstlisting}
+
+Also we create two different bremsstrahlung evaluator. Number density of protons we set to be equal number density of electrons.
+
+\begin{lstlisting}[language=c++]
+    int Ne = 500;
+    BremsstrahlungThermalEvaluator* bremsstrahlungEvaluator1 = new
+        BremsstrahlungThermalEvaluator();
+    BremsstrahlungEvaluator* bremsstrahlungEvaluator2 = new
+    	BremsstrahlungEvaluator(Ne, Emin, Emax, 1.0);
+\end{lstlisting}
+
+Then as usual we create grid for frequensies of emitted photons. Minimal and maximal energy of photons depend on temperature of plasma.
+
+\begin{lstlisting}[language=c++]
+    int Nnu = 200;
+    double* E = new double[Nnu];
+
+    double Ephmin = 0.001 * kBoltzman * temperature;
+    double Ephmax = 100 * kBoltzman * temperature;
+    double factor = pow(Ephmax / Ephmin, 1.0 / (Nnu - 1));
+    E[0] = Ephmin;
+    for (int i = 1; i < Nnu; ++i) {
+        E[i] = E[i - 1] * factor;
+    }	
+\end{lstlisting}
+
+And finally we evaluate photons energy flux with two different evaluators and write it into the file
+
+\begin{lstlisting}[language=c++]
+    FILE* output_ev_EFE = fopen("outputBremE.dat", "w");
+    FILE* output_GHz_Jansky = fopen("outputBremNu.dat", "w");
+    for (int i = 0; i < Nnu; ++i) {
+        double nu = E[i] / hplank;
+        printf("%d\n", i);
+        printLog("%d\n", i);
+        double F1 = bremsstrahlungEvaluator1->evaluateFluxFromSource(
+            E[i], source);
+        double F2 = bremsstrahlungEvaluator2->evaluateFluxFromSource(
+            E[i], source);
+        fprintf(output_ev_EFE, "%g %g %g\n",
+            E[i] / (1.6E-12), E[i] * F1, E[i] * F2);
+        fprintf(output_GHz_Jansky, "%g %g %g\n",
+            nu / 1E9, 1E26 * hplank * F1, 1E26 * hplank * F2);
+    }
+    fclose(output_ev_EFE);
+    fclose(output_GHz_Jansky);
+\end{lstlisting}
+
+Modeled energy density of energy flux is shown in Figure \ref{bremsstrahlungFigure}. In the limit of it's applicability simple analytical model provides results close to the results of more precise computations.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=12.5 cm]{./fig/compton.png} 
+	\caption{Modeled spectrum of bremsstrahlung radiation of hot thermal plasma}
+	\label{bremsstrahlungFigure}
+\end{figure}

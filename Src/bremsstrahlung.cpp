@@ -313,6 +313,7 @@ double BremsstrahlungEvaluator::evaluateSigma(const double& gammaE, const double
 	return sigma/me_c2;
 }
 
+//todo need ambient electron concentration?
 BremsstrahlungEvaluator::BremsstrahlungEvaluator(int Ne, const double& Emin, const double& Emax) : RadiationEvaluator(Ne, Emin, Emax) {
 	my_ionNumber = 0;
 	my_ionConcentrations = NULL;

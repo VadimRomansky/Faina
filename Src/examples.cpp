@@ -884,42 +884,32 @@ void evaluateBremsstrahlung() {
 
 	int Nnu = 200;
 	double* E = new double[Nnu];
-	double* F1 = new double[Nnu];
-	double* F2 = new double[Nnu];
 
 	double Ephmin = 0.001 * kBoltzman * temperature;
 	double Ephmax = 100 * kBoltzman * temperature;
 	double factor = pow(Ephmax / Ephmin, 1.0 / (Nnu - 1));
 	E[0] = Ephmin;
-	F1[0] = 0;
-	F2[0] = 0;
 	for (int i = 1; i < Nnu; ++i) {
 		E[i] = E[i - 1] * factor;
-		F1[i] = 0;
-		F2[i] = 0;
 	}
 
 	printLog("evaluating\n");
-	for (int i = 0; i < Nnu; ++i) {
-		printf("%d\n", i);
-		printLog("%d\n", i);
-		F1[i] = bremsstrahlungEvaluator1->evaluateFluxFromSource(E[i], source);
-		F2[i] = bremsstrahlungEvaluator2->evaluateFluxFromSource(E[i], source);
-	}
 
 	FILE* output_ev_EFE = fopen("outputBremE.dat", "w");
 	FILE* output_GHz_Jansky = fopen("outputBremNu.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		double nu = E[i] / hplank;
-		fprintf(output_ev_EFE, "%g %g %g\n", E[i] / (1.6E-12), E[i] * F1[i], E[i] * F2[i]);
-		fprintf(output_GHz_Jansky, "%g %g %g\n", nu / 1E9, 1E26 * hplank * F1[i], 1E26 * hplank * F2[i]);
+		printf("%d\n", i);
+		printLog("%d\n", i);
+		double F1 = bremsstrahlungEvaluator1->evaluateFluxFromSource(E[i], source);
+		double F2 = bremsstrahlungEvaluator2->evaluateFluxFromSource(E[i], source);
+		fprintf(output_ev_EFE, "%g %g %g\n", E[i] / (1.6E-12), E[i] * F1, E[i] * F2);
+		fprintf(output_GHz_Jansky, "%g %g %g\n", nu / 1E9, 1E26 * hplank * F1, 1E26 * hplank * F2);
 	}
 	fclose(output_ev_EFE);
 	fclose(output_GHz_Jansky);
 
 	delete[] E;
-	delete[] F1;
-	delete[] F2;
 	delete electrons;
 	delete source;
 	delete bremsstrahlungEvaluator1;
