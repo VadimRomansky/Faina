@@ -10,6 +10,7 @@
 
 #include "bremsstrahlung.h"
 
+//todo https://en.wikipedia.org/wiki/Kramers%27_opacity_law
 
 BremsstrahlungThermalEvaluator::BremsstrahlungThermalEvaluator() : RadiationEvaluator(2, massElectron*speed_of_light2, 2*massElectron*speed_of_light2)
 {
@@ -56,7 +57,7 @@ double BremsstrahlungThermalEvaluator::evaluateFluxFromIsotropicFunction(const d
 	}
 	else {
 		if (theta >= 1.0) {
-			if (log(theta) >= -log(eta)) {
+			if (theta >= 1/eta) {
 				double dzeta = eta * theta;
 				gauntFactor = sqrt(12 /dzeta);
 			} else {
@@ -64,9 +65,9 @@ double BremsstrahlungThermalEvaluator::evaluateFluxFromIsotropicFunction(const d
 			}
 		}
 		else {
-			if (-log(theta) >= -0.5 * log(eta)) {
-				//where is 4?
-				gauntFactor = (sqrt(3) / pi) * log(4.0 / (pow(euler_mascheroni, 2.5) * theta) * sqrt(eta));
+			if (theta < sqrt(eta) ) {
+				//where is 4? if in denominator, log can be < 0
+				gauntFactor = (sqrt(3) / pi) * log(4 / (pow(euler_mascheroni, 2.5) * theta) * sqrt(eta));
 			}
 			else {
 				gauntFactor = 1.0;
@@ -140,6 +141,12 @@ double BremsstrahlungEvaluator::evaluateSigma1(const double& gammaE, const doubl
 		exit(0);
 	}
 
+	if (sigma < 0) {
+		printf("sigma1 < 0 in bremsstrahlung evaluator\n");
+		printLog("sigma1 < 0 in bremsstrahlung evaluator\n");
+		exit(0);
+	}
+
 	return sigma;
 }
 
@@ -156,6 +163,13 @@ double BremsstrahlungEvaluator::evaluateSigma2(const double& gammaE, const doubl
 			printLog("sigma2 = NaN in bremsstrahlung evaluator\n");
 			exit(0);
 		}
+
+		if (sigma < 0) {
+			printf("sigma2 < 0 in bremsstrahlung evaluator\n");
+			printLog("sigma2 < 0 in bremsstrahlung evaluator\n");
+			exit(0);
+		}
+
 		return sigma;
 	}
 	else {
@@ -165,6 +179,13 @@ double BremsstrahlungEvaluator::evaluateSigma2(const double& gammaE, const doubl
 			printLog("sigma2 = NaN in bremsstrahlung evaluator\n");
 			exit(0);
 		}
+
+		if (sigma < 0) {
+			printf("sigma2 < 0 in bremsstrahlung evaluator\n");
+			printLog("sigma2 < 0 in bremsstrahlung evaluator\n");
+			exit(0);
+		}
+
 		return sigma;
 	}
 }
@@ -175,6 +196,13 @@ double BremsstrahlungEvaluator::evaluateA(const double& gammaE, const double& ep
 		return 0;
 	}
 	double A = 1.0 - (8.0/3.0)*pow(gammaE - 1.0, 1.0/5.0)/(gammaE + 1.0)*pow(epsilonG/gammaE, 1.0/3.0);
+
+	if (A != A) {
+		printf("BremsstrahlungEeEvaluator::evaluateA A = NaN gammaE = %g epsilonG = %g\n", gammaE, epsilonG);
+		printLog("BremsstrahlungEeEvaluator::evaluateA A = NaN gammaE = %g epsilonG = %g\n", gammaE, epsilonG);
+		exit(0);
+	}
+
 	if (A < 0) {
 		printf("BremsstrahlungEeEvaluator::evaluateA A < 0 gammaE = %g epsilonG = %g\n", gammaE, epsilonG);
 		printLog("BremsstrahlungEeEvaluator::evaluateA A < 0 gammaE = %g epsilonG = %g\n", gammaE, epsilonG);
@@ -192,12 +220,28 @@ double BremsstrahlungEvaluator::evaluateSigmaNR(const double& gammaE, const doub
 		return 0;
 	}
 
-	double sigma = (4*re2 * alpha / (15.0 * epsilonG))*(evaluateB(gammaE)*(17-3*x*x/sqr(2-x)-evaluateC(gammaE,x))*sqrt(1-x)+(12*(2-x)-7*x*x/(2-x)-3*x*x*x*x/cube(2-x))*log((1+sqrt(1-x))/sqrt(x)));
+	double B = evaluateB(gammaE);
+	double C = evaluateC(gammaE, x);
+
+	double D = B * (17 - 3 * x * x / sqr(2 - x) - C);
+	double E = (12 * (2 - x) - 7 * x * x / (2 - x) - 3 * x * x * x * x / cube(2 - x));
+
+	double sigma = (4*re2 * alpha / (15.0 * epsilonG))*(D*sqrt(1-x)+E*log((1+sqrt(1-x))/sqrt(x)));
 	if (sigma != sigma) {
 		printf("sigmaNR = NaN in bremsstrahlung evaluator\n");
 		printLog("sigmaNR = NaN in bremsstrahlung evaluator\n");
 		exit(0);
 	}
+
+	//printf("sigma = %g\n", sigma);
+
+	if (sigma < 0) {
+		printf("sigmaNR = %g < 0 in bremsstrahlung evaluator\n", sigma);
+		printLog("sigmaNR = %g < 0 in bremsstrahlung evaluator\n", sigma);
+		//exit(0);
+		sigma = 0;
+	}
+
 	return sigma;
 }
 
@@ -220,8 +264,42 @@ double BremsstrahlungEvaluator::evaluateSigmaee(const double& gammaE, const doub
 
 }
 double BremsstrahlungEvaluator::evaluateSigmape(const double& gammaE, const double& epsilonG) {
-	//todo
-	return evaluateSigma1(gammaE, epsilonG);
+	//for ultrarelativistic limit
+	if (gammaE > 1E8) {
+		return evaluateSigma1(gammaE, epsilonG);
+	}
+
+	//Jauch Rorlich 15-95
+	if (epsilonG > gammaE - 1.0) {
+		return 0;
+	}
+	double betaE = sqrt(1.0 - 1.0 / (gammaE * gammaE));
+	double gamma1 = gammaE - epsilonG;
+	double beta1 = sqrt(1.0 - 1.0 / (gamma1 * gamma1));
+
+	double l = (1.0 / (betaE * gammaE)) * log((1 + betaE) / (1 - betaE));
+	double l1 = (1.0 / (beta1 * gamma1)) * log((1 + beta1) / (1 - beta1));
+	double L = (2.0 / (gammaE * betaE * gamma1 * beta1)) * log((gammaE * gamma1 * (1 + betaE * beta1) - 1.0) / (epsilonG));
+
+	double coef = (alpha * re2 / epsilonG) * beta1 * gamma1 / (betaE * gammaE);
+
+	double sigma = coef * (4.0/3.0 - (2.0/sqr(betaE*beta1))*(gammaE/gamma1 + gamma1/gammaE - 2/(gammaE*gamma1)) 
+		+ (l*gamma1/(gammaE*gammaE - 1.0) + l1*gammaE/(gamma1*gamma1 - 1.0) - l*l1)
+		+ L*(8.0*gammaE*gamma1/3.0 + epsilonG*epsilonG*(1.0/sqr(betaE*beta1) + 1.0) + 0.5*epsilonG*(l*(1+gamma1/(betaE*betaE*gammaE)) - l1*(1 + gammaE/(beta1*beta1*gamma1)) + 2*epsilonG/(betaE*betaE*gammaE*beta1*beta1*gamma1))));
+
+	if (sigma != sigma) {
+		printf("sigma p-e = NaN in bremsstrahlung evaluator\n");
+		printLog("sigma p-e = NaN in bremsstrahlung evaluator\n");
+		exit(0);
+	}
+
+	if (sigma < 0) {
+		printf("sigma p-e < 0 in bremsstrahlung evaluator\n");
+		printLog("sigma p-e < 0 in bremsstrahlung evaluator\n");
+		exit(0);
+	}
+
+	return sigma;
 }
 
 double BremsstrahlungEvaluator::evaluateSigma(const double& gammaE, const double& epsilonG) {

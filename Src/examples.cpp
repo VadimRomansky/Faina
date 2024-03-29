@@ -865,7 +865,7 @@ void evaluateBremsstrahlung() {
 	double electronConcentration = 1;
 	double rmax = 1.3E17;
 	double B = 0.6;
-	double temperature = 1E15;
+	double temperature = 1E10;
 	//SN2009bb
 	//const double distance = 40*3.08*1.0E24;
 	//AT2018
@@ -874,7 +874,7 @@ void evaluateBremsstrahlung() {
 	const double distance = 150 * 3.08 * 1.0E24;
 	double Emin = me_c2;
 	double Emax = me_c2 + 100 * kBoltzman * temperature;
-	int Ne = 200;
+	int Ne = 500;
 
 	MassiveParticleMaxwellJuttnerDistribution* electrons = new MassiveParticleMaxwellJuttnerDistribution(massElectron, temperature, electronConcentration);
 	//MassiveParticleMaxwellDistribution* electrons = new MassiveParticleMaxwellDistribution(massElectron, temperature, electronConcentration);
