@@ -271,13 +271,14 @@ Spectrum of radiation from Cygnus Cocoon, obtained with this code, and observati
 	\caption{Modeled energy flux energy density from Cygnus Cocoon and observational data}
 	\label{pion}
 \end{figure}
+
 \section{Bremsstrahlung}
 
-For evaluation of bremsstrahlung radiation, produced by electron-electron and electron-proton collisions, two classes inherited from RadiationEvaluator are implemented. BremsstrahlungThermalEvaluator uses simple analytical model, described in \cite{Rybicki}, for case with thermal distribution of particles. This class should be use for debug and calibration of the second one - BremsstrahlungEvaluator. This class uses more general aproach, which can be applied for any isotropic distribution of emitting electrons. For electron-ion cross section Bethe-Heitler formula is used \cite{BetheHeitler}, which is described in detail in \cite{JauchRohrlich}. Electron-electron scuttering is computed with formulae provided by \cite{Baring1999}. Public methods of this classes are lusted in Table
+For evaluation of bremsstrahlung radiation, produced by electron-electron and electron-proton collisions, two classes inherited from RadiationEvaluator are implemented. BremsstrahlungThermalEvaluator uses simple analytical model, described in \cite{Rybicki}, for case with thermal distribution of particles. This class should be use for debug and calibration of the second one - BremsstrahlungEvaluator. This class uses more general approach, which can be applied for any isotropic distribution of emitting electrons. For electron-ion cross section Bethe-Heitler formula is used \cite{BetheHeitler}, which is described in detail in \cite{JauchRohrlich}. Electron-electron scuttering is computed with formulae provided by \cite{Baring1999}. Public methods of this classes are lusted in Table \ref{bremsstrahlung}
 
 \begin{small}
 \topcaption{Public methods of classes BremsstrahlungThermalEvaluator and BremsstrahlungEvaluator}
-	\label{vremsstrahlung}
+	\label{bremsstrahlung}
 	\begin{xtabular}{|p{0.5\textwidth}|p{0.5\textwidth}|}  
 		\hline
 		\textbf{BremsstrahlungThermalEvaluator} & class for evaluation bremsstrahlung radiation from plasma with thermal distribution\\

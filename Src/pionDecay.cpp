@@ -164,7 +164,7 @@ double PionDecayEvaluator::sigmaPion(const double& energy)
 	//depends on model
 	double a1, a2, a3, a4, a5;
 	//Geant 4
-	double EtranGeant = (5E9) * 1.6E-12;
+	double EtranGeant = (1E14) * 1.6E-12;
 	a1 = 0.728;
 	a2 = 0.596;
 	a3 = 0.491;
