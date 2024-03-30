@@ -369,6 +369,7 @@ double PionDecayEvaluator::evaluateFluxFromIsotropicFunction(const double& photo
 
 		double sigma = sigmaGamma(photonFinalEnergy, protonKineticEnergy);
 
+		//todo 4 pi?
         result += photonFinalEnergy*(speed_of_light * protonBeta/(4*pi)) * sigma * protonDistribution->distribution(protonEnergy) * my_ambientConcentration * volume * dprotonEnergy / sqr(distance);
 
 		if (result != result) {
@@ -497,6 +498,7 @@ double PionDecayEvaluatorKelner::evaluateFluxFromIsotropicFunction(const double&
 
 		double sigma = (sigmaInelastic(protonKineticEnergy)/protonEnergy)*functionKelner(photonFinalEnergy/protonEnergy, protonEnergy);
 
+		//todo 4 pi?
         result += photonFinalEnergy*(speed_of_light * protonBeta / 4 * pi) * sigma * protonDistribution->distribution(protonEnergy) * my_ambientConcentration * volume * dprotonEnergy / sqr(distance);
 
 		if (result != result) {
