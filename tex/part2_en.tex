@@ -45,7 +45,7 @@ Classes for every specific type of electromagnetic radiation are described below
 \end{small}
 
 \section{Synchrotron radiation}\label{synchrotronSection}
-Class SynchrotronEvaluator is implemented for evaluation of synchrotron radiation. It uses standard approximation of continious spectrum, described in \cite{Ginzburg1975, Ghisellini} and in section \ref{synchrotronFormulaSection},  - it is valid for frequencies of emitted photons much higher than gyrofrequency of emitting particles. Also it is possible to take into account synchrotron self-absorption. Cylindrical geomtry, shown in Figure \ref{sphericalLayer} allows to integrate flux through the line of sight and take into account absorption inside the source. To create SynchrotronEvaluator object user should provide energy range of particles to be taken into account, numbers of integration points in it, and also two boolean parameters - for accounting self absorption and doppler shifting due to source matter velocity. Public methods of Synchrotron evaluator are listed in Table  \ref{SynchrotronEvaluator}. Example of evaliation of synchrotron radiation is shown in section \ref{quickStart}.
+Class SynchrotronEvaluator is implemented for evaluation of synchrotron radiation. It uses standard approximation of continious spectrum, described in \cite{Ginzburg1975, Ghisellini} and in section \ref{synchrotronFormulaSection},  - it is valid for frequencies of emitted photons much higher than gyrofrequency of emitting particles. Also it is possible to take into account synchrotron self-absorption. Cylindrical geomtry, shown in Figure \ref{sphericalLayer} allows to integrate flux through the line of sight and take into account absorption inside the source. To create SynchrotronEvaluator object user should provide energy range of particles to be taken into account, numbers of integration points in it, and also two boolean parameters - for accounting self absorption and doppler shifting due to source matter velocity. Public methods of Synchrotron evaluator are listed in Table  \ref{SynchrotronEvaluator}. Example of evaliation of synchrotron radiation is shown in section Running simple problem.
 \begin{table}[h]
 	\begin{center}
 	\begin{small}
@@ -108,7 +108,7 @@ At first let define main parameters of the source - it's size, distance to obser
 	double distance = 150*1E6*parsec;
 	
 	double Emin = me_c2;
-	double Emax = 1000 * me_c2;
+	double Emax = 10000 * me_c2;
 	int Ne = 200;
 	int Nmu = 20;
 	int Nphi = 4;
@@ -124,32 +124,36 @@ Then we create distribution of seed photons, using static method of class MultiP
 	    Emin, electronConcentration);
 \end{lstlisting}
 
-Then we create radiation source as homogenous disk and radiation evaluator for inverse Compton scattering. Let use the most universal method of comutation inverse compton radiation - ANISOTROPIC\_KLEIN\_NISHINA
+Then we create radiation source as homogenous disk and radiation evaluator for inverse Compton scattering. Let use following method of comutation inverse compton radiation - ISOTROPIC\_KLEIN\_NISHINA, via integration Klein-Nishina cross-section with isotropic photon and electron distributions.
 
 \begin{lstlisting}[language=c++]
-	RadiationSource* source = new SimpleFlatSource(
-	  electrons, B, sinTheta, rmax, rmax, distance);
+    RadiationSource* source = new SimpleFlatSource(
+        electrons, B, sinTheta, rmax, rmax, distance);
 	
-	InverseComptonEvaluator* comptonEvaluator = new 
-	    InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, 
-	    photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+    double Ephmin = 0.1 * 2.7 * kBoltzman;
+    double Ephmax = 10 * 10000 * kBoltzman;
+    InverseComptonEvaluator* comptonEvaluator = new 
+        InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, 
+        photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
+
 \end{lstlisting}
 
 If user don't want to use standard method to writing radiation in to the file, in case of one need result in some other units - electron-volts for energy and write energy density flux in units 
 $E F(E)$ - $\text{erg}~\text{cm}^{-2}\text{s}^{-1}$, user should write result to file manually. Let create grid for energy of radiated photons
 \begin{lstlisting}[language=c++]
-	int Nnu = 200;
-	double* E = new double[Nnu];
-	double* F = new double[Nnu];
-	double Ephmin = 0.01 * kBoltzman * 2.725;
-	double Ephmax = 2 * Emax;
-	double factor = pow(Ephmax / Ephmin, 1.0 / (Nnu - 1));
-	E[0] = Ephmin;
-	F[0] = 0;
-	for (int i = 1; i < Nnu; ++i) {
-		E[i] = E[i - 1] * factor;
-		F[i] = 0;
-	}
+    int Nnu = 100;
+    double* E = new double[Nnu];
+    double* F = new double[Nnu];
+
+    double EphFinalmin = 0.01 * kBoltzman * 2.725;
+    double EphFinalmax = 2 * Emax;
+    double factor = pow(EphFinalmax / EphFinalmin, 1.0 / (Nnu - 1));
+    E[0] = EphFinalmin;
+    F[0] = 0;
+    for (int i = 1; i < Nnu; ++i) {
+        E[i] = E[i - 1] * factor;
+        F[i] = 0;
+    }
 \end{lstlisting}
 and then compute energy density fluxes for this energies
 \begin{lstlisting}[language=c++]
@@ -172,7 +176,7 @@ and wrtie them to file transforming to the prefered units
 Spectrum of radiation, obtained with this code is shown in Figure \ref{compton}
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=12.5 cm]{./fig/compton.png} 
+	\includegraphics[width=12.5 cm]{./fig_en/compton.png} 
 	\caption{Energy density flux of inverse compton radiation}
 	\label{compton}
 \end{figure}
@@ -267,7 +271,7 @@ and then we can evaluate radiation energy density flux and write it into the fil
 Spectrum of radiation from Cygnus Cocoon, obtained with this code, and observational data by Fermi LAT, ARGO and HAWC \cite{Ackermann2011, Bartoli2014, Abeysekara2021} are shown in Figure \ref{pion}
 \begin{figure}
 	\centering
-	\includegraphics[width=12.5 cm]{./fig/compton.png} 
+	\includegraphics[width=12.5 cm]{./fig/pion.png} 
 	\caption{Modeled energy flux energy density from Cygnus Cocoon and observational data}
 	\label{pion}
 \end{figure}
@@ -372,7 +376,7 @@ Modeled energy density of energy flux is shown in Figure \ref{bremsstrahlungFigu
 
 \begin{figure}
 	\centering
-	\includegraphics[width=12.5 cm]{./fig/compton.png} 
+	\includegraphics[width=12.5 cm]{./fig_en/bremsstrahlung.png} 
 	\caption{Modeled spectrum of bremsstrahlung radiation of hot thermal plasma}
 	\label{bremsstrahlungFigure}
 \end{figure}

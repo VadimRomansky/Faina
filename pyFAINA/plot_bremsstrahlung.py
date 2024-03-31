@@ -3,7 +3,7 @@ from matplotlib import animation
 from pylab import *
 import numpy as np
 
-def plot_radiation():
+def plot_bremsstrahlung():
     radiationFile = open('../outputBremE.dat','r')
     lines = radiationFile.readlines()
     N = len(lines)

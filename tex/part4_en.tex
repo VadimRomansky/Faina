@@ -309,7 +309,7 @@ Process of synchrotron radiation of relativistic electrons is well-known and des
 Emissivity (spectral density of energy radiated per unit time) per unit volume is
 
 \begin{equation} \label{emission}
-	I(\nu)=\int_{E_{min}}^{E_{max}} dE \frac {\sqrt {3}{e}^{3}n F(E) B \sin ( \phi)}{{m_e}{c}^{2}}
+	\frac{dW(\nu)}{dt d\nu dV}=\int dE_e \frac {\sqrt {3}{e}^{3}n F(E_e) B \sin ( \phi)}{{m_e}{c}^{2}}
 	\frac{\nu}{\nu_c}\int_{\frac {\nu}{\nu_c}}^{\infty }\it K_{5/3}(x)dx,
 \end{equation}
 
@@ -320,6 +320,48 @@ Absorption coefficient for photons, propagating along line of sight is
 	k(\nu)=\int_{E_{min}}^{E_{max}}dE\frac {\sqrt {3}{e}^{3}}{8\pi m_e \nu^2}\frac{n B\sin(\phi)}{E^2}
 	\frac{d}{dE} E^2 F(E)\frac {\nu}{ \nu_c}\int_{\frac {\nu}{ \nu_c}}^{\infty }K_{5/3}(x) dx.
 \end{equation}
+
+To evaluate observable flux in case of neglectable absorption one should integrate \ref{emission} through the volume of the source and divide result by square of the distance to the source $D$. Otherwise, one should at first solve differential equation for flux $\Phi=\frac{dW}{dt d\nu dS}$ through z direction,
+
+\begin{equation}
+\frac{d\Phi(\nu,z)}{dz} = \frac{dW(\nu)}{dt d\nu dV} - k(\nu)\Phi(\nu,z)
+\end{equation}
+
+and then integrate it through transversal directions
+
+\begin{equation}
+	F(\nu)=\frac{1}{D^2}\int dS(x,y) \Phi(\nu, x,y,z_{max})
+\end{equation}
+
+where $z_{max}$ - coordinate of surface of the source.
+
+\subsection*{Synchrotron losses}
+
+In case of relativistic isotropic distribution of electrons, average energy loss by one electron is described s
+
+\begin{equation}
+	\frac{dE}{dt} = -\frac{4}{3} \sigma_T c \frac{B^2}{8 \pi} \gamma_e^2
+\end{equation}
+
+where $\sigma_T$ is Thompson cross-section, and $\gamma_e$ is electron lorentz-factor. This equation can be rewritten as
+
+\begin{equation} \label{synchlosses}
+	\frac{dE}{dt} = - \frac{4}{9} \frac{e^4 B^2}{m^4 c^7} E^2
+\end{equation}
+
+Let introduce $l = \frac{4}{9} \frac{e^4 B^2}{m^4 c^7}$, so energy of particle with initial energy $E_0$ can be expressed as
+
+\begin{equation}
+	E(t) = \frac{E_0}{1 + E_0 l t}
+\end{equation}
+
+Now let evaluate how electron distribution function would change due to synchrotron losses. If initial distribution function is $F_0(E_0)$, end every particle energy losses are described with equation \ref{synchlosses}, then particles just migrate to lower energies and distribution function changes as
+
+\begin{equation}
+	F(E,t) = F_0\left(E_0(E,t)\right) dE_0/dE = F_0\left(\frac{E}{1-E l t}\right)\frac{1}{\left(1 - E l t\right)^2}
+\end{equation}
+
+If $l$ is not constant it time, then in all equations above multiple $l t$ should be replaced with $\int_0^t l(t')dt'$.
 
 \section{Pion decay}
 
@@ -396,11 +438,83 @@ And finally $A_{max}$ can be expressed as $5.9\times\frac{\sigma_{\pi}}{E_{max}}
 	\frac{dN}{dt d\epsilon dV} = c n_{amb} \int_{\epsilon}^{\inf}\frac{d\sigma_{\gamma}\left(E_p, \epsilon\right)}{d\epsilon} F(E_p) dE_p
 \end{equation} 
 
-\section{Bremsstahlung}
+\section{Bremsstrahlung}
+
+For simple case bremssrahlung from thermal not relativistic plasma, we use equations provided by \cite{Rybicki}. Amount of energy, emitted per unit energy per unit time per unit volume is
+
+\begin{equation}
+	\frac{dW}{dt d\epsilon dV} = \frac{2^5 \pi e^6}{3 h m c^3}\sqrt{\frac{2\pi}{3 k m}}T^{-1/2}Z^2n_e n_i\exp\left(-\frac{\epsilon}{kT}\right)\bar{G}
+\end{equation}
+
+where $T$ is plasma temperature, $n_e, n_i$ are electron and ion concentrations respectively, $Z$ is charge number of ions and $\bar{G}$ is velocity averaged gaunt factor. Approximate formulas for $\bar{G}$ are provided by Novikov and Thorne \cite{NovikovThorne} and corrected by Rybicki and Lightman \cite{Rybicki}. Formulas for different scattering regimes - for small-angle and, large-angle scattering, and also for classical, and for regime when quantum effects and uncertainty principle (U.P.) is important, are shown in Figure \ref{gaunt}, where $R_y$ is Rydberg constant and $\xi$ is Euler-Mascheroni constant.
 
 \begin{figure}
 	\centering
-	\includegraphics[width=12.5 cm]{./fig/gaunt.png} 
+	\includegraphics[width=11.5 cm]{./fig_en/gaunt.png} 
 	\caption{Gaunt factor from Rybicki and Lightman \cite{Rybicki} (corrected), originally from Novikov and Thorne \cite{NovikovThorne}}
 	\label{gaunt}
 \end{figure}
+
+For case of general isotropic distributions of electrons we use approach described in \cite{Baring1999}. Number of emitted photons per unit energy per unit time per unit volume by electons distribution is
+
+\begin{equation}
+	\frac{dN}{dt d\epsilon dV} = \int\frac{dN_{\gamma}\left(E_e, \epsilon\right)}{dt d\epsilon} F(E_e) dE_e
+\end{equation}
+
+where $\frac{dN_{\gamma}\left(E_e, \epsilon\right)}{dt d\epsilon}$ is number of photons emitted by single electron with energy $E_e$. It is defined by equation
+
+\begin{equation}
+	\frac{dN_{\gamma}\left(E_e, \epsilon\right)}{dt d\epsilon} = v_e \left(\left(\sum n_i Z_i^2\right)\sigma_{e-p} + n_e\sigma_{e-e}\right)
+\end{equation}
+
+where $v_e$ is electron velocity, $n_i, Z_i$ are number density and charge number of each ion species, and $\sigma_{e-p}$ and $\sigma_{e-e}$ are electron-proton and electron-electron scattering cross-sections respectively.
+
+Electron-electron cross-section for relativistic regime ($E_e > 2~\text{MeV}$) can be expressed in following form, derived in \cite{BaierJETP1967} : $\sigma_{e-e}(E_e,\epsilon) = \left(\sigma_1 + \sigma_2\right)A\left(\epsilon, E_e/m_e c^2\right)$, and
+
+\begin{equation}\label{sigma1}
+	\sigma_1 = \frac{4 r_e^2 \alpha}{\epsilon}\left(1+\left(\frac{1}{3}-\frac{\epsilon}{\gamma_e}\right)\left(1-\frac{\epsilon}{\gamma_e}\right)\right)\left(\ln\left(2\gamma_e\frac{\gamma_e - \epsilon}{\epsilon}\right)-\frac{1}{2}\right)
+\end{equation}
+
+while expression for $\sigma_2$ is splitted into two cases. For $\epsilon < 1/2$ it is
+
+\begin{equation}
+	\begin{split}
+	\sigma_2 = \frac{r_e^2\alpha}{3\epsilon} \left( 16 \left( 1-\epsilon+\epsilon^2 \right) \ln\frac{\gamma_e}{\epsilon}-\frac{1}{\epsilon^2}+\frac{3}{\epsilon}-4+4\epsilon-8\epsilon^2 \right. \\ \left. - 2\left( 1-2\epsilon \right) \ln \left( 1-2\epsilon \right) \left( \frac{1}{4\epsilon^3}-\frac{1}{2\epsilon^2}+\frac{3}{\epsilon}-2+4\epsilon \right) \right)
+	\end{split}
+\end{equation}
+
+and for $\epsilon > 1/2$
+
+\begin{equation}
+	\sigma_2 = \frac{r_e^2\alpha}{3\epsilon}\frac{2}{\epsilon}\left(\left(4-\frac{1}{\epsilon}+\frac{1}{4\epsilon^2}\right)\ln\left(2\gamma_e\right)-2+\frac{2}{\epsilon}-\frac{5}{8\epsilon^2}\right)
+\end{equation}
+
+where $r_e$ is classical electro nradius and $\alpha$ is the fine structure constant. Correction factor $A(\epsilon, \gamma_e)$ is
+
+\begin{equation}
+	A\left(\epsilon, \gamma_e\right)=1-\frac{8}{3}\frac{\left(\gamma_e-1\right)^5}{\gamma_e + 1}\left(\frac{\epsilon}{\gamma_e}\right)^{1/3}
+\end{equation}
+
+In not relativistic regime, electron-electron scattering cross-section is 
+
+\begin{equation}
+	\sigma_{NR}=\frac{4r_e^2\alpha}{15\epsilon}F\left(\frac{4\epsilon}{\gamma_e^2-1}\right)
+\end{equation}
+
+where
+
+\begin{equation}
+	\begin{split}
+	F(x) = \left(1+\frac{1}{2}\left(\gamma_e^2-1\right)\right)\left(17-\frac{3x^2}{\left(2-x\right)^2}-\frac{10x\gamma_e\beta_e\left(2+\gamma_e\beta_e\right)}{1+x^2\left(\gamma_e^2-1\right)}\right)\sqrt{1-x} \\ +\left(12\left(2-x\right)-\frac{7x^2}{2-x}-\frac{3x^4}{\left(2-x\right)^3}\right)\ln\frac{1+\sqrt{1-x}}{\sqrt{x}}
+	\end{split}
+\end{equation}
+
+Cross-section for electron-proton scattering is provided by Bethe and Heitler \cite{BetheHeitler}. Note, that in the ultrarelativistic electron it is equal to $\sigma_1$ \ref{sigma1} \cite{JauchRohrlich}. In general, Bethe-Heitler cross-section is
+
+\begin{equation}
+	\begin{split}
+	\sigma_{e-p} = \frac{r_e^2\alpha}{\epsilon}\frac{p'}{p}\left(\frac{4}{3}-\frac{2}{\left(\beta_e\beta_e'\right)^2}\left(\frac{\gamma_e}{\gamma_e'}+\frac{\gamma_e'}{\gamma_e}-\frac{2}{\gamma_e\gamma_e'}\right) + \right. \\ \left. \left(l\frac{\gamma_e'}{\gamma_e^2-1}+l'\frac{\gamma_e}{\gamma_e'^2-1}-l l'\right) + L\left(\frac{8}{3}\gamma_e\gamma_e'+\epsilon^2\left(\frac{1}{\left(\beta_e\beta_e'\right)^2+1}\right)+ \right. \right. \\ \left. \left. \frac{1}{2}\epsilon\left(l\left(1+\frac{\gamma_e'}{\beta_e^2\gamma_e}\right)-l'\left(1+\frac{\gamma_e}{\beta_e'^2\gamma_e'}\right)+2\frac{\epsilon}{\beta_e^2\gamma_e\beta_e'^2\gamma_e'}\right)\right)\right)
+	\end{split}
+\end{equation}
+
+Following notations are used: $\gamma_e$ - lorentz-factor of initial electron, $\beta_e$ - it's unitless velocity, $l = \frac{1}{\beta_e\gamma_e}\ln\frac{1+\beta_e}{1-\beta_e}$, primed values are related to scattered electron and $\gamma_e = \gamma_e' + \epsilon$. And finally $L = \frac{2}{\beta_e\gamma_e\beta_e'\gamma_e'}\ln\frac{\gamma_e\gamma_e'\left(1+\beta_e\beta_e'\right)-1}{\epsilon}$.
