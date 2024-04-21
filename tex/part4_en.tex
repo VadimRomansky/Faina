@@ -203,7 +203,7 @@ Expressions for partial derivatives of $\epsilon'$, $\mu'$, $V'$, and especially
 		\frac{n'_{m}(\epsilon',\mu',\phi')}{n_{m}(\epsilon,\mu,\phi)}= \frac{\gamma(\epsilon-\mu\sqrt{{\epsilon}^2-m^2}\beta)(\gamma^2\epsilon^2-m^2 + \mu^2 ((\epsilon^2-m^2)(\gamma^2-1)) - 2\mu\epsilon\gamma^2\beta\sqrt{\epsilon^2-m^2})^{3/2}}{\epsilon(((\gamma^2-1)(\epsilon^2-m^2)\mu^2 + \gamma^2\epsilon^2 - m^2)\sqrt{\epsilon^2-m^2}-2\mu\epsilon\gamma(\epsilon^2 - m^2)\sqrt{\gamma^2 - 1})}
 \end{equation}
 
-\section{Inverse Compton scattering}\label{comptonFormulaSection}
+\section{Inverse Compton scattering}\label{ComptonFormulaeSection}
 
 Consider scattering of photons on the one electron, moving along z axis, following \cite{Dubus}. Klein-Nishina cross-section in electron's rest frame is
 
@@ -363,7 +363,7 @@ Now let evaluate how electron distribution function would change due to synchrot
 
 If $l$ is not constant it time, then in all equations above multiple $l t$ should be replaced with $\int_0^t l(t')dt'$.
 
-\section{Pion decay}
+\section{Pion decay}\label{PionFormulaeSection}
 
 Two ways of evaluation spectrum of photons due to pion decay in proton-proton interactions are implemented in the code. More simple is provided by work \cite{Kelner}. Number of photons emitted in one collision is assumed to be proportional to total cross-section of inelastic p-p scattering, which is approximated as \cite{Kafexhiu}
 
@@ -438,7 +438,7 @@ And finally $A_{max}$ can be expressed as $5.9\times\frac{\sigma_{\pi}}{E_{max}}
 	\frac{dN}{dt d\epsilon dV} = c n_{amb} \int_{\epsilon}^{\inf}\frac{d\sigma_{\gamma}\left(E_p, \epsilon\right)}{d\epsilon} F(E_p) dE_p
 \end{equation} 
 
-\section{Bremsstrahlung}
+\section{Bremsstrahlung}\label{BremsstrahlungFormulaeSection}
 
 For simple case bremssrahlung from thermal not relativistic plasma, we use equations provided by \cite{Rybicki}. Amount of energy, emitted per unit energy per unit time per unit volume is
 
@@ -469,7 +469,13 @@ where $\frac{dN_{\gamma}\left(E_e, \epsilon\right)}{dt d\epsilon}$ is number of 
 
 where $v_e$ is electron velocity, $n_i, Z_i$ are number density and charge number of each ion species, and $\sigma_{e-p}$ and $\sigma_{e-e}$ are electron-proton and electron-electron scattering cross-sections respectively.
 
-Electron-electron cross-section for relativistic regime ($E_e > 2~\text{MeV}$) can be expressed in following form, derived in \cite{BaierJETP1967} : $\sigma_{e-e}(E_e,\epsilon) = \left(\sigma_1 + \sigma_2\right)A\left(\epsilon, E_e/m_e c^2\right)$, and
+Electron-electron cross-section for relativistic regime ($E_e > 2~\text{MeV}$) can be expressed in following form, derived in \cite{BaierJETP1967} :
+
+\begin{equation}
+\sigma_{e-e}(E_e,\epsilon) = \left(\sigma_1 + \sigma_2\right)A\left(\epsilon, E_e/m_e c^2\right)
+\end{equation}
+
+First term in the expression is defined as
 
 \begin{equation}\label{sigma1}
 	\sigma_1 = \frac{4 r_e^2 \alpha}{\epsilon}\left(1+\left(\frac{1}{3}-\frac{\epsilon}{\gamma_e}\right)\left(1-\frac{\epsilon}{\gamma_e}\right)\right)\left(\ln\left(2\gamma_e\frac{\gamma_e - \epsilon}{\epsilon}\right)-\frac{1}{2}\right)
@@ -489,7 +495,7 @@ and for $\epsilon > 1/2$
 	\sigma_2 = \frac{r_e^2\alpha}{3\epsilon}\frac{2}{\epsilon}\left(\left(4-\frac{1}{\epsilon}+\frac{1}{4\epsilon^2}\right)\ln\left(2\gamma_e\right)-2+\frac{2}{\epsilon}-\frac{5}{8\epsilon^2}\right)
 \end{equation}
 
-where $r_e$ is classical electro nradius and $\alpha$ is the fine structure constant. Correction factor $A(\epsilon, \gamma_e)$ is
+where $r_e$ is classical electro radius and $\alpha$ is the fine structure constant. Correction factor $A(\epsilon, \gamma_e)$ is
 
 \begin{equation}
 	A\left(\epsilon, \gamma_e\right)=1-\frac{8}{3}\frac{\left(\gamma_e-1\right)^5}{\gamma_e + 1}\left(\frac{\epsilon}{\gamma_e}\right)^{1/3}

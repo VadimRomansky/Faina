@@ -66,7 +66,7 @@ Class SynchrotronEvaluator is implemented for evaluation of synchrotron radiatio
 \section{Inverse Compton scattering}
 Class InverseComptonEvaluator is implemented for evaluation of radiation produced in inverce compton scattering. Also it has one derived class InverseComptonEvaluatorWithSource. The difference between them is that in the first one distribution of seed photons is constant inside the source, and in the second one photons number density is change proportionaly inverse square of the distance to the source of seed photons.
 
-There are four different algorithmes of evaluation IC radiation that can be used by InverseComptonEvaluator. They are listed by enum-type ComptonSolverType, having following values:
+There are four different algorithmes of evaluation IC radiation that can be used by InverseComptonEvaluator, their formulae are described in section \ref{ComptonFormulaeSection}. They are listed by enum-type ComptonSolverType, having following values:
 
 \begin{itemize}
 	\item ISOTROPIC\_THOMSON - simple model of scattering in thomson regime with power-law distribution of electrons and thermal distribution of seed photons, as described in \cite{Ginzburg1975} ch 17, p. 466.
@@ -183,7 +183,7 @@ Spectrum of radiation, obtained with this code is shown in Figure \ref{compton}
 
 \section{Pion decay}
 
-For evaluation of gamma-radiation, produced in proton-proton inelastic collision due to pion decay, abstract class PionDecayEvaluatorBase is implemented. Also there are two derived class for different methods of computation: PionDecayEvaluatorKelner, in wich cross-section of gamma-photon remission considered a fraction of cross-section of inelastic p-p interaction as it is described in paper \cite{Kelner}, and PionDecayEvaluator in which more accurate evaluation of cross-section at low energy is used, see \cite{Kafexhiu}. In both models it is assumed, that high energy protons with isotropic distribution are scattered on cold protons of ambient medium, and time of energy losses of fast protons due to p-p scattering is mush larger than time of particle confinment in the source, so each proton can be scattered at most one time.
+For evaluation of gamma-radiation, produced in proton-proton inelastic collision due to pion decay, abstract class PionDecayEvaluatorBase is implemented. Also there are two derived class for different methods of computation: PionDecayEvaluatorKelner, in wich cross-section of gamma-photon remission considered a fraction of cross-section of inelastic p-p interaction as it is described in paper \cite{Kelner}, and PionDecayEvaluator in which more accurate evaluation of cross-section at low energy is used, see \cite{Kafexhiu}. Formulae are described in details in section \ref{PionFormulaeSection}. In both models it is assumed, that high energy protons with isotropic distribution are scattered on cold protons of ambient medium, and time of energy losses of fast protons due to p-p scattering is mush larger than time of particle confinment in the source, so each proton can be scattered at most one time.
 
 To create object of pion decay evaluator user should provide energy range of particles to be taken into account, number of integration points in it and number density of ambient protons. Public methods of class PionEvaluatorBase and derived classes are listed in Table \ref{pionDecay}
 
@@ -278,7 +278,7 @@ Spectrum of radiation from Cygnus Cocoon, obtained with this code, and observati
 
 \section{Bremsstrahlung}
 
-For evaluation of bremsstrahlung radiation, produced by electron-electron and electron-proton collisions, two classes inherited from RadiationEvaluator are implemented. BremsstrahlungThermalEvaluator uses simple analytical model, described in \cite{Rybicki}, for case with thermal distribution of particles. This class should be use for debug and calibration of the second one - BremsstrahlungEvaluator. This class uses more general approach, which can be applied for any isotropic distribution of emitting electrons. For electron-ion cross section Bethe-Heitler formula is used \cite{BetheHeitler}, which is described in detail in \cite{JauchRohrlich}. Electron-electron scuttering is computed with formulae provided by \cite{Baring1999}. Public methods of this classes are lusted in Table \ref{bremsstrahlung}
+For evaluation of bremsstrahlung radiation, produced by electron-electron and electron-proton collisions, two classes inherited from RadiationEvaluator are implemented. BremsstrahlungThermalEvaluator uses simple analytical model, described in \cite{Rybicki}, for case with thermal distribution of particles. This class should be use for debug and calibration of the second one - BremsstrahlungEvaluator. This class uses more general approach, which can be applied for any isotropic distribution of emitting electrons. For electron-ion cross section Bethe-Heitler formula is used \cite{BetheHeitler}, which is described in detail in \cite{JauchRohrlich}. Electron-electron scattering is computed with formulae provided by \cite{Baring1999}. Formulaes are described in section \ref{BremsstrahlungFormulaeSection} and public methods of this classes are listed in Table \ref{bremsstrahlung}
 
 \begin{small}
 \topcaption{Public methods of classes BremsstrahlungThermalEvaluator and BremsstrahlungEvaluator}

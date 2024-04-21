@@ -204,7 +204,7 @@ V'=\frac{V}{\gamma(1-\mu\beta\sqrt{{\epsilon}^2-m^2 c^4}/\epsilon)}
 \frac{n'_{m}(\epsilon',\mu',\phi')}{n_{m}(\epsilon,\mu,\phi)}= \frac{\gamma(\epsilon-\mu\sqrt{{\epsilon}^2-m^2}\beta)(\gamma^2\epsilon^2-m^2 + \mu^2 ((\epsilon^2-m^2)(\gamma^2-1)) - 2\mu\epsilon\gamma^2\beta\sqrt{\epsilon^2-m^2})^{3/2}}{\epsilon(((\gamma^2-1)(\epsilon^2-m^2)\mu^2 + \gamma^2\epsilon^2 - m^2)\sqrt{\epsilon^2-m^2}-2\mu\epsilon\gamma(\epsilon^2 - m^2)\sqrt{\gamma^2 - 1})}
 \end{equation}
 
-\section{Комптоновское рассеяние}
+\section{Комптоновское рассеяние}\label{ComptonFormulae}
 Рассмотрим рассеяние фотонов на одном электроне, движущемся вдоль ось z, см \cite{Dubus}. Сечение Клейна-Нишины в системе покоя электрона равно
 
 \begin{equation}\label{KleinNishina}
@@ -303,7 +303,7 @@ F(\epsilon_1)=\frac{\epsilon_1}{D^2}\int \frac{2 \pi r_e^2 \beta_e c}{\epsilon_0
 
 где $\Gamma=4\epsilon_0\gamma_e/m_e c^2$, $q=\epsilon_1/((\gamma_e m_e c^2-\epsilon_1)\Gamma)$.
 
-\section{Синхротронное излучение}
+\section{Синхротронное излучение}\label{SynchrotronFormulae}
 Процесс синхротронного излучения хороши известен и описан в классических работах, например \cite{Ginzburg1975}. Но так же возможен и процесс синхротронного поглощения. Сечение этого процесса описано в работе Гизеллини и Свенсона \cite{Ghisellini1991}. В коде вычисляются спектральная плотность мощности излучения единицы объема и линейный коэффициент поглощения, описанные в работе \cite{Ghisellini}. Спектральная плотность мощности излучения единицы объема вещества определеяется формулой
 
 \begin{equation} \label{emission}
@@ -319,6 +319,207 @@ F(\epsilon_1)=\frac{\epsilon_1}{D^2}\int \frac{2 \pi r_e^2 \beta_e c}{\epsilon_0
 	\frac{d}{dE} E^2 F(E)\frac {\nu}{ \nu_c}\int_{\frac {\nu}{ \nu_c}}^{\infty }K_{5/3}(x) dx.
 \end{equation}
 
-\section{Распад пионов}
+Чтобы вычислить наблюдаемый поток в случае пренебрежимо малого самопоглощения, необходимо проинтегрировать мощность излучения  \ref{emission} по объему источника и поделить результат на квадрат расстояния до источника  $D$. Если самопоглощение значительно, нужно сначала решить дифференциальное уравнение для потока излучения $\Phi=\frac{dW}{dt d\nu dS}$ вдоль луча зрения,
 
-\section{Тормозное излучение}
+\begin{equation}
+	\frac{d\Phi(\nu,z)}{dz} = \frac{dW(\nu)}{dt d\nu dV} - k(\nu)\Phi(\nu,z)
+\end{equation}
+
+а затем проинтегрировать по поперечным направлениям
+
+\begin{equation}
+	F(\nu)=\frac{1}{D^2}\int dS(x,y) \Phi(\nu, x,y,z_{max})
+\end{equation}
+
+где $z_{max}$ - координата поверхности источника.
+
+\subsection*{Синхротронные потери}
+
+В случае изотропного релятивистского распределения электронов, средняя потеря одним электроном описывается как
+
+\begin{equation}
+	\frac{dE}{dt} = -\frac{4}{3} \sigma_T c \frac{B^2}{8 \pi} \gamma_e^2
+\end{equation}
+
+где $\sigma_T$ Томпсоновское сечение, а $\gamma_e$ Лоренц-фактор электрона. Можно переписать это выражение как
+
+\begin{equation} \label{synchlosses}
+	\frac{dE}{dt} = - \frac{4}{9} \frac{e^4 B^2}{m^4 c^7} E^2
+\end{equation}
+
+Введем параметр, характеризующий скорость потерь $l = \frac{4}{9} \frac{e^4 B^2}{m^4 c^7}$, тогда в момент времени $t$ энергия частицы с начальной энергией $E_0$ будет равна
+
+\begin{equation}
+	E(t) = \frac{E_0}{1 + E_0 l t}
+\end{equation}
+
+Теперь вычислим как изменяется функция распределения электронов из-за синхротронных потерь. Если начальная функция распределения равна $F_0(E_0)$, и потери энергии каждой частицы описываются уравнением \ref{synchlosses}, тогда частицы мигрируют к более низким энергиям и с учетом сохранения числа частиц, функция распределения меняется как
+
+\begin{equation}
+	F(E,t) = F_0\left(E_0(E,t)\right) dE_0/dE = F_0\left(\frac{E}{1-E l t}\right)\frac{1}{\left(1 - E l t\right)^2}
+\end{equation}
+
+Если величина $l$ не постоянна во времени, тогда во всех уравнениях выше нужно заменить множитель $l t$ на интеграл $\int_0^t l(t')dt'$.
+
+\section{Распад пионов}\label{PionFormulae}
+
+В коде реализовано два способа вычисления спектра гамма фотонов, излученных в процессе распада пионов образовавшихся в результате протон-протонного рассеяния. Более простой описан в работе \cite{Kelner}. Количество фотонов излученных в результате одного рассеяния считается пропорциональным полному сечению неупругого протон-протонного рассеяния, которое можно аппроксимировать следующим образом \cite{Kafexhiu}
+
+\begin{equation}\label{sigmainel}
+	\sigma_{inel} = \left(30.7 - 0.96\ln\left(E_p/E_{th}\right) + 0.18\ln^2\left(E_p/E_{th}\right) \right)\times\left(1 - \left(E_{th}/E_p\right)^{1.9}\right)^3\cdot10^{-27} \text{см}^{2}
+\end{equation}
+
+где $E_p$ кинетическая энергия ускоренного протона, $E_{th}$ пороговая энергия реакции $E_{th} = 2m_{\pi}+m^2_{\pi}/2m_p \approx 0.2797~\text{GeV}$
+
+Количество фотонов излученных в единицу энергии $\left(\epsilon, \epsilon+d\epsilon\right)$ в единицу объема в единицу времени равно
+
+\begin{equation}
+	\frac{dN}{dt d\epsilon dV} = c n_{amb} \int_{\epsilon}^{\inf}\sigma_{inel}(E_p)F(E_p)F_{\gamma}(\epsilon/E_p, E_p) dE_p/E_p
+\end{equation} 
+
+где $n_{amb}$ концентрация фоновых протонов, а функция $F_{\gamma}(\epsilon/E_p, E_p)$ определена как
+
+\begin{equation}
+	F_{\gamma}(x, E_p) = B \frac{\ln(x)}{x} \left(\frac{1-x^\beta}{1+k x^{\beta}\left(1-x^\beta\right)}\right)^4\times\left(\frac{1}{\ln(x)}-\frac{4\beta x^\beta}{1-x^\beta}-\frac{4 k\beta x^\beta\left(1-2x^\beta\right)}{1+k x^\beta\left(1-x^\beta\right)}\right)
+\end{equation}
+
+Параметры $B, \beta, k$ зависят только от энергии ускоренного протона и в диапазоне энергий $0.1~\text{ТэВ} < E_p < 10^5~\text{ТэВ}$ могут быть выражены как $B = 1.3 + 0.14 L + 0.011 L^2$, $\beta = 1.0/\left(1.79 + 0.11 L  + 0.008 L^2\right)$ и $k = 1.0/\left(0.801 + 0.049 L + 0.014 L^2\right)$, где $L = \ln\left(E_p/1~\text{ТэВ}\right)$
+
+В более сложной модели, описанной в работе \cite{Kafexhiu}, на низких энергиях ($E_p < 2~\text{ГэВ}$) используется непосредственно сечение рождение пионов, в то время как на высоких используется доля полного сечения неупругого рассеяния $\sigma_{inel}$, но с более точными поправочными коэффициентами.
+
+На низких энергиях сечение рождения пионов  $\sigma_{\pi}$ складывается из сечений трех процессов - с рождением одного пиона $pp\rightarrow pp\pi^0$ и с рождением двух пионов $pp\rightarrow pp2\pi^0$ и $pp\rightarrow \{pn,D\}\pi^{+}\pi^0$. Первое сечение выражается как
+
+\begin{equation}
+	\sigma_{1\pi} = 7.66\times10^{-30}\eta^{1.95}\left(1 + \eta + \eta^5\right)\times\left(f_{BW}\left(\sqrt s\right)\right)^{1.86}~\text{см}^{2}
+\end{equation}
+
+где $s = 2 m_p \left(E_p+2m_p\right)$ квадрат энергии в системе центра инерции, $\eta$ нормированный максимальный импульс пиона
+
+\begin{equation}
+	\eta = \frac{\sqrt{\left(s-m_{\pi}^2-4m_p^2\right)^2-16 m_{\pi}^2m_p^2}}{2m_{\pi}\sqrt{s}}
+\end{equation}
+
+и $f_{BW}$ релятивистское распределение Брейта-Вигнера
+
+\begin{equation}
+	f_{BW}\left(\sqrt{s}\right)=\frac{m_p K}{\left(\left(\sqrt{s}-m_p\right)^2-M_{res}^2\right)^2+M_{res}^2\Gamma_{res}^2}
+\end{equation}
+
+где $K = \sqrt{8}M_{res}\Gamma_{res}\gamma/\pi\sqrt{M_{res}^2+\gamma}$ и $\gamma = \sqrt{M_{res}^2\left(M_{res}^2+\Gamma_{res}^2\right)}$. Значения используемых параметров равны $M_{res} = 1.1883~\text{ГэВ}$ и $\Gamma_{res} = 0.2264~\text{ГэВ}$.
+
+Полное сечение процессов, в которых рождаются два пиона, равно
+
+\begin{equation}
+	\sigma_{2\pi}=\frac{5.7\cdot10^{-27}}{1+\exp(-9.3\left(E_p/1~\text{GeV} - 1.4\right))}
+\end{equation}
+
+Для энергий $E_p > 0.56~\text{GeV}$, а для более низких энергий оно равно нулю.
+
+Для энергий выше 2 ГэВ, сечение рождения пиона вычисляется через среднее число рождения пионов при одном столконовении и полное сечение неупругого рассеяния \ref{sigmainel} $\sigma_{\pi} = \braket{n_{\pi}} \sigma_{inel}$. Для энергий меньше 5 ГэВ среднее число рожденных пионов равно $\braket{n_{\pi}} = -0.006 + 0.237 Q - 0.023 Q^2$ где $Q = \left(E_p - E_{th}\right)/m_p$. Для энергий выше 5 ГэВ is $\braket{n_{\pi}} = a_1 \xi^{a_4}\left(1 + \exp\left(-a_2\xi^{a_5}\right)\right)\left(1-\exp\left(-a_3\xi^{1/4}\right)\right)$, где $\xi = \left(E_p/1~\text{ГэВ} - 3\right)/m_p$ и коэффициенты $a_1-a_5$ вычислены с численным моделированием с помощью кода GEANT \cite{AllisonGeant2006}, $a_1 = 0.728, a_2 = 0.596, a_3 = 0.491, a_4 = 0.2503, a_5 = 0.117$.
+
+Теперь, зная $\sigma_{\pi}$, можно выразить сечение излучения фотона в единицу энергии
+
+\begin{equation}
+	\frac{d\sigma_{\gamma}\left(E_p, \epsilon\right)}{d\epsilon} = A_{max}\left(E_p\right)\times F\left(E_p, \epsilon\right)
+\end{equation}
+
+где $A_{max}(E_p)$ максимум сечения по всем энергиям фотона, который зависит только от энергии протона, а $F\left(E_p,\epsilon\right)$ описывает форму спектра. Для явного выражения $F\left(E_p, \epsilon\right)$ нужно сначала ввести несколько величин, описывающих кинематику. $Y=\epsilon+\frac{m_{\pi}^2}{4 \epsilon}$, $Y_{max}=\epsilon_{max}+\frac{m_{\pi}^2}{4 \epsilon_{max}}$, где $\epsilon_{max}$ максимальная энергия излученного фотона при данной энергии протона, $X=\frac{Y-m_{\pi}}{Y_{max}-m_{\pi}}$. Энергия пиона в системе центра инерции равна $E_{CM}=\frac{s-4m_p^2+m_{\pi}^2}{s\sqrt{s}}$, а максимальная энергия пиона в лабораторной системе -  $E_{max}=\gamma_{CM}\left(E_{CM}+\sqrt{E_{CM}-m_{\pi}^2}\beta_{CM}\right)$, где лоренц-фактор центра инерции в лабораторной системе $\gamma_{CM}=\frac{E_p+2m_p}{\sqrt{s}}$ и $\beta_{CM}=\sqrt{1-1/\gamma_{CM}^2}$. Теперь выражение для $F\left(E_p,\epsilon\right)$ можно записать как
+\begin{equation}
+	F\left(E_p,\epsilon\right) = \frac{\left(1-X^{\alpha(E_p)}\right)^{\beta(E_p)}}{\left(1+X Y_{max}/\lambda m_{\pi}\right)^{\gamma(E_p)}}
+\end{equation}
+
+Янвые выражения для $\lambda, \alpha(E_p), \beta(E_p), \gamma(E_p)$ можно найти в работе \cite{Kafexhiu}.
+
+Величина $A_{max}$ может быть выражена как $5.9\times\frac{\sigma_{\pi}}{E_{max}}$ для протонов с кинетическими энергиями меньше < 1 ГэВ, и как $b_1 \left(E_p/m_p\right)^{-b_2}\exp\left(b_3 \ln^2\left(E_p/m_p\right)\right)\times\frac{\sigma_{\pi}}{m_p}$ для высоких энергий. Выражения для $b_1, b_2, b_3$ так же можно найти в работе \cite{Kafexhiu}. Полное число излученных фотонов в единице времени в единице объема в единицу энергии в интервале энергий $\left(\epsilon, \epsilon + d\epsilon\right)$ может быть найдено интегрированием $\frac{d\sigma_{\gamma}\left(E_p, \epsilon\right)}{d\epsilon}$ с функцией распределения протонов.
+
+\begin{equation}
+	\frac{dN}{dt d\epsilon dV} = c n_{amb} \int_{\epsilon}^{\inf}\frac{d\sigma_{\gamma}\left(E_p, \epsilon\right)}{d\epsilon} F(E_p) dE_p
+\end{equation} 
+
+\section{Тормозное излучение}\label{BremsstrahlungFormulae}
+
+Для простого случая тормозного излучения горячей плазмы мы используем формулы, описанные в книге \cite{Rybicki}.
+Количество энергии, излучаемой в единицу энергии, в единицу времени единицей объема равно
+
+\begin{equation}
+	\frac{dW}{dt d\epsilon dV} = \frac{2^5 \pi e^6}{3 h m c^3}\sqrt{\frac{2\pi}{3 k m}}T^{-1/2}Z^2n_e n_i\exp\left(-\frac{\epsilon}{kT}\right)\bar{G}
+\end{equation}
+
+где $T$ температура плазмы, $n_e, n_i$ концентрации электронов и ионов соответственно, $Z$ зарядовое число ионов и $\bar{G}$ гаунт-фактор, усредненный по скоростям частиц. Приближенные выражения для $\bar{G}$ приведены в книге Новикова и Торна \cite{NovikovThorne} и исправлены Райбеки и Лайтманом \cite{Rybicki}. Формулы для разных режимов рассеяния - малоуглового и рассеяния на большие углы, а так же для классического и квантового режима, когда становится важен принцип неопределенности (П.Н.), приведены на рисунке \ref{gaunt}, где $R_y$ - постоянная Ридберга и $\xi$ постоянная Эйлера-Маскерони.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=11.5 cm]{./fig/gaunt.png} 
+	\caption{Усредненные гаунт-факторы, цитируется по Райбеки и Лайтман \cite{Rybicki}, выведены Новиковым и Торном \cite{NovikovThorne}}
+	\label{gaunt}
+\end{figure}
+
+Для случая произвольных изотропных распределений рассеивающихся лектронов мы используем уравнения приведенные в работе \cite{Baring1999}. Количество фотонов, излученных в единицу времени в единицу энергии единицей объема заданным распределением электронов определяется как
+
+\begin{equation}
+	\frac{dN}{dt d\epsilon dV} = \int\frac{dN_{\gamma}\left(E_e, \epsilon\right)}{dt d\epsilon} F(E_e) dE_e
+\end{equation}
+
+где $\frac{dN_{\gamma}\left(E_e, \epsilon\right)}{dt d\epsilon}$ число фотонов излученных одним лектроном с энергией $E_e$. Эту величину можно выразить как
+
+\begin{equation}
+	\frac{dN_{\gamma}\left(E_e, \epsilon\right)}{dt d\epsilon} = v_e \left(\left(\sum n_i Z_i^2\right)\sigma_{e-p} + n_e\sigma_{e-e}\right)
+\end{equation}
+
+где $v_e$ скорость электрона, $n_i, Z_i$ концентрации и зарядовые числа каждого типа ионов, а $\sigma_{e-p}$ и $\sigma_{e-e}$ сечения электрон-протонного и электрон-электронного рассеяния соответственно.
+
+Электрон-электронное сечение в релятивистском режиме ($E_e > 2~\text{МэВ}$) может быть выражено следующим образом, как показано в работе \cite{BaierJETP1967}
+
+\begin{equation}
+\sigma_{e-e}(E_e,\epsilon) = \left(\sigma_1 + \sigma_2\right)A\left(\epsilon, E_e/m_e c^2\right)
+\end{equation}
+
+Первый член в скобках определяется как
+
+\begin{equation}\label{sigma1}
+	\sigma_1 = \frac{4 r_e^2 \alpha}{\epsilon}\left(1+\left(\frac{1}{3}-\frac{\epsilon}{\gamma_e}\right)\left(1-\frac{\epsilon}{\gamma_e}\right)\right)\left(\ln\left(2\gamma_e\frac{\gamma_e - \epsilon}{\epsilon}\right)-\frac{1}{2}\right)
+\end{equation}
+
+Выражение для $\sigma_2$ более сложное и разделяется на два случая. Для $\epsilon < 1/2$:
+
+\begin{equation}
+	\begin{split}
+		\sigma_2 = \frac{r_e^2\alpha}{3\epsilon} \left( 16 \left( 1-\epsilon+\epsilon^2 \right) \ln\frac{\gamma_e}{\epsilon}-\frac{1}{\epsilon^2}+\frac{3}{\epsilon}-4+4\epsilon-8\epsilon^2 \right. \\ \left. - 2\left( 1-2\epsilon \right) \ln \left( 1-2\epsilon \right) \left( \frac{1}{4\epsilon^3}-\frac{1}{2\epsilon^2}+\frac{3}{\epsilon}-2+4\epsilon \right) \right)
+	\end{split}
+\end{equation}
+
+и для $\epsilon > 1/2$:
+
+\begin{equation}
+	\sigma_2 = \frac{r_e^2\alpha}{3\epsilon}\frac{2}{\epsilon}\left(\left(4-\frac{1}{\epsilon}+\frac{1}{4\epsilon^2}\right)\ln\left(2\gamma_e\right)-2+\frac{2}{\epsilon}-\frac{5}{8\epsilon^2}\right)
+\end{equation}
+
+где $r_e$ классический радиус электрона и $\alpha$ постоянная тонкой структуры. Поправочный фактор $A(\epsilon, \gamma_e)$ определяется как
+
+\begin{equation}
+	A\left(\epsilon, \gamma_e\right)=1-\frac{8}{3}\frac{\left(\gamma_e-1\right)^5}{\gamma_e + 1}\left(\frac{\epsilon}{\gamma_e}\right)^{1/3}
+\end{equation}
+
+В нерелятивистском режиме электрон-электронное сечение равно
+
+\begin{equation}
+	\sigma_{NR}=\frac{4r_e^2\alpha}{15\epsilon}F\left(\frac{4\epsilon}{\gamma_e^2-1}\right)
+\end{equation}
+
+где
+
+\begin{equation}
+	\begin{split}
+		F(x) = \left(1+\frac{1}{2}\left(\gamma_e^2-1\right)\right)\left(17-\frac{3x^2}{\left(2-x\right)^2}-\frac{10x\gamma_e\beta_e\left(2+\gamma_e\beta_e\right)}{1+x^2\left(\gamma_e^2-1\right)}\right)\sqrt{1-x} \\ +\left(12\left(2-x\right)-\frac{7x^2}{2-x}-\frac{3x^4}{\left(2-x\right)^3}\right)\ln\frac{1+\sqrt{1-x}}{\sqrt{x}}
+	\end{split}
+\end{equation}
+
+Сечение для электрон-протонного рассеяния приведено Бёте и Хайтлером в работе \cite{BetheHeitler}. Можно заметить, что в ультрарелятивистском режиме оно равно слагаемому $\sigma_1$ в формуле для электрон-электронного рассеяния \ref{sigma1} \cite{JauchRohrlich}. В общем случае сечение Бёте-Хайтлера равно
+
+\begin{equation}
+	\begin{split}
+		\sigma_{e-p} = \frac{r_e^2\alpha}{\epsilon}\frac{p'}{p}\left(\frac{4}{3}-\frac{2}{\left(\beta_e\beta_e'\right)^2}\left(\frac{\gamma_e}{\gamma_e'}+\frac{\gamma_e'}{\gamma_e}-\frac{2}{\gamma_e\gamma_e'}\right) + \right. \\ \left. \left(l\frac{\gamma_e'}{\gamma_e^2-1}+l'\frac{\gamma_e}{\gamma_e'^2-1}-l l'\right) + L\left(\frac{8}{3}\gamma_e\gamma_e'+\epsilon^2\left(\frac{1}{\left(\beta_e\beta_e'\right)^2+1}\right)+ \right. \right. \\ \left. \left. \frac{1}{2}\epsilon\left(l\left(1+\frac{\gamma_e'}{\beta_e^2\gamma_e}\right)-l'\left(1+\frac{\gamma_e}{\beta_e'^2\gamma_e'}\right)+2\frac{\epsilon}{\beta_e^2\gamma_e\beta_e'^2\gamma_e'}\right)\right)\right)
+	\end{split}
+\end{equation}
+
+В этой формуле используются следующие вспомогательные величины: $\gamma_e$ - лоренц-фактор начального электрона, $\beta_e$ - его скорость в единицах скорости света, $l = \frac{1}{\beta_e\gamma_e}\ln\frac{1+\beta_e}{1-\beta_e}$, штрихованные величины относятся к рассеянному электрону и они связаны соотношением $\gamma_e = \gamma_e' + \epsilon$. Так же введена дополнительная величина $L = \frac{2}{\beta_e\gamma_e\beta_e'\gamma_e'}\ln\frac{\gamma_e\gamma_e'\left(1+\beta_e\beta_e'\right)-1}{\epsilon}$.
