@@ -133,38 +133,72 @@ void LorentzTransformationPhotonReverseZalpha(const double& gamma, const double&
 
 //transform from one spherical system to rotated. Rotation on phir around z, and then on mur around x' 
 void rotationSphericalCoordinates(const double& thetar, const double& phir, const double& theta0, const double& phi0, double& theta1, double& phi1) {
-	//double sinThetar = sqrt(1.0 - mur * mur);
 	double sinThetar = sin(thetar);
 	double mur = cos(thetar);
 	double versinr = versin(thetar);
-	//double sinTheta0 = sqrt(1.0 - mu0 * mu0);
+	double versinr_c = versin(pi - thetar);
 	double sinTheta0 = sin(theta0);
 	double mu0 = cos(theta0);
 	double versin0 = versin(theta0);
+	double versin0_c = versin(pi - theta0);
+	double versin1;
+	double versin1_c;
+	double sinTheta1;
+
 	double tempPhi = phi0 - phir;
 	if (tempPhi < 0) {
 		tempPhi = tempPhi + 2 * pi;
 	}
-	double mu1 = mu0 * mur + sinThetar * sinTheta0 * sin(tempPhi);
-	//double versin1 = versinr + versin0 - versinr * versin0 - sinThetar * sinTheta0 * sin(tempPhi);
 
-	/*checkAndFixVersin(versin1);
-	double sinTheta1 = sqrt(2 * versin1 - versin1 * versin1);
-	theta1 = asin(sinTheta1);
-	if (versin1 > 1.0) {
-		theta1 = pi - theta1;
-	}*/
+	//double mu1 = mu0 * mur + sinThetar * sinTheta0 * sin(tempPhi);
 
-	theta1 = acos(mu1);
-	double sinTheta1 = sin(theta1);
+	if ((thetar <= pi / 2) || (theta0 <= pi / 2)) {
+		versin1 = versinr + versin0 - versinr * versin0 - sinThetar * sinTheta0 * sin(tempPhi);
 
-	if (sinTheta1 == 0) {
-		phi1 = 0;
-		//theta1 = 0;
-		return;
+		checkAndFixVersin(versin1);
+		sinTheta1 = sqrt(2 * versin1 - versin1 * versin1);
+		theta1 = asin(sinTheta1);
+		if (versin1 > 1) {
+			theta1 = pi - theta1;
+		}
+
+		if (versin1 == 0) {
+			phi1 = 0;
+			theta1 = 0;
+			return;
+		}
+
+		if (versin1 == 2) {
+			phi1 = 0;
+			theta1 = pi;
+			return;
+		}
 	}
-	double coshi = sinTheta0 * cos(tempPhi);
-	double cosPhi1 = coshi / sinTheta1;
+	else {
+		versin1_c = 2-versinr_c - versin0_c + versinr_c * versin0_c + sinThetar * sinTheta0 * sin(tempPhi);
+
+		checkAndFixVersin(versin1_c);
+		sinTheta1 = sqrt(2 * versin1_c - versin1_c * versin1_c);
+		theta1 = pi - asin(sinTheta1);
+		if (versin1_c > 1) {
+			theta1 = pi - theta1;
+		}
+
+		if (versin1_c == 0) {
+			phi1 = 0;
+			theta1 = pi;
+			return;
+		}
+
+		if (versin1_c == 2) {
+			phi1 = 0;
+			theta1 = 0;
+			return;
+		}
+	}
+
+	double cosTempPhi = cos(tempPhi);
+	double cosPhi1 = (sinTheta0 / sinTheta1)*cosTempPhi;
 	checkAndFixCosValue(cosPhi1);
 	double scalarMult = sin(tempPhi) * sinTheta0 * mur - mu0 * sinThetar;
 	phi1 = acos(cosPhi1);
@@ -175,67 +209,79 @@ void rotationSphericalCoordinates(const double& thetar, const double& phir, cons
 
 void inverseRotationSphericalCoordinates(const double& thetar, const double& phir, const double& theta1, const double& phi1, double& theta0, double& phi0) {
 	//todo
-	if ((thetar > pi / 2)) {
+	/*if ((thetar > pi / 2)) {
 		double tempThetar = pi - thetar;
 		double tempTheta1 = pi - theta1;
 		inverseRotationSphericalCoordinates(tempThetar, phi1, tempTheta1, phi1, theta0, phi0);
 		theta0 = pi - theta0;
 		return;
-	}
-	
-	//double sinThetar = sqrt(1.0 - mur * mur);
-	double sinThetar = sin(thetar);
-	/*if (fabs(pi - thetar) < 1E-15) {
-		sinThetar = 0;
 	}*/
+	
+
+	double sinThetar = sin(thetar);
 	double mur = cos(thetar);
 	double versinr = versin(thetar);
-	//double sinTheta1 = sqrt(1.0 - mu1 * mu1);
+	double versinr_c = versin(pi - thetar);
 	double sinTheta1 = sin(theta1);
 	double mu1 = cos(theta1);
 	double versin1 = versin(theta1);
+	double versin1_c = versin(pi - theta1);
 	double versin0;
+	double versin0_c;
+	double sinTheta0;
 
-	/*if ((thetar > 0.9 * pi) && (theta1 > 0.9 * pi)) {
-		double alphar = pi - thetar;
-		double alpha1 = pi - theta1;
-		double versinAlphaR = versin(alphar);
-		double versinAlpha1 = versin(alpha1);
-		versin0 = versinAlphaR + versinAlpha1 - versinAlphaR*versinAlpha1 - sinThetar * sinTheta1 * cos(phi1 + pi / 2);
-	}
-	else {*/
 
-		//double mu0 = mu1 * mur + sinThetar * sinTheta1 * cos(phi1 + pi / 2);
+	//double mu0 = mu1 * mur + sinThetar * sinTheta1 * cos(phi1 + pi / 2);
+
+
+	if ((thetar <= pi / 2) || (theta1 <= pi / 2)) {
 		versin0 = versinr + versin1 - versinr * versin1 - sinThetar * sinTheta1 * cos(phi1 + pi / 2);
-	//}
 
-	checkAndFixVersin(versin0);
-	double sinTheta0 = sqrt(2 * versin0 - versin0 * versin0);
-	theta0 = asin(sinTheta0);
-	//theta0 = acos(mu0);
-	//double sinTheta0 = sin(theta0);
-	/*if (versin0 > 1) {
-		theta0 = pi - theta0;
-	}*/
 
-	if (sinTheta0 == 0) {
-		phi0 = 0;
-		//theta0 = 0;
-		return;
+		checkAndFixVersin(versin0);
+		sinTheta0 = sqrt(2 * versin0 - versin0 * versin0);
+		theta0 = asin(sinTheta0);
+		if (versin0 > 1) {
+			theta0 = pi - theta0;
+		}
+
+		if (versin0 == 0) {
+			phi0 = 0;
+			theta0 = 0;
+			return;
+		}
+
+		if (versin0 == 2) {
+			phi0 = 0;
+			theta0 = pi;
+			return;
+		}
 	}
-	/*if (theta0 == 0) {
-		phi0 = 0;
-		return;
+	else {
+		versin0_c = 2-versinr_c - versin1_c + versinr_c * versin1_c + sinThetar * sinTheta1 * cos(phi1 + pi / 2);
+
+		checkAndFixVersin(versin0_c);
+		sinTheta0 = sqrt(2 * versin0_c - versin0_c * versin0_c);
+		theta0 = pi - asin(sinTheta0);
+		if (versin0_c > 1) {
+			theta0 = pi - theta0;
+		}
+
+		if (versin0_c == 0) {
+			phi0 = 0;
+			theta0 = pi;
+			return;
+		}
+
+		if (versin0_c == 2) {
+			phi0 = 0;
+			theta0 = 0;
+			return;
+		}
 	}
 
-	if (theta0 == pi) {
-		phi0 = 0;
-		return;
-	}*/
-
-	//double coshi = sinTheta1 * cos(phi1);
 	double cosPhi1 = cos(phi1);
-	double cosTempPhi = (sinTheta1 / sinTheta0)*cosPhi1;
+	double cosTempPhi = (sinTheta1 / sinTheta0) * cosPhi1;
 	checkAndFixCosValue(cosTempPhi);
 	double scalarMult = sin(phi1) * sinTheta1 * mur + mu1 * sinThetar;
 	double tempPhi = acos(cosTempPhi);
@@ -243,6 +289,7 @@ void inverseRotationSphericalCoordinates(const double& thetar, const double& phi
 		tempPhi = 2 * pi - tempPhi;
 	}
 	phi0 = tempPhi + phir;
+
 	if (phi0 > 2 * pi) {
 		phi0 = phi0 - 2 * pi;
 	}

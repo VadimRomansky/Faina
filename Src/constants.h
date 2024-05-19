@@ -23,7 +23,7 @@ const double re = (electron_charge * electron_charge / (massElectron * speed_of_
 const double re2 = re*re;
 const double hplank = 6.626E-27;
 const double alpha = electron_charge * electron_charge / (hplank * speed_of_light);
-const double pi = 4*atan(1);
+const double pi = 3.14159265358979323846;
 const double four_pi = 4*pi;
 const double euler_mascheroni = 1.781072417990;
 
