@@ -922,16 +922,17 @@ void fitTychoProfile() {
 
 int main() {
 	//evaluateSimpleSynchrotron();
-	//evaluateComtonWithPowerLawDistribution();
+	//evaluateComptonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
-	evaluatePionDecay();
+	//evaluatePionDecay();
 	//evaluateBremsstrahlung();
 	//compareComptonSynchrotron();
 	//evaluateSynchrotronImage();
 	//testRotation();
 	//testAnisotropicCompton();
+	compareComptonWithPowerLawDistribution();
 
 
 	//evaluateFluxSNRtoWind();

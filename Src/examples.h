@@ -5,7 +5,7 @@
 void evaluateSimpleSynchrotron();
 
 // example 1. Evaluating inverse compton flux of powerlaw distributed electrons on CMB radiation
-void evaluateComtonWithPowerLawDistribution();
+void evaluateComptonWithPowerLawDistribution();
 
 //example 2. Fitting observed synchrotron radio fluxes from CSS1601010 at one time moment with simple flat disk source and powerlaw distribution
 void fitCSS161010withPowerLawDistribition();
@@ -33,6 +33,9 @@ void testRotation();
 
 //example 10 test anisotropic compton
 void testAnisotropicCompton();
+
+//example 11 compare different compton evaluators
+void compareComptonWithPowerLawDistribution();
 
 
 #endif
