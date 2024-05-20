@@ -1080,7 +1080,7 @@ void compareComptonWithPowerLawDistribution() {
 	double Emax = 1E10 * me_c2;
 	int Ne = 100;
 	int Nmu = 40;
-	int Nphi = 20;
+	int Nphi = 4;
 	double index = 3.5;
 
 	//initializing mean galactic photon field

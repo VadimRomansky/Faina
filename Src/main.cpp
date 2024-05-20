@@ -921,6 +921,7 @@ void fitTychoProfile() {
 
 
 int main() {
+	resetLog();
 	//evaluateSimpleSynchrotron();
 	//evaluateComptonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
