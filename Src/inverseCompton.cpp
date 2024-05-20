@@ -663,6 +663,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 		//experimental
 		double fraction = 0.5 / my_Nmu;
 		double thetamin = min(0.1 / (electronInitialEnergy / m_c2), pi / (2 * my_Nmu));
+		//double thetamin = min(0.1 * m_c2/photonFinalEnergy, pi / (2 * my_Nmu));
 		double dlogtheta = log((pi + (1 - fraction) * thetamin) / (thetamin)) / (my_Nmu - 2);
 
 		cosThetaLeft[0] = 1.0;
@@ -685,7 +686,7 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const d
 				}
 			}*/
 		}
-		theta[my_Nmu - 1] = pi;
+		theta[my_Nmu - 1] = (pi+ theta[my_Nmu-2])/2;
 		dcosTheta[my_Nmu - 1] = 1.0 + cosThetaLeft[my_Nmu - 1];
 
 		double delectronEnergy;
@@ -1229,8 +1230,8 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const
 
 		//experimental
 		double fraction = 0.5 / my_Nmu;
-		//double thetamin = min(0.1 / (electronInitialEnergy / m_c2), pi / (2 * my_Nmu));
-		double thetamin = min(0.1 * m_c2/photonFinalEnergy, pi / (2 * my_Nmu));
+		double thetamin = min(0.1 / (electronInitialEnergy / m_c2), pi / (2 * my_Nmu));
+		//double thetamin = min(0.1 * m_c2/photonFinalEnergy, pi / (2 * my_Nmu));
 		double dlogtheta = log((pi + (1 - fraction) * thetamin) / (thetamin)) / (my_Nmu - 2);
 
 		cosThetaLeft[0] = 1.0;
@@ -1253,7 +1254,8 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic(const
 				}
 			}*/
 		}
-		theta[my_Nmu - 1] = pi;
+		//theta[my_Nmu - 1] = pi;
+		theta[my_Nmu - 1] = (pi + theta[my_Nmu - 2]) / 2;
 		dcosTheta[my_Nmu - 1] = 1.0 + cosThetaLeft[my_Nmu - 1];
 
 		double delectronEnergy;
@@ -1557,8 +1559,8 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic2(cons
 
 		//experimental
 		double fraction = 0.5 / my_Nmu;
-		//double thetamin = min(0.1 / (electronInitialEnergy / m_c2), pi / (2 * my_Nmu));
-		double thetamin = min(0.1 * m_c2 / photonFinalEnergy, pi / (2 * my_Nmu));
+		double thetamin = min(0.1 / (electronInitialEnergy / m_c2), pi / (2 * my_Nmu));
+		//double thetamin = min(0.1 * m_c2 / photonFinalEnergy, pi / (2 * my_Nmu));
 		double dlogtheta = log((pi + (1 - fraction) * thetamin) / (thetamin)) / (my_Nmu - 2);
 
 		cosThetaLeft[0] = 1.0;
@@ -1581,7 +1583,8 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic2(cons
 				}
 			}*/
 		}
-		theta[my_Nmu - 1] = pi;
+		//theta[my_Nmu - 1] = pi;
+		theta[my_Nmu - 1] = (pi + theta[my_Nmu - 2]) / 2;
 		dcosTheta[my_Nmu - 1] = 1.0 + cosThetaLeft[my_Nmu - 1];
 
 		double delectronEnergy;
@@ -1816,8 +1819,8 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic3(cons
 
 		//experimental
 		double fraction = 0.5 / my_Nmu;
-		//double thetamin = min(0.1 / (electronInitialEnergy / m_c2), pi / (2 * my_Nmu));
-		double thetamin = min(0.1 * m_c2 / photonFinalEnergy, pi / (2 * my_Nmu));
+		double thetamin = min(0.1 / (electronInitialEnergy / m_c2), pi / (2 * my_Nmu));
+		//double thetamin = min(0.1 * m_c2 / photonFinalEnergy, pi / (2 * my_Nmu));
 		double dlogtheta = log((pi + (1 - fraction) * thetamin) / (thetamin)) / (my_Nmu - 2);
 
 		cosThetaLeft[0] = 1.0;
@@ -1840,7 +1843,8 @@ double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaAnisotropic3(cons
 				}
 			}*/
 		}
-		theta[my_Nmu - 1] = pi;
+		//theta[my_Nmu - 1] = pi;
+		theta[my_Nmu - 1] = (pi + theta[my_Nmu - 2]) / 2;
 		dcosTheta[my_Nmu - 1] = 1.0 + cosThetaLeft[my_Nmu - 1];
 
 		double delectronEnergy;

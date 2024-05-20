@@ -942,8 +942,10 @@ void testRotation() {
 	resetLog();
 
 	rotationSphericalCoordinates(thetaR, phiR, theta0, phi0, theta1, phi1);
-	//theta1 = 3.1415926535897931;
-	//phi1 = 0.15707963267948966;
+	thetaR = 3.1415926535897931;
+	phiR = 0;
+	theta1 = 4.7121609281219889E-8;
+	phi1 = 0.31415926535897931;
 	inverseRotationSphericalCoordinates(thetaR, phiR, theta1, phi1, theta2, phi2);
 
 	printf("theta rotation = %g\n", thetaR);
@@ -1076,9 +1078,9 @@ void compareComptonWithPowerLawDistribution() {
 	//double Emin = 652.317 * me_c2 * 1;
 	double Emin = me_c2;
 	double Emax = 1E10 * me_c2;
-	int Ne = 200;
-	int Nmu = 20;
-	int Nphi = 10;
+	int Ne = 100;
+	int Nmu = 40;
+	int Nphi = 20;
 	double index = 3.5;
 
 	//initializing mean galactic photon field
@@ -1102,7 +1104,7 @@ void compareComptonWithPowerLawDistribution() {
 	evaluators[4] = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA3);
 
 	//initializing photon energy grid for output
-	int Nnu = 100;
+	int Nnu = 25;
 	double* E = new double[Nnu];
 	double** F = new double* [evaluatorsNumber];
 	for (int i = 0; i < evaluatorsNumber; ++i) {
