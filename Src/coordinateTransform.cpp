@@ -175,24 +175,27 @@ void rotationSphericalCoordinates(const double& thetar, const double& phir, cons
 		}
 	}
 	else {
-		versin1_c = 2-versinr_c - versin0_c + versinr_c * versin0_c + sinThetar * sinTheta0 * sin(tempPhi);
+		//versin1_c = 2-versinr_c - versin0_c + versinr_c * versin0_c + sinThetar * sinTheta0 * sin(tempPhi);
+		versin1 = versinr_c + versin0_c - versinr_c * versin0_c + sinThetar * sinTheta0 * sin(tempPhi);
 
-		checkAndFixVersin(versin1_c);
-		sinTheta1 = sqrt(2 * versin1_c - versin1_c * versin1_c);
-		theta1 = pi - asin(sinTheta1);
-		if (versin1_c > 1) {
+		//checkAndFixVersin(versin1_c);
+		checkAndFixVersin(versin1);
+		//sinTheta1 = sqrt(2 * versin1_c - versin1_c * versin1_c);
+		sinTheta1 = sqrt(2 * versin1 - versin1 * versin1);
+		theta1 = asin(sinTheta1);
+		if (versin1 > 1) {
 			theta1 = pi - theta1;
 		}
 
-		if (versin1_c == 0) {
+		if (versin1 == 0) {
 			phi1 = 0;
-			theta1 = pi;
+			theta1 = 0;
 			return;
 		}
 
-		if (versin1_c == 2) {
+		if (versin1 == 2) {
 			phi1 = 0;
-			theta1 = 0;
+			theta1 = pi;
 			return;
 		}
 	}
@@ -258,24 +261,27 @@ void inverseRotationSphericalCoordinates(const double& thetar, const double& phi
 		}
 	}
 	else {
-		versin0_c = 2-versinr_c - versin1_c + versinr_c * versin1_c + sinThetar * sinTheta1 * cos(phi1 + pi / 2);
+		//versin0_c = 2-versinr_c - versin1_c + versinr_c * versin1_c + sinThetar * sinTheta1 * cos(phi1 + pi / 2);
+		versin0 = versinr_c + versin1_c - versinr_c * versin1_c - sinThetar * sinTheta1 * cos(phi1 + pi / 2);
 
-		checkAndFixVersin(versin0_c);
-		sinTheta0 = sqrt(2 * versin0_c - versin0_c * versin0_c);
-		theta0 = pi - asin(sinTheta0);
-		if (versin0_c > 1) {
+		//checkAndFixVersin(versin0_c);
+		checkAndFixVersin(versin0);
+		//sinTheta0 = sqrt(2 * versin0_c - versin0_c * versin0_c);
+		sinTheta0 = sqrt(2 * versin0 - versin0 * versin0);
+		theta0 = asin(sinTheta0);
+		if (versin0 > 1) {
 			theta0 = pi - theta0;
 		}
 
-		if (versin0_c == 0) {
+		if (versin0 == 0) {
 			phi0 = 0;
-			theta0 = pi;
+			theta0 = 0;
 			return;
 		}
 
-		if (versin0_c == 2) {
+		if (versin0 == 2) {
 			phi0 = 0;
-			theta0 = 0;
+			theta0 = pi;
 			return;
 		}
 	}

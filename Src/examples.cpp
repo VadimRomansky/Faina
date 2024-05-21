@@ -1078,13 +1078,13 @@ void compareComptonWithPowerLawDistribution() {
 	//double Emin = 652.317 * me_c2 * 1;
 	double Emin = me_c2;
 	double Emax = 1E10 * me_c2;
-	int Ne = 100;
+	int Ne = 200;
 	int Nmu = 40;
 	int Nphi = 4;
 	double index = 3.5;
 
 	//initializing mean galactic photon field
-	double photonEnergy = 0.001 * 1.6E-12;
+	double photonEnergy = 1.6E-12;
 	double halfWidth = 0.1 * photonEnergy;
 	PhotonIsotropicDistribution* photonDistribution = new PhotonMonoenergeticDistribution(photonEnergy, halfWidth, 1.0);
 	//initializing electrons distribution
@@ -1104,14 +1104,14 @@ void compareComptonWithPowerLawDistribution() {
 	evaluators[4] = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA3);
 
 	//initializing photon energy grid for output
-	int Nnu = 25;
+	int Nnu = 50;
 	double* E = new double[Nnu];
 	double** F = new double* [evaluatorsNumber];
 	for (int i = 0; i < evaluatorsNumber; ++i) {
 		F[i] = new double[Nnu];
 	}
 
-	double EphFinalmin = Ephmin;
+	double EphFinalmin = 0.1*Ephmin;
 	double EphFinalmax = 2 * Emax;
 	double factor = pow(EphFinalmax / EphFinalmin, 1.0 / (Nnu - 1));
 	E[0] = EphFinalmin;
