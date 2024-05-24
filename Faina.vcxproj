@@ -128,12 +128,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="Src\bremsstrahlung.cpp" />
     <ClCompile Include="Src\coordinateTransform.cpp" />
     <ClCompile Include="Src\examples.cpp" />
     <ClCompile Include="Src\inverseCompton.cpp" />
     <ClCompile Include="Src\KPIevaluator.cpp" />
-    <ClCompile Include="Src\main.cpp" />
     <ClCompile Include="Src\massiveParticleDistribution.cpp" />
     <ClCompile Include="Src\optimization.cpp" />
     <ClCompile Include="Src\photonDistribution.cpp" />

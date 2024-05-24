@@ -2,19 +2,19 @@
 #include "math.h"
 #include <omp.h>
 
-#include "constants.h"
-#include "massiveParticleDistribution.h"
-#include "photonDistribution.h"
-#include "util.h"
-#include "inverseCompton.h"
-#include "radiationSource.h"
-#include "synchrotron.h"
-#include "optimization.h"
-#include "pionDecay.h"
-#include "bremsstrahlung.h"
-#include "coordinateTransform.h"
-#include "radiationSourceFactory.h"
-#include "examples.h"
+#include "./Src/constants.h"
+#include "./Src/massiveParticleDistribution.h"
+#include "./Src/photonDistribution.h"
+#include "./Src/util.h"
+#include "./Src/inverseCompton.h"
+#include "./Src/radiationSource.h"
+#include "./Src/synchrotron.h"
+#include "./Src/optimization.h"
+#include "./Src/pionDecay.h"
+#include "./Src/bremsstrahlung.h"
+#include "./Src/coordinateTransform.h"
+#include "./Src/radiationSourceFactory.h"
+#include "./Src/examples.h"
 
 void evaluateFluxSNRtoWind() {
 	FILE* logFile = fopen("log.dat", "w");
