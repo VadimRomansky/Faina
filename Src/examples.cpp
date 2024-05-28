@@ -1160,3 +1160,24 @@ void compareComptonWithPowerLawDistribution() {
 	delete source;
 	delete evaluators;
 }
+
+//example 12 test reading source from file
+void testReadingSource() {
+	const char* concentrationFileName = "../Pluto/Tools/pyPLUTO/density.dat";
+	const char* BFileName = "../Pluto/Tools/pyPLUTO/B.dat";
+
+	double rmax = 1E16;
+	double f = 1;
+	double B = 0.6;
+	double electronConcentration = 150;
+
+	const double distance = 150 * 1000000 * parsec;
+
+	double Emin = me_c2;
+	double Emax = 1E10 * me_c2;
+	double index = 3.5;
+
+	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
+
+	RadiationSource* source = RadiationSourceFactory::readSourceFromFile(electrons, rmax, f * rmax, distance, SourceInputGeometry::CYLINDRICAL, BFileName, concentrationFileName);
+}

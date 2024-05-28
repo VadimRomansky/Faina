@@ -936,9 +936,10 @@ int main() {
 	//testRotation();
 	//testAnisotropicCompton();
 	//compareComptonWithPowerLawDistribution();
+	testReadingSource();
 
 
-	evaluateFluxSNRtoWind();
+	//evaluateFluxSNRtoWind();
 	//evaluateComtonFromWind();
 	//evaluateTychoProfile();
 	//fitTychoProfile();

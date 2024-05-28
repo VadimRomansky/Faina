@@ -760,7 +760,7 @@ TabulatedDiskSource* RadiationSourceFactory::readSourceFromFile(MassiveParticleD
 	int Nxc, Nyc, Nzc;
 
 	fscanf(Bfile, "%d %d %d", &Nx, &Ny, &Nz);
-	fscanf(concentrationFile, "%d %d %d", &Nxc, Nyc, Nzc);
+	fscanf(concentrationFile, "%d %d %d", &Nxc, &Nyc, &Nzc);
 
 	if ((Nx != Nxc) || (Ny != Nyc) || (Nz != Nzc)) {
 		printf("Dimensions are different in B and concentrationFile\n");
@@ -769,6 +769,51 @@ TabulatedDiskSource* RadiationSourceFactory::readSourceFromFile(MassiveParticleD
 	}
 
 	double*** concentration = new double** [Nx];
+
+	double*** B = new double** [Nx];
+	double*** Btheta = new double** [Nx];
+	double*** Bphi = new double** [Nx];
+	for (int i = 0; i < Nx; ++i) {
+		concentration[i] = new double* [Ny];
+		B[i] = new double* [Ny];
+		Btheta[i] = new double* [Ny];
+		Bphi[i] = new double* [Ny];
+		for (int j = 0; j < Ny; ++j) {
+			concentration[i][j] = new double[Nz];
+			B[i][j] = new double[Nz];
+			Btheta[i][j] = new double[Nz];
+			Bphi[i][j] = new double[Nz];
+			for (int k = 0; k < Nz; ++k) {
+				fscanf(concentrationFile, "%lf", &concentration[i][j][k]);
+				double Bx, By, Bz;
+				fscanf(Bfile, "%lf %lf %lf", &Bx, &By, &Bz);
+
+				B[i][j][k] = sqrt(Bx * Bx + By * By + Bz * Bz);
+				if (geometry == SourceInputGeometry::CYLINDRICAL) {
+					
+				}
+			}
+		}
+	}
+
+	fclose(Bfile);
+	fclose(concentrationFile);
+	for (int i = 0; i < Nx; ++i) {
+		for (int j = 0; j < Ny; ++j) {
+			delete[] concentration[i][j];
+			delete[] B[i][j];
+			delete[] Btheta[i][j];
+			delete[] Bphi[i][j];
+		}
+		delete[] concentration[i];
+		delete[] B[i];
+		delete[] Btheta[i];
+		delete[] Bphi[i];
+	}
+	delete[] concentration;
+	delete[] B;
+	delete[] Btheta;
+	delete[] Bphi;
 
 	return nullptr;
 }

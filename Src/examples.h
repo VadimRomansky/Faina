@@ -37,5 +37,8 @@ void testAnisotropicCompton();
 //example 11 compare different compton evaluators
 void compareComptonWithPowerLawDistribution();
 
+//example 12 test reading source from file
+void testReadingSource();
+
 
 #endif
