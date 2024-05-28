@@ -23,7 +23,7 @@ void evaluateSimpleSynchrotron() {
 	double electronConcentration = 1.0;
 	MassiveParticleIsotropicDistribution* distribution = new MassiveParticlePowerLawDistribution(massElectron, 3.0, me_c2, 1.0);
 	//MassiveParticleIsotropicDistribution* distribution = new MassiveParticleMonoenergeticDistribution(massElectron, 1000*me_c2, me_c2, 1.0);
-	RadiationSource* source = new SimpleFlatSource(distribution, B, pi/2, parsec, parsec, 1000 * parsec);
+	RadiationSource* source = new SimpleFlatSource(distribution, B, pi/2, 0, parsec, parsec, 1000 * parsec);
 	RadiationEvaluator* evaluator = new SynchrotronEvaluator(10000, me_c2, 10000 * me_c2, true);
 	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
 	evaluator->writeFluxFromSourceToFile("outputSynch.dat", source, 10 * hplank * cyclotronOmega, 100000 * hplank * cyclotronOmega, 1000);
@@ -61,7 +61,7 @@ void evaluateComptonWithPowerLawDistribution() {
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 
 
-	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, rmax, distance);
+	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, 0, rmax, rmax, distance);
 
 	double Ephmin = 0.1 * 2.7 * kBoltzman;
 	double Ephmax = 10 * 10000 * kBoltzman;
@@ -133,7 +133,7 @@ void fitCSS161010withPowerLawDistribition() {
 	//creating electrons powerlaw distribution
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 	//creating radiation source
-	SimpleFlatSource* source = new SimpleFlatSource(electrons, B, pi/2, R, fraction * R, distance);
+	SimpleFlatSource* source = new SimpleFlatSource(electrons, B, pi/2, 0, R, fraction * R, distance);
 	//number of parameters of the source
 	const int Nparams = 4;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
@@ -719,7 +719,7 @@ void evaluatePionDecay() {
 	//MassiveParticlePowerLawDistribution* protons = new MassiveParticlePowerLawDistribution(massProton, 2.0, Emin, protonConcentration);
 	//MassiveParticlePowerLawCutoffDistribution* protons = new MassiveParticlePowerLawCutoffDistribution(massProton, 2.0, Emin, 1.0, Emax, protonConcentration);
 	//protons->writeDistribution("outputProtons.dat", 200, Emin, Emax);
-	RadiationSource* source = new SimpleFlatSource(protons, B, theta, rmax, rmax, distance);
+	RadiationSource* source = new SimpleFlatSource(protons, B, theta, 0, rmax, rmax, distance);
 	double protonAmbientConcentration = 20;
 	//PionDecayEvaluator* pionDecayEvaluator = new PionDecayEvaluator(200, Emin, Emax, protonAmbientConcentration);
 	PionDecayEvaluatorBase* pionDecayEvaluator = new PionDecayEvaluatorKelner(200, Emin, Emax, protonAmbientConcentration);
@@ -777,7 +777,7 @@ void evaluateBremsstrahlung() {
 
 	MassiveParticleMaxwellJuttnerDistribution* electrons = new MassiveParticleMaxwellJuttnerDistribution(massElectron, temperature, electronConcentration);
 	//MassiveParticleMaxwellDistribution* electrons = new MassiveParticleMaxwellDistribution(massElectron, temperature, electronConcentration);
-	RadiationSource* source = new SimpleFlatSource(electrons, 0, 0, rmax, rmax, distance);
+	RadiationSource* source = new SimpleFlatSource(electrons, 0, 0, 0, rmax, rmax, distance);
 	BremsstrahlungThermalEvaluator* bremsstrahlungEvaluator1 = new BremsstrahlungThermalEvaluator();
 	BremsstrahlungEvaluator* bremsstrahlungEvaluator2 = new BremsstrahlungEvaluator(Ne, Emin, Emax, 1.0);
 
@@ -824,7 +824,7 @@ void compareComptonSynchrotron() {
 	double Emax = 1E8 * me_c2;
 	double distance = 1000 * parsec;
 	MassiveParticleIsotropicDistribution* distribution = new MassiveParticlePowerLawDistribution(massElectron, 4.0, Emin, 1.0);
-	RadiationSource* source = new SimpleFlatSource(distribution, B, theta, parsec, parsec, distance);
+	RadiationSource* source = new SimpleFlatSource(distribution, B, theta, 0, parsec, parsec, distance);
 	RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(400, Emin, Emax, false);
 	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
 	synchrotronEvaluator->writeFluxFromSourceToFile("output1.dat", source, 0.001 * hplank * cyclotronOmega, 10000000 * hplank * cyclotronOmega, 200);
@@ -1014,7 +1014,7 @@ void testAnisotropicCompton() {
 	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee9.dat", "./examples_data/gamma0.5_theta0-90/Fs9.dat", 200, electronConcentration, GAMMA_KIN_FGAMMA);
 	electrons->rescaleDistribution(sqrt(18));
 	//electrons->addPowerLaw(300 * me_c2, 3.5);
-	RadiationSource* source = new SimpleFlatSource(electrons, B, pi/2, rmax, rmax, distance);
+	RadiationSource* source = new SimpleFlatSource(electrons, B, pi/2, 0, rmax, rmax, distance);
 	PhotonIsotropicDistribution* photonDummyDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rmax));
 	InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDummyDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
 	InverseComptonEvaluator* comptonEvaluator0 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDummyDistribution, ComptonSolverType::ISOTROPIC_JONES);
@@ -1091,7 +1091,7 @@ void compareComptonWithPowerLawDistribution() {
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 
 
-	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, rmax, distance);
+	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, 0, rmax, rmax, distance);
 
 	double Ephmin = photonEnergy - halfWidth;
 	double Ephmax = photonEnergy + halfWidth;

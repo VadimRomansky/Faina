@@ -751,3 +751,24 @@ AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWith
 
 	return new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ntheta, electronDistributions, B, theta, phi, concentration, rho, rhoin, distance);
 }
+
+TabulatedDiskSource* RadiationSourceFactory::readSourceFromFile(MassiveParticleDistribution* electronDistribution, const double& rho, const double& z, const double& distance, SourceInputGeometry geometry, const char* BFileName, const char* concentrationFileName)
+{
+	FILE* Bfile = fopen(BFileName, "r");
+	FILE* concentrationFile = fopen(concentrationFileName, "r");
+	int Nx, Ny, Nz;
+	int Nxc, Nyc, Nzc;
+
+	fscanf(Bfile, "%d %d %d", &Nx, &Ny, &Nz);
+	fscanf(concentrationFile, "%d %d %d", &Nxc, Nyc, Nzc);
+
+	if ((Nx != Nxc) || (Ny != Nyc) || (Nz != Nzc)) {
+		printf("Dimensions are different in B and concentrationFile\n");
+		printLog("Dimensions are different in B and concentrationFile\n");
+		exit(0);
+	}
+
+	double*** concentration = new double** [Nx];
+
+	return nullptr;
+}

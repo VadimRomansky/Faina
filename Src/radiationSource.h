@@ -73,11 +73,12 @@ class SimpleFlatSource : public DiskSource {
 protected:
 	double my_B;
 	double my_theta;
+	double my_phi;
 	double my_concentration;
 	double my_velocity;
 	MassiveParticleDistribution* my_distribution;
 public:
-	SimpleFlatSource(MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& rho, const double& z, const double& distance, const double& velocity = 0);
+	SimpleFlatSource(MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& rho, const double& z, const double& distance, const double& velocity = 0);
 	virtual double getRho(int irho);
 	virtual double getZ(int iz);
 	virtual double getPhi(int iphi);
@@ -103,13 +104,14 @@ class TabulatedDiskSource : public DiskSource {
 protected:
 	double*** my_B;
 	double*** my_theta;
+	double*** my_phi;
 	double*** my_concentration;
 	double my_velocity;
 	bool** my_isSource;
 	MassiveParticleDistribution* my_distribution;
 public:
-	TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& z, const double& distance, const double& velocity = 0);
-	TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& concentration , const double& rho, const double& z, const double& distance, const double& velocity = 0);
+	TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& z, const double& distance, const double& velocity = 0);
+	TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration , const double& rho, const double& z, const double& distance, const double& velocity = 0);
     virtual ~TabulatedDiskSource();
 
 	virtual double getRho(int irho);
@@ -141,8 +143,8 @@ protected:
 	MassiveParticleTabulatedIsotropicDistribution* my_cutoffDistribution;
 	MassiveParticleTabulatedIsotropicDistribution* my_localDistribution;
 public:
-	TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
-	TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
+	TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
+	TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& phi, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
 	virtual ~TabulatedDiskSourceWithSynchCutoff();
 
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
@@ -189,6 +191,7 @@ class TabulatedSphericalLayerSource : public SphericalLayerSource {
 protected:
 	double*** my_B;
 	double*** my_theta;
+	double*** my_phi;
 	double*** my_concentration;
 	bool** my_isSource;
 	MassiveParticleDistribution* my_distribution;
@@ -196,8 +199,8 @@ protected:
 	bool rayTraceToNextCell(const double& rho0, const double& z0, int iphi, const double& theta, double& rho1, double& z1, double& lB2);
 	double evaluateTotalLB2fromPoint(const double& rho0, const double& z0, int iphi, const double& theta);
 public:
-	TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity = 0);
-	TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& distance, const double& velocity = 0);
+	TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity = 0);
+	TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity = 0);
     virtual ~TabulatedSphericalLayerSource();
 
 	//virtual double getLength(int irho, int iz, int iphi);
@@ -221,7 +224,6 @@ class AngleDependentElectronsSphericalSource : public TabulatedSphericalLayerSou
 protected:
 	int my_Ntheta;
 	MassiveParticleDistribution** my_distributions;
-	double*** my_phi;
 	double*** my_shockWaveAngle;
 public:
 	AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleDistribution** electronDistributions, double*** B, double*** sinTheta, double*** phi, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity = 0);
@@ -242,8 +244,8 @@ protected:
 	double*** my_LB2;
 	void updateLB2();
 public:
-	TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
-	TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
+	TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
+	TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
 	virtual ~TabulatedSLSourceWithSynchCutoff();
 
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
@@ -255,7 +257,7 @@ protected:
 	double my_rho;
 	double my_rhoin;
 	double my_minrho;
-	double my_phi;
+	double my_phi_sectoral;
 
 	double my_z;
 
@@ -283,7 +285,7 @@ public:
 	double getRhoin();
 	double getMinZ();
 	double getMaxZ();
-	double getPhi();
+	double getPhiSectoral();
 	double getTotalVolume();
 
 	virtual double getArea(int irho, int iz, int iphi);
@@ -299,6 +301,7 @@ class TabulatedSectoralSphericalLayerSource : public SectoralSphericalLayerSourc
 protected:
 	double*** my_B;
 	double*** my_theta;
+	double*** my_phi;
 	double*** my_concentration;
 	double my_velocity;
 	bool** my_isSource;
@@ -307,8 +310,8 @@ protected:
 	bool rayTraceToNextCell(const double& rho0, const double& z0, int iphi, const double& theta, double& rho1, double& z1, double& lB2);
 	double evaluateTotalLB2fromPoint(const double& rho0, const double& z0, int iphi, const double& theta);
 public:
-	TabulatedSectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& velocity = 0);
-	TabulatedSectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& velocity = 0);
+	TabulatedSectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi_sectoral, const double& distance, const double& velocity = 0);
+	TabulatedSectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi_sectoral, const double& distance, const double& velocity = 0);
 	virtual ~TabulatedSectoralSphericalLayerSource();
 
 	//virtual double getLength(int irho, int iz, int iphi);
@@ -337,8 +340,8 @@ protected:
 	double*** my_LB2;
 	void updateLB2();
 public:
-	TabulatedSectoralSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
-	TabulatedSectoralSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
+	TabulatedSectoralSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi_sectoral, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
+	TabulatedSectoralSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi_sectoral, const double& distance, const double& downstreamVelocity, const double& velocity = 0);
 	virtual ~TabulatedSectoralSLSourceWithSynchCutoff();
 
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);

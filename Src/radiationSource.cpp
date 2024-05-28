@@ -68,10 +68,11 @@ double DiskSource::getMaxZ() {
 	return my_z;
 }
 
-SimpleFlatSource::SimpleFlatSource(MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& rho, const double& z, const double& distance, const double& velocity) : DiskSource(1,1,1, rho, z,distance) {
+SimpleFlatSource::SimpleFlatSource(MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& rho, const double& z, const double& distance, const double& velocity) : DiskSource(1,1,1, rho, z,distance) {
 	my_distribution = electronDistribution;
 	my_B = B;
 	my_theta = theta;
+	my_phi = phi;
 	my_concentration = my_distribution->getConcentration();
 	my_velocity = velocity;
 }
@@ -167,24 +168,28 @@ MassiveParticleDistribution* SimpleFlatSource::getParticleDistribution(int irho,
 	return my_distribution;
 }
 
-TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& z, const double& distance, const double& velocity) : DiskSource(Nrho, Nz, Nphi, rho, z, distance) {
+TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& z, const double& distance, const double& velocity) : DiskSource(Nrho, Nz, Nphi, rho, z, distance) {
 	my_distribution = electronDistribution;
 	my_velocity = 0;
 
 	my_B = new double** [my_Nrho];
 	my_theta = new double** [my_Nrho];
+	my_phi = new double** [my_Nrho];
 	my_concentration = new double** [my_Nrho];
 	for (int irho = 0; irho < my_Nrho; ++irho) {
 		my_B[irho] = new double* [my_Nz];
 		my_theta[irho] = new double* [my_Nz];
+		my_phi[irho] = new double* [my_Nz];
 		my_concentration[irho] = new double* [my_Nz];
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			my_B[irho][iz] = new double[my_Nphi];
 			my_theta[irho][iz] = new double[my_Nphi];
+			my_phi[irho][iz] = new double[my_Nphi];
 			my_concentration[irho][iz] = new double[my_Nphi];
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
 				my_B[irho][iz][iphi] = B[irho][iz][iphi];
 				my_theta[irho][iz][iphi] = theta[irho][iz][iphi];
+				my_phi[irho][iz][iphi] = phi[irho][iz][iphi];
 				my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi];
 			}
 		}
@@ -199,25 +204,29 @@ TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassivePart
 	}
 }
 
-TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& concentration, const double& rho, const double& z, const double& distance, const double& velocity) : DiskSource(Nrho, Nz, Nphi, rho, z, distance)
+TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& z, const double& distance, const double& velocity) : DiskSource(Nrho, Nz, Nphi, rho, z, distance)
 {
 	my_distribution = electronDistribution;
 	my_velocity = velocity;
 
 	my_B = new double** [my_Nrho];
 	my_theta = new double** [my_Nrho];
+	my_phi = new double** [my_Nrho];
 	my_concentration = new double** [my_Nrho];
 	for (int irho = 0; irho < my_Nrho; ++irho) {
 		my_B[irho] = new double* [my_Nz];
 		my_theta[irho] = new double* [my_Nz];
+		my_phi[irho] = new double* [my_Nz];
 		my_concentration[irho] = new double* [my_Nz];
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			my_B[irho][iz] = new double[my_Nphi];
 			my_theta[irho][iz] = new double[my_Nphi];
+			my_phi[irho][iz] = new double[my_Nphi];
 			my_concentration[irho][iz] = new double[my_Nphi];
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
 				my_B[irho][iz][iphi] = B;
 				my_theta[irho][iz][iphi] = theta;
+				my_phi[irho][iz][iphi] = phi;
 				my_concentration[irho][iz][iphi] = concentration;
 			}
 		}
@@ -237,15 +246,18 @@ TabulatedDiskSource::~TabulatedDiskSource()
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			delete[] my_B[irho][iz];
 			delete[] my_theta[irho][iz];
+			delete[] my_phi[irho][iz];
 			delete[] my_concentration[irho][iz];
 		}
 		delete[] my_B[irho];
 		delete[] my_theta[irho];
+		delete[] my_phi[irho];
 		delete[] my_concentration[irho];
 		delete[] my_isSource[irho];
 	}
 	delete[] my_B;
 	delete[] my_theta;
+	delete[] my_phi;
 	delete[] my_concentration;
 	delete[] my_isSource;
 }
@@ -834,15 +846,17 @@ double SphericalLayerSource::getInnerRho() {
 	return my_rhoin;
 }
 
-TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance, velocity) {
+TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance, velocity) {
 	my_distribution = electronDistribution;
 	
 	my_B = new double** [my_Nrho];
 	my_theta = new double** [my_Nrho];
+	my_phi = new double** [my_Nrho];
 	my_concentration = new double** [my_Nrho];
 	for (int irho = 0; irho < my_Nrho; ++irho) {
 		my_B[irho] = new double* [my_Nz];
 		my_theta[irho] = new double* [my_Nz];
+		my_phi[irho] = new double* [my_Nz];
 		my_concentration[irho] = new double* [my_Nz];
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			double rho1 = (irho + 0.5) * my_rho / my_Nrho;
@@ -852,11 +866,13 @@ TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, i
 
 			my_B[irho][iz] = new double[my_Nphi];
 			my_theta[irho][iz] = new double[my_Nphi];
+			my_phi[irho][iz] = new double[my_Nphi];
 			my_concentration[irho][iz] = new double[my_Nphi];
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
 				my_B[irho][iz][iphi] = B[irho][iz][iphi];
 				//my_B[irho][iz][iphi] = B[irho][iz][iphi]*(my_rho/r);
 				my_theta[irho][iz][iphi] = theta[irho][iz][iphi];
+				my_phi[irho][iz][iphi] = phi[irho][iz][iphi];
 				my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi];
 				//my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi] * sqr(my_rho / r);
 			}
@@ -871,23 +887,27 @@ TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, i
 		}
 	}
 }
-TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance, velocity) {
+TabulatedSphericalLayerSource::TabulatedSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : SphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, distance, velocity) {
 	my_distribution = electronDistribution;
 
 	my_B = new double** [my_Nrho];
 	my_theta = new double** [my_Nrho];
+	my_phi = new double** [my_Nrho];
 	my_concentration = new double** [my_Nrho];
 	for (int irho = 0; irho < my_Nrho; ++irho) {
 		my_B[irho] = new double* [my_Nz];
 		my_theta[irho] = new double* [my_Nz];
+		my_phi[irho] = new double* [my_Nz];
 		my_concentration[irho] = new double* [my_Nz];
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			my_B[irho][iz] = new double[my_Nphi];
 			my_theta[irho][iz] = new double[my_Nphi];
+			my_phi[irho][iz] = new double[my_Nphi];
 			my_concentration[irho][iz] = new double[my_Nphi];
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
 				my_B[irho][iz][iphi] = B;
 				my_theta[irho][iz][iphi] = theta;
+				my_phi[irho][iz][iphi] = phi;
 				my_concentration[irho][iz][iphi] = concentration;
 			}
 		}
@@ -907,13 +927,16 @@ TabulatedSphericalLayerSource::~TabulatedSphericalLayerSource() {
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			delete[] my_B[irho][iz];
 			delete[] my_theta[irho][iz];
+			delete[] my_phi[irho][iz];
 		}
 		delete[] my_B[irho];
 		delete[] my_theta[irho];
+		delete[] my_phi[irho];
 		delete[] my_isSource[irho];
 	}
 	delete[] my_B;
 	delete[] my_theta;
+	delete[] my_phi;
 	delete[] my_isSource;
 }
 
@@ -1268,7 +1291,7 @@ MassiveParticleDistribution* TabulatedSphericalLayerSource::getParticleDistribut
 	return my_distribution;
 }
 
-AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleDistribution** electronDistributions, double*** B, double*** sinTheta, double*** phi, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, concentration, rho, rhoin, distance, velocity)
+AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleDistribution** electronDistributions, double*** B, double*** sinTheta, double*** phi, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, phi, concentration, rho, rhoin, distance, velocity)
 {
 	my_Ntheta = Ntheta;
 	my_distributions = new MassiveParticleDistribution*[my_Ntheta];
@@ -1277,19 +1300,15 @@ AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(i
 		my_distributions[i] = electronDistributions[i];
 	}
 
-	my_phi = new double** [my_Nrho];
 	my_shockWaveAngle = new double** [my_Nrho];
 	my_concentration = new double** [my_Nrho];
 	for (int irho = 0; irho < my_Nrho; ++irho) {
-		my_phi[irho] = new double* [my_Nz];
 		my_shockWaveAngle[irho] = new double* [my_Nz];
 		my_concentration[irho] = new double* [my_Nz];
 		for (int iz = 0; iz < my_Nz; ++iz) {
-			my_phi[irho][iz] = new double[my_Nphi];
 			my_shockWaveAngle[irho][iz] = new double[my_Nphi];
 			my_concentration[irho][iz] = new double[my_Nphi];
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
-				my_phi[irho][iz][iphi] = phi[irho][iz][iphi];
 				my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi];
 				double rho = (irho + 0.5) * my_rho / my_Nrho;
 				double z = -my_rho + (iz + 0.5) * 2 * my_rho / my_Nz;
@@ -1319,7 +1338,7 @@ AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(i
 	}
 }
 
-AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleDistribution** electronDistributions, const double& B, const double& sinTheta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, concentration, rho, rhoin, distance, velocity)
+AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleDistribution** electronDistributions, const double& B, const double& sinTheta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, phi, concentration, rho, rhoin, distance, velocity)
 {
 	my_Ntheta = Ntheta;
 	my_distributions = new MassiveParticleDistribution * [my_Ntheta];
@@ -1328,19 +1347,15 @@ AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(i
 		my_distributions[i] = electronDistributions[i];
 	}
 
-	my_phi = new double** [my_Nrho];
 	my_shockWaveAngle = new double** [my_Nrho];
 	my_concentration = new double** [my_Nrho];
 	for (int irho = 0; irho < my_Nrho; ++irho) {
-		my_phi[irho] = new double* [my_Nz];
 		my_shockWaveAngle[irho] = new double* [my_Nz];
 		my_concentration[irho] = new double* [my_Nz];
 		for (int iz = 0; iz < my_Nz; ++iz) {
-			my_phi[irho][iz] = new double[my_Nphi];
 			my_shockWaveAngle[irho][iz] = new double[my_Nphi];
 			my_concentration[irho][iz] = new double[my_Nphi];
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
-				my_phi[irho][iz][iphi] = phi;
 				my_concentration[irho][iz][iphi] = concentration;
 				double rho = (irho + 0.5) * my_rho / my_Nrho;
 				double z = -my_rho + (iz + 0.5) * 2 * my_rho / my_Nz;
@@ -1376,15 +1391,12 @@ AngleDependentElectronsSphericalSource::~AngleDependentElectronsSphericalSource(
 
 	for (int irho = 0; irho < my_Nrho; ++irho) {
 		for (int iz = 0; iz < my_Nz; ++iz) {
-			delete[] my_phi[irho][iz];
 			delete[] my_shockWaveAngle[irho][iz];
 			delete[] my_concentration[irho][iz];
 		}
-		delete[] my_phi[irho];
 		delete[] my_shockWaveAngle[irho];
 		delete[] my_concentration[irho];
 	}
-	delete[] my_phi;
 	delete[] my_shockWaveAngle;
 	delete[] my_concentration;
 }
@@ -1471,7 +1483,7 @@ RadiationSource* ExpandingRemnantSource::getRadiationSource(double& time, const 
 	return my_radiationSource;
 }
 
-TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, rhoin, distance, velocity)
+TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, phi, concentration, rho, rhoin, distance, velocity)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticlePowerLawCutoffDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
@@ -1488,7 +1500,7 @@ TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int
 	write3dArrayToFile(my_LB2, my_Nrho, my_Nz, my_Nphi, "LB2.dat");
 }
 
-TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, rhoin, distance, velocity)
+TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, phi, concentration, rho, rhoin, distance, velocity)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticlePowerLawCutoffDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
@@ -1589,7 +1601,7 @@ MassiveParticleDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistri
 	return my_cutoffDistribution;
 }
 
-TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, z, distance, velocity)
+TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, phi, concentration, rho, z, distance, velocity)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
@@ -1602,7 +1614,7 @@ TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho,
 	my_meanB = getAverageBsquared();
 }
 
-TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, z, distance, velocity)
+TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, phi, concentration, rho, z, distance, velocity)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
@@ -1690,16 +1702,16 @@ MassiveParticleDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDist
 	return my_localDistribution;
 }
 
-SectoralSphericalLayerSource::SectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance) : RadiationSource(Nrho, Nz, Nphi, distance)
+SectoralSphericalLayerSource::SectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& minrho, const double& phi_sectoral, const double& distance) : RadiationSource(Nrho, Nz, Nphi, distance)
 {
 	my_rho = rho;
 	my_rhoin = rhoin;
 	my_minrho = minrho;
-	my_phi = phi;
+	my_phi_sectoral = phi_sectoral;
 	my_drho = (my_rho - my_minrho) / my_Nrho;
 	my_z = sqrt(my_rho * my_rho - my_minrho * my_minrho);
 	my_dz = 2*my_z / my_Nz;
-	my_dphi = phi / my_Nphi;
+	my_dphi = phi_sectoral / my_Nphi;
 
 	my_geometryCashed = false;
 	my_area = new double** [my_Nrho];
@@ -1784,19 +1796,19 @@ double SectoralSphericalLayerSource::getMaxZ()
 	return my_z;
 }
 
-double SectoralSphericalLayerSource::getPhi()
+double SectoralSphericalLayerSource::getPhiSectoral()
 {
-	return my_phi;
+	return my_phi_sectoral;
 }
 
 double SectoralSphericalLayerSource::getTotalVolume()
 {
 	if (my_minrho >= my_rhoin) {
-		return (2*my_phi / 3) * (my_rho - my_minrho) * (my_rho - my_minrho) * (my_rho - my_minrho);
+		return (2*my_phi_sectoral / 3) * (my_rho - my_minrho) * (my_rho - my_minrho) * (my_rho - my_minrho);
 	}
 	else {
-		double a = (2 * my_phi / 3) * (my_rho - my_minrho) * (my_rho - my_minrho) * (my_rho - my_minrho);
-		double b = (2 * my_phi / 3) * (my_rhoin - my_minrho) * (my_rhoin - my_minrho) * (my_rhoin - my_minrho);
+		double a = (2 * my_phi_sectoral / 3) * (my_rho - my_minrho) * (my_rho - my_minrho) * (my_rho - my_minrho);
+		double b = (2 * my_phi_sectoral / 3) * (my_rhoin - my_minrho) * (my_rhoin - my_minrho) * (my_rhoin - my_minrho);
 		return a - b;
 	}
 }
@@ -2188,25 +2200,29 @@ double TabulatedSectoralSphericalLayerSource::evaluateTotalLB2fromPoint(const do
 	return totalLB2;
 }
 
-TabulatedSectoralSphericalLayerSource::TabulatedSectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& velocity) : SectoralSphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, minrho, phi, distance)
+TabulatedSectoralSphericalLayerSource::TabulatedSectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi_sectoral, const double& distance, const double& velocity) : SectoralSphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, minrho, phi_sectoral, distance)
 {
 	my_distribution = electronDistribution;
 	my_velocity = velocity;
 
 	my_B = new double** [my_Nrho];
 	my_theta = new double** [my_Nrho];
+	my_phi = new double** [my_Nrho];
 	my_concentration = new double** [my_Nrho];
 	for (int irho = 0; irho < my_Nrho; ++irho) {
 		my_B[irho] = new double* [my_Nz];
 		my_theta[irho] = new double* [my_Nz];
+		my_phi[irho] = new double* [my_Nz];
 		my_concentration[irho] = new double* [my_Nz];
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			my_B[irho][iz] = new double[my_Nphi];
 			my_theta[irho][iz] = new double[my_Nphi];
+			my_phi[irho][iz] = new double[my_Nphi];
 			my_concentration[irho][iz] = new double[my_Nphi];
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
 				my_B[irho][iz][iphi] = B;
 				my_theta[irho][iz][iphi] = theta;
+				my_phi[irho][iz][iphi] = phi;
 				my_concentration[irho][iz][iphi] = concentration;
 			}
 		}
@@ -2221,17 +2237,19 @@ TabulatedSectoralSphericalLayerSource::TabulatedSectoralSphericalLayerSource(int
 	}
 }
 
-TabulatedSectoralSphericalLayerSource::TabulatedSectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& velocity) : SectoralSphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, minrho, phi, distance)
+TabulatedSectoralSphericalLayerSource::TabulatedSectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi_sectoral, const double& distance, const double& velocity) : SectoralSphericalLayerSource(Nrho, Nz, Nphi, rho, rhoin, minrho, phi_sectoral, distance)
 {
 	my_distribution = electronDistribution;
 	my_velocity = velocity;
 
 	my_B = new double** [my_Nrho];
 	my_theta = new double** [my_Nrho];
+	my_phi = new double** [my_Nrho];
 	my_concentration = new double** [my_Nrho];
 	for (int irho = 0; irho < my_Nrho; ++irho) {
 		my_B[irho] = new double* [my_Nz];
 		my_theta[irho] = new double* [my_Nz];
+		my_phi[irho] = new double* [my_Nz];
 		my_concentration[irho] = new double* [my_Nz];
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			double rho1 = (irho + 0.5) * my_rho / my_Nrho;
@@ -2241,11 +2259,13 @@ TabulatedSectoralSphericalLayerSource::TabulatedSectoralSphericalLayerSource(int
 
 			my_B[irho][iz] = new double[my_Nphi];
 			my_theta[irho][iz] = new double[my_Nphi];
+			my_phi[irho][iz] = new double[my_Nphi];
 			my_concentration[irho][iz] = new double[my_Nphi];
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
 				//my_B[irho][iz][iphi] = B[irho][iz][iphi];
 				my_B[irho][iz][iphi] = B[irho][iz][iphi] * (my_rho / r);
 				my_theta[irho][iz][iphi] = theta[irho][iz][iphi];
+				my_phi[irho][iz][iphi] = phi[irho][iz][iphi];
 				my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi];
 				//my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi] * sqr(my_rho / r);
 			}
@@ -2461,7 +2481,7 @@ MassiveParticleDistribution* TabulatedSectoralSphericalLayerSource::getParticleD
 	return my_distribution;
 }
 
-TabulatedSectoralSLSourceWithSynchCutoff::TabulatedSectoralSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSectoralSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, rhoin, minrho, phi, distance, velocity)
+TabulatedSectoralSLSourceWithSynchCutoff::TabulatedSectoralSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi_sectoral, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSectoralSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, phi, concentration, rho, rhoin, minrho, phi_sectoral, distance, velocity)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticlePowerLawCutoffDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
@@ -2488,7 +2508,7 @@ TabulatedSectoralSLSourceWithSynchCutoff::TabulatedSectoralSLSourceWithSynchCuto
 	delete3dArray(Ecutoff, my_Nrho, my_Nz, my_Nphi);
 }
 
-TabulatedSectoralSLSourceWithSynchCutoff::TabulatedSectoralSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& rho, const double& rhoin, const double& minrho, const double& phi, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSectoralSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, concentration, rho, rhoin, minrho, phi, distance, velocity)
+TabulatedSectoralSLSourceWithSynchCutoff::TabulatedSectoralSLSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& minrho, const double& phi_sectoral, const double& distance, const double& downstreamVelocity, const double& velocity) : TabulatedSectoralSphericalLayerSource(Nrho, Nz, Nphi, electronDistribution, B, theta, phi, concentration, rho, rhoin, minrho, phi_sectoral, distance, velocity)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticlePowerLawCutoffDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {

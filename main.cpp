@@ -100,9 +100,9 @@ void evaluateFluxSNRtoWind() {
 	(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[8]))->writeDistribution("dist8.dat", 300, Emin, newEmax);
 
 	//creating radiation source
-	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, fraction*rmax, distance);
+	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, 0, rmax, fraction*rmax, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(20, 20, 1,electrons, B, theta, electronConcentration, rmax, (1-fraction)*rmax, distance);
-	RadiationSource* thermalSource = new SimpleFlatSource(thermalElectrons, B, theta, rmax, fraction*rmax, distance);
+	RadiationSource* thermalSource = new SimpleFlatSource(thermalElectrons, B, theta, 0, rmax, fraction*rmax, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, electronConcentration, rmax, 0.5*rmax, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronsFromSmilei, Bturb, thetaTurb, concentration, rsource, 0.9*rsource, distance);
 	//AngleDependentElectronsSphericalSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, Bturb, thetaTurb, phiTurb, concentration, rmax, 0.9*rmax, distance, 0.5*speed_of_light);
@@ -289,7 +289,7 @@ void evaluateFluxSNRtoWind() {
 	fprintf(paramFile, "average B = %g\n", B);
 	fclose(paramFile);
 
-	TabulatedDiskSourceWithSynchCutoff* source3 = new TabulatedDiskSourceWithSynchCutoff(1, 10000, 1, electrons, B, electronConcentration, pi / 2, rmax, fraction * rmax, distance, 0.2 * speed_of_light);
+	TabulatedDiskSourceWithSynchCutoff* source3 = new TabulatedDiskSourceWithSynchCutoff(1, 10000, 1, electrons, B, pi / 2, 0, electronConcentration, rmax, fraction * rmax, distance, 0.2 * speed_of_light);
 
 
 	rmax = vector[0] * maxParameters[0];
@@ -378,6 +378,7 @@ void evaluateFluxSNRtoWind() {
 	rcompton = rmax + 0.5E16;
 	rcompton = 2E14;
 	PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, 0.25*sqr(rstar / rcompton));
+	//PhotonIsotropicDistribution* photonDistribution = PhotonMultiPlankDistribution::getGalacticField();
 	PhotonPlankDirectedDistribution* photonDirectedDistribution = new PhotonPlankDirectedDistribution(Tstar, 0.25*sqr(rstar / rcompton), pi*17/18, 0, atan2(1, 1));
 	PhotonIsotropicDistribution* galacticField = PhotonMultiPlankDistribution::getGalacticField();
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
@@ -437,7 +438,7 @@ void evaluateFluxSNRtoWind() {
 	fclose(angleDistribution);
 
 	jetelectrons->resetConcentration(jetelectronConcentration);
-	RadiationSource* source2 = new SimpleFlatSource(jetelectrons, B, pi / 2, rmax, rmax*fraction, distance);
+	RadiationSource* source2 = new SimpleFlatSource(jetelectrons, B, pi / 2, 0, rmax, rmax*fraction, distance);
 
 	double V = source2->getTotalVolume();
 	double totalEnergy2 = jetelectronConcentration * massProton * speed_of_light2 * 10 * source2->getTotalVolume();
@@ -474,6 +475,7 @@ void evaluateFluxSNRtoWind() {
 		//double dE = currentE * (1.0 - 1.0/factor);
 		//kevFlux += comptonEvaluator->evaluateFluxFromSourceAnisotropic(currentE, 0, 0, photonDirectedDistribution, source, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA) * dE;
 		double flux = comptonEvaluator->evaluateFluxFromSource(currentE, source2);
+		//double flux = galacticEvaluator->evaluateFluxFromSource(currentE, source2);
 		fprintf(output7,"%g %g\n", currentE, flux);
 		kevFlux += flux * dE;
 		currentE = currentE * factor;
@@ -618,7 +620,7 @@ void evaluateComtonFromWind() {
 	printf("available fraction = %g\n", availableEnergyFraction);
 	printLog("tavailable fraction = %g\n", availableEnergyFraction);
 	//creating radiation source
-	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, rmax, 0.2*rmax, distance);
+	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, 0, rmax, 0.2*rmax, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, electronConcentration, rmax, 0.8 * rmax, distance);
 	InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
@@ -751,7 +753,7 @@ void evaluateTychoProfile() {
 
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, concentrations, R, (1.0 - widthFraction) * R, distance);
 	//RadiationSource* source = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electrons, B, theta, concentrations, R, (1.0 - widthFraction) * R, distance, Udownstream);
-	RadiationSource* source = new TabulatedSectoralSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electrons, B, theta, concentrations, R, Rin,Rmin, 2*pi, distance, Udownstream);
+	RadiationSource* source = new TabulatedSectoralSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electrons, B, theta, 0, concentrations, R, Rin,Rmin, 2*pi, distance, Udownstream);
 	//RadiationSource* source = new TabulatedDiskSourceWithSynchCutoff(Nrho, Nz, Nphi, electrons, B, theta, concentrations, R, R, distance, Udownstream);
 
 	SynchrotronEvaluator* evaluator = new SynchrotronEvaluator(Ne, Emin, Emax, false);
@@ -835,7 +837,7 @@ void fitTychoProfile() {
 
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, concentrations, R, (1.0 - widthFraction) * R, distance);
 	//RadiationSource* source = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electrons, B, theta, concentrations, R, (1.0 - widthFraction) * R, distance, Udownstream);
-	RadiationSource* source = new TabulatedSectoralSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electrons, B, theta, concentrations, R, Rin, Rmin, 2 * pi, distance, Udownstream);
+	RadiationSource* source = new TabulatedSectoralSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electrons, B, theta, 0, concentrations, R, Rin, Rmin, 2 * pi, distance, Udownstream);
 	//RadiationSource* source = new TabulatedDiskSourceWithSynchCutoff(Nrho, Nz, Nphi, electrons, B, theta, concentrations, R, R, distance, Udownstream);
 
 	//number of parameters of the source
@@ -933,10 +935,10 @@ int main() {
 	//evaluateSynchrotronImage();
 	//testRotation();
 	//testAnisotropicCompton();
-	compareComptonWithPowerLawDistribution();
+	//compareComptonWithPowerLawDistribution();
 
 
-	//evaluateFluxSNRtoWind();
+	evaluateFluxSNRtoWind();
 	//evaluateComtonFromWind();
 	//evaluateTychoProfile();
 	//fitTychoProfile();

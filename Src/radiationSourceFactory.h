@@ -4,6 +4,8 @@
 #include "radiation.h"
 #include "radiationSource.h"
 
+enum SourceInputGeometry { CARTESIAN, CYLINDRICAL, SPHERICAL };
+
 class RadiationSourceFactory {
 private:
 	const static int minModeNumber = 10;
@@ -30,6 +32,8 @@ public:
 
 	static AngleDependentElectronsSphericalSource* createSourceWithParkerField(MassiveParticleDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& rho, const double& rhoin, const double& distance);
 	static AngleDependentElectronsSphericalSource* createSourceWithParkerFieldWithRotation(MassiveParticleDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& n0, const double& v, const double& d, const double& omega, const double& thetaRot, const double& rho, const double& rhoin, const double& distance);
+
+	static TabulatedDiskSource* readSourceFromFile(MassiveParticleDistribution* electronDistribution, const double& rho, const double& z, const double& distance, SourceInputGeometry geometry, const char* BFileName, const char* concentrationFileName);
 };
 
 #endif
