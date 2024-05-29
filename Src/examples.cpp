@@ -1179,5 +1179,5 @@ void testReadingSource() {
 
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 
-	RadiationSource* source = RadiationSourceFactory::readSourceFromFile(electrons, rmax, f * rmax, distance, SourceInputGeometry::CYLINDRICAL, BFileName, concentrationFileName);
+	RadiationSource* source = RadiationSourceFactory::readSourceFromFile(electrons, rmax, f * rmax, distance, 50, 20, 1, SourceInputGeometry::CYLINDRICAL, BFileName, concentrationFileName);
 }

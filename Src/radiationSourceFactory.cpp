@@ -752,38 +752,47 @@ AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWith
 	return new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ntheta, electronDistributions, B, theta, phi, concentration, rho, rhoin, distance);
 }
 
-TabulatedDiskSource* RadiationSourceFactory::readSourceFromFile(MassiveParticleDistribution* electronDistribution, const double& rho, const double& z, const double& distance, SourceInputGeometry geometry, const char* BFileName, const char* concentrationFileName)
+TabulatedDiskSource* RadiationSourceFactory::readSourceFromFile(MassiveParticleDistribution* electronDistribution, const double& rho, const double& z, const int Nrho, const int Nz, const int Nphi, const double& distance, SourceInputGeometry geometry, const char* BFileName, const char* concentrationFileName)
 {
 	FILE* Bfile = fopen(BFileName, "r");
 	FILE* concentrationFile = fopen(concentrationFileName, "r");
-	int Nx, Ny, Nz;
+	int Nxb, Nyb, Nzb;
 	int Nxc, Nyc, Nzc;
 
-	fscanf(Bfile, "%d %d %d", &Nx, &Ny, &Nz);
+	fscanf(Bfile, "%d %d %d", &Nxb, &Nyb, &Nzb);
 	fscanf(concentrationFile, "%d %d %d", &Nxc, &Nyc, &Nzc);
 
-	if ((Nx != Nxc) || (Ny != Nyc) || (Nz != Nzc)) {
+	double x1, y1, z1;
+	double x2, y2, z2;
+
+	fscanf(Bfile, "%lf %lf %lf", &x1, &y1, &z1);
+	fscanf(concentrationFile, "%lf %lf %lf", &x1, &y1, &z1);
+
+	fscanf(Bfile, "%lf %lf %lf", &x2, &y2, &z2);
+	fscanf(concentrationFile, "%lf %lf %lf", &x2, &y2, &z2);
+
+	if ((Nxb != Nxc) || (Nyb != Nyc) || (Nzb != Nzc)) {
 		printf("Dimensions are different in B and concentrationFile\n");
 		printLog("Dimensions are different in B and concentrationFile\n");
 		exit(0);
 	}
 
-	double*** concentration = new double** [Nx];
+	double*** concentration = new double** [Nxb];
 
-	double*** B = new double** [Nx];
-	double*** Btheta = new double** [Nx];
-	double*** Bphi = new double** [Nx];
-	for (int i = 0; i < Nx; ++i) {
-		concentration[i] = new double* [Ny];
-		B[i] = new double* [Ny];
-		Btheta[i] = new double* [Ny];
-		Bphi[i] = new double* [Ny];
-		for (int j = 0; j < Ny; ++j) {
-			concentration[i][j] = new double[Nz];
-			B[i][j] = new double[Nz];
-			Btheta[i][j] = new double[Nz];
-			Bphi[i][j] = new double[Nz];
-			for (int k = 0; k < Nz; ++k) {
+	double*** B = new double** [Nxb];
+	double*** Btheta = new double** [Nxb];
+	double*** Bphi = new double** [Nxb];
+	for (int i = 0; i < Nxb; ++i) {
+		concentration[i] = new double* [Nyb];
+		B[i] = new double* [Nyb];
+		Btheta[i] = new double* [Nyb];
+		Bphi[i] = new double* [Nyb];
+		for (int j = 0; j < Nyb; ++j) {
+			concentration[i][j] = new double[Nzb];
+			B[i][j] = new double[Nzb];
+			Btheta[i][j] = new double[Nzb];
+			Bphi[i][j] = new double[Nzb];
+			for (int k = 0; k < Nzb; ++k) {
 				fscanf(concentrationFile, "%lf", &concentration[i][j][k]);
 				double Bx, By, Bz;
 				fscanf(Bfile, "%lf %lf %lf", &Bx, &By, &Bz);
@@ -798,8 +807,8 @@ TabulatedDiskSource* RadiationSourceFactory::readSourceFromFile(MassiveParticleD
 
 	fclose(Bfile);
 	fclose(concentrationFile);
-	for (int i = 0; i < Nx; ++i) {
-		for (int j = 0; j < Ny; ++j) {
+	for (int i = 0; i < Nxb; ++i) {
+		for (int j = 0; j < Nyb; ++j) {
 			delete[] concentration[i][j];
 			delete[] B[i][j];
 			delete[] Btheta[i][j];
