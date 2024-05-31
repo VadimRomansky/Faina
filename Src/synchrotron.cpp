@@ -151,6 +151,12 @@ void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFre
 		return;
 	}
 
+	if ((B == 0) || (sinhi == 0)) {
+		I = 0;
+		A = 0;
+		return;
+	}
+
 	double factor = pow(Emax / Emin, 1.0 / (my_Ne - 1));
 
 	my_Ee[0] = Emin;

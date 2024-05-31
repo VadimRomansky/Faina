@@ -1166,8 +1166,8 @@ void testReadingSource() {
 	const char* concentrationFileName = "../Pluto/Tools/pyPLUTO/density.dat";
 	const char* BFileName = "../Pluto/Tools/pyPLUTO/B.dat";
 
-	double rmax = 1E16;
-	double f = 1;
+	double rmax = 1E19;
+	double f = 2;
 	double B = 0.6;
 	double electronConcentration = 150;
 
@@ -1175,9 +1175,14 @@ void testReadingSource() {
 
 	double Emin = me_c2;
 	double Emax = 1E10 * me_c2;
+	int Ne = 100;
 	double index = 3.5;
 
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 
-	RadiationSource* source = RadiationSourceFactory::readSourceFromFile(electrons, rmax, f * rmax, distance, 50, 20, 1, SourceInputGeometry::CYLINDRICAL, BFileName, concentrationFileName);
+	RadiationSource* source = RadiationSourceFactory::readSourceFromFile(electrons, rmax, -f*rmax/2, f * rmax/2, 200, 200, 100, distance, SourceInputGeometry::CYLINDRICAL, BFileName, concentrationFileName, pi/2, 0, pi/2);
+
+	SynchrotronEvaluator* evaluator = new SynchrotronEvaluator(Ne, Emin, Emax);
+
+	evaluator->writeImageFromSourceAtEToFile(hplank * 1E9, "image.dat", source);
 }

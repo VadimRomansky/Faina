@@ -337,3 +337,15 @@ int readRadiationFromFile(double*& E, double*& F, double*& error, const char* fi
     fclose(file);
     return N;
 }
+
+bool checkNaNorInfinity(const double& v) {
+    if (v != v) {
+        return true;
+    }
+
+    if (0 * v != 0 * v) {
+        return true;
+    }
+
+    return false;
+}

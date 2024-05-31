@@ -141,6 +141,7 @@ void RadiationEvaluator::writeImageFromSourceAtEToFile(const double& photonFinal
     int irho;
 #pragma omp parallel for private(irho) shared(photonFinalEnergy, source, Nrho, Nz, Nphi, image)
     for (irho = 0; irho < Nrho; ++irho) {
+        //printf("i = %d\n", irho);
         for (int iphi = 0; iphi < Nphi; ++iphi) {
             double s = source->getCrossSectionArea(irho, iphi);
             double localFlux =  evaluateFluxFromSourceAtPoint(photonFinalEnergy, source, irho, iphi)/s;

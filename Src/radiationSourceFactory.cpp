@@ -752,7 +752,7 @@ AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWith
 	return new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ntheta, electronDistributions, B, theta, phi, concentration, rho, rhoin, distance);
 }
 
-TabulatedDiskSource* RadiationSourceFactory::readSourceFromFile(MassiveParticleDistribution* electronDistribution, const double& rhomin, const double& rhomax, const double& zmin, const double zmax, const int Nrho, const int Nz, const int Nphi, const double& distance, SourceInputGeometry geometry, const char* BFileName, const char* concentrationFileName, const double& thetar, const double& phir, const double& psir)
+TabulatedDiskSource* RadiationSourceFactory::readSourceFromFile(MassiveParticleDistribution* electronDistribution, const double& rho, const double& zmin, const double zmax, const int Nrho, const int Nz, const int Nphi, const double& distance, SourceInputGeometry geometry, const char* BFileName, const char* concentrationFileName, const double& thetar, const double& phir, const double& psir)
 {
 	FILE* Bfile = fopen(BFileName, "r");
 	FILE* concentrationFile = fopen(concentrationFileName, "r");
@@ -812,13 +812,37 @@ TabulatedDiskSource* RadiationSourceFactory::readSourceFromFile(MassiveParticleD
 			B3[i][j] = new double[Nzb];
 			for (int k = 0; k < Nzb; ++k) {
 				fscanf(concentrationFile, "%lf", &concentration[i][j][k]);
-				fscanf(Bfile, "%lf %lf %lf", &B1[i][j][k], &B2[i][j][k], &B3[i][j][k]);			
+				fscanf(Bfile, "%lf %lf %lf", &B1[i][j][k], &B2[i][j][k], &B3[i][j][k]);		
+				if (checkNaNorInfinity(concentration[i][j][k])) {
+					printf("concentration is Nan or Infinity %lf\n", concentration[i][j][k]);
+					printLog("concentration is Nan or Infinity %lf\n", concentration[i][j][k]);
+					exit(0);
+				}
+				if (checkNaNorInfinity(B1[i][j][k])) {
+					printf("B1 is Nan or Infinity %lf\n", B1[i][j][k]);
+					printLog("B1 is Nan or Infinity %lf\n", B1[i][j][k]);
+					exit(0);
+				}
+
+				if (checkNaNorInfinity(B2[i][j][k])) {
+					printf("B2 is Nan or Infinity %lf\n", B2[i][j][k]);
+					printLog("B2 is Nan or Infinity %lf\n", B2[i][j][k]);
+					exit(0);
+				}
+
+				if (checkNaNorInfinity(B3[i][j][k])) {
+					printf("B3 is Nan or Infinity %lf\n", B3[i][j][k]);
+					printLog("B3 is Nan or Infinity %lf\n", B3[i][j][k]);
+					exit(0);
+				}
 			}
 		}
 	}
 
-	transformScalarArray(concentration, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, concentration2, Nrho, Nz, Nphi, rhomin, rhomax, zmin, zmax, 0, 2 * pi, thetar, phir, psir);
-	transformVectorArrays(B1, B2, B3, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, B, Btheta, Bphi, Nrho, Nz, Nphi, rhomin, rhomax, zmin, zmax, 0, 2 * pi, thetar, phir, psir);
+	transformScalarArray(concentration, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, concentration2, Nrho, Nz, Nphi, 0, rho, zmin, zmax, 0, 2 * pi, thetar, phir, psir);
+	transformVectorArrays(B1, B2, B3, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, B, Btheta, Bphi, Nrho, Nz, Nphi, 0, rho, zmin, zmax, 0, 2 * pi, thetar, phir, psir);
+
+	TabulatedDiskSource* source = new TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, Btheta, Bphi, concentration2, rho, zmax - zmin, distance);
 
 	fclose(Bfile);
 	fclose(concentrationFile);
@@ -839,7 +863,24 @@ TabulatedDiskSource* RadiationSourceFactory::readSourceFromFile(MassiveParticleD
 	delete[] B2;
 	delete[] B3;
 
-	return nullptr;
+	for (int i = 0; i < Nrho; ++i) {
+		for (int j = 0; j < Nz; ++j) {
+			delete[] concentration2[i][j];
+			delete[] B[i][j];
+			delete[] Btheta[i][j];
+			delete[] Bphi[i][j];
+		}
+		delete[] concentration2[i];
+		delete[] B[i];
+		delete[] Btheta[i];
+		delete[] Bphi[i];
+	}
+	delete[] concentration2;
+	delete[] B;
+	delete[] Btheta;
+	delete[] Bphi;
+
+	return source;
 }
 
 //transforms array from arbitrary pluto coordinates to rotated cylindrical coordinates
@@ -934,6 +975,9 @@ void RadiationSourceFactory::transformScalarArray(double*** inputArray, int N1, 
 				else if (geometry == SourceInputGeometry::CYLINDRICAL) {
 					double rho2 = sqrt(x2 * x2 + y2 * y2);
 					double phi2 = atan2(y2, x2);
+					if (phi2 < 0) {
+						phi2 += 2 * pi;
+					}
 
 					if ((rho2 < xmin1) || (rho2 > xmax1)) {
 						outputArray[i][j][k] = 0;
@@ -974,6 +1018,9 @@ void RadiationSourceFactory::transformScalarArray(double*** inputArray, int N1, 
 						theta2 = 0;
 					}
 					double phi2 = atan2(y2, x2);
+					if (phi2 < 0) {
+						phi2 += 2 * pi;
+					}
 
 					if ((r2 < xmin1) || (r2 > xmax1)) {
 						outputArray[i][j][k] = 0;
@@ -1006,6 +1053,12 @@ void RadiationSourceFactory::transformScalarArray(double*** inputArray, int N1, 
 					}
 
 					outputArray[i][j][k] = inputArray[i1][i2][i3];
+				}
+
+				if (checkNaNorInfinity(outputArray[i][j][k])) {
+					printf("outputArray is Nan or Infinity %lf\n", outputArray[i][j][k]);
+					printLog("outputArray is Nan or Infinity %lf\n", outputArray[i][j][k]);
+					exit(0);
 				}
 			}
 		}
@@ -1052,6 +1105,13 @@ void RadiationSourceFactory::transformVectorArrays(double*** inputArray1, double
 	double dx2 = (xmax2 - xmin2) / N2;
 	double dx3 = (xmax3 - xmin3) / N3;
 
+	double sinthetar = sin(thetar);
+	double costhetar = cos(thetar);
+	double sinphir = sin(phir);
+	double cosphir = cos(phir);
+	double sinpsir = sin(psir);
+	double cospsir = cos(psir);
+
 	for (int i = 0; i < Nrho; ++i) {
 		double rho = rhomin + drho * (i + 0.5);
 		for (int j = 0; j < Nz; ++j) {
@@ -1066,6 +1126,8 @@ void RadiationSourceFactory::transformVectorArrays(double*** inputArray1, double
 				double z2 = z1 * cos(thetar) - x1 * sin(thetar);
 				double x2 = (x1 * cos(thetar) + z1 * sin(thetar)) * cos(phir) - y1 * sin(phir);
 				double y2 = y1 * cos(phir) + (x1 * cos(thetar) + z1 * sin(thetar)) * sin(phir);
+
+				double ax, ay, az;
 
 				if (geometry == SourceInputGeometry::CARTESIAN) {
 					if ((x2 < xmin1) || (x2 > xmax1)) {
@@ -1104,15 +1166,23 @@ void RadiationSourceFactory::transformVectorArrays(double*** inputArray1, double
 						i3 = 0;
 					}
 
-					double ax = inputArray1[i][j][k];
-					double ay = inputArray2[i][j][k];
-					double az = inputArray3[i][j][k];
+					ax = inputArray1[i1][i2][i3];
+					ay = inputArray2[i1][i2][i3];
+					az = inputArray3[i1][i2][i3];
 
 					outputArray[i][j][k] = sqrt(ax*ax + ay*ay + az*az);
+					if (checkNaNorInfinity(outputArray[i][j][k])) {
+						printf("outputArray is Nan or Infinity %lf\n", outputArray[i][j][k]);
+						printLog("outputArray is Nan or Infinity %lf\n", outputArray[i][j][k]);
+						exit(0);
+					}
 				}
 				else if (geometry == SourceInputGeometry::CYLINDRICAL) {
 					double rho2 = sqrt(x2 * x2 + y2 * y2);
 					double phi2 = atan2(y2, x2);
+					if (phi2 < 0) {
+						phi2 += 2 * pi;
+					}
 
 					if ((rho2 < xmin1) || (rho2 > xmax1)) {
 						outputArray[i][j][k] = 0;
@@ -1150,11 +1220,19 @@ void RadiationSourceFactory::transformVectorArrays(double*** inputArray1, double
 						i3 = 0;
 					}
 
-					double arho = inputArray1[i][j][k];
-					double az = inputArray2[i][j][k];
-					double aphi = inputArray3[i][j][k];
+					double arho = inputArray1[i1][i2][i3];
+					az = inputArray2[i1][i2][i3];
+					double aphi = inputArray3[i1][i2][i3];
+
+					ax = arho * cos(phi2) - aphi * sin(phi2);
+					ay = aphi * cos(phi2) + arho * sin(phi2);
 
 					outputArray[i][j][k] = sqrt(arho * arho + az * az + aphi * aphi);
+					if (checkNaNorInfinity(outputArray[i][j][k])) {
+						printf("outputArray is Nan or Infinity %lf\n", outputArray[i][j][k]);
+						printLog("outputArray is Nan or Infinity %lf\n", outputArray[i][j][k]);
+						exit(0);
+					}
 				}
 				else if (geometry == SourceInputGeometry::SPHERICAL) {
 					double r2 = sqrt(x2 * x2 + y2 * y2 + z2 * z2);
@@ -1163,6 +1241,9 @@ void RadiationSourceFactory::transformVectorArrays(double*** inputArray1, double
 						theta2 = 0;
 					}
 					double phi2 = atan2(y2, x2);
+					if (phi2 < 0) {
+						phi2 += 2 * pi;
+					}
 
 					if ((r2 < xmin1) || (r2 > xmax1)) {
 						outputArray[i][j][k] = 0;
@@ -1200,11 +1281,37 @@ void RadiationSourceFactory::transformVectorArrays(double*** inputArray1, double
 						i3 = 0;
 					}
 
-					double ar = inputArray1[i][j][k];
-					double atheta = inputArray2[i][j][k];
-					double aphi = inputArray3[i][j][k];
+					double ar = inputArray1[i1][i2][i3];
+					double atheta = inputArray2[i1][i2][i3];
+					double aphi = inputArray3[i1][i2][i3];
+
+					az = ar * cos(theta2) + atheta * sin(theta2);
+					ax = ar * sin(theta2) * cos(phi2) - atheta * cos(theta2) * cos(phi2) - aphi * sin(phi2);
+					ay = ar * sin(theta2) * sin(phi2) - atheta * cos(theta2) * sin(phi2) + aphi * cos(phi2);
 
 					outputArray[i][j][k] = sqrt(ar * ar + atheta * atheta + aphi * aphi);
+					if (checkNaNorInfinity(outputArray[i][j][k])) {
+						printf("outputArray is Nan or Infinity %lf\n", outputArray[i][j][k]);
+						printLog("outputArray is Nan or Infinity %lf\n", outputArray[i][j][k]);
+						exit(0);
+					}
+				}
+
+
+				if (outputArray[i][j][k] == 0) {
+					outputArrayTheta[i][j][k] = pi / 2;
+					outputArrayPhi[i][j][k] = 0;
+					continue;
+				}
+
+				double amultz = (ax * sinthetar * cosphir + ay * sinthetar * sinphir + az * costhetar);
+				double amultx = (ax * (costhetar * cosphir * cospsir - sinpsir * sinphir) + ay * (sinpsir * cosphir + costhetar * cospsir * sinphir) - az * sinthetar * cospsir);
+				double amulty = (ax * (-sinpsir * costhetar * cosphir - cospsir * sinphir) + ay * (cospsir * cosphir - sinpsir * costhetar * sinphir) + az * sinthetar * sinpsir);
+
+				outputArrayTheta[i][j][k] = acos(amultz / outputArray[i][j][k]);
+				outputArrayPhi[i][j][k] = atan2(amulty, amultx);
+				if (outputArrayPhi[i][j][k] < 0) {
+					outputArrayPhi[i][j][k] += 2 * pi;
 				}
 			}
 		}
