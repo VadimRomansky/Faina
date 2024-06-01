@@ -7,6 +7,8 @@
 #include "massiveParticleDistribution.h"
 
 #include "radiationSourceFactory.h"
+#include <queue>
+#include <tuple>
 
 double RadiationSourceFactory::evaluateTurbulenceAmplitude(const double& k, const double& turbulenceKoef, const double& index, const double& L0)
 {
@@ -839,6 +841,9 @@ TabulatedDiskSource* RadiationSourceFactory::readSourceFromFile(MassiveParticleD
 		}
 	}
 
+	correctSourceConcentration(concentration, Nxb, Nyb, Nzb, Nxb-1, Nyb-1, Nzb-1, 0.002);
+	correctSourceConcentration(concentration, Nxb, Nyb, Nzb, Nxb/2, Nyb/2, Nzb - 1, 0.002);
+
 	transformScalarArray(concentration, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, concentration2, Nrho, Nz, Nphi, 0, rho, zmin, zmax, 0, 2 * pi, thetar, phir, psir);
 	transformVectorArrays(B1, B2, B3, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, B, Btheta, Bphi, Nrho, Nz, Nphi, 0, rho, zmin, zmax, 0, 2 * pi, thetar, phir, psir);
 
@@ -881,6 +886,36 @@ TabulatedDiskSource* RadiationSourceFactory::readSourceFromFile(MassiveParticleD
 	delete[] Bphi;
 
 	return source;
+}
+
+void RadiationSourceFactory::correctSourceConcentration(double*** concentration, const int Nx, const int Ny, const int Nz, const int start1, const int start2, const int start3, const double& threshold)
+{
+	bool*** sourceMark = breadthFirstSearchOfRegion(concentration, Nx, Ny, Nz, start1, start2, start3, threshold);
+
+	FILE* markFile = fopen("marker.dat", "w");
+	for (int i = 0; i < Nx; ++i) {
+		for (int j = 0; j < Ny; ++j) {
+			for (int k = 0; k < Nz; ++k) {
+				if (sourceMark[i][j][k]) {
+					concentration[i][j][k] = 0;
+					fprintf(markFile, "%lf\n", 0.0);
+				}
+				else {
+					fprintf(markFile, "%lf\n", 1.0);
+				}
+			}
+		}
+	}
+
+	fclose(markFile);
+
+	for (int i = 0; i < Nx; ++i) {
+		for (int j = 0; j < Ny; ++j) {
+			delete[] sourceMark[i][j];
+		}
+		delete[] sourceMark[i];
+	}
+	delete[] sourceMark;
 }
 
 //transforms array from arbitrary pluto coordinates to rotated cylindrical coordinates
@@ -942,20 +977,20 @@ void RadiationSourceFactory::transformScalarArray(double*** inputArray, int N1, 
 				if (geometry == SourceInputGeometry::CARTESIAN) {
 					if ((x2 < xmin1) || (x2 > xmax1)) {
 						outputArray[i][j][k] = 0;
-						printf("warning: transformed array out of boundaries\n");
-						printLog("warning: transformed array out of boundaries\n");
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
 						continue;
 					}
 					if ((N2 > 1) && ((y2 < xmin2) || (y2 > xmax2))) {
 						outputArray[i][j][k] = 0;
-						printf("warning: transformed array out of boundaries\n");
-						printLog("warning: transformed array out of boundaries\n");
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
 						continue;
 					}
 					if ((N3 > 1) && ((z2 < xmin3) || (z2 > xmax3))) {
 						outputArray[i][j][k] = 0;
-						printf("warning: transformed array out of boundaries\n");
-						printLog("warning: transformed array out of boundaries\n");
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
 						continue;
 					}
 
@@ -981,20 +1016,20 @@ void RadiationSourceFactory::transformScalarArray(double*** inputArray, int N1, 
 
 					if ((rho2 < xmin1) || (rho2 > xmax1)) {
 						outputArray[i][j][k] = 0;
-						printf("warning: transformed array out of boundaries\n");
-						printLog("warning: transformed array out of boundaries\n");
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
 						continue;
 					}
 					if ((N2 > 1) && ((z2 < xmin2) || (z2 > xmax2))) {
 						outputArray[i][j][k] = 0;
-						printf("warning: transformed array out of boundaries\n");
-						printLog("warning: transformed array out of boundaries\n");
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
 						continue;
 					}
 					if ((N3 > 1) && ((phi2 < xmin3) || (phi2 > xmax3))) {
 						outputArray[i][j][k] = 0;
-						printf("warning: transformed array out of boundaries\n");
-						printLog("warning: transformed array out of boundaries\n");
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
 						continue;
 					}
 
@@ -1024,20 +1059,20 @@ void RadiationSourceFactory::transformScalarArray(double*** inputArray, int N1, 
 
 					if ((r2 < xmin1) || (r2 > xmax1)) {
 						outputArray[i][j][k] = 0;
-						printf("warning: transformed array out of boundaries\n");
-						printLog("warning: transformed array out of boundaries\n");
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
 						continue;
 					}
 					if ((N2 > 1) && ((theta2 < xmin2) || (theta2 > xmax2))) {
 						outputArray[i][j][k] = 0;
-						printf("warning: transformed array out of boundaries\n");
-						printLog("warning: transformed array out of boundaries\n");
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
 						continue;
 					}
 					if ((N3 > 1) && ((phi2 < xmin3) || (phi2 > xmax3))) {
 						outputArray[i][j][k] = 0;
-						printf("warning: transformed array out of boundaries\n");
-						printLog("warning: transformed array out of boundaries\n");
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
 						continue;
 					}
 
@@ -1134,24 +1169,24 @@ void RadiationSourceFactory::transformVectorArrays(double*** inputArray1, double
 						outputArray[i][j][k] = 0;
 						outputArrayTheta[i][j][k] = pi / 2;
 						outputArrayTheta[i][j][k] = 0;
-						printf("warning: transformed array out of boundaries\n");
-						printLog("warning: transformed array out of boundaries\n");
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
 						continue;
 					}
 					if ((N2 > 1) && ((y2 < xmin2) || (y2 > xmax2))) {
 						outputArray[i][j][k] = 0;
 						outputArrayTheta[i][j][k] = pi / 2;
 						outputArrayTheta[i][j][k] = 0;
-						printf("warning: transformed array out of boundaries\n");
-						printLog("warning: transformed array out of boundaries\n");
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
 						continue;
 					}
 					if ((N3 > 1) && ((z2 < xmin3) || (z2 > xmax3))) {
 						outputArray[i][j][k] = 0;
 						outputArrayTheta[i][j][k] = pi / 2;
 						outputArrayTheta[i][j][k] = 0;
-						printf("warning: transformed array out of boundaries\n");
-						printLog("warning: transformed array out of boundaries\n");
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
 						continue;
 					}
 
@@ -1188,24 +1223,24 @@ void RadiationSourceFactory::transformVectorArrays(double*** inputArray1, double
 						outputArray[i][j][k] = 0;
 						outputArrayTheta[i][j][k] = pi / 2;
 						outputArrayTheta[i][j][k] = 0;
-						printf("warning: transformed array out of boundaries\n");
-						printLog("warning: transformed array out of boundaries\n");
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
 						continue;
 					}
 					if ((N2 > 1) && ((z2 < xmin2) || (z2 > xmax2))) {
 						outputArray[i][j][k] = 0;
 						outputArrayTheta[i][j][k] = pi / 2;
 						outputArrayTheta[i][j][k] = 0;
-						printf("warning: transformed array out of boundaries\n");
-						printLog("warning: transformed array out of boundaries\n");
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
 						continue;
 					}
 					if ((N3 > 1) && ((phi2 < xmin3) || (phi2 > xmax3))) {
 						outputArray[i][j][k] = 0;
 						outputArrayTheta[i][j][k] = pi / 2;
 						outputArrayTheta[i][j][k] = 0;
-						printf("warning: transformed array out of boundaries\n");
-						printLog("warning: transformed array out of boundaries\n");
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
 						continue;
 					}
 
@@ -1249,24 +1284,24 @@ void RadiationSourceFactory::transformVectorArrays(double*** inputArray1, double
 						outputArray[i][j][k] = 0;
 						outputArrayTheta[i][j][k] = pi / 2;
 						outputArrayTheta[i][j][k] = 0;
-						printf("warning: transformed array out of boundaries\n");
-						printLog("warning: transformed array out of boundaries\n");
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
 						continue;
 					}
 					if ((N2 > 1) && ((theta2 < xmin2) || (theta2 > xmax2))) {
 						outputArray[i][j][k] = 0;
 						outputArrayTheta[i][j][k] = pi / 2;
 						outputArrayTheta[i][j][k] = 0;
-						printf("warning: transformed array out of boundaries\n");
-						printLog("warning: transformed array out of boundaries\n");
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
 						continue;
 					}
 					if ((N3 > 1) && ((phi2 < xmin3) || (phi2 > xmax3))) {
 						outputArray[i][j][k] = 0;
 						outputArrayTheta[i][j][k] = pi / 2;
 						outputArrayTheta[i][j][k] = 0;
-						printf("warning: transformed array out of boundaries\n");
-						printLog("warning: transformed array out of boundaries\n");
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
 						continue;
 					}
 
@@ -1316,4 +1351,80 @@ void RadiationSourceFactory::transformVectorArrays(double*** inputArray1, double
 			}
 		}
 	}
+}
+
+bool*** RadiationSourceFactory::breadthFirstSearchOfRegion(double*** inputArray, const int N1, const int N2, const int N3, const int start1, const int start2, const int start3, const double& threshold) {
+	
+	bool*** result = new bool** [N1];
+	for (int i = 0; i < N1; ++i) {
+		result[i] = new bool* [N2];
+		for (int j = 0; j < N2; ++j) {
+			result[i][j] = new bool[N3];
+			for (int k = 0; k < N3; ++k) {
+				result[i][j][k] = false;
+			}
+		}
+	}
+	
+	std::queue<std::tuple<int, int, int> > queue;
+
+	queue.push(std::tuple<int, int, int>(start1, start2, start3));
+	result[start1][start2][start3] = true;
+
+	while (queue.size() > 0) {
+		std::tuple<int, int, int> tuple = queue.front();
+		queue.pop();
+		int n1 = std::get<0>(tuple);
+		int n2 = std::get<1>(tuple);
+		int n3 = std::get<2>(tuple);
+
+		//result[n1][n2][n3] = true;
+		double current = inputArray[n1][n2][n3];
+
+		if (n1 > 0) {
+			double local = inputArray[n1 - 1][n2][n3];
+			if ((!result[n1-1][n2][n3]) && (local > (1.0 - threshold)* current) && (local < (1.0 + threshold) * current)) {
+				queue.push(std::tuple<int, int, int>(n1 - 1, n2, n3));
+				result[n1 - 1][n2][n3] = true;
+			}
+		}
+		if (n1 < N1 - 1) {
+			double local = inputArray[n1 + 1][n2][n3];
+			if ((!result[n1+1][n2][n3]) && (local >(1.0 - threshold)* current) && (local < (1.0 + threshold) * current)) {
+				queue.push(std::tuple<int, int, int>(n1 + 1, n2, n3));
+				result[n1 + 1][n2][n3] = true;
+			}
+		}
+
+		if (n2 > 0) {
+			double local = inputArray[n1][n2-1][n3];
+			if ((!result[n1][n2-1][n3]) && (local > (1.0 - threshold) * current) && (local < (1.0 + threshold) * current)) {
+				queue.push(std::tuple<int, int, int>(n1, n2-1, n3));
+				result[n1][n2 - 1][n3] = true;
+			}
+		}
+		if (n2 < N2 - 1) {
+			double local = inputArray[n1][n2 + 1][n3];
+			if ((!result[n1][n2 + 1][n3]) && (local > (1.0 - threshold) * current) && (local < (1.0 + threshold) * current)) {
+				queue.push(std::tuple<int, int, int>(n1, n2 + 1, n3));
+				result[n1][n2 + 1][n3] = true;
+			}
+		}
+		if (n3 > 0) {
+			double local = inputArray[n1][n2][n3-1];
+			if ((!result[n1][n2][n3-1]) && (local > (1.0 - threshold) * current) && (local < (1.0 + threshold) * current)) {
+				queue.push(std::tuple<int, int, int>(n1, n2, n3-1));
+				result[n1][n2][n3 - 1] = true;
+			}
+		}
+		if (n3 < N3 - 1) {
+			double local = inputArray[n1][n2][n3+1];
+			if ((!result[n1][n2][n3 + 1]) && (local > (1.0 - threshold) * current) && (local < (1.0 + threshold) * current)) {
+				queue.push(std::tuple<int, int, int>(n1, n2, n3+1));
+				result[n1][n2][n3 + 1] = true;
+			}
+		}
+	}
+
+	return result;
 }

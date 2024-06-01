@@ -31,7 +31,25 @@ def plot_image():
     ax = plt.subplot(projection="polar")
     ax.axis("off")
 
-    im2 = plt.pcolormesh(th, r, radiation.T, norm = colors.LogNorm(vmin = amin(radiation), vmax = amax(radiation)))
+    minradiation = amin(radiation)
+    maxradiation = amax(radiation)
+    if(minradiation == 0):
+        radiation2 = np.copy(radiation)
+        for i in range(Nr):
+            for j in range(Nphi):
+                if(radiation2[i][j] == 0):
+                    radiation2[i][j] = 2*maxradiation
+        minradiation = amin(radiation2)
+
+        for i in range(Nr):
+            for j in range(Nphi):
+                if(radiation[i][j] == 0):
+                    radiation[i][j] = 0.1*minradiation
+
+    im2 = plt.pcolormesh(th, r, radiation.T, norm = colors.LogNorm(vmin = minradiation, vmax = amax(radiation)))
+
+    #cax2 = f1.add_axes([0.125, 0.92, 0.775, 0.03])
+    #plt.colorbar(im2, cax=cax2, orientation='horizontal')
 
     plt.savefig('image.png', bbox_inches='tight')
     #plt.show()
