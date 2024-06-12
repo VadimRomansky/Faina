@@ -1,16 +1,16 @@
 clear;
 
-radiation = importdata('../outputSynch.dat');
-compton = importdata('../outputCompt.dat');
-radiation2 = importdata('../outputSynch2.dat');
-radiation3 = importdata('../outputSynch3.dat');
+radiation = importdata('../outputSynch1.dat');
+%compton = importdata('../outputCompt.dat');
+%radiation2 = importdata('../outputSynch2.dat');
+%radiation3 = importdata('../outputSynch3.dat');
 
-radiation4 = importdata('../examples_data/coppejans_data.txt');
+radiationObserved = importdata('../examples_data/css_data/coppejans99.txt');
 
 N = size(radiation,1);
 Nr = size(radiation,2);
 
-Nn = size(radiation4,1);
+Nn = size(radiationObserved,1);
 
 %CSS161010
 cssx1(1:4) = [1.5, 3.0, 6.1, 9.87 ];
@@ -166,8 +166,8 @@ s = 4*f*r/3;
 h = 6.626*10^-27;
 
 for i = 1:Nn,
-    radiation4(i,1)=radiation4(i,1)*10^-9;
-    radiation4(i,2)=radiation4(i,2)*1000;
+    radiationObserved(i,1)=radiationObserved(i,1)*10^-9;
+    radiationObserved(i,2)=radiationObserved(i,2)*1000;
 end;
 
 
@@ -183,8 +183,8 @@ xlabel ('{\nu} GHz');
 ylabel ('mJy');
 
 loglog(radiation(1:N,1),radiation(1:N,2),'red','LineWidth',2);
-loglog(radiation2(1:N,1),radiation2(1:N,2),'green','LineWidth',2);
-loglog(radiation3(1:N,1),radiation3(1:N,2),'blue','LineWidth',2);
+%loglog(radiation2(1:N,1),radiation2(1:N,2),'green','LineWidth',2);
+%loglog(radiation3(1:N,1),radiation3(1:N,2),'blue','LineWidth',2);
 %loglog(compton(1:N,1),compton(1:N,2),'blue','LineWidth',2);
 
 %loglog(radiation(1:N,1),radiation(1:N,5),'magenta','LineWidth',2);
@@ -198,9 +198,12 @@ loglog(radiation3(1:N,1),radiation3(1:N,2),'blue','LineWidth',2);
 %plot(octx(1:3),octy(1:3),'--o','Color',[1.0,0.6,0],'LineWidth',2);
 %plot(decx(1:3),decy(1:3),'--o','Color','black','LineWidth',2);
 
-errorbar(cssx1,cssy1,cssError1,'red','LineWidth',2);
-errorbar(cssx2,cssy2,cssError2,'green','LineWidth',2);
-errorbar(cssx3,cssy3,cssError3,'blue','LineWidth',2);
+%errorbar(cssx1,cssy1,cssError1,'red','LineWidth',2);
+%errorbar(cssx2,cssy2,cssError2,'green','LineWidth',2);
+%errorbar(cssx3,cssy3,cssError3,'blue','LineWidth',2);
+
+errorbar(radiationObserved(1:Nn,5), radiationObserved(1:Nn,7), radiationObserved(1:Nn,8),'blue','LineWidth',2);
+
 %loglog(radiation4(1:Nn,1),radiation4(1:Nn,2),'blue','LineWidth',2);
 %errorbar(cssx2,cssy2,cssError2,'green','LineWidth',2);
 %errorbar(cssx3,cssy3,cssError3,'blue','LineWidth',2);
@@ -220,34 +223,22 @@ errorbar(cssx3,cssy3,cssError3,'blue','LineWidth',2);
 
 grid ;
 
-nufnuSynch(1:N)=0;
-nufnuCompt(1:N)=0;
-for i=1:N,
-    nufnuSynch(i) = radiation(i,1)*radiation(i,2)*10^-26*10^9;
-    nufnuCompt(i) = compton(i,1)*compton(i,2)*10^-26*10^9;
-end;
+%nufnuSynch(1:N)=0;
+%nufnuCompt(1:N)=0;
+%for i=1:N,
+%    nufnuSynch(i) = radiation(i,1)*radiation(i,2)*10^-26*10^9;
+%    nufnuCompt(i) = compton(i,1)*compton(i,2)*10^-26*10^9;
+%end;
 
-figure(2);
-hold on;
-set(gca, 'YScale', 'log');
-set(gca, 'XScale', 'log');
-title ('\nu F_{\nu}');
-xlabel ('{\E} eV');
-ylabel ('\nu F_{\nu} erg cm^{-2} s^{-1}');
+%figure(2);
+%hold on;
+%set(gca, 'YScale', 'log');
+%set(gca, 'XScale', 'log');
+%title ('\nu F_{\nu}');
+%xlabel ('{\E} eV');
+%ylabel ('\nu F_{\nu} erg cm^{-2} s^{-1}');
 
-loglog(radiation(1:N,1)*10^9*h/(1.6*10^-12),nufnuSynch(1:N),'red','LineWidth',2);
-loglog(compton(1:N,1)*10^9*h/(1.6*10^-12),nufnuCompt(1:N),'blue','LineWidth',2);
+%loglog(radiation(1:N,1)*10^9*h/(1.6*10^-12),nufnuSynch(1:N),'red','LineWidth',2);
+%loglog(compton(1:N,1)*10^9*h/(1.6*10^-12),nufnuCompt(1:N),'blue','LineWidth',2);
 
-dlmwrite('radiation.dat',radiation,'delimiter',' ');
-
-
-gamma = - log(apry(3)/apry(4))/log(aprx(3)/aprx(4));
-
-testx(1:3) = 0;
-testx(1) = 8.46;
-testx(2) = 22.5;
-testx(3) = 1000*1.6*10^(-12)*10^(-9)/h;
-testy(1:3) = 0;
-testy(1) = apry(3);
-testy(2) = testy(1)*power(testx(2)/testx(1),-gamma);
-testy(3) = testy(1)*power(testx(3)/testx(1),-gamma);
+%dlmwrite('radiation.dat',radiation,'delimiter',' ');

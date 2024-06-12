@@ -1213,12 +1213,12 @@ void fitAngleDependentFlux() {
 	double Emin = me_c2;
 	//double Emax = 1E12 * me_c2;
 	double Emax = 1E4 * me_c2;
-	int Ne = 40;
-	int Nmu = 200;
+	int Ne = 50;
+	int Nmu = 50;
 
 	int Nrho = 50;
 	int Nz = 50;
-	int Nphi = 4;
+	int Nphi = 50;
 
 
 	srand(100);
@@ -1273,7 +1273,7 @@ void fitAngleDependentFlux() {
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 0.5 * rmax, 1E-6, 1, 0.01, 0.5 * speed_of_light };
-	double maxParameters[Nparams] = { 1.1 * rmax, 5E-1, 2E6, 0.5, 0.75 * speed_of_light };
+	double maxParameters[Nparams] = { 1.1 * rmax, 5E-1, 2E6, 0.1, 0.75 * speed_of_light };
 	//starting point of optimization and normalization
 	//fraction = 2E13 / rmax;
 
@@ -1295,27 +1295,6 @@ void fitAngleDependentFlux() {
 	printLog("new sigma = %g\n", sigma);
 	printf("new concentration = %g\n", electronConcentration);
 	printLog("new concentration = %g\n", electronConcentration);
-
-	/*const int Nenergy1 = 4;
-	double energy1[Nenergy1] = { 1.5E9, 3.0E9 , 6.1E9, 9.87E9 };
-	double observedFlux1[Nenergy1] = { 1.5, 4.3, 6.1, 4.2 };
-	double observedError1[Nenergy1] = { 0.1, 0.2 , 0.3, 0.2 };*/
-
-	/*const int Nenergy1 = 4;
-	double energy1[Nenergy1] = { 2.94E9 , 6.1E9, 9.74E9, 22.0E9};
-	double observedFlux1[Nenergy1] = {2.9, 2.3, 1.74, 0.56};
-	double observedError1[Nenergy1] = {0.2 , 0.1, 0.09, 0.03 };*/
-
-	/*const int Nenergy1 = 7;
-	double energy1[Nenergy1] = { 0.33E9, 0.61E9 , 1.39E9, 1.5E9, 3.0E9, 6.05E9, 10E9 };
-	double observedFlux1[Nenergy1] = { 0.375, 0.79, 0.38, 0.27, 0.17, 0.07, 0.032 };
-	double observedError1[Nenergy1] = { 0.375, 0.09 , 0.05, 0.07, 0.03, 0.01, 0.008 };*/
-
-	/*for (int i = 0; i < Nenergy1; ++i) {
-		energy1[i] = energy1[i] * hplank;
-		observedFlux1[i] = observedFlux1[i] / (hplank * 1E26);
-		observedError1[i] = observedError1[i] / (hplank * 1E26);
-	}*/
 
 	double* energy1;
 	double* observedFlux1;
@@ -1464,7 +1443,7 @@ void fitAngleDependentFlux() {
 	}
 
 	//outputing spectrum
-	FILE* output_GZ_Jansky = fopen("outputSynch1.dat", "w");
+	FILE* output_GZ_Jansky = fopen("outputSynch.dat", "w");
 	//FILE* output_GZ_Jansky2 = fopen("outputSynch2.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		fprintf(output_GZ_Jansky, "%g %g\n", Nu[i] / 1E9, hplank * F[i] * 1E26);
@@ -1472,6 +1451,9 @@ void fitAngleDependentFlux() {
 	}
 	fclose(output_GZ_Jansky);
 	//fclose(output_GZ_Jansky2);
+	
+	synchrotronEvaluator->writeImageFromSourceAtEToFile(1E9 * hplank, "image.dat", source);
+
 	//return;
 
 }
