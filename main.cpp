@@ -936,7 +936,8 @@ int main() {
 	//testRotation();
 	//testAnisotropicCompton();
 	//compareComptonWithPowerLawDistribution();
-	testReadingSource();
+	//testReadingSource();
+	fitAngleDependentFlux();
 
 
 	//evaluateFluxSNRtoWind();

@@ -45,7 +45,7 @@ Classes for every specific type of electromagnetic radiation are described below
 \end{small}
 
 \section{Synchrotron radiation}\label{synchrotronSection}
-Class SynchrotronEvaluator is implemented for evaluation of synchrotron radiation. It uses standard approximation of continious spectrum, described in \cite{Ginzburg1975, Ghisellini} and in section \ref{synchrotronFormulaSection},  - it is valid for frequencies of emitted photons much higher than gyrofrequency of emitting particles. Also it is possible to take into account synchrotron self-absorption. Cylindrical geomtry, shown in Figure \ref{sphericalLayer} allows to integrate flux through the line of sight and take into account absorption inside the source. To create SynchrotronEvaluator object user should provide energy range of particles to be taken into account, numbers of integration points in it, and also two boolean parameters - for accounting self absorption and doppler shifting due to source matter velocity. Public methods of Synchrotron evaluator are listed in Table  \ref{SynchrotronEvaluator}. Example of evaliation of synchrotron radiation is shown in section Running simple problem.
+Class SynchrotronEvaluator is implemented for evaluation of synchrotron radiation. It uses standard approximation of continious spectrum, described in \cite{Ginzburg1975, Ghisellini} and in section \ref{synchrotronFormulaSection},  - it is valid for frequencies of emitted photons much higher than gyrofrequency of emitting particles. Also it is possible to take into account synchrotron self-absorption. Cylindrical geometry, shown in Figure \ref{sphericalLayer} allows to integrate flux through the line of sight and take into account absorption inside the source. To create SynchrotronEvaluator object user should provide energy range of particles to be taken into account, numbers of integration points in it, and also two boolean parameters - for accounting self absorption and doppler shifting due to source matter velocity. Public methods of Synchrotron evaluator are listed in Table  \ref{SynchrotronEvaluator}. Example of evaliation of synchrotron radiation is shown in section Running simple problem.
 \begin{table}[h]
 	\begin{center}
 	\begin{small}
@@ -64,9 +64,9 @@ Class SynchrotronEvaluator is implemented for evaluation of synchrotron radiatio
 \end{center}
 \end{table}
 \section{Inverse Compton scattering}
-Class InverseComptonEvaluator is implemented for evaluation of radiation produced in inverce compton scattering. Also it has one derived class InverseComptonEvaluatorWithSource. The difference between them is that in the first one distribution of seed photons is constant inside the source, and in the second one photons number density is change proportionaly inverse square of the distance to the source of seed photons.
+Class InverseComptonEvaluator is implemented for evaluation of radiation produced due to inverse compton scattering. Also it has one derived class InverseComptonEvaluatorWithSource. The difference between them is that in the first one distribution of seed photons is constant inside the source, and in the second one photons number density is change proportionaly inverse square of the distance to the source of seed photons.
 
-There are four different algorithmes of evaluation IC radiation that can be used by InverseComptonEvaluator, their formulae are described in section \ref{ComptonFormulaeSection}. They are listed by enum-type ComptonSolverType, having following values:
+There are four different algorithms of evaluation IC radiation that can be used by InverseComptonEvaluator, their formulae are described in section \ref{ComptonFormulaeSection}. They are listed by enum-type ComptonSolverType, having following values:
 
 \begin{itemize}
 	\item ISOTROPIC\_THOMSON - simple model of scattering in thomson regime with power-law distribution of electrons and thermal distribution of seed photons, as described in \cite{Ginzburg1975} ch 17, p. 466.

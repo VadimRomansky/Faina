@@ -1186,3 +1186,292 @@ void testReadingSource() {
 
 	evaluator->writeImageFromSourceAtEToFile(hplank * 1E9, "image.dat", source);
 }
+
+//example fit angle dependent flux
+
+void fitAngleDependentFlux() {
+	FILE* logFile = fopen("log.dat", "w");
+	fclose(logFile);
+
+	double theta = pi / 2;
+	double index = 3.5;
+
+
+	double electronConcentration = 2500;
+	double B = 0.29;
+	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
+	double fraction = 0.5;
+	//sigma = 0.0002;
+
+	//SN2009bb
+	//const double distance = 40*3.08*1.0E24;
+	//AT2018
+	//const double distance = 60*3.08*1.0E24;
+	//CSS161010
+	const double distance = 150 * 1000000 * parsec;
+
+	double Emin = me_c2;
+	//double Emax = 1E12 * me_c2;
+	double Emax = 1E4 * me_c2;
+	int Ne = 40;
+	int Nmu = 200;
+
+	int Nrho = 50;
+	int Nz = 50;
+	int Nphi = 4;
+
+
+	srand(100);
+	//double*** Bturb = create3dArray(Nrho, Nz, Nphi);
+	//double*** thetaTurb = create3dArray(Nrho, Nz, Nphi);
+	//double*** phiTurb = create3dArray(Nrho, Nz, Nphi);
+	//double*** concentration = create3dArray(Nrho, Nz, Nphi, electronConcentration);
+	//RadiationSourceFactory::initializeTurbulentField(Bturb, thetaTurb, phiTurb, Nrho, Nz, Nphi, B, pi / 2, 0, 0.9, 11.0 / 6.0, rmax, 10, rmax);
+	//initializing electrons distribution
+	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, me_c2, electronConcentration);
+	//MassiveParticleBrokenPowerLawDistribution* electrons = new MassiveParticleBrokenPowerLawDistribution(massElectron, index, 2.001, 2*me_c2, 1000*me_c2, electronConcentration);
+	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", 259, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee3.dat", "./examples_data/gamma0.5_theta0-90/Fs3.dat", 259, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+
+	double velocity = 0.75 * speed_of_light;
+	//double velocity = 0.55 * speed_of_light;
+	double gamma = 1.0 / sqrt(1.0 - velocity * velocity / speed_of_light2);
+	double rmax = velocity * 99 * 24 * 3600;
+	//electrons->addPowerLaw(200 * massElectron * speed_of_light2, 3.5);
+	//electrons->rescaleDistribution(1.2);
+	//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electrons))->prolongEnergyRange(1E6, 100);
+	//electrons->addPowerLaw(200 * massElectron * speed_of_light2, 3.5);
+	electrons->writeDistribution("distribution.dat", 200, Emin, Emax);
+	int Ndistributions = 10;
+	//reading electron distributions from files
+	//MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.3_theta0-90/Ee", "./examples_data/gamma0.3_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
+	MassiveParticleDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma1.5_theta0-90/Ee", "./examples_data/gamma1.5_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
+	double newEmax = 1E8 * me_c2;
+	/*for (int i = 0; i < Ndistributions; ++i) {
+		//rescale distributions to real mp/me relation
+		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
+		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->prolongEnergyRange(newEmax, 100);
+		if (i < 4) {
+			//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(100 * me_c2, 3.5);
+			(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(300 * me_c2, 3.5);
+			(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(500 * me_c2, 2);
+		}
+
+	}*/
+
+	//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[1]))->writeDistribution("dist1.dat", 300, Emin, newEmax);
+	//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[4]))->writeDistribution("dist4.dat", 300, Emin, newEmax);
+	//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[8]))->writeDistribution("dist8.dat", 300, Emin, newEmax);
+
+	RadiationSource* source = RadiationSourceFactory::createSourceWithTurbulentField(angleDependentDistributions, 10, Nrho, Nz, Nphi, B, pi / 2, 0, electronConcentration, 0.0001, 3.5, 0.5 * rmax, 10, rmax, fraction*rmax, distance);
+
+	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, newEmax, true, false);
+
+
+
+	//number of parameters of the source
+	const int Nparams = 5;
+	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
+	double minParameters[Nparams] = { 0.5 * rmax, 1E-6, 1, 0.01, 0.5 * speed_of_light };
+	double maxParameters[Nparams] = { 1.1 * rmax, 5E-1, 2E6, 0.5, 0.75 * speed_of_light };
+	//starting point of optimization and normalization
+	//fraction = 2E13 / rmax;
+
+	//fraction = (0.4-0.04 + 0.004/3);
+	fraction = 0.5;
+	int Ndays = 99;
+	double denseFactor = 0.5 / fraction;
+	electronConcentration = sqr(99.0 / Ndays) * 17 * denseFactor;
+	//sigma = 0.5*(0.01 * 0.5 / (0.012))/denseFactor;
+	//sigma = 0.34 * 0.34 / (4 * pi * massProton * speed_of_light2 * electronConcentration);
+	sigma = 0.08333;
+	//electronConcentration = 3167 * sqr(69.0 / Ndays);
+	//sigma = 2.33E-5;
+	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, velocity };
+	for (int i = 0; i < Nparams; ++i) {
+		vector[i] = vector[i] / maxParameters[i];
+	}
+	printf("new sigma = %g\n", sigma);
+	printLog("new sigma = %g\n", sigma);
+	printf("new concentration = %g\n", electronConcentration);
+	printLog("new concentration = %g\n", electronConcentration);
+
+	/*const int Nenergy1 = 4;
+	double energy1[Nenergy1] = { 1.5E9, 3.0E9 , 6.1E9, 9.87E9 };
+	double observedFlux1[Nenergy1] = { 1.5, 4.3, 6.1, 4.2 };
+	double observedError1[Nenergy1] = { 0.1, 0.2 , 0.3, 0.2 };*/
+
+	/*const int Nenergy1 = 4;
+	double energy1[Nenergy1] = { 2.94E9 , 6.1E9, 9.74E9, 22.0E9};
+	double observedFlux1[Nenergy1] = {2.9, 2.3, 1.74, 0.56};
+	double observedError1[Nenergy1] = {0.2 , 0.1, 0.09, 0.03 };*/
+
+	/*const int Nenergy1 = 7;
+	double energy1[Nenergy1] = { 0.33E9, 0.61E9 , 1.39E9, 1.5E9, 3.0E9, 6.05E9, 10E9 };
+	double observedFlux1[Nenergy1] = { 0.375, 0.79, 0.38, 0.27, 0.17, 0.07, 0.032 };
+	double observedError1[Nenergy1] = { 0.375, 0.09 , 0.05, 0.07, 0.03, 0.01, 0.008 };*/
+
+	/*for (int i = 0; i < Nenergy1; ++i) {
+		energy1[i] = energy1[i] * hplank;
+		observedFlux1[i] = observedFlux1[i] / (hplank * 1E26);
+		observedError1[i] = observedError1[i] / (hplank * 1E26);
+	}*/
+
+	double* energy1;
+	double* observedFlux1;
+	double* observedError1;
+	int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/css_data/coppejans99.txt");
+	for (int i = 0; i < Nenergy1; ++i) {
+		energy1[i] = energy1[i] * hplank * 1E9;
+		observedFlux1[i] = observedFlux1[i] / (hplank * 1E26);
+		observedError1[i] = observedError1[i] / (hplank * 1E26);
+	}
+
+
+	printf("start optimization\n");
+	printLog("start optimization\n");
+	bool optPar[Nparams] = { false, true, true, false, false };
+	int Niterations = 5;
+	//creating KPIevaluator
+	LossEvaluator* KPIevaluator = new SpectrumLossEvaluator(energy1, observedFlux1, observedError1, Nenergy1, source);
+	//creating gradient descent optimizer
+	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
+	//RadiationOptimizer* synchrotronOptimizer = new CoordinateRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
+	//number of points per axis in gridEnumOptimizer
+	int Npoints[Nparams] = { 10,50,50,10,2 };
+	//creating grid enumeration optimizer
+	RadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints, KPIevaluator);
+	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
+	//grid enumeration optimization, finding best starting point for gradien descent
+
+	//double error = synchrotronOptimizer->evaluateOptimizationFunction(vector);
+	//printf("starting error = %g\n", error);
+	//printLog("starting error = %g\n", error);
+
+	//enumOptimizer->optimize(vector, optPar, source);
+	//gradient descent optimization
+	//synchrotronOptimizer->optimize(vector, optPar);
+	//reseting source parameters to found values
+	//synchrotronOptimizer->outputProfileDiagrams(vector, source, 10);
+	//synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, source, 10, 1, 2);
+	combinedOptimizer->optimize(vector, optPar);
+	/*B = 0.29;
+	electronConcentration = 2500;
+	vector[0] = 1.4E17 / maxParameters[0];
+	vector[1] = (B*B/(4*pi*massProton*electronConcentration*speed_of_light2)) / maxParameters[1];
+	vector[2] = electronConcentration / maxParameters[2];
+	vector[3] = 1.33*0.5 / maxParameters[3];
+	vector[4] = 0.55*speed_of_light / maxParameters[4];*/
+	source->resetParameters(vector, maxParameters);
+	//evaluating resulting error
+	double error = combinedOptimizer->evaluateOptimizationFunction(vector);
+	printf("resulting error = %g\n", error);
+	printLog("resulting error = %g\n", error);
+
+	/*double totalVolume = source->getTotalVolume();
+	double totalVolume2 = 0;
+	for (int i = 0; i < 20; ++i) {
+		for (int j = 0; j < 20; ++j) {
+			for (int k = 0; k < 1; ++k) {
+				totalVolume2 += source->getVolume(i, j, k);
+			}
+		}
+	}
+
+	double area1 = pi * rmax * rmax * (1 - (1 - fraction) * (1 - fraction));
+	double area = 0;
+	for (int i = 0; i < 20; ++i) {
+		for (int k = 0; k < 1; ++k) {
+			area += source->getArea(i, 10, k);
+		}
+	}
+
+
+	printf("total volume = %g\n", totalVolume);
+	printf("total volume2 = %g\n", totalVolume2);*/
+
+	//outputing parameters
+	FILE* paramFile = fopen("parametersCSS161010.dat", "w");
+	printf("hi^2 = %g\n", error);
+	fprintf(paramFile, "hi^2 = %g\n", error);
+	printf("parameters:\n");
+	fprintf(paramFile, "parameters:\n");
+	printf("R = %g\n", vector[0] * maxParameters[0]);
+	fprintf(paramFile, "R = %g\n", vector[0] * maxParameters[0]);
+	printf("average sigma = %g\n", vector[1] * maxParameters[1]);
+	fprintf(paramFile, "average sigma = %g\n", vector[1] * maxParameters[1]);
+	printf("n = %g\n", vector[2] * maxParameters[2]);
+	fprintf(paramFile, "n = %g\n", vector[2] * maxParameters[2]);
+	printf("width fraction = %g\n", vector[3] * maxParameters[3]);
+	fprintf(paramFile, "width fraction = %g\n", vector[3] * maxParameters[3]);
+	printf("R/t*c = %g\n", vector[0] * maxParameters[0] / (Ndays * 24 * 3600 * speed_of_light));
+	fprintf(paramFile, "R/t*c = %g\n", vector[0] * maxParameters[0] / (Ndays * 24 * 3600 * speed_of_light));
+	printf("velocity/c = %g\n", vector[4] * maxParameters[4] / speed_of_light);
+	fprintf(paramFile, "celocity/c = %g\n", vector[4] * maxParameters[4] / speed_of_light);
+	B = sqrt(vector[1] * maxParameters[1] * 4 * pi * massProton * vector[2] * maxParameters[2] * speed_of_light2);
+	printf("average B = %g\n", B);
+	fprintf(paramFile, "average B = %g\n", B);
+	fclose(paramFile);
+
+
+
+	rmax = vector[0] * maxParameters[0];
+	electronConcentration = vector[2] * maxParameters[2];
+	fraction = vector[3] * maxParameters[3];
+	velocity = vector[4] * maxParameters[4] / speed_of_light;
+	gamma = 1.0 / sqrt(1.0 - velocity * velocity);
+
+	//double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0)*(4*pi*rmax*rmax*rmax/3)*(1.0 - cube(1.0 - fraction));
+	double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0) * source->getTotalVolume();
+	double energyInRadioElectrons = electronConcentration * (electrons->getMeanEnergy() - me_c2) * source->getTotalVolume();
+	//double energyInRadioProtons = electronConcentration * (protons->getMeanEnergy() - massProton * speed_of_light2) * source->getTotalVolume();
+	double magneticEnergy = (B * B / (8 * pi)) * source->getTotalVolume();
+	printf("total kinetik energy = %g\n", totalEnergy);
+	printLog("total kinetik energy = %g\n", totalEnergy);
+	printf("energy in radio electrons = %g\n", energyInRadioElectrons);
+	printLog("energy in radio electrons = %g\n", energyInRadioElectrons);
+	//printf("energy in radio protons = %g\n", energyInRadioProtons);
+	//printLog("energy in radio protons = %g\n", energyInRadioProtons);
+	printf("energy in magnetic field = %g\n", magneticEnergy);
+	printLog("energy in magnetic field = %g\n", magneticEnergy);
+	double totalMass = electronConcentration * massProton * source->getTotalVolume();
+	printf("total mass = %g\n", totalMass);
+	printLog("total mass = %g\n", totalMass);
+
+	
+	//initialization arrays for full synchrotron spectrum
+	const int Nnu = 50;
+	double* Nu = new double[Nnu];
+	double* F = new double[Nnu];
+	double* F2 = new double[Nnu];
+
+	double Numin = 1E8;
+	double Numax = 1E19;
+	double factor = pow(Numax / Numin, 1.0 / (Nnu - 1));
+	Nu[0] = Numin;
+	F[0] = 0;
+	F2[0] = 0;
+	for (int i = 1; i < Nnu; ++i) {
+		Nu[i] = Nu[i - 1] * factor;
+		F[i] = 0;
+		F2[i] = 0;
+	}
+
+	//evaluationg full spectrum of the source
+	for (int i = 0; i < Nnu; ++i) {
+		printf("%d\n", i);
+		F[i] = synchrotronEvaluator->evaluateFluxFromSource(hplank * Nu[i], source);
+	}
+
+	//outputing spectrum
+	FILE* output_GZ_Jansky = fopen("outputSynch1.dat", "w");
+	//FILE* output_GZ_Jansky2 = fopen("outputSynch2.dat", "w");
+	for (int i = 0; i < Nnu; ++i) {
+		fprintf(output_GZ_Jansky, "%g %g\n", Nu[i] / 1E9, hplank * F[i] * 1E26);
+		//fprintf(output_GZ_Jansky2, "%g %g\n", Nu[i] / 1E9, hplank * F2[i] * 1E26);
+	}
+	fclose(output_GZ_Jansky);
+	//fclose(output_GZ_Jansky2);
+	//return;
+
+}

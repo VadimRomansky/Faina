@@ -40,5 +40,8 @@ void compareComptonWithPowerLawDistribution();
 //example 12 test reading source from file
 void testReadingSource();
 
+//example fit angle dependent flux
+void fitAngleDependentFlux();
+
 
 #endif

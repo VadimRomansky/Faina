@@ -653,7 +653,7 @@ void RadiationSourceFactory::initializeRhoMask(bool** mask, int Nrho, int Nphi, 
 	}
 }
 
-AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWithTurbulentField(MassiveParticleDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& theta0, const double& phi0, const double n0, const double& fraction, const double& index, const double& L0, int Nmodes, const double& rho, const double& rhoin, const double& distance)
+AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWithTurbulentField(MassiveParticleDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& theta0, const double& phi0, const double n0, const double& turbulentFraction, const double& index, const double& L0, int Nmodes, const double& rho, const double& rhoin, const double& distance)
 {
 	double*** B = create3dArray(Nrho, Nz, Nphi, B0);
 	double*** theta = create3dArray(Nrho, Nz, Nphi, theta0);
@@ -661,7 +661,7 @@ AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWith
 
 	double*** concentration = create3dArray(Nrho, Nz, Nphi, n0);
 
-	initializeTurbulentField(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, fraction, index, L0, Nmodes, rho);
+	initializeTurbulentField(B, theta, phi, Nrho, Nz, Nphi, B0, theta0, phi0, turbulentFraction, index, L0, Nmodes, rho);
 
 	AngleDependentElectronsSphericalSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ntheta, electronDistributions, B, theta, phi, concentration, rho, rhoin, distance);
 
