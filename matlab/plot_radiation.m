@@ -1,6 +1,6 @@
 clear;
 
-radiation = importdata('../outputSynch1.dat');
+radiation = importdata('../outputSynch.dat');
 %compton = importdata('../outputCompt.dat');
 %radiation2 = importdata('../outputSynch2.dat');
 %radiation3 = importdata('../outputSynch3.dat');

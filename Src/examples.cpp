@@ -1241,12 +1241,16 @@ void fitAngleDependentFlux() {
 	//electrons->rescaleDistribution(1.2);
 	//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electrons))->prolongEnergyRange(1E6, 100);
 	//electrons->addPowerLaw(200 * massElectron * speed_of_light2, 3.5);
-	electrons->writeDistribution("distribution.dat", 200, Emin, Emax);
 	int Ndistributions = 10;
 	//reading electron distributions from files
-	//MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.3_theta0-90/Ee", "./examples_data/gamma0.3_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
+	//MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma1.5_theta0-90/Ee", "./examples_data/gamma1.5_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
 	MassiveParticleDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma1.5_theta0-90/Ee", "./examples_data/gamma1.5_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
+	((MassiveParticleIsotropicDistribution*)angleDependentDistributions[9])->writeDistribution("distribution.dat", 200, Emin, Emax);
 	double newEmax = 1E8 * me_c2;
+	for (int i = 0; i < Ndistributions-1; ++i) {
+		angleDependentDistributions[i] = new MassiveParticlePowerLawDistribution(massElectron, 3.5, me_c2, 1.0);
+	}
+	angleDependentDistributions[9] = new MassiveParticleMaxwellJuttnerDistribution(massElectron, 2 * me_c2 / kBoltzman, 1.0);
 	/*for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
 		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
@@ -1291,6 +1295,11 @@ void fitAngleDependentFlux() {
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
 	}
+
+	vector[1] = 0.00115637 / maxParameters[1];
+	vector[2] = 788.285 / maxParameters[2];
+	vector[3] = 0.1 / maxParameters[3];
+
 	printf("new sigma = %g\n", sigma);
 	printLog("new sigma = %g\n", sigma);
 	printf("new concentration = %g\n", electronConcentration);
@@ -1333,41 +1342,15 @@ void fitAngleDependentFlux() {
 	//reseting source parameters to found values
 	//synchrotronOptimizer->outputProfileDiagrams(vector, source, 10);
 	//synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, source, 10, 1, 2);
-	combinedOptimizer->optimize(vector, optPar);
-	/*B = 0.29;
-	electronConcentration = 2500;
-	vector[0] = 1.4E17 / maxParameters[0];
-	vector[1] = (B*B/(4*pi*massProton*electronConcentration*speed_of_light2)) / maxParameters[1];
-	vector[2] = electronConcentration / maxParameters[2];
-	vector[3] = 1.33*0.5 / maxParameters[3];
-	vector[4] = 0.55*speed_of_light / maxParameters[4];*/
+
+	//combinedOptimizer->optimize(vector, optPar);
+	
+
 	source->resetParameters(vector, maxParameters);
 	//evaluating resulting error
 	double error = combinedOptimizer->evaluateOptimizationFunction(vector);
 	printf("resulting error = %g\n", error);
 	printLog("resulting error = %g\n", error);
-
-	/*double totalVolume = source->getTotalVolume();
-	double totalVolume2 = 0;
-	for (int i = 0; i < 20; ++i) {
-		for (int j = 0; j < 20; ++j) {
-			for (int k = 0; k < 1; ++k) {
-				totalVolume2 += source->getVolume(i, j, k);
-			}
-		}
-	}
-
-	double area1 = pi * rmax * rmax * (1 - (1 - fraction) * (1 - fraction));
-	double area = 0;
-	for (int i = 0; i < 20; ++i) {
-		for (int k = 0; k < 1; ++k) {
-			area += source->getArea(i, 10, k);
-		}
-	}
-
-
-	printf("total volume = %g\n", totalVolume);
-	printf("total volume2 = %g\n", totalVolume2);*/
 
 	//outputing parameters
 	FILE* paramFile = fopen("parametersCSS161010.dat", "w");
