@@ -1880,6 +1880,129 @@ void CompoundWeightedMassiveParticleDistribution::resetConcentration(const doubl
 	my_concentration = concentration;
 }
 
+CompoundWeightedMassiveParticleIsotropicDistribution::CompoundWeightedMassiveParticleIsotropicDistribution(int N, const double* weights, MassiveParticleIsotropicDistribution** distributions)
+{
+	my_mass = distributions[0]->getMass();
+	my_Ndistr = N;
+
+	my_weights = new double[my_Ndistr];
+	my_distributions = new MassiveParticleIsotropicDistribution * [my_Ndistr];
+	my_concentration = 0;
+	for (int i = 0; i < my_Ndistr; ++i) {
+		if (distributions[0]->getMass() != my_mass) {
+			printf("masses in compound weighted distribution are not equal\n");
+			printLog("masses in compound weighted distribution are not equal\n");
+			exit(0);
+		}
+		my_weights[i] = weights[i];
+		my_distributions[i] = distributions[i];
+		my_concentration += my_weights[i] * my_distributions[i]->getConcentration();
+	}
+}
+
+CompoundWeightedMassiveParticleIsotropicDistribution::CompoundWeightedMassiveParticleIsotropicDistribution(MassiveParticleIsotropicDistribution* dist1, const double& w1, MassiveParticleIsotropicDistribution* dist2, const double& w2)
+{
+	my_mass = dist1->getMass();
+	if (my_mass != dist2->getMass()) {
+		printf("masses in compound weighted distribution are not equal\n");
+		printLog("masses in compound weighted distribution are not equal\n");
+		exit(0);
+	}
+	my_Ndistr = 2;
+	my_weights = new double[my_Ndistr];
+	my_distributions = new MassiveParticleIsotropicDistribution * [my_Ndistr];
+	my_concentration = w1 * dist1->getConcentration() + w2 * dist2->getConcentration();
+	my_distributions[0] = dist1;
+	my_distributions[1] = dist2;
+	my_weights[0] = w1;
+	my_weights[1] = w2;
+}
+
+CompoundWeightedMassiveParticleIsotropicDistribution::CompoundWeightedMassiveParticleIsotropicDistribution(MassiveParticleIsotropicDistribution* dist1, const double& w1, MassiveParticleIsotropicDistribution* dist2, const double& w2, MassiveParticleIsotropicDistribution* dist3, const double& w3)
+{
+	my_mass = dist1->getMass();
+	if (my_mass != dist2->getMass()) {
+		printf("masses in compound weighted distribution are not equal\n");
+		printLog("masses in compound weighted distribution are not equal\n");
+		exit(0);
+	}
+	if (my_mass != dist3->getMass()) {
+		printf("masses in compound weighted distribution are not equal\n");
+		printLog("masses in compound weighted distribution are not equal\n");
+		exit(0);
+	}
+	my_Ndistr = 3;
+	my_weights = new double[my_Ndistr];
+	my_distributions = new MassiveParticleIsotropicDistribution * [my_Ndistr];
+	my_concentration = dist1->getConcentration() + dist2->getConcentration() + dist3->getConcentration();
+	my_distributions[0] = dist1;
+	my_distributions[1] = dist2;
+	my_distributions[2] = dist3;
+	my_weights[0] = w1;
+	my_weights[1] = w2;
+	my_weights[2] = w3;
+}
+
+CompoundWeightedMassiveParticleIsotropicDistribution::~CompoundWeightedMassiveParticleIsotropicDistribution()
+{
+	delete[] my_weights;
+	delete[] my_distributions;
+}
+
+double CompoundWeightedMassiveParticleIsotropicDistribution::distributionNormalized(const double& energy)
+{
+	double result = 0;
+	for (int i = 0; i < my_Ndistr; ++i) {
+		result += my_weights[i] * my_distributions[i]->distributionNormalized(energy);
+	}
+	return result;
+}
+
+double CompoundWeightedMassiveParticleIsotropicDistribution::getMeanEnergy()
+{
+	double Emean = 0;
+	for (int i = 0; i < my_Ndistr; ++i) {
+		Emean += my_weights[i] * my_distributions[i]->getMeanEnergy();
+	}
+	return Emean;
+}
+
+double CompoundWeightedMassiveParticleIsotropicDistribution::minEnergy()
+{
+	double tempEmin = my_distributions[0]->minEnergy();
+	for (int i = 0; i < my_Ndistr; ++i) {
+		double emin = my_distributions[i]->minEnergy();
+		if (tempEmin > emin) {
+			tempEmin = emin;
+		}
+	}
+	return tempEmin;
+}
+
+double CompoundWeightedMassiveParticleIsotropicDistribution::maxEnergy()
+{
+	double tempEmax = my_distributions[0]->maxEnergy();
+	for (int i = 0; i < my_Ndistr; ++i) {
+		double emax = my_distributions[i]->maxEnergy();
+		if (emax < 0) {
+			return -1.0;
+		}
+		if (tempEmax < emax) {
+			tempEmax = emax;
+		}
+	}
+	return tempEmax;
+}
+
+void CompoundWeightedMassiveParticleIsotropicDistribution::resetConcentration(const double& concentration)
+{
+	//double ratio = concentration / my_concentration;
+	for (int i = 0; i < my_Ndistr; ++i) {
+		my_distributions[i]->resetConcentration(concentration);
+	}
+	my_concentration = concentration;
+}
+
 MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(const double& mass, const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, const double& electronConcentration, int Ne)
 {
 	MassiveParticleDistribution** distributions = new MassiveParticleDistribution * [Nfiles];

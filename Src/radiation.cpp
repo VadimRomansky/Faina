@@ -263,3 +263,21 @@ double RadiationSumEvaluator::evaluateFluxFromSourceAtPoint(const double& photon
     }
     return result;
 }
+
+double RadiationSumEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+{
+    double result = 0;
+    for (int i = 0; i < my_Nevaluators; ++i) {
+        result += my_Evaluators[i]->evaluateEmissivity(photonFinalEnergy, irho, iz, iphi, source);
+    }
+    return result;
+}
+
+double RadiationSumEvaluator::evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+{
+    double result = 0;
+    for (int i = 0; i < my_Nevaluators; ++i) {
+        result += my_Evaluators[i]->evaluateAbsorbtion(photonFinalEnergy, irho, iz, iphi, source);
+    }
+    return result;
+}

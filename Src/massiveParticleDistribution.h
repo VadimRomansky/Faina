@@ -298,6 +298,24 @@ public:
 	virtual void resetConcentration(const double& concentration);
 };
 
+class CompoundWeightedMassiveParticleIsotropicDistribution : public MassiveParticleIsotropicDistribution {
+private:
+	int my_Ndistr;
+	double* my_weights;
+	MassiveParticleIsotropicDistribution** my_distributions;
+public:
+	CompoundWeightedMassiveParticleIsotropicDistribution(int N, const double* weights, MassiveParticleIsotropicDistribution** distributions);
+	CompoundWeightedMassiveParticleIsotropicDistribution(MassiveParticleIsotropicDistribution* dist1, const double& w1, MassiveParticleIsotropicDistribution* dist2, const double& w2);
+	CompoundWeightedMassiveParticleIsotropicDistribution(MassiveParticleIsotropicDistribution* dist1, const double& w1, MassiveParticleIsotropicDistribution* dist2, const double& w2, MassiveParticleIsotropicDistribution* dist3, const double& w3);
+	virtual ~CompoundWeightedMassiveParticleIsotropicDistribution();
+
+	virtual double distributionNormalized(const double& energy);
+	virtual double getMeanEnergy();
+	virtual double minEnergy();
+	virtual double maxEnergy();
+	virtual void resetConcentration(const double& concentration);
+};
+
 class MassiveParticleDistributionFactory {
 public:
 	static MassiveParticleDistribution** readTabulatedIsotropicDistributions(const double& mass, const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, const double& electronConcentrations, int Ne);

@@ -264,6 +264,17 @@ void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFre
     }
 }
 
+double SynchrotronEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi)
+{
+	double B = source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), source->getParticleDistribution(irho, iz, iphi)
+	return 0.0;
+}
+
+double SynchrotronEvaluator::evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi)
+{
+	return 0.0;
+}
+
 double SynchrotronEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi) {
 	int Nrho = source->getNrho();
 	int Nz = source->getNz();
@@ -295,7 +306,9 @@ double SynchrotronEvaluator::evaluateFluxFromSourceAtPoint(const double& photonF
 			printLog("Synchrotron evaluator works only with isotropic distributions\n");
 			exit(0);
 		}
-		evaluateSynchrotronIandA(photonFinalFrequencyPrimed, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), distribution, I, A);
+		I = evaluateEmissivity(photonFinalEnergy, irho, iz, iphi);
+		A = evaluateAbsorbtion(photonFinalEnergy, irho, iz, iphi);
+		//evaluateSynchrotronIandA(photonFinalFrequencyPrimed, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), distribution, I, A);
 		double length = source->getLength(irho, iz, iphi);
 		if (length > 0) {
 			if (my_selfAbsorption) {

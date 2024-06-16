@@ -32,6 +32,9 @@ public:
 
     double evaluateTotalFluxInEnergyRange(const double& Ephmin, const double& Ephmax, int Nph, RadiationSource* source);
 
+    virtual double evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source) = 0;
+    virtual double evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source) = 0;
+
     void writeFluxFromSourceToFile(const char* fileName, RadiationSource* source, const double& Ephmin, const double& Ephmax, const int Nph);
 
     void writeImageFromSourceToFile(const char* fileName, RadiationSource* source, const double& Ephmin, const double& Ephmax, const int Nph);
@@ -53,6 +56,8 @@ public:
     virtual void resetParameters(const double* parameters, const double* normalizationUnits);
     virtual double evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source);
     virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int rhoi, int phi);
+    virtual double evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
+    virtual double evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
 };
 
 #endif // RADIATION_H

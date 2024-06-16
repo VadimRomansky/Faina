@@ -1216,9 +1216,9 @@ void fitAngleDependentFlux() {
 	int Ne = 50;
 	int Nmu = 50;
 
-	int Nrho = 200;
-	int Nz = 200;
-	int Nphi = 500;
+	int Nrho = 10;
+	int Nz = 10;
+	int Nphi = 20;
 
 
 	srand(100);
@@ -1245,16 +1245,10 @@ void fitAngleDependentFlux() {
 	//reading electron distributions from files
 	//MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma1.5_theta0-90/Ee", "./examples_data/gamma1.5_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
 	MassiveParticleDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma1.5_theta0-90/Ee", "./examples_data/gamma1.5_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
-	((MassiveParticleIsotropicDistribution*)angleDependentDistributions[9])->writeDistribution("distribution.dat", 200, Emin, Emax);
 	double newEmax = 1E8 * me_c2;
-	for (int i = 0; i < Ndistributions-1; ++i) {
-		//angleDependentDistributions[i] = new MassiveParticlePowerLawDistribution(massElectron, 3.5, me_c2, 1.0);
-		angleDependentDistributions[i] = angleDependentDistributions[9];
-	}
-	//angleDependentDistributions[9] = new MassiveParticleMaxwellJuttnerDistribution(massElectron, 2 * me_c2 / kBoltzman, 1.0);
 	/*for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
-		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
+		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(1.2));
 		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->prolongEnergyRange(newEmax, 100);
 		if (i < 4) {
 			//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(100 * me_c2, 3.5);
