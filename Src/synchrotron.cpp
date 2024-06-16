@@ -227,7 +227,6 @@ void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFre
 
 
 				A = A + (1.0 / (2 * m * photonFinalFrequency * photonFinalFrequency)) * dFe * Pder / (gamma * gamma);
-
 				if (A != A) {
 					printf("evaluateSynchrotronIandA\n");
 					printLog("evaluateSynchrotronIandA\n");
@@ -265,47 +264,13 @@ void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFre
     }
 }
 
-/*double SynchrotronEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance)
-{
-	printf("don't use direct flux evaluation with distribution for synchrotron radiation\n");
-	printLog("don't use direct flux evaluation with distribution for synchrotron radiation\n");
-    double A = 0;
-    double I = 0;
-    double photonFinalFrequency = photonFinalEnergy/hplank;
-    evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, my_defaultB, my_defaultSinTheta, electronDistribution->getConcentration(), electronDistribution, I, A);
-
-	double localI = 0;
-	if (my_defaultLength > 0) {
-		double area = volume / my_defaultLength;
-		if (my_selfAbsorption) {
-			double I0 = localI;
-			double Q = I * area;
-			double tau = A * my_defaultLength;
-			double S = 0;
-			if (A > 0) {
-				S = Q / A;
-			}
-			if (fabs(tau) < 1E-15) {
-				localI = I0 * (1.0 - tau) + S * tau;
-			}
-			else {
-				localI = S + (I0 - S) * exp(-tau);
-			}
-		}
-		else {
-			localI = I * volume;
-		}
-	}
-
-    return localI/sqr(distance);
-}*/
-
 double SynchrotronEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi) {
 	int Nrho = source->getNrho();
 	int Nz = source->getNz();
 	int Nphi = source->getNphi();
 	double photonFinalFrequency = photonFinalEnergy / hplank;
 	double localI = 0;
+	double prevArea = 0;
 	for (int iz = 0; iz < Nz; ++iz) {
 		double area = source->getArea(irho, iz, iphi);
 		double A = 0;
@@ -335,6 +300,13 @@ double SynchrotronEvaluator::evaluateFluxFromSourceAtPoint(const double& photonF
 		if (length > 0) {
 			if (my_selfAbsorption) {
 				double I0 = localI * D * D;
+				double tempI01 = I0;
+				double tempI02 = 0;
+				if (area < prevArea) {
+					tempI01 = I0 * area / prevArea;
+					tempI02 = I0 - tempI01;
+				}
+				prevArea = area;
 				double Q = I * area;
 				//todo lorentz length
 				double lnorm = fabs(length * sin(theta));
@@ -346,10 +318,10 @@ double SynchrotronEvaluator::evaluateFluxFromSourceAtPoint(const double& photonF
 					S = Q / A;
 				}
 				if (fabs(tau) < 1E-10) {
-					localI = (I0 * (1.0 - tau) + S * tau) / (D * D);
+					localI = (tempI01 * (1.0 - tau) + S * tau + tempI02) / (D * D);
 				}
 				else {
-					localI = (S + (I0 - S) * exp(-tau)) / (D * D);
+					localI = (S + (tempI01 - S) * exp(-tau) + tempI02) / (D * D);
 				}
 			}
 			else {

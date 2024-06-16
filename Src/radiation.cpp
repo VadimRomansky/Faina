@@ -121,6 +121,11 @@ void RadiationEvaluator::writeImageFromSourceToFile(const char* fileName, Radiat
         fprintf(outFile, "\n");
     }
     fclose(outFile);
+
+    for (int irho = 0; irho < Nrho; ++irho) {
+        delete[] image[irho];
+    }
+    delete[] image;
 }
 
 void RadiationEvaluator::writeImageFromSourceAtEToFile(const double& photonFinalEnergy, const char* fileName, RadiationSource* source) {
@@ -159,6 +164,59 @@ void RadiationEvaluator::writeImageFromSourceAtEToFile(const double& photonFinal
         fprintf(outFile, "\n");
     }
     fclose(outFile);
+
+    for (int irho = 0; irho < Nrho; ++irho) {
+        delete[] image[irho];
+    }
+    delete[] image;
+}
+
+void RadiationEvaluator::writeImageFromSourceInRangeToFile(const double& photonEmin, const double& photonEmax, int N, const char* fileName, RadiationSource* source) {
+    int Nrho = source->getNrho();
+    int Nz = source->getNz();
+    int Nphi = source->getNphi();
+
+    double** image = new double* [Nrho];
+    for (int irho = 0; irho < Nrho; ++irho) {
+        image[irho] = new double[Nphi];
+        for (int iphi = 0; iphi < Nphi; ++iphi) {
+            image[irho][iphi] = 0;
+        }
+    }
+
+    double factor = pow(photonEmax / photonEmin, 1.0 / (N - 1));
+    double currentE = photonEmin;
+
+    FILE* outFile = fopen(fileName, "w");
+    for (int k = 0; k < N; ++k) {
+        omp_init_lock(&my_lock);
+        int irho;
+#pragma omp parallel for private(irho) shared(k, currentE, source, Nrho, Nz, Nphi, image)
+        for (irho = 0; irho < Nrho; ++irho) {
+            //printf("i = %d\n", irho);
+            for (int iphi = 0; iphi < Nphi; ++iphi) {
+                double s = source->getCrossSectionArea(irho, iphi);
+                double localFlux = evaluateFluxFromSourceAtPoint(currentE, source, irho, iphi) / s;
+                image[irho][iphi] = localFlux;
+            }
+        }
+        currentE = currentE * factor;
+
+        omp_destroy_lock(&my_lock);
+
+        for (int irho = 0; irho < Nrho; ++irho) {
+            for (int iphi = 0; iphi < Nphi; ++iphi) {
+                fprintf(outFile, "%g ", image[irho][iphi]);
+            }
+            fprintf(outFile, "\n");
+        }
+    }
+    fclose(outFile);
+
+    for(int irho = 0; irho < Nrho; ++irho) {
+        delete[] image[irho];
+    }
+    delete[] image;
 }
 
 RadiationSumEvaluator::RadiationSumEvaluator(int Ne, const double& Emin, const double& Emax, RadiationEvaluator* evaluator1, RadiationEvaluator* evaluator2) : RadiationEvaluator(Ne, Emin, Emax) {

@@ -548,6 +548,9 @@ double SphericalLayerSource::evaluateArea(int irho, int iz, int iphi) {
 void SphericalLayerSource::evaluateLengthAndArea()
 {
 	//length
+	FILE* lengthFile = fopen("length.dat", "w");
+	FILE* areaFile = fopen("area.dat", "w");
+	FILE* volumeFile = fopen("volume.dat", "w");
 	double dr = my_rho / my_Nrho;
 	double dz = 2 * my_rho / my_Nz;
 	for (int irho = 0; irho < my_Nrho; ++irho) {
@@ -598,6 +601,7 @@ void SphericalLayerSource::evaluateLengthAndArea()
 						}
 					}
 				}
+				fprintf(lengthFile, "%g\n", my_length[irho][iz][iphi]);
 			}
 		}
 	}
@@ -644,9 +648,22 @@ void SphericalLayerSource::evaluateLengthAndArea()
 						exit(0);
 					}
 				}
+				fprintf(areaFile, "%g\n", my_area[irho][iz][iphi]);
 			}
 		}
 	}
+
+	for (int i = 0; i < my_Nrho; ++i) {
+		for (int j = 0; j < my_Nz; ++j) {
+			for (int k = 0; k < my_Nphi; ++k) {
+				fprintf(volumeFile, "%g\n", my_length[i][j][k] * my_area[i][j][k]);
+			}
+		}
+	}
+
+	fclose(lengthFile);
+	fclose(areaFile);
+	fclose(volumeFile);
 
 	my_geometryCashed = true;
 }

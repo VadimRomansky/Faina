@@ -1218,7 +1218,7 @@ void fitAngleDependentFlux() {
 
 	int Nrho = 50;
 	int Nz = 50;
-	int Nphi = 50;
+	int Nphi = 5;
 
 
 	srand(100);
@@ -1248,9 +1248,10 @@ void fitAngleDependentFlux() {
 	((MassiveParticleIsotropicDistribution*)angleDependentDistributions[9])->writeDistribution("distribution.dat", 200, Emin, Emax);
 	double newEmax = 1E8 * me_c2;
 	for (int i = 0; i < Ndistributions-1; ++i) {
-		angleDependentDistributions[i] = new MassiveParticlePowerLawDistribution(massElectron, 3.5, me_c2, 1.0);
+		//angleDependentDistributions[i] = new MassiveParticlePowerLawDistribution(massElectron, 3.5, me_c2, 1.0);
+		angleDependentDistributions[i] = angleDependentDistributions[9];
 	}
-	angleDependentDistributions[9] = new MassiveParticleMaxwellJuttnerDistribution(massElectron, 2 * me_c2 / kBoltzman, 1.0);
+	//angleDependentDistributions[9] = new MassiveParticleMaxwellJuttnerDistribution(massElectron, 2 * me_c2 / kBoltzman, 1.0);
 	/*for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
 		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
@@ -1267,7 +1268,7 @@ void fitAngleDependentFlux() {
 	//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[4]))->writeDistribution("dist4.dat", 300, Emin, newEmax);
 	//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[8]))->writeDistribution("dist8.dat", 300, Emin, newEmax);
 
-	RadiationSource* source = RadiationSourceFactory::createSourceWithTurbulentField(angleDependentDistributions, 10, Nrho, Nz, Nphi, B, pi / 2, 0, electronConcentration, 0.0001, 3.5, 0.5 * rmax, 10, rmax, fraction*rmax, distance);
+	RadiationSource* source = RadiationSourceFactory::createSourceWithTurbulentField(angleDependentDistributions, 10, Nrho, Nz, Nphi, B, pi / 2, 0, electronConcentration, 0.00000000000001, 3.5, 0.5 * rmax, 10, rmax, fraction*rmax, distance);
 
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, newEmax, true, false);
 
@@ -1435,7 +1436,9 @@ void fitAngleDependentFlux() {
 	fclose(output_GZ_Jansky);
 	//fclose(output_GZ_Jansky2);
 	
-	synchrotronEvaluator->writeImageFromSourceAtEToFile(1E9 * hplank, "image.dat", source);
+	synchrotronEvaluator->writeImageFromSourceAtEToFile(1*1E9 * hplank, "image.dat", source);
+	synchrotronEvaluator->writeImageFromSourceAtEToFile(0.5*1E9 * hplank, "image1.dat", source);
+	synchrotronEvaluator->writeImageFromSourceInRangeToFile(0.5*1E9 * hplank, 20*1E9*hplank, 20, "image_array.dat", source);
 
 	//return;
 
