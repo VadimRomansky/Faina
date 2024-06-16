@@ -1216,9 +1216,9 @@ void fitAngleDependentFlux() {
 	int Ne = 50;
 	int Nmu = 50;
 
-	int Nrho = 50;
-	int Nz = 50;
-	int Nphi = 5;
+	int Nrho = 200;
+	int Nz = 200;
+	int Nphi = 500;
 
 
 	srand(100);
@@ -1277,8 +1277,8 @@ void fitAngleDependentFlux() {
 	//number of parameters of the source
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 0.5 * rmax, 1E-6, 1, 0.01, 0.5 * speed_of_light };
-	double maxParameters[Nparams] = { 1.1 * rmax, 5E-1, 2E6, 0.1, 0.75 * speed_of_light };
+	double minParameters[Nparams] = { 0.5 * rmax, 1E-6, 1, 0.001, 0.5 * speed_of_light };
+	double maxParameters[Nparams] = { 1.1 * rmax, 5E-1, 2E4, 0.5, 0.75 * speed_of_light };
 	//starting point of optimization and normalization
 	//fraction = 2E13 / rmax;
 
@@ -1297,9 +1297,9 @@ void fitAngleDependentFlux() {
 		vector[i] = vector[i] / maxParameters[i];
 	}
 
-	vector[1] = 0.00115637 / maxParameters[1];
-	vector[2] = 788.285 / maxParameters[2];
-	vector[3] = 0.1 / maxParameters[3];
+	//vector[1] = 0.00115637 / maxParameters[1];
+	//vector[2] = 788.285 / maxParameters[2];
+	//vector[3] = 0.1 / maxParameters[3];
 
 	printf("new sigma = %g\n", sigma);
 	printLog("new sigma = %g\n", sigma);
@@ -1344,7 +1344,7 @@ void fitAngleDependentFlux() {
 	//synchrotronOptimizer->outputProfileDiagrams(vector, source, 10);
 	//synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, source, 10, 1, 2);
 
-	//combinedOptimizer->optimize(vector, optPar);
+	combinedOptimizer->optimize(vector, optPar);
 	
 
 	source->resetParameters(vector, maxParameters);
@@ -1436,7 +1436,7 @@ void fitAngleDependentFlux() {
 	fclose(output_GZ_Jansky);
 	//fclose(output_GZ_Jansky2);
 	
-	synchrotronEvaluator->writeImageFromSourceAtEToFile(1*1E9 * hplank, "image.dat", source);
+	synchrotronEvaluator->writeImageFromSourceAtEToFile(10*1E9 * hplank, "image.dat", source);
 	synchrotronEvaluator->writeImageFromSourceAtEToFile(0.5*1E9 * hplank, "image1.dat", source);
 	synchrotronEvaluator->writeImageFromSourceInRangeToFile(0.5*1E9 * hplank, 20*1E9*hplank, 20, "image_array.dat", source);
 
