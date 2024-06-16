@@ -9,12 +9,14 @@
 class BremsstrahlungThermalEvaluator : public RadiationEvaluator {
 protected:
 public:
-	BremsstrahlungThermalEvaluator();
+	BremsstrahlungThermalEvaluator(bool absorption = false, bool doppler = false);
 	~BremsstrahlungThermalEvaluator();
 
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
 	virtual double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
-	virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
+	virtual double evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
+	virtual double evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
+	//virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
 };
 
 class BremsstrahlungEvaluator : public RadiationEvaluator {
@@ -36,16 +38,18 @@ protected:
 	double evaluateSigmape(const double& gammaE, const double& epsilonG);
 
 public:
-	BremsstrahlungEvaluator(int Ne, const double& Emin, const double& Emax);
-	BremsstrahlungEvaluator(int Ne, const double& Emin, const double& Emax, double protonsRelativeConcentration);
-	BremsstrahlungEvaluator(int Ne, const double& Emin, const double& Emax, int ionNumber, double* ionConcentrations, int* ionCharges);
+	BremsstrahlungEvaluator(int Ne, const double& Emin, const double& Emax, bool absorption = false, bool doppler = false);
+	BremsstrahlungEvaluator(int Ne, const double& Emin, const double& Emax, double protonsRelativeConcentration, bool absorption = false, bool doppler = false);
+	BremsstrahlungEvaluator(int Ne, const double& Emin, const double& Emax, int ionNumber, double* ionConcentrations, int* ionCharges, bool absorption = false, bool doppler = false);
 	~BremsstrahlungEvaluator();
 
 	double evaluateSigma(const double& gammaE, const double& epsilonG);
 
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
 	virtual double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
-	virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
+	virtual double evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
+	virtual double evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
+	//virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
 };
 
 #endif

@@ -10,7 +10,7 @@
 
 #include "pionDecay.h"
 
-PionDecayEvaluatorBase::PionDecayEvaluatorBase(int Ne, double Emin, double Emax, const double& ambientConcentration) : RadiationEvaluator(Ne, Emin, Emax){
+PionDecayEvaluatorBase::PionDecayEvaluatorBase(int Ne, double Emin, double Emax, const double& ambientConcentration, bool absorption, bool doppler) : RadiationEvaluator(Ne, Emin, Emax, absorption, doppler){
     my_ambientConcentration = ambientConcentration;
 }
 
@@ -147,7 +147,7 @@ void PionDecayEvaluator::getBcoefs(double& b1, double& b2, double& b3, const dou
 	b3 = 0.01439;*/
 }
 
-PionDecayEvaluator::PionDecayEvaluator(int Ne, double Emin, double Emax, const double& ambientConcentration) : PionDecayEvaluatorBase(Ne, Emin, Emax, ambientConcentration)
+PionDecayEvaluator::PionDecayEvaluator(int Ne, double Emin, double Emax, const double& ambientConcentration, bool absorption, bool doppler) : PionDecayEvaluatorBase(Ne, Emin, Emax, ambientConcentration, absorption, doppler)
 {
 }
 
@@ -382,53 +382,76 @@ double PionDecayEvaluator::evaluateFluxFromIsotropicFunction(const double& photo
 	return result;
 }
 
-/*double PionDecayEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)
+double PionDecayEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
 {
-	int Nrho = source->getNrho();
-	int Nz = source->getNz();
-	int Nphi = source->getNphi();
+	MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
+	if (distribution == NULL) {
+		printf("Pion decay evaluator works only woth isotropic protons distribution\n");
+		printLog("Pion decay evaluator works only woth isotropic protons distribution\n");
+		exit(0);
+	}
 
 	double result = 0;
-	int irho = 0;
 
-	omp_init_lock(&my_lock);
-
-#pragma omp parallel for private(irho) shared(photonFinalEnergy, source, Nrho, Nz, Nphi) reduction(+:result)
-
-	for (irho = 0; irho < Nrho; ++irho) {
-		for (int iz = 0; iz < Nz; ++iz) {
-			for (int iphi = 0; iphi < Nphi; ++iphi) {
-                result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
-			}
+	double Emin = my_Emin;
+	if (Emin < distribution->minEnergy()) {
+		Emin = distribution->minEnergy();
+	}
+	double Emax = my_Emax;
+	double tempEemax = distribution->maxEnergy();
+	if (tempEemax > 0) {
+		if (tempEemax < Emax) {
+			Emax = tempEemax;
 		}
 	}
 
-	omp_destroy_lock(&my_lock);
+	if (Emin > Emax) {
+		printf("Emin > Emax in pion decay\n");
+		printLog("Emin > Emax in pion decay\n");
+		return 0;
+	}
 
-	return result;
-}*/
+	double factor = pow(Emax / Emin, 1.0 / (my_Ne - 1));
 
-double PionDecayEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi) {
-	int Nrho = source->getNrho();
-	int Nz = source->getNz();
-	int Nphi = source->getNphi();
+	my_Ee[0] = Emin;
+	for (int i = 1; i < my_Ne; ++i) {
+		my_Ee[i] = my_Ee[i - 1] * factor;
+	}
 
-	double result = 0;
+	for (int i = 0; i < my_Ne; ++i) {
+		double protonEnergy = my_Ee[i];
+		double dprotonEnergy;
+		if (i == 0) {
+			dprotonEnergy = my_Ee[1] - my_Ee[0];
+		}
+		else {
+			dprotonEnergy = my_Ee[i] - my_Ee[i - 1];
+		}
+		double protonGamma = protonEnergy / (massProton * speed_of_light2);
+		double protonBeta = sqrt(1.0 - 1.0 / (protonGamma * protonGamma));
+		double protonKineticEnergy = massProton * speed_of_light2 * (protonGamma - 1.0);
 
-	for (int iz = 0; iz < Nz; ++iz) {
-		MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
-		if(distribution == NULL) {
-			printf("Pion decay evaluator works only woth isotropic protons distribution\n");
-			printLog("Pion decay evaluator works only woth isotropic protons distribution\n");
+		double sigma = sigmaGamma(photonFinalEnergy, protonKineticEnergy);
+
+		//todo 4 pi?
+		result += photonFinalEnergy * (speed_of_light * protonBeta / (4 * pi)) * sigma * distribution->distribution(protonEnergy) * my_ambientConcentration * dprotonEnergy;
+
+		if (result != result) {
+			printf("result = NaN in pion decay\n");
+			printLog("result = NaN in pion decay\n");
 			exit(0);
 		}
-		result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, distribution, source->getVolume(irho, iz, iphi), source->getDistance());
 	}
 
 	return result;
 }
 
-PionDecayEvaluatorKelner::PionDecayEvaluatorKelner(int Ne, double Emin, double Emax, const double& ambientConcentration) : PionDecayEvaluatorBase(Ne, Emin, Emax, ambientConcentration){
+double PionDecayEvaluator::evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+{
+	return 0.0;
+}
+
+PionDecayEvaluatorKelner::PionDecayEvaluatorKelner(int Ne, double Emin, double Emax, const double& ambientConcentration, bool absorption, bool doppler) : PionDecayEvaluatorBase(Ne, Emin, Emax, ambientConcentration, absorption, doppler){
 
 }
 
@@ -511,47 +534,71 @@ double PionDecayEvaluatorKelner::evaluateFluxFromIsotropicFunction(const double&
 	return result;
 }
 
-/*double PionDecayEvaluatorKelner::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)
+double PionDecayEvaluatorKelner::evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
 {
-	int Nrho = source->getNrho();
-	int Nz = source->getNz();
-	int Nphi = source->getNphi();
+	MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
+	if (distribution == NULL) {
+		printf("Pion decay Kelner evaluator works only woth isotropic protons distribution\n");
+		printLog("Pion decay Kelner evaluator works only woth isotropic protons distribution\n");
+		exit(0);
+	}
 
 	double result = 0;
 
-	omp_init_lock(&my_lock);
-
-#pragma omp parallel for private(irho) shared(photonFinalEnergy, source, Nrho, Nz, Nphi) reduction(+:result)
-
-	for (int irho = 0; irho < Nrho; ++irho) {
-		for (int iz = 0; iz < Nz; ++iz) {
-			for (int iphi = 0; iphi < Nphi; ++iphi) {
-                result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
-			}
+	double Emin = my_Emin;
+	if (Emin < distribution->minEnergy()) {
+		Emin = distribution->minEnergy();
+	}
+	double Emax = my_Emax;
+	double tempEemax = distribution->maxEnergy();
+	if (tempEemax > 0) {
+		if (tempEemax < Emax) {
+			Emax = tempEemax;
 		}
 	}
 
-	omp_destroy_lock(&my_lock);
+	if (Emin > Emax) {
+		printf("Emin > Emax in pion decay kelner\n");
+		printLog("Emin > Emax in pion decay kelner\n");
+		return 0;
+	}
 
-	return result;
-}*/
+	double factor = pow(Emax / Emin, 1.0 / (my_Ne - 1));
 
-double PionDecayEvaluatorKelner::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi) {
-	int Nrho = source->getNrho();
-	int Nz = source->getNz();
-	int Nphi = source->getNphi();
+	my_Ee[0] = Emin;
+	for (int i = 1; i < my_Ne; ++i) {
+		my_Ee[i] = my_Ee[i - 1] * factor;
+	}
 
-	double result = 0;
+	for (int i = 0; i < my_Ne; ++i) {
+		double protonEnergy = my_Ee[i];
+		double dprotonEnergy;
+		if (i == 0) {
+			dprotonEnergy = my_Ee[1] - my_Ee[0];
+		}
+		else {
+			dprotonEnergy = my_Ee[i] - my_Ee[i - 1];
+		}
+		double protonGamma = protonEnergy / (massProton * speed_of_light2);
+		double protonBeta = sqrt(1.0 - 1.0 / (protonGamma * protonGamma));
+		double protonKineticEnergy = massProton * speed_of_light2 * (protonGamma - 1.0);
 
-	for (int iz = 0; iz < Nz; ++iz) {
-		MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
-		if (distribution == NULL) {
-			printf("Pion decay Kelner evaluator works only woth isotropic protons distribution\n");
-			printLog("Pion decay Kelner evaluator works only woth isotropic protons distribution\n");
+		double sigma = (sigmaInelastic(protonKineticEnergy) / protonEnergy) * functionKelner(photonFinalEnergy / protonEnergy, protonEnergy);
+
+		//todo 4 pi?
+		result += photonFinalEnergy * (speed_of_light * protonBeta / 4 * pi) * sigma * distribution->distribution(protonEnergy) * my_ambientConcentration * dprotonEnergy;
+
+		if (result != result) {
+			printf("result = NaN in pion decay\n");
+			printLog("result = NaN in pion decay\n");
 			exit(0);
 		}
-		result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, distribution, source->getVolume(irho, iz, iphi), source->getDistance());
 	}
 
 	return result;
+}
+
+double PionDecayEvaluatorKelner::evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+{
+	return 0.0;
 }

@@ -17,8 +17,11 @@ protected:
     double my_Emax;
 
     double* my_Ee;
+
+    bool my_absorption;
+    bool my_doppler;
 public:
-    RadiationEvaluator(int Ne, const double& Emin, const double& Emax);
+    RadiationEvaluator(int Ne, const double& Emin, const double& Emax, bool absorption, bool doppler);
     virtual ~RadiationEvaluator();
 
     virtual void resetParameters(const double* parameters, const double* normalizationUnits) = 0;
@@ -28,11 +31,12 @@ public:
 
     virtual double evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source);
 
-    virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int rhoi, int phi) = 0;
+    virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int rhoi, int phi);
 
     double evaluateTotalFluxInEnergyRange(const double& Ephmin, const double& Ephmax, int Nph, RadiationSource* source);
 
     virtual double evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source) = 0;
+
     virtual double evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source) = 0;
 
     void writeFluxFromSourceToFile(const char* fileName, RadiationSource* source, const double& Ephmin, const double& Ephmax, const int Nph);
@@ -49,8 +53,8 @@ protected:
     int my_Nevaluators;
     RadiationEvaluator** my_Evaluators;
 public:
-    RadiationSumEvaluator(int Ne, const double& Emin, const double& Emax, RadiationEvaluator* evaluator1, RadiationEvaluator* evaluator2);
-    RadiationSumEvaluator(int Ne, const double& Emin, const double& Emax, int Nev, RadiationEvaluator** evaluators);
+    RadiationSumEvaluator(int Ne, const double& Emin, const double& Emax, RadiationEvaluator* evaluator1, RadiationEvaluator* evaluator2, bool absorption = true, bool doppler = false);
+    RadiationSumEvaluator(int Ne, const double& Emin, const double& Emax, int Nev, RadiationEvaluator** evaluators, bool absorption = true, bool doppler = false);
     ~RadiationSumEvaluator();
 
     virtual void resetParameters(const double* parameters, const double* normalizationUnits);

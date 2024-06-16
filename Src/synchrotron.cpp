@@ -111,13 +111,8 @@ double criticalNu(const double& E, const double& sinhi, const double& H, const d
 	return coef * H * sinhi * E * E;
 }
 
-SynchrotronEvaluator::SynchrotronEvaluator(int Ne, double Emin, double Emax, bool selfAbsorption, bool doppler):RadiationEvaluator(Ne, Emin, Emax)
+SynchrotronEvaluator::SynchrotronEvaluator(int Ne, double Emin, double Emax, bool absorption, bool doppler):RadiationEvaluator(Ne, Emin, Emax, absorption, doppler)
 {
-	my_selfAbsorption = selfAbsorption;
-	//my_defaultB = defaultB;
-	//my_defaultSinTheta = defaultSinTheta;
-	//my_defaultLength = defaultLength;
-	my_doppler = doppler;
 }
 
 SynchrotronEvaluator::~SynchrotronEvaluator()
@@ -214,7 +209,7 @@ void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFre
 				printLog("mcDonaldIntegral = %g\n", mcDonaldIntegral);
 				exit(0);
 			}
-			if (my_selfAbsorption) {
+			if (my_absorption) {
 				////todo! F(g +dg)
 				double tempP = gamma * gamma * emissivityCoef * B * sinhi * mcDonaldIntegral;
 				double dg = 0.1 * delectronEnergy / (m_c2);
@@ -264,15 +259,224 @@ void SynchrotronEvaluator::evaluateSynchrotronIandA(const double& photonFinalFre
     }
 }
 
-double SynchrotronEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi)
+double SynchrotronEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
 {
-	double B = source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), source->getParticleDistribution(irho, iz, iphi)
-	return 0.0;
+	double photonFinalFrequency = photonFinalEnergy / hplank;
+	double B = source->getB(irho, iz, iphi);
+	double sinTheta = source->getSinTheta(irho, iz, iphi);
+	double concentration = source->getConcentration(irho, iz, iphi);
+	MassiveParticleIsotropicDistribution* electronDistribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
+	if (electronDistribution == NULL) {
+		printf("Synchrotron evaluator works only with isotropic distributions\n");
+		printLog("Synchrotron evaluator works only with isotropic distributions\n");
+		exit(0);
+	}
+	
+	double Emin = my_Emin;
+	if (Emin < electronDistribution->minEnergy()) {
+		Emin = electronDistribution->minEnergy();
+	}
+	double Emax = my_Emax;
+	double tempEemax = electronDistribution->maxEnergy();
+	if (tempEemax > 0) {
+		if (tempEemax < Emax) {
+			Emax = tempEemax;
+		}
+	}
+
+	if (Emin > Emax) {
+		printf("Emin > Emax in synchrotron evaluator\n");
+		printLog("Emin > Emax in synchrotron evaluator\n");
+		return 0;
+	}
+
+	if ((B == 0) || (sinTheta == 0)) {
+		return 0;
+	}
+
+	double factor = pow(Emax / Emin, 1.0 / (my_Ne - 1));
+
+	my_Ee[0] = Emin;
+	for (int i = 1; i < my_Ne; ++i) {
+		my_Ee[i] = my_Ee[i - 1] * factor;
+	}
+	//Anu from ghiselini simple
+
+	double m = electronDistribution->getMass();
+	double m_c2 = m * speed_of_light2;
+	double emissivityCoef = sqrt(3.0) * electron_charge * electron_charge * electron_charge / m_c2;
+	double criticalNuCoef = 3 * electron_charge / (4 * pi * m * m * m * speed_of_light * speed_of_light4);
+
+	//double coefAbsorb = concentration * absorpCoef/B;
+	//todo what if < 0?
+	double cosTheta = sqrt(1.0 - sinTheta * sinTheta);
+
+	double I = 0;
+
+	for (int j = 0; j < my_Ne; ++j) {
+		double delectronEnergy = 0;
+		if (j == 0) {
+			delectronEnergy = my_Ee[j + 1] - my_Ee[j];
+		}
+		else {
+			delectronEnergy = my_Ee[j] - my_Ee[j - 1];
+		}
+		double electronDist = concentration * electronDistribution->distributionNormalized(my_Ee[j]);
+		if (electronDist > 0) {
+			double dFe = electronDist * delectronEnergy;
+			double nuc = criticalNu(my_Ee[j], sinTheta, B, criticalNuCoef);
+			double gamma = my_Ee[j] / m_c2;
+
+			double mcDonaldIntegral = evaluateMcDonaldIntegral(photonFinalFrequency / nuc);
+
+			//todo h?
+			I = I + emissivityCoef * dFe * B * sinTheta * mcDonaldIntegral / hplank;
+			if (I < 0) {
+				printf("evaluateSynchrotronIandA\n");
+				printLog("evaluateSynchrotronIandA\n");
+				printf("I < 0\n");
+				printLog("I < 0\n");
+				printf("dFe[j] = %g\n", dFe);
+				printLog("dFe[j] = %g\n", dFe);
+				printf("B = %g\n", B);
+				printLog("B = %g\n", B);
+				printf("sinhi = %g\n", sinTheta);
+				printLog("sinhi = %g\n", sinTheta);
+				printf("mcDonaldIntegral = %g\n", mcDonaldIntegral);
+				printLog("mcDonaldIntegral = %g\n", mcDonaldIntegral);
+				exit(0);
+			}
+
+			if (I != I) {
+				printf("evaluateSynchrotronIandA\n");
+				printLog("evaluateSynchrotronIandA\n");
+				printf("I = NaN\n");
+				printLog("I = NaN\n");
+				printf("dFe[j] = %g\n", dFe);
+				printLog("dFe[j] = %g\n", dFe);
+				printf("B = %g\n", B);
+				printLog("B = %g\n", B);
+				printf("sinhi = %g\n", sinTheta);
+				printLog("sinhi = %g\n", sinTheta);
+				printf("mcDonaldIntegral = %g\n", mcDonaldIntegral);
+				printLog("mcDonaldIntegral = %g\n", mcDonaldIntegral);
+				exit(0);
+			}
+		}
+	}
+
+	return I;
 }
 
-double SynchrotronEvaluator::evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi)
+double SynchrotronEvaluator::evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
 {
-	return 0.0;
+	double photonFinalFrequency = photonFinalEnergy / hplank;
+
+	double B = source->getB(irho, iz, iphi);
+	double sinTheta = source->getSinTheta(irho, iz, iphi);
+	double concentration = source->getConcentration(irho, iz, iphi);
+	MassiveParticleIsotropicDistribution* electronDistribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
+	if (electronDistribution == NULL) {
+		printf("Synchrotron evaluator works only with isotropic distributions\n");
+		printLog("Synchrotron evaluator works only with isotropic distributions\n");
+		exit(0);
+	}
+
+
+	double Emin = my_Emin;
+	if (Emin < electronDistribution->minEnergy()) {
+		Emin = electronDistribution->minEnergy();
+	}
+	double Emax = my_Emax;
+	double tempEemax = electronDistribution->maxEnergy();
+	if (tempEemax > 0) {
+		if (tempEemax < Emax) {
+			Emax = tempEemax;
+		}
+	}
+
+	if (Emin > Emax) {
+		printf("Emin > Emax in synchrotron evaluator\n");
+		printLog("Emin > Emax in synchrotron evaluator\n");
+		return 0;
+	}
+
+	if ((B == 0) || (sinTheta == 0)) {
+		return 0;
+	}
+
+	double factor = pow(Emax / Emin, 1.0 / (my_Ne - 1));
+
+	my_Ee[0] = Emin;
+	for (int i = 1; i < my_Ne; ++i) {
+		my_Ee[i] = my_Ee[i - 1] * factor;
+	}
+	//Anu from ghiselini simple
+
+
+	double m = electronDistribution->getMass();
+	double m_c2 = m * speed_of_light2;
+	double emissivityCoef = sqrt(3.0) * electron_charge * electron_charge * electron_charge / m_c2;
+	double criticalNuCoef = 3 * electron_charge / (4 * pi * m * m * m * speed_of_light * speed_of_light4);
+
+
+	//double coefAbsorb = concentration * absorpCoef/B;
+	//todo what if < 0?
+	double cosTheta = sqrt(1.0 - sinTheta * sinTheta);
+
+	double A = 0;
+
+	for (int j = 0; j < my_Ne; ++j) {
+		double delectronEnergy = 0;
+		if (j == 0) {
+			delectronEnergy = my_Ee[j + 1] - my_Ee[j];
+		}
+		else {
+			delectronEnergy = my_Ee[j] - my_Ee[j - 1];
+		}
+		double electronDist = concentration * electronDistribution->distributionNormalized(my_Ee[j]);
+		if (electronDist > 0) {
+			double dFe = electronDist * delectronEnergy;
+			double nuc = criticalNu(my_Ee[j], sinTheta, B, criticalNuCoef);
+			double gamma = my_Ee[j] / m_c2;
+
+			double mcDonaldIntegral = evaluateMcDonaldIntegral(photonFinalFrequency / nuc);
+
+			if (my_absorption) {
+				////todo! F(g +dg)
+				double tempP = gamma * gamma * emissivityCoef * B * sinTheta * mcDonaldIntegral;
+				double dg = 0.1 * delectronEnergy / (m_c2);
+
+				double tempGamma = gamma + dg;
+				double tempnuc = criticalNu(m_c2 * tempGamma, sinTheta, B, criticalNuCoef);
+				double tempP2 = tempGamma * tempGamma * emissivityCoef * B * sinTheta * evaluateMcDonaldIntegral(photonFinalFrequency / tempnuc);
+				double Pder = (tempP2 - tempP) / dg;
+
+
+
+				A = A + (1.0 / (2 * m * photonFinalFrequency * photonFinalFrequency)) * dFe * Pder / (gamma * gamma);
+				if (A != A) {
+					printf("evaluateSynchrotronIandA\n");
+					printLog("evaluateSynchrotronIandA\n");
+					printf("A = NaN\n");
+					printLog("A = NaN\n");
+					printf("dFe[j] = %g\n", dFe);
+					printLog("dFe[j] = %g\n", dFe);
+					printf("B = %g\n", B);
+					printLog("B = %g\n", B);
+					printf("sinhi = %g\n", sinTheta);
+					printLog("sinhi = %g\n", sinTheta);
+					printf("mcDonaldIntegral = %g\n", mcDonaldIntegral);
+					printLog("mcDonaldIntegral = %g\n", mcDonaldIntegral);
+					printf("Pder = %g\n", Pder);
+					printLog("Pder = %g\n", Pder);
+					exit(0);
+				}
+			}
+		}
+	}
+
+	return A;
 }
 
 double SynchrotronEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi) {
@@ -306,12 +510,12 @@ double SynchrotronEvaluator::evaluateFluxFromSourceAtPoint(const double& photonF
 			printLog("Synchrotron evaluator works only with isotropic distributions\n");
 			exit(0);
 		}
-		I = evaluateEmissivity(photonFinalEnergy, irho, iz, iphi);
-		A = evaluateAbsorbtion(photonFinalEnergy, irho, iz, iphi);
-		//evaluateSynchrotronIandA(photonFinalFrequencyPrimed, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), distribution, I, A);
+		//I = evaluateEmissivity(photonFinalEnergy, irho, iz, iphi);
+		//A = evaluateAbsorbtion(photonFinalEnergy, irho, iz, iphi);
+		evaluateSynchrotronIandA(photonFinalFrequencyPrimed, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), distribution, I, A);
 		double length = source->getLength(irho, iz, iphi);
 		if (length > 0) {
-			if (my_selfAbsorption) {
+			if (my_absorption) {
 				double I0 = localI * D * D;
 				double tempI01 = I0;
 				double tempI02 = 0;

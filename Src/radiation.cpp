@@ -8,7 +8,7 @@
 #include "radiationSource.h"
 #include "radiation.h"
 
-RadiationEvaluator::RadiationEvaluator(int Ne, const double& Emin, const double& Emax) {
+RadiationEvaluator::RadiationEvaluator(int Ne, const double& Emin, const double& Emax, bool absorption, bool doppler) {
     my_Ne = Ne;
     my_Emin = Emin;
     my_Emax = Emax;
@@ -19,6 +19,9 @@ RadiationEvaluator::RadiationEvaluator(int Ne, const double& Emin, const double&
     for (int i = 1; i < my_Ne; ++i) {
         my_Ee[i] = my_Ee[i - 1] * factor;
     }
+
+    my_absorption = absorption;
+    my_doppler = doppler;
 }
 RadiationEvaluator::~RadiationEvaluator() {
     delete[] my_Ee;
@@ -50,6 +53,71 @@ double RadiationEvaluator::evaluateFluxFromSource(const double& photonFinalEnerg
     omp_destroy_lock(&my_lock);
 
     return result;
+}
+
+double RadiationEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi) {
+    int Nrho = source->getNrho();
+    int Nz = source->getNz();
+    int Nphi = source->getNphi();
+    double photonFinalFrequency = photonFinalEnergy / hplank;
+    double localI = 0;
+    double prevArea = 0;
+    for (int iz = 0; iz < Nz; ++iz) {
+        double area = source->getArea(irho, iz, iphi);
+        double A = 0;
+        double I = 0;
+        double v;
+        double theta;
+        double phi;
+        source->getVelocity(irho, iz, iphi, v, theta, phi);
+        if (!my_doppler) {
+            v = 0;
+        }
+        double beta = v / speed_of_light;
+        double gamma = 1.0 / sqrt(1 - beta * beta);
+        double mu = cos(theta);
+
+        double D = gamma * (1.0 - beta * mu);
+        double photonFinalFrequencyPrimed = photonFinalFrequency * D;
+
+        I = evaluateEmissivity(photonFinalEnergy, irho, iz, iphi, source);
+        A = evaluateAbsorbtion(photonFinalEnergy, irho, iz, iphi, source);
+
+        double length = source->getLength(irho, iz, iphi);
+        if (length > 0) {
+            if (my_absorption) {
+                double I0 = localI * D * D;
+                double tempI01 = I0;
+                double tempI02 = 0;
+                if (area < prevArea) {
+                    tempI01 = I0 * area / prevArea;
+                    tempI02 = I0 - tempI01;
+                }
+                prevArea = area;
+                double Q = I * area;
+                //todo lorentz length
+                double lnorm = fabs(length * sin(theta));
+                double lpar = fabs(length * cos(theta));
+                double lengthPrimed = sqrt(lnorm * lnorm + lpar * lpar * gamma * gamma);
+                double tau = A * lengthPrimed;
+                double S = 0;
+                if (A > 0) {
+                    S = Q / A;
+                }
+                if (fabs(tau) < 1E-10) {
+                    localI = (tempI01 * (1.0 - tau) + S * tau + tempI02) / (D * D);
+                }
+                else {
+                    localI = (S + (tempI01 - S) * exp(-tau) + tempI02) / (D * D);
+                }
+            }
+            else {
+                localI = localI + I * area * length / (D * D);
+            }
+        }
+    }
+    double distance = source->getDistance();
+    return localI / (distance * distance);
 }
 
 double RadiationEvaluator::evaluateTotalFluxInEnergyRange(const double& Ephmin, const double& Ephmax, int Nph, RadiationSource* source) {
@@ -219,14 +287,14 @@ void RadiationEvaluator::writeImageFromSourceInRangeToFile(const double& photonE
     delete[] image;
 }
 
-RadiationSumEvaluator::RadiationSumEvaluator(int Ne, const double& Emin, const double& Emax, RadiationEvaluator* evaluator1, RadiationEvaluator* evaluator2) : RadiationEvaluator(Ne, Emin, Emax) {
+RadiationSumEvaluator::RadiationSumEvaluator(int Ne, const double& Emin, const double& Emax, RadiationEvaluator* evaluator1, RadiationEvaluator* evaluator2, bool absorption, bool doppler) : RadiationEvaluator(Ne, Emin, Emax, absorption, doppler) {
     my_Nevaluators = 2;
     my_Evaluators = new RadiationEvaluator*[my_Nevaluators];
     my_Evaluators[0] = evaluator1;
     my_Evaluators[1] = evaluator2;
 }
 
-RadiationSumEvaluator::RadiationSumEvaluator(int Ne, const double& Emin, const double& Emax, int Nev, RadiationEvaluator** evaluators) : RadiationEvaluator(Ne, Emin, Emax) {
+RadiationSumEvaluator::RadiationSumEvaluator(int Ne, const double& Emin, const double& Emax, int Nev, RadiationEvaluator** evaluators, bool absorption, bool doppler) : RadiationEvaluator(Ne, Emin, Emax, absorption, doppler) {
     my_Nevaluators = Nev;
     my_Evaluators = new RadiationEvaluator*[my_Nevaluators];
     for (int i = 0; i < my_Nevaluators; ++i) {

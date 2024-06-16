@@ -9,7 +9,7 @@ class PionDecayEvaluatorBase : public RadiationEvaluator{
 protected:
     double my_ambientConcentration;
 public:
-    PionDecayEvaluatorBase(int Ne, double Emin, double Emax, const double& ambientConcentration);
+    PionDecayEvaluatorBase(int Ne, double Emin, double Emax, const double& ambientConcentration, bool absorption = false, bool doppler = false);
     virtual ~PionDecayEvaluatorBase();
 	double sigmaInelastic(const double& energy);
 };
@@ -21,23 +21,27 @@ protected:
     double sigmaPion(const double& energy);
     double sigma2Pion(const double& energy);
 public:
-    PionDecayEvaluator(int Ne, double Emin, double Emax, const double& ambientConcentration);
+    PionDecayEvaluator(int Ne, double Emin, double Emax, const double& ambientConcentration, bool absorption = false, bool doppler = false);
     ~PionDecayEvaluator();
     double sigmaGamma(const double& photonEnergy, const double& protonEnergy);
     void resetParameters(const double *parameters, const double *normalizationUnits);
     double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& volume, const double& distance);
-    virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
+    virtual double evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
+    virtual double evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
+    //virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
 };
 
 class PionDecayEvaluatorKelner : public PionDecayEvaluatorBase{
 protected:
     double functionKelner(const double& x, const double& protonEnergy);
 public:
-    PionDecayEvaluatorKelner(int Ne, double Emin, double Emax, const double& ambientConcentration);
+    PionDecayEvaluatorKelner(int Ne, double Emin, double Emax, const double& ambientConcentration, bool absorption = false, bool doppler = false);
     ~PionDecayEvaluatorKelner();
     void resetParameters(const double *parameters, const double *normalizationUnits);
     double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& volume, const double& distance);
-    virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
+    virtual double evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
+    virtual double evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
+    //virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
 };
 
 #endif

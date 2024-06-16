@@ -12,7 +12,7 @@
 
 //todo https://en.wikipedia.org/wiki/Kramers%27_opacity_law
 
-BremsstrahlungThermalEvaluator::BremsstrahlungThermalEvaluator() : RadiationEvaluator(2, massElectron*speed_of_light2, 2*massElectron*speed_of_light2)
+BremsstrahlungThermalEvaluator::BremsstrahlungThermalEvaluator(bool absorption, bool doppler) : RadiationEvaluator(2, massElectron*speed_of_light2, 2*massElectron*speed_of_light2, absorption, doppler)
 {
 }
 
@@ -81,51 +81,69 @@ double BremsstrahlungThermalEvaluator::evaluateFluxFromIsotropicFunction(const d
 	return result;
 }
 
-/*double BremsstrahlungThermalEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source)
+double BremsstrahlungThermalEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
 {
-	int Nrho = source->getNrho();
-	int Nz = source->getNz();
-	int Nphi = source->getNphi();
+	MassiveParticleDistribution* electronDistribution = source->getParticleDistribution(irho, iz, iphi);
+	MassiveParticleMaxwellDistribution* maxwellDistribution = dynamic_cast<MassiveParticleMaxwellDistribution*>(electronDistribution);
+	MassiveParticleMaxwellJuttnerDistribution* maxwellJuttnerDistribution = dynamic_cast<MassiveParticleMaxwellJuttnerDistribution*>(electronDistribution);
+	double temperature;
+	if (maxwellDistribution != NULL) {
+		temperature = maxwellDistribution->getTemperature();
+	}
+	else if (maxwellJuttnerDistribution != NULL) {
+		temperature = maxwellJuttnerDistribution->getTemperature();
+	}
+	else {
+		printf("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
+		printLog("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
+		exit(0);
+	}
+	double concentration = source->getConcentration(irho, iz, iphi);
+	double m = electronDistribution->getMass();
+	double theta = photonFinalEnergy / (kBoltzman * temperature);
+	double ritberg = m * electron_charge * electron_charge * electron_charge * electron_charge * 2 * pi * pi / (hplank * hplank);
+	double eta = kBoltzman * temperature / ritberg;
 
-	double result = 0;
-	int irho = 0;
 
-	omp_init_lock(&my_lock);
-
-#pragma omp parallel for private(irho) shared(photonFinalEnergy, source, Nrho, Nz, Nphi) reduction(+:result)
-
-	for (irho = 0; irho < Nrho; ++irho) {
-		for (int iphi = 0; iphi < Nphi; ++iphi) {
-			for (int iz = 0; iz < Nz; ++iz) {
-				result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
+	double gauntFactor = 1.0;
+	if (eta >= 1.0) {
+		if (theta >= 1.0) {
+			gauntFactor = sqrt(3 / (pi * theta));
+		}
+		else {
+			gauntFactor = (sqrt(3) / pi) * log(4 / (euler_mascheroni * theta));
+		}
+	}
+	else {
+		if (theta >= 1.0) {
+			if (theta >= 1 / eta) {
+				double dzeta = eta * theta;
+				gauntFactor = sqrt(12 / dzeta);
+			}
+			else {
+				gauntFactor = 1.0;
+			}
+		}
+		else {
+			if (theta < sqrt(eta)) {
+				//where is 4? if in denominator, log can be < 0
+				gauntFactor = (sqrt(3) / pi) * log(4 / (pow(euler_mascheroni, 2.5) * theta) * sqrt(eta));
+			}
+			else {
+				gauntFactor = 1.0;
 			}
 		}
 	}
 
-	omp_destroy_lock(&my_lock);
-
+	double a = (32 * pi * pow(electron_charge, 6) / (3 * m * speed_of_light * speed_of_light2)) * sqrt(2 * pi / (3 * kBoltzman * m));
+	double result = (1.0 / hplank) * (a / sqrt(temperature)) * concentration * concentration * exp(-theta) * gauntFactor;
+	result *= 1 / (4 * pi);
 	return result;
-}*/
+}
 
-double BremsstrahlungThermalEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi) {
-	int Nrho = source->getNrho();
-	int Nz = source->getNz();
-	int Nphi = source->getNphi();
-
-	double result = 0;
-
-	for (int iz = 0; iz < Nz; ++iz) {
-		MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
-		if (distribution == NULL) {
-			printf("BremsstrahlungThermalEvaluator works only with MassiveParticleIsotropicDistribution\n");
-			printLog("BremsstrahlungThermalEvaluator works only with MassiveParticleIsotropicDistribution\n");
-			exit(0);
-		}
-		distribution->resetConcentration(source->getConcentration(irho, iz, iphi));
-		result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, distribution, source->getVolume(irho, iz, iphi), source->getDistance());
-	}
-
-	return result;
+double BremsstrahlungThermalEvaluator::evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+{
+	return 0.0;
 }
 
 double BremsstrahlungEvaluator::evaluateSigma1(const double& gammaE, const double& epsilonG)
@@ -314,14 +332,14 @@ double BremsstrahlungEvaluator::evaluateSigma(const double& gammaE, const double
 }
 
 //todo need ambient electron concentration?
-BremsstrahlungEvaluator::BremsstrahlungEvaluator(int Ne, const double& Emin, const double& Emax) : RadiationEvaluator(Ne, Emin, Emax) {
+BremsstrahlungEvaluator::BremsstrahlungEvaluator(int Ne, const double& Emin, const double& Emax, bool absorption, bool doppler) : RadiationEvaluator(Ne, Emin, Emax, absorption, doppler) {
 	my_ionNumber = 0;
 	my_ionConcentrations = NULL;
 	my_ionConcentrations = NULL;
 	my_effectiveProtonConcentration = 0;
 }
 
-BremsstrahlungEvaluator::BremsstrahlungEvaluator(int Ne, const double& Emin, const double& Emax, double protonsRelativeConcentration) : RadiationEvaluator(Ne, Emin, Emax) {
+BremsstrahlungEvaluator::BremsstrahlungEvaluator(int Ne, const double& Emin, const double& Emax, double protonsRelativeConcentration, bool absorption, bool doppler) : RadiationEvaluator(Ne, Emin, Emax, absorption, doppler) {
 	my_ionNumber = 1;
 	my_ionConcentrations = new double[my_ionNumber];
 	my_ionConcentrations[0] = protonsRelativeConcentration;
@@ -331,7 +349,7 @@ BremsstrahlungEvaluator::BremsstrahlungEvaluator(int Ne, const double& Emin, con
 }
 
 
-BremsstrahlungEvaluator::BremsstrahlungEvaluator(int Ne, const double& Emin, const double& Emax, int ionNumber, double* ionConcentrations, int* ionCharges) : RadiationEvaluator(Ne, Emin, Emax) {
+BremsstrahlungEvaluator::BremsstrahlungEvaluator(int Ne, const double& Emin, const double& Emax, int ionNumber, double* ionConcentrations, int* ionCharges, bool absorption, bool doppler) : RadiationEvaluator(Ne, Emin, Emax, absorption, doppler) {
 	my_ionNumber = ionNumber;
 	my_ionConcentrations = new double[my_ionNumber];
 	my_ionCharges = new int[my_ionNumber];
@@ -388,23 +406,47 @@ double BremsstrahlungEvaluator::evaluateFluxFromIsotropicFunction(const double& 
 	return result;
 }
 
-double BremsstrahlungEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi)
+double BremsstrahlungEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
 {
-	int Nrho = source->getNrho();
-	int Nz = source->getNz();
-	int Nphi = source->getNphi();
+	MassiveParticleIsotropicDistribution* electronDistribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
+	if (electronDistribution == NULL) {
+		printf("Bremsstrahlung e-e evaluator works only with isotropic electrons distribution\n");
+		printLog("Bremsstrahlung e-e evaluator works only with isotropic electrons distribution\n");
+		exit(0);
+	}
 
 	double result = 0;
 
-	for (int iz = 0; iz < Nz; ++iz) {
-		MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
-		if (distribution == NULL) {
-			printf("Bremsstrahlung e-e evaluator works only with isotropic electrons distribution\n");
-			printLog("Bremsstrahlung e-e evaluator works only with isotropic electrons distribution\n");
+	for (int i = 0; i < my_Ne; ++i) {
+		double electronEnergy = my_Ee[i];
+		double delectronEnergy;
+		if (i == 0) {
+			delectronEnergy = my_Ee[1] - my_Ee[0];
+		}
+		else {
+			delectronEnergy = my_Ee[i] - my_Ee[i - 1];
+		}
+		double electronGamma = electronEnergy / (massElectron * speed_of_light2);
+		double electronBeta = sqrt(1.0 - 1.0 / (electronGamma * electronGamma));
+		double electronKineticEnergy = massElectron * speed_of_light2 * (electronGamma - 1.0);
+		double epsilonG = photonFinalEnergy / (massElectron * speed_of_light2);
+		double concentration = electronDistribution->getConcentration();
+
+		double sigma = evaluateSigma(electronGamma, epsilonG);
+
+		result += photonFinalEnergy * (speed_of_light * electronBeta) * sigma * concentration * (4 * pi * electronDistribution->distribution(electronEnergy)) * delectronEnergy / (4 * pi);
+
+		if (result != result) {
+			printf("result = NaN in bremsstrahlung\n");
+			printLog("result = NaN in bremsstrahlung\n");
 			exit(0);
 		}
-		result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, distribution, source->getVolume(irho, iz, iphi), source->getDistance());
 	}
 
 	return result;
+}
+
+double BremsstrahlungEvaluator::evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+{
+	return 0.0;
 }
