@@ -1192,15 +1192,9 @@ void testReadingSource() {
 void fitAngleDependentFlux() {
 	FILE* logFile = fopen("log.dat", "w");
 	fclose(logFile);
-
-	double theta = pi / 2;
-	double index = 3.5;
+	srand(time(NULL));
 
 
-	double electronConcentration = 2500;
-	double B = 0.29;
-	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
-	double fraction = 0.5;
 	//sigma = 0.0002;
 
 	//SN2009bb
@@ -1210,18 +1204,19 @@ void fitAngleDependentFlux() {
 	//CSS161010
 	const double distance = 150 * 1000000 * parsec;
 
-	double Emin = me_c2;
-	//double Emax = 1E12 * me_c2;
-	double Emax = 1E4 * me_c2;
-	int Ne = 50;
-	int Nmu = 50;
+	double electronConcentration = 25;
+	double B = 0.29;
+	double theta = pi / 2;
+	double index = 3.5;
+	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
+	double fraction = 0.5;
+
+	double velocity = 0.75 * speed_of_light;
+	double R = velocity * 99 * 24 * 3600;
 
 	int Nrho = 10;
 	int Nz = 10;
 	int Nphi = 20;
-
-
-	srand(100);
 	//double*** Bturb = create3dArray(Nrho, Nz, Nphi);
 	//double*** thetaTurb = create3dArray(Nrho, Nz, Nphi);
 	//double*** phiTurb = create3dArray(Nrho, Nz, Nphi);
@@ -1230,49 +1225,31 @@ void fitAngleDependentFlux() {
 	//initializing electrons distribution
 	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, me_c2, electronConcentration);
 	//MassiveParticleBrokenPowerLawDistribution* electrons = new MassiveParticleBrokenPowerLawDistribution(massElectron, index, 2.001, 2*me_c2, 1000*me_c2, electronConcentration);
-	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", 259, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", 259, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee3.dat", "./examples_data/gamma0.5_theta0-90/Fs3.dat", 259, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 
-	double velocity = 0.75 * speed_of_light;
-	//double velocity = 0.55 * speed_of_light;
-	double gamma = 1.0 / sqrt(1.0 - velocity * velocity / speed_of_light2);
-	double rmax = velocity * 99 * 24 * 3600;
-	//electrons->addPowerLaw(200 * massElectron * speed_of_light2, 3.5);
-	//electrons->rescaleDistribution(1.2);
-	//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electrons))->prolongEnergyRange(1E6, 100);
-	//electrons->addPowerLaw(200 * massElectron * speed_of_light2, 3.5);
-	int Ndistributions = 10;
+
+	
 	//reading electron distributions from files
-	//MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma1.5_theta0-90/Ee", "./examples_data/gamma1.5_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
-	MassiveParticleDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma1.5_theta0-90/Ee", "./examples_data/gamma1.5_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
-	double newEmax = 1E8 * me_c2;
-	/*for (int i = 0; i < Ndistributions; ++i) {
-		//rescale distributions to real mp/me relation
-		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(1.2));
-		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->prolongEnergyRange(newEmax, 100);
-		if (i < 4) {
-			//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(100 * me_c2, 3.5);
-			(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(300 * me_c2, 3.5);
-			(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(500 * me_c2, 2);
-		}
+	int Ndistributions = 10;
+	MassiveParticleDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma1.5_theta0-90/Ee", "./examples_data/gamma1.5_theta0-90/Fs", ".dat", Ndistributions, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
 
-	}*/
 
-	//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[1]))->writeDistribution("dist1.dat", 300, Emin, newEmax);
-	//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[4]))->writeDistribution("dist4.dat", 300, Emin, newEmax);
-	//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[8]))->writeDistribution("dist8.dat", 300, Emin, newEmax);
-
-	RadiationSource* source = RadiationSourceFactory::createSourceWithTurbulentField(angleDependentDistributions, 10, Nrho, Nz, Nphi, B, pi / 2, 0, electronConcentration, 0.00000000000001, 3.5, 0.5 * rmax, 10, rmax, fraction*rmax, distance);
-
-	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, newEmax, true, false);
+	//RadiationSource* source = RadiationSourceFactory::createSourceWithTurbulentField(angleDependentDistributions, 10, Nrho, Nz, Nphi, B, pi / 2, 0, electronConcentration, 0.00000000000001, 3.5, 0.5 * R, 10, R, fraction*R, distance);
+	RadiationSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, B, theta, 0, electronConcentration, R, (1.0 - fraction) * R, distance);
+	double Emin = me_c2;
+	//double Emax = 1E12 * me_c2;
+	double Emax = 1E4 * me_c2;
+	int Ne = 50;
+	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true, false);
 
 
 
 	//number of parameters of the source
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 0.5 * rmax, 1E-6, 1, 0.001, 0.5 * speed_of_light };
-	double maxParameters[Nparams] = { 1.1 * rmax, 5E-1, 2E4, 0.5, 0.75 * speed_of_light };
+	double minParameters[Nparams] = { 0.5 * R, 1E-6, 1, 0.001, 0.5 * speed_of_light };
+	double maxParameters[Nparams] = { 1.1 * R, 5E-1, 2E4, 0.5, 0.75 * speed_of_light };
 	//starting point of optimization and normalization
 	//fraction = 2E13 / rmax;
 
@@ -1286,7 +1263,7 @@ void fitAngleDependentFlux() {
 	sigma = 0.08333;
 	//electronConcentration = 3167 * sqr(69.0 / Ndays);
 	//sigma = 2.33E-5;
-	double vector[Nparams] = { rmax, sigma, electronConcentration, fraction, velocity };
+	double vector[Nparams] = { R, sigma, electronConcentration, fraction, velocity };
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
 	}
@@ -1372,11 +1349,11 @@ void fitAngleDependentFlux() {
 
 
 
-	rmax = vector[0] * maxParameters[0];
+	R = vector[0] * maxParameters[0];
 	electronConcentration = vector[2] * maxParameters[2];
 	fraction = vector[3] * maxParameters[3];
 	velocity = vector[4] * maxParameters[4] / speed_of_light;
-	gamma = 1.0 / sqrt(1.0 - velocity * velocity);
+	double gamma = 1.0 / sqrt(1.0 - velocity * velocity);
 
 	//double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0)*(4*pi*rmax*rmax*rmax/3)*(1.0 - cube(1.0 - fraction));
 	double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0) * source->getTotalVolume();

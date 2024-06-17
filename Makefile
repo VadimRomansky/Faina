@@ -12,8 +12,10 @@ CC       = gcc
 #CFLAGS   = -c -O3 -Wundef
 LDFLAGS  = -lm
 CXX           = g++
-CFLAGS        = -pipe -g -Wall -W -fPIC
-CXXFLAGS      = -pipe -fopenmp -g -std=gnu++11 -Wall -W -fPIC
+#CFLAGS        = -pipe -g -Wall -W -fPIC
+#CXXFLAGS      = -pipe -fopenmp -g -std=gnu++11 -Wall -W -fPIC
+CFLAGS        = -pipe -O3 -Wall -W -fPIC
+CXXFLAGS      = -pipe -fopenmp -O3 -std=gnu++11 -Wall -W -fPIC
 INCPATH       = -I.
 LINK          = g++
 LFLAGS        = 

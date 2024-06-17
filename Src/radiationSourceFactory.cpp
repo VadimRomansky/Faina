@@ -653,6 +653,23 @@ void RadiationSourceFactory::initializeRhoMask(bool** mask, int Nrho, int Nphi, 
 	}
 }
 
+AngleDependentElectronsSphericalSource* RadiationSourceFactory::createAngularDependentSource(MassiveParticleDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& theta0, const double& phi0, const double n0, const double& rho, const double& rhoin, const double& distance)
+{
+	double*** B = create3dArray(Nrho, Nz, Nphi, B0);
+	double*** theta = create3dArray(Nrho, Nz, Nphi, theta0);
+	double*** phi = create3dArray(Nrho, Nz, Nphi, phi0);
+
+	double*** concentration = create3dArray(Nrho, Nz, Nphi, n0);
+
+	AngleDependentElectronsSphericalSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ntheta, electronDistributions, B, theta, phi, concentration, rho, rhoin, distance);
+
+	delete3dArray(B, Nrho, Nz, Nphi);
+	delete3dArray(theta, Nrho, Nz, Nphi);
+	delete3dArray(phi, Nrho, Nz, Nphi);
+	delete3dArray(concentration, Nrho, Nz, Nphi);
+	return source;
+}
+
 AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWithTurbulentField(MassiveParticleDistribution** electronDistributions, int Ntheta, int Nrho, int Nz, int Nphi, const double& B0, const double& theta0, const double& phi0, const double n0, const double& turbulentFraction, const double& index, const double& L0, int Nmodes, const double& rho, const double& rhoin, const double& distance)
 {
 	double*** B = create3dArray(Nrho, Nz, Nphi, B0);
