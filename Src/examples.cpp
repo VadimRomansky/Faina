@@ -1250,6 +1250,7 @@ void fitAngleDependentFlux() {
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 0.5 * R, 1E-6, 1, 0.001, 0.5 * speed_of_light };
 	double maxParameters[Nparams] = { 1.1 * R, 5E-1, 2E4, 0.5, 0.75 * speed_of_light };
+	bool optPar[Nparams] = { false, true, true, false, false };
 	//starting point of optimization and normalization
 	//fraction = 2E13 / rmax;
 
@@ -1290,18 +1291,17 @@ void fitAngleDependentFlux() {
 
 	printf("start optimization\n");
 	printLog("start optimization\n");
-	bool optPar[Nparams] = { false, true, true, false, false };
 	int Niterations = 5;
 	//creating KPIevaluator
-	LossEvaluator* KPIevaluator = new SpectrumLossEvaluator(energy1, observedFlux1, observedError1, Nenergy1, source);
+	LossEvaluator* lossEvaluator = new SpectrumLossEvaluator(energy1, observedFlux1, observedError1, Nenergy1, source);
 	//creating gradient descent optimizer
-	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
+	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, lossEvaluator);
 	//RadiationOptimizer* synchrotronOptimizer = new CoordinateRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	//number of points per axis in gridEnumOptimizer
-	int Npoints[Nparams] = { 10,50,50,10,2 };
+	int Npoints[Nparams] = { 2,50,50,2,2 };
 	//creating grid enumeration optimizer
-	RadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints, KPIevaluator);
-	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
+	RadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints, lossEvaluator);
+	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints, lossEvaluator);
 	//grid enumeration optimization, finding best starting point for gradien descent
 
 	//double error = synchrotronOptimizer->evaluateOptimizationFunction(vector);
@@ -1396,6 +1396,8 @@ void fitAngleDependentFlux() {
 		printf("%d\n", i);
 		F[i] = synchrotronEvaluator->evaluateFluxFromSource(hplank * Nu[i], source);
 	}
+
+	synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch.dat", source, hplank * 1E8, hplank * 1E11, 100);
 
 	//outputing spectrum
 	FILE* output_GZ_Jansky = fopen("outputSynch.dat", "w");
