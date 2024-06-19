@@ -38,7 +38,7 @@ if __name__ == '__main__':
     #plot_radiation2()
     #plot_error_profile(1,2)
     #plot_mask()
-    #plot_image("../image.dat", "image")
+    plot_image("../image.dat", "image")
     #plot_image("../image1.dat", "image1")
     #plot_image_array_animated("../image_array.dat","image_array")
     #plot_array3d()

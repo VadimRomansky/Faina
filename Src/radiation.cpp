@@ -170,9 +170,10 @@ void RadiationEvaluator::writeImageFromSourceToFile(const char* fileName, Radiat
             double currentE = Ephmin;
             double localFlux = 0;
             double s = source->getCrossSectionArea(irho, iphi);
+            double d = source->getDistance();
             for (int ie = 0; ie < Nph; ++ie) {
                 double dE = currentE * (factor - 1.0);
-                localFlux += evaluateFluxFromSourceAtPoint(currentE, source, irho, iphi)*dE/s;
+                localFlux += evaluateFluxFromSourceAtPoint(currentE, source, irho, iphi)*dE*d*d/s;
                 currentE = currentE * factor;
             }
             image[irho][iphi] = localFlux;
@@ -217,7 +218,9 @@ void RadiationEvaluator::writeImageFromSourceAtEToFile(const double& photonFinal
         //printf("i = %d\n", irho);
         for (int iphi = 0; iphi < Nphi; ++iphi) {
             double s = source->getCrossSectionArea(irho, iphi);
-            double localFlux =  evaluateFluxFromSourceAtPoint(photonFinalEnergy, source, irho, iphi)/s;
+            //todo? surface emissivity?
+            double d = source->getDistance();
+            double localFlux =  evaluateFluxFromSourceAtPoint(photonFinalEnergy, source, irho, iphi)*d*d/s;
             image[irho][iphi] = localFlux;
         }
     }
@@ -264,7 +267,8 @@ void RadiationEvaluator::writeImageFromSourceInRangeToFile(const double& photonE
             //printf("i = %d\n", irho);
             for (int iphi = 0; iphi < Nphi; ++iphi) {
                 double s = source->getCrossSectionArea(irho, iphi);
-                double localFlux = evaluateFluxFromSourceAtPoint(currentE, source, irho, iphi) / s;
+                double d = source->getDistance();
+                double localFlux = evaluateFluxFromSourceAtPoint(currentE, source, irho, iphi)*d*d / s;
                 image[irho][iphi] = localFlux;
             }
         }
