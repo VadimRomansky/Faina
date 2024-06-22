@@ -46,7 +46,7 @@ def plot_image(filename, name):
                 if(radiation[i][j] == 0):
                     radiation[i][j] = 0.1*minradiation
 
-    im2 = plt.pcolormesh(th, r, radiation.T, norm = colors.LogNorm(vmin = minradiation, vmax = amax(radiation)))
+    im2 = plt.pcolormesh(th, r, radiation.T, norm = colors.LogNorm(vmin = minradiation, vmax = amax(radiation)), shading='gouraud')
 
     #cax2 = f1.add_axes([0.125, 0.92, 0.775, 0.03])
     #plt.colorbar(im2, cax=cax2, orientation='horizontal')
