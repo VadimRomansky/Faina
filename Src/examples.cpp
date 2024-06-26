@@ -1232,14 +1232,25 @@ void fitAngleDependentFlux() {
 	
 	//reading electron distributions from files
 	int Ndistributions = 10;
-	MassiveParticleDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma1.5_theta0-90/Ee", "./examples_data/gamma1.5_theta0-90/Fs", ".dat", Ndistributions, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
-
-
-	//RadiationSource* source = RadiationSourceFactory::createSourceWithTurbulentField(angleDependentDistributions, 10, Nrho, Nz, Nphi, B, pi / 2, 0, electronConcentration, 0.00000000000001, 3.5, 0.5 * R, 10, R, fraction*R, distance);
-	RadiationSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, B, theta, 0, electronConcentration, R, (1.0 - fraction) * R, distance);
 	double Emin = me_c2;
 	//double Emax = 1E12 * me_c2;
 	double Emax = 1E4 * me_c2;
+	MassiveParticleDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma1.5_theta0-90/Ee", "./examples_data/gamma1.5_theta0-90/Fs", ".dat", Ndistributions, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
+
+	for (int i = 0; i < Ndistributions; ++i) {
+		//rescale distributions to real mp/me relation
+		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(1.2));
+		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->prolongEnergyRange(Emax, 100);
+		if (i < 4) {
+			//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(100 * me_c2, 3.5);
+			(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(300 * me_c2, 3.5);
+			//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(500 * me_c2, 2);
+		}
+
+	}
+
+	//RadiationSource* source = RadiationSourceFactory::createSourceWithTurbulentField(angleDependentDistributions, 10, Nrho, Nz, Nphi, B, pi / 2, 0, electronConcentration, 0.00000000000001, 3.5, 0.5 * R, 10, R, fraction*R, distance);
+	RadiationSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, B, theta, 0, electronConcentration, R, (1.0 - fraction) * R, distance);
 	int Ne = 50;
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true, false);
 
@@ -1255,7 +1266,7 @@ void fitAngleDependentFlux() {
 	//fraction = 2E13 / rmax;
 
 	//fraction = (0.4-0.04 + 0.004/3);
-	fraction = 0.5;
+	fraction = 0.2;
 	int Ndays = 99;
 	double denseFactor = 0.5 / fraction;
 	electronConcentration = sqr(99.0 / Ndays) * 17 * denseFactor;
@@ -1357,13 +1368,13 @@ void fitAngleDependentFlux() {
 
 	//double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0)*(4*pi*rmax*rmax*rmax/3)*(1.0 - cube(1.0 - fraction));
 	double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0) * source->getTotalVolume();
-	double energyInRadioElectrons = electronConcentration * (electrons->getMeanEnergy() - me_c2) * source->getTotalVolume();
+	//double energyInRadioElectrons = electronConcentration * (electrons->getMeanEnergy() - me_c2) * source->getTotalVolume();
 	//double energyInRadioProtons = electronConcentration * (protons->getMeanEnergy() - massProton * speed_of_light2) * source->getTotalVolume();
 	double magneticEnergy = (B * B / (8 * pi)) * source->getTotalVolume();
 	printf("total kinetik energy = %g\n", totalEnergy);
 	printLog("total kinetik energy = %g\n", totalEnergy);
-	printf("energy in radio electrons = %g\n", energyInRadioElectrons);
-	printLog("energy in radio electrons = %g\n", energyInRadioElectrons);
+	//printf("energy in radio electrons = %g\n", energyInRadioElectrons);
+	//printLog("energy in radio electrons = %g\n", energyInRadioElectrons);
 	//printf("energy in radio protons = %g\n", energyInRadioProtons);
 	//printLog("energy in radio protons = %g\n", energyInRadioProtons);
 	printf("energy in magnetic field = %g\n", magneticEnergy);

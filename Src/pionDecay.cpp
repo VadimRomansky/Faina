@@ -446,7 +446,7 @@ double PionDecayEvaluator::evaluateEmissivity(const double& photonFinalEnergy, i
 	return result;
 }
 
-double PionDecayEvaluator::evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double PionDecayEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
 {
 	return 0.0;
 }
@@ -598,7 +598,7 @@ double PionDecayEvaluatorKelner::evaluateEmissivity(const double& photonFinalEne
 	return result;
 }
 
-double PionDecayEvaluatorKelner::evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double PionDecayEvaluatorKelner::evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
 {
 	return 0.0;
 }

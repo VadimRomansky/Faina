@@ -52,9 +52,9 @@ class SynchrotronEvaluator : public RadiationEvaluator{
 public:
 	SynchrotronEvaluator(int Ne, double Emin, double Emax, bool absorption = true, bool doppler = false);
     virtual ~SynchrotronEvaluator();
-	void evaluateSynchrotronIandA(const double& photonFinalFrequency, const double& photonFinalTheta, const double& photonFinalPhi, const double& B, const double& sinhi, const double& concentration, MassiveParticleIsotropicDistribution* electronDistribution, double& I, double& A);
+	virtual void evaluateEmissivityAndAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source, double& I, double& A);
 	virtual double evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
-	virtual double evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
+	virtual double evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
     void resetParameters(const double *parameters, const double *normalizationUnits);
     //double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
 	virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);

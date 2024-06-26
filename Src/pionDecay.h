@@ -27,7 +27,7 @@ public:
     void resetParameters(const double *parameters, const double *normalizationUnits);
     double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& volume, const double& distance);
     virtual double evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
-    virtual double evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
+    virtual double evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
     //virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
 };
 
@@ -40,7 +40,7 @@ public:
     void resetParameters(const double *parameters, const double *normalizationUnits);
     double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& volume, const double& distance);
     virtual double evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
-    virtual double evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
+    virtual double evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
     //virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
 };
 

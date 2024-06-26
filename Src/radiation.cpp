@@ -80,8 +80,7 @@ double RadiationEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFin
         double D = gamma * (1.0 - beta * mu);
         double photonFinalFrequencyPrimed = photonFinalFrequency * D;
 
-        I = evaluateEmissivity(photonFinalEnergy, irho, iz, iphi, source);
-        A = evaluateAbsorbtion(photonFinalEnergy, irho, iz, iphi, source);
+        evaluateEmissivityAndAbsorption(photonFinalEnergy, irho, iz, iphi, source, I, A);
 
         double length = source->getLength(irho, iz, iphi);
         if (length > 0) {
@@ -131,6 +130,11 @@ double RadiationEvaluator::evaluateTotalFluxInEnergyRange(const double& Ephmin, 
         currentE = currentE * factor;
     }
     return flux;
+}
+
+void RadiationEvaluator::evaluateEmissivityAndAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source, double& I, double& A) {
+    I = evaluateEmissivity(photonFinalEnergy, irho, iz, iphi, source);
+    A = evaluateAbsorption(photonFinalEnergy, irho, iz, iphi, source);
 }
 
 void RadiationEvaluator::writeFluxFromSourceToFile(const char* fileName, RadiationSource* source, const double& Ephmin, const double& Ephmax, const int Nph) {
@@ -345,11 +349,11 @@ double RadiationSumEvaluator::evaluateEmissivity(const double& photonFinalEnergy
     return result;
 }
 
-double RadiationSumEvaluator::evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double RadiationSumEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
 {
     double result = 0;
     for (int i = 0; i < my_Nevaluators; ++i) {
-        result += my_Evaluators[i]->evaluateAbsorbtion(photonFinalEnergy, irho, iz, iphi, source);
+        result += my_Evaluators[i]->evaluateAbsorption(photonFinalEnergy, irho, iz, iphi, source);
     }
     return result;
 }

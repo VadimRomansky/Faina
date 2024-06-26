@@ -1816,7 +1816,7 @@ double InverseComptonEvaluator::evaluateEmissivity(const double& photonFinalEner
 	}
 }
 
-double InverseComptonEvaluator::evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double InverseComptonEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
 {
 	return 0.0;
 }

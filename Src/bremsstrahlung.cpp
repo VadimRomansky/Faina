@@ -141,7 +141,7 @@ double BremsstrahlungThermalEvaluator::evaluateEmissivity(const double& photonFi
 	return result;
 }
 
-double BremsstrahlungThermalEvaluator::evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double BremsstrahlungThermalEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
 {
 	return 0.0;
 }
@@ -446,7 +446,7 @@ double BremsstrahlungEvaluator::evaluateEmissivity(const double& photonFinalEner
 	return result;
 }
 
-double BremsstrahlungEvaluator::evaluateAbsorbtion(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double BremsstrahlungEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
 {
 	return 0.0;
 }
