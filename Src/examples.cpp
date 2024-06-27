@@ -1250,9 +1250,9 @@ void fitAngleDependentFlux() {
 	}
 
 	//RadiationSource* source = RadiationSourceFactory::createSourceWithTurbulentField(angleDependentDistributions, 10, Nrho, Nz, Nphi, B, pi / 2, 0, electronConcentration, 0.00000000000001, 3.5, 0.5 * R, 10, R, fraction*R, distance);
-	RadiationSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, B, theta, 0, electronConcentration, R, (1.0 - fraction) * R, distance);
+	RadiationSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, B, theta, 0, electronConcentration, R, (1.0 - fraction) * R, distance, velocity);
 	int Ne = 50;
-	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true, false);
+	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true, true);
 
 
 
@@ -1391,7 +1391,7 @@ void fitAngleDependentFlux() {
 	double* F2 = new double[Nnu];
 
 	double Numin = 1E8;
-	double Numax = 1E19;
+	double Numax = 1E11;
 	double factor = pow(Numax / Numin, 1.0 / (Nnu - 1));
 	Nu[0] = Numin;
 	F[0] = 0;

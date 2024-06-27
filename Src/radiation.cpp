@@ -59,7 +59,6 @@ double RadiationEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFin
     int Nrho = source->getNrho();
     int Nz = source->getNz();
     int Nphi = source->getNphi();
-    double photonFinalFrequency = photonFinalEnergy / hplank;
     double localI = 0;
     double prevArea = 0;
     for (int iz = 0; iz < Nz; ++iz) {
@@ -78,13 +77,19 @@ double RadiationEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFin
         double mu = cos(theta);
 
         double D = gamma * (1.0 - beta * mu);
-        double photonFinalFrequencyPrimed = photonFinalFrequency * D;
+        double photonFinalEnergyPrimed = photonFinalEnergy * D;
 
-        evaluateEmissivityAndAbsorption(photonFinalEnergy, irho, iz, iphi, source, I, A);
+        //evaluateEmissivityAndAbsorption(photonFinalEnergy, irho, iz, iphi, source, I, A);
+        evaluateEmissivityAndAbsorption(photonFinalEnergyPrimed, irho, iz, iphi, source, I, A);
+
+        if (my_doppler) {
+            I = I / (D * D);
+            A = A * D;
+        }
 
         double length = source->getLength(irho, iz, iphi);
         if (length > 0) {
-            if (my_absorption) {
+            /*if (my_absorption) {
                 double I0 = localI * D * D;
                 double tempI01 = I0;
                 double tempI02 = 0;
@@ -112,6 +117,32 @@ double RadiationEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFin
             }
             else {
                 localI = localI + I * area * length / (D * D);
+            }*/
+            if (my_absorption) {
+                double I0 = localI;
+                double tempI01 = I0;
+                double tempI02 = 0;
+                if (area < prevArea) {
+                    tempI01 = I0 * area / prevArea;
+                    tempI02 = I0 - tempI01;
+                }
+                prevArea = area;
+                double Q = I * area;
+
+                double tau = A * length;
+                double S = 0;
+                if (A > 0) {
+                    S = Q / A;
+                }
+                if (fabs(tau) < 1E-10) {
+                    localI = (tempI01 * (1.0 - tau) + S * tau + tempI02);
+                }
+                else {
+                    localI = (S + (tempI01 - S) * exp(-tau) + tempI02);
+                }
+            }
+            else {
+                localI = localI + I * area * length;
             }
         }
     }
