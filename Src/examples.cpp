@@ -1260,7 +1260,7 @@ void fitAngleDependentFlux() {
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 0.5 * R, 1E-6, 1, 0.001, 0.5 * speed_of_light };
-	double maxParameters[Nparams] = { 1.1 * R, 5E-1, 2E4, 0.5, 0.75 * speed_of_light };
+	double maxParameters[Nparams] = { 1.1 * R, 5E-1, 2E3, 0.5, 0.75 * speed_of_light };
 	bool optPar[Nparams] = { false, true, true, false, false };
 	//starting point of optimization and normalization
 	//fraction = 2E13 / rmax;
