@@ -5,6 +5,7 @@
 #include "constants.h"
 #include "util.h"
 #include "massiveParticleDistribution.h"
+#include "coordinateTransform.h"
 
 #include "synchrotron.h"
 
@@ -129,6 +130,60 @@ void SynchrotronEvaluator::evaluateEmissivityAndAbsorption(const double& photonF
 	double B = source->getB(irho, iz, iphi);
 	double sinTheta = source->getSinTheta(irho, iz, iphi);
 	double concentration = source->getConcentration(irho, iz, iphi);
+
+	double v, vtheta, vphi;
+	source->getVelocity(irho, iz, iphi, v, vtheta, vphi);
+	double beta = v / speed_of_light;
+	double gamma = 1.0 / sqrt(1.0 - beta * beta);
+	double mu = cos(vtheta);
+	double D = gamma * (1 - mu * beta);
+
+	if (my_doppler) {
+		double Btheta = source->getBTheta(irho, iz, iphi);
+		double Bphi = source->getBPhi(irho, iz, iphi);
+		double Bpar = B * (cos(Btheta) * cos(vtheta) + sin(Btheta) * sin(vtheta) * (cos(Bphi) * cos(vphi) + sin(Bphi) * sin(vphi)));
+		//from invarian B^2 - E^2
+		double Bprimed = sqrt(B*B / (gamma*gamma) + Bpar*Bpar*beta*beta);
+		double Bnorm = sqrt(Bprimed * Bprimed - Bpar * Bpar);
+		double concentrationPrimed = concentration / gamma;
+
+		double thetar;
+		double phir;
+		rotationSphericalCoordinates(vtheta, vphi, 0, 0, thetar, phir);
+		double thetaBr;
+		double phiBr;
+		rotationSphericalCoordinates(vtheta, vphi, Btheta, Bphi, thetaBr, phiBr);
+		double photonFinalEnergyPrimed;
+		double thetaPrimed;
+		LorentzTransformationPhotonZ(gamma, photonFinalEnergy, thetar, photonFinalEnergyPrimed, thetaPrimed);
+		double BthetaPrimed = acos(Bpar / Bprimed);
+		if (thetaBr > pi / 2) {
+			BthetaPrimed = pi - acos(Bpar/Bprimed);
+		}
+		if (BthetaPrimed != BthetaPrimed) {
+			printf("BthetaPrimed = NaN\n");
+			printLog("BthetaPrimed = NaN\n");
+			exit(0);
+		}
+
+		double Bpar1 = Bprimed * (cos(BthetaPrimed) * cos(thetaPrimed) + sin(BthetaPrimed) * sin(thetaPrimed) * (cos(phiBr) * cos(phir) + sin(phiBr) * sin(phir)));
+		double Bnorm1 = sqrt(Bprimed * Bprimed - Bpar1 * Bpar1);
+
+		photonFinalFrequency = photonFinalEnergyPrimed / hplank;
+		B = Bprimed;
+		if (Bprimed > 0) {
+			sinTheta = Bnorm1 / Bprimed;
+		}
+		else {
+			sinTheta = 0;
+		}
+		if (sinTheta != sinTheta) {
+			printf("sinTheta = NaN\n");
+			printLog("sinTheta = NaN\n");
+			exit(0);
+		}
+		concentration = concentrationPrimed;
+	}
 	MassiveParticleIsotropicDistribution* electronDistribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
 	if (electronDistribution == NULL) {
 		printf("Synchrotron evaluator works only with isotropic distributions\n");
@@ -267,6 +322,11 @@ void SynchrotronEvaluator::evaluateEmissivityAndAbsorption(const double& photonF
 			}
 		}
     }
+
+	if (my_doppler) {
+		I = I / (D * D);
+		A = A * D;
+	}
 }
 
 double SynchrotronEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
@@ -487,75 +547,4 @@ double SynchrotronEvaluator::evaluateAbsorption(const double& photonFinalEnergy,
 	}
 
 	return A;
-}
-
-double SynchrotronEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi) {
-	int Nrho = source->getNrho();
-	int Nz = source->getNz();
-	int Nphi = source->getNphi();
-	double photonFinalFrequency = photonFinalEnergy / hplank;
-	double localI = 0;
-	double prevArea = 0;
-	for (int iz = 0; iz < Nz; ++iz) {
-		double area = source->getArea(irho, iz, iphi);
-		double A = 0;
-		double I = 0;
-		double v;
-		double theta;
-		double phi;
-		source->getVelocity(irho, iz, iphi, v, theta, phi);
-		if (!my_doppler) {
-			v = 0;
-		}
-		double beta = v / speed_of_light;
-		double gamma = 1.0 / sqrt(1 - beta * beta);
-		double mu = cos(theta);
-
-		double D = gamma * (1.0 - beta * mu);
-		double photonFinalFrequencyPrimed = photonFinalFrequency * D;
-		double photonFinalEnergyPrimed = photonFinalEnergy * D;
-		//evaluateSynchrotronIandA(photonFinalFrequency, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), source->getParticleDistribution(irho, iz, iphi), I, A);
-		MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
-		if (distribution == NULL) {
-			printf("Synchrotron evaluator works only with isotropic distributions\n");
-			printLog("Synchrotron evaluator works only with isotropic distributions\n");
-			exit(0);
-		}
-		evaluateEmissivityAndAbsorption(photonFinalEnergy, irho, iz, iphi, source, I, A);
-		//evaluateSynchrotronIandA(photonFinalFrequencyPrimed, 0, 0, source->getB(irho, iz, iphi), source->getSinTheta(irho, iz, iphi), source->getConcentration(irho, iz, iphi), distribution, I, A);
-		double length = source->getLength(irho, iz, iphi);
-		if (length > 0) {
-			if (my_absorption) {
-				double I0 = localI * D * D;
-				double tempI01 = I0;
-				double tempI02 = 0;
-				if (area < prevArea) {
-					tempI01 = I0 * area / prevArea;
-					tempI02 = I0 - tempI01;
-				}
-				prevArea = area;
-				double Q = I * area;
-				//todo lorentz length
-				double lnorm = fabs(length * sin(theta));
-				double lpar = fabs(length * cos(theta));
-				double lengthPrimed = sqrt(lnorm * lnorm + lpar * lpar * gamma * gamma);
-				double tau = A * lengthPrimed;
-				double S = 0;
-				if (A > 0) {
-					S = Q / A;
-				}
-				if (fabs(tau) < 1E-10) {
-					localI = (tempI01 * (1.0 - tau) + S * tau + tempI02) / (D * D);
-				}
-				else {
-					localI = (S + (tempI01 - S) * exp(-tau) + tempI02) / (D * D);
-				}
-			}
-			else {
-				localI = localI + I * area * length / (D * D);
-			}
-		}
-	}
-	double distance = source->getDistance();
-	return localI/ (distance * distance);
 }

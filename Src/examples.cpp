@@ -761,10 +761,10 @@ void evaluatePionDecay() {
 
 // example 6. Evaluating bremsstrahlung radiation from hot gas
 void evaluateBremsstrahlung() {
-	double electronConcentration = 1;
+	double electronConcentration = 1E14;
 	double rmax = 1.3E17;
 	double B = 0.6;
-	double temperature = 1E10;
+	double temperature = 1E8;
 	//SN2009bb
 	//const double distance = 40*3.08*1.0E24;
 	//AT2018
@@ -778,13 +778,13 @@ void evaluateBremsstrahlung() {
 	MassiveParticleMaxwellJuttnerDistribution* electrons = new MassiveParticleMaxwellJuttnerDistribution(massElectron, temperature, electronConcentration);
 	//MassiveParticleMaxwellDistribution* electrons = new MassiveParticleMaxwellDistribution(massElectron, temperature, electronConcentration);
 	RadiationSource* source = new SimpleFlatSource(electrons, 0, 0, 0, rmax, rmax, distance);
-	BremsstrahlungThermalEvaluator* bremsstrahlungEvaluator1 = new BremsstrahlungThermalEvaluator();
-	BremsstrahlungEvaluator* bremsstrahlungEvaluator2 = new BremsstrahlungEvaluator(Ne, Emin, Emax, 1.0);
+	BremsstrahlungThermalEvaluator* bremsstrahlungEvaluator1 = new BremsstrahlungThermalEvaluator(true, false);
+	BremsstrahlungEvaluator* bremsstrahlungEvaluator2 = new BremsstrahlungEvaluator(Ne, Emin, Emax, 1.0, true, false);
 
 	int Nnu = 200;
 	double* E = new double[Nnu];
 
-	double Ephmin = 0.001 * kBoltzman * temperature;
+	double Ephmin = 0.00001 * kBoltzman * temperature;
 	double Ephmax = 100 * kBoltzman * temperature;
 	double factor = pow(Ephmax / Ephmin, 1.0 / (Nnu - 1));
 	E[0] = Ephmin;
@@ -794,16 +794,41 @@ void evaluateBremsstrahlung() {
 
 	printLog("evaluating\n");
 
+	int N = 5;
+
+	double vector[5];
+	double normalizationUnits[5] = { 1,1,1,1,1 };
+	vector[0] = rmax;
+	vector[1] = B * B / (4 * pi * electronConcentration * massProton * speed_of_light2);
+	vector[2] = electronConcentration;
+	vector[3] = 1.0;
+	vector[4] = 0;
+
 	FILE* output_ev_EFE = fopen("outputBremE.dat", "w");
 	FILE* output_GHz_Jansky = fopen("outputBremNu.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		double nu = E[i] / hplank;
 		printf("%d\n", i);
 		printLog("%d\n", i);
-		double F1 = bremsstrahlungEvaluator1->evaluateFluxFromSource(E[i], source);
-		double F2 = bremsstrahlungEvaluator2->evaluateFluxFromSource(E[i], source);
-		fprintf(output_ev_EFE, "%g %g %g\n", E[i] / (1.6E-12), E[i] * F1, E[i] * F2);
-		fprintf(output_GHz_Jansky, "%g %g %g\n", nu / 1E9, 1E26 * hplank * F1, 1E26 * hplank * F2);
+		fprintf(output_ev_EFE, "%g", E[i] / (1.6E-12));
+		fprintf(output_GHz_Jansky, "%g", nu / 1E9);
+		for(int j = 0; j < N; ++j){
+			vector[2] = electronConcentration;
+			source->resetParameters(vector, normalizationUnits);
+			electronConcentration *= 10;
+			double F1 = bremsstrahlungEvaluator1->evaluateFluxFromSource(E[i], source);
+			double F2 = bremsstrahlungEvaluator2->evaluateFluxFromSource(E[i], source);
+			fprintf(output_ev_EFE, " %g %g", E[i] * F1, E[i] * F2);
+			fprintf(output_GHz_Jansky, " %g %g", 1E26 * hplank * F1, 1E26 * hplank * F2);
+		}
+		for (int j = 0; j < N; ++j) {
+			electronConcentration /= 10;
+		}
+		double photonFinalFrequency = E[i] / hplank;
+		double B = (1/hplank)*(2 * hplank * cube(photonFinalFrequency) / (speed_of_light2)) / (exp(E[i] / (kBoltzman * temperature)) - 1.0);
+		double F3 = B * pi * rmax * rmax / (distance * distance);
+		fprintf(output_ev_EFE, " %g\n", E[i]*F3);
+		fprintf(output_GHz_Jansky, " %g\n", 1E26*hplank*F3);
 	}
 	fclose(output_ev_EFE);
 	fclose(output_GHz_Jansky);
@@ -1260,7 +1285,7 @@ void fitAngleDependentFlux() {
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 0.5 * R, 1E-6, 1, 0.001, 0.5 * speed_of_light };
-	double maxParameters[Nparams] = { 1.1 * R, 5E-1, 2E3, 0.5, 0.75 * speed_of_light };
+	double maxParameters[Nparams] = { 1.1 * R, 5E-1, 2E4, 0.5, 0.75 * speed_of_light };
 	bool optPar[Nparams] = { false, true, true, false, false };
 	//starting point of optimization and normalization
 	//fraction = 2E13 / rmax;
@@ -1269,10 +1294,10 @@ void fitAngleDependentFlux() {
 	fraction = 0.2;
 	int Ndays = 99;
 	double denseFactor = 0.5 / fraction;
-	electronConcentration = sqr(99.0 / Ndays) * 17 * denseFactor;
+	electronConcentration = 20*sqr(99.0 / Ndays) * 17 * denseFactor;
 	//sigma = 0.5*(0.01 * 0.5 / (0.012))/denseFactor;
 	//sigma = 0.34 * 0.34 / (4 * pi * massProton * speed_of_light2 * electronConcentration);
-	sigma = 0.08333;
+	sigma = 0.8333;
 	//electronConcentration = 3167 * sqr(69.0 / Ndays);
 	//sigma = 2.33E-5;
 	double vector[Nparams] = { R, sigma, electronConcentration, fraction, velocity };
@@ -1309,7 +1334,7 @@ void fitAngleDependentFlux() {
 	RadiationOptimizer* synchrotronOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, lossEvaluator);
 	//RadiationOptimizer* synchrotronOptimizer = new CoordinateRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	//number of points per axis in gridEnumOptimizer
-	int Npoints[Nparams] = { 2,50,50,2,2 };
+	int Npoints[Nparams] = { 2,20,20,2,2 };
 	//creating grid enumeration optimizer
 	RadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints, lossEvaluator);
 	RadiationOptimizer* enumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints, lossEvaluator);
@@ -1408,7 +1433,7 @@ void fitAngleDependentFlux() {
 		F[i] = synchrotronEvaluator->evaluateFluxFromSource(hplank * Nu[i], source);
 	}
 
-	synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch.dat", source, hplank * 1E8, hplank * 1E11, 100);
+	//synchrotronEvaluator->writeFluxFromSourceToFile("outputSynch.dat", source, hplank * 1E8, hplank * 1E11, 100);
 
 	//outputing spectrum
 	FILE* output_GZ_Jansky = fopen("outputSynch.dat", "w");
@@ -1425,5 +1450,86 @@ void fitAngleDependentFlux() {
 	synchrotronEvaluator->writeImageFromSourceInRangeToFile(0.5*1E9 * hplank, 20*1E9*hplank, 20, "image_array.dat", source);
 
 	//return;
+
+}
+
+//test vary parameters
+void varyParameters() {
+	FILE* logFile = fopen("log.dat", "w");
+	fclose(logFile);
+	srand(time(NULL));
+
+	const double distance = 150 * 1000000 * parsec;
+
+	double electronConcentration = 25;
+	double B = 0.29;
+	double theta = pi / 2;
+	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
+	double fraction = 0.5;
+
+	double velocity = 0.75 * speed_of_light;
+	double R = velocity * 99 * 24 * 3600;
+
+	double Emin = me_c2;
+	double index = 3.5;
+	double Emax = 1E4 * me_c2;
+
+	//velocity = 0.0001 * velocity;
+
+	/*int Ndistributions = 10;
+	MassiveParticleDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma1.5_theta0-90/Ee", "./examples_data/gamma1.5_theta0-90/Fs", ".dat", Ndistributions, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
+
+	for (int i = 0; i < Ndistributions; ++i) {
+		//rescale distributions to real mp/me relation
+		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(1.2));
+		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->prolongEnergyRange(Emax, 100);
+		if (i < 4) {
+			//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(100 * me_c2, 3.5);
+			(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(300 * me_c2, 3.5);
+			//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(500 * me_c2, 2);
+		}
+
+	}
+
+	int Nrho = 20;
+	int Nphi = 10;
+	int Nz = 10;
+	RadiationSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, B, theta, 0, electronConcentration, R, (1.0 - fraction) * R, distance, 0.0001*velocity);*/
+
+	MassiveParticleIsotropicDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
+	RadiationSource* source = new SimpleFlatSource(electrons, B, pi / 2, 0, R, fraction * R, distance, velocity);
+
+	int Ne = 50;
+	SynchrotronEvaluator* evaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true, true);
+
+	const int Nparams = 5;
+	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
+	double minParameters[Nparams] = { 0.5 * R, 1E-6, 1, 0.001, 0.5 * speed_of_light };
+	double maxParameters[Nparams] = { 1.1 * R, 5E-1, 2E3, 0.5, 0.75 * speed_of_light };
+
+	double vector[Nparams] = { R, sigma, electronConcentration, fraction, velocity };
+	for (int i = 0; i < Nparams; ++i) {
+		vector[i] = vector[i] / maxParameters[i];
+	}
+
+	char buffer[1];
+
+	for (int i = 0; i < 5; ++i) {
+		source->resetParameters(vector, maxParameters);
+		vector[1] *= 2;
+		//_itoa(i, buffer, 10);
+		sprintf(buffer, "%d",i);
+		evaluator->writeFluxFromSourceToFile((std::string("outputSynch") + std::string(buffer) + std::string(".dat")).c_str(), source, hplank * 1E8, hplank * 1E11, 100);
+	}
+	for (int i = 0; i < 5; ++i) {
+		vector[1] /= 2;
+	}
+	for (int i = 5; i < 10; ++i) {
+		source->resetParameters(vector, maxParameters);
+		vector[2] *= 2;
+		//_itoa(i, buffer, 10);
+		sprintf(buffer, "%d", i);
+		evaluator->writeFluxFromSourceToFile((std::string("outputSynch") + std::string(buffer) + std::string(".dat")).c_str(), source, hplank * 1E8, hplank * 1E11, 100);
+	}
 
 }

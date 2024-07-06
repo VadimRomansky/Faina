@@ -930,14 +930,15 @@ int main() {
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
 	//evaluatePionDecay();
-	//evaluateBremsstrahlung();
+	evaluateBremsstrahlung();
 	//compareComptonSynchrotron();
 	//evaluateSynchrotronImage();
 	//testRotation();
 	//testAnisotropicCompton();
 	//compareComptonWithPowerLawDistribution();
 	//testReadingSource();
-	fitAngleDependentFlux();
+	//fitAngleDependentFlux();
+	//varyParameters();
 
 
 	//evaluateFluxSNRtoWind();

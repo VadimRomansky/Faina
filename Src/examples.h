@@ -43,5 +43,8 @@ void testReadingSource();
 //example fit angle dependent flux
 void fitAngleDependentFlux();
 
+//example test vary parameters
+void varyParameters();
+
 
 #endif

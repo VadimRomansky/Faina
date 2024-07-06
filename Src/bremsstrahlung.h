@@ -13,7 +13,7 @@ public:
 	~BremsstrahlungThermalEvaluator();
 
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
-	virtual double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
+	double evaluateGauntFactor(double eta, double theta);
 	virtual double evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
 	virtual double evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
 	//virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
@@ -46,7 +46,7 @@ public:
 	double evaluateSigma(const double& gammaE, const double& epsilonG);
 
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
-	virtual double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance);
+	virtual void evaluateEmissivityAndAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source, double& I, double& A);
 	virtual double evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
 	virtual double evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
 	//virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);

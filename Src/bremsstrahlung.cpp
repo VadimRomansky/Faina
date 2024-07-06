@@ -24,88 +24,10 @@ void BremsstrahlungThermalEvaluator::resetParameters(const double* parameters, c
 {
 }
 
-double BremsstrahlungThermalEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance)
+double BremsstrahlungThermalEvaluator::evaluateGauntFactor(double eta, double theta)
 {
-	MassiveParticleMaxwellDistribution* maxwellDistribution = dynamic_cast<MassiveParticleMaxwellDistribution*>(electronDistribution);
-	MassiveParticleMaxwellJuttnerDistribution* maxwellJuttnerDistribution = dynamic_cast<MassiveParticleMaxwellJuttnerDistribution*>(electronDistribution);
-	double temperature;
-	if (maxwellDistribution != NULL) {
-		temperature = maxwellDistribution->getTemperature();
-	}
-	else if (maxwellJuttnerDistribution != NULL) {
-		temperature = maxwellJuttnerDistribution->getTemperature();
-	} else {
-		printf("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
-		printLog("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
-		exit(0);
-	}
-	double concentration = electronDistribution->getConcentration();
-	double m = electronDistribution->getMass();
-	double theta = photonFinalEnergy / (kBoltzman * temperature);
-	double ritberg = m * electron_charge * electron_charge * electron_charge * electron_charge * 2 * pi *pi / (hplank*hplank);
-	double eta = kBoltzman * temperature / ritberg;
-	
-
 	double gauntFactor = 1.0;
-	if (eta >= 1.0) {
-		if (theta >= 1.0) {
-			gauntFactor = sqrt(3 /(pi * theta));
-		}
-		else {
-			gauntFactor = (sqrt(3) / pi) * log(4 / (euler_mascheroni * theta));
-		}
-	}
-	else {
-		if (theta >= 1.0) {
-			if (theta >= 1/eta) {
-				double dzeta = eta * theta;
-				gauntFactor = sqrt(12 /dzeta);
-			} else {
-				gauntFactor = 1.0;
-			}
-		}
-		else {
-			if (theta < sqrt(eta) ) {
-				//where is 4? if in denominator, log can be < 0
-				gauntFactor = (sqrt(3) / pi) * log(4 / (pow(euler_mascheroni, 2.5) * theta) * sqrt(eta));
-			}
-			else {
-				gauntFactor = 1.0;
-			}
-		}
-	}
 
-	double a = (32 * pi * pow(electron_charge, 6) / (3 * m * speed_of_light * speed_of_light2)) * sqrt(2 * pi / (3 * kBoltzman * m));
-	double result = (1.0 / hplank) * (a/sqrt(temperature)) * concentration * concentration * exp(-theta) * gauntFactor;
-	result *= volume / (4*pi*sqr(distance));
-	return result;
-}
-
-double BremsstrahlungThermalEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
-{
-	MassiveParticleDistribution* electronDistribution = source->getParticleDistribution(irho, iz, iphi);
-	MassiveParticleMaxwellDistribution* maxwellDistribution = dynamic_cast<MassiveParticleMaxwellDistribution*>(electronDistribution);
-	MassiveParticleMaxwellJuttnerDistribution* maxwellJuttnerDistribution = dynamic_cast<MassiveParticleMaxwellJuttnerDistribution*>(electronDistribution);
-	double temperature;
-	if (maxwellDistribution != NULL) {
-		temperature = maxwellDistribution->getTemperature();
-	}
-	else if (maxwellJuttnerDistribution != NULL) {
-		temperature = maxwellJuttnerDistribution->getTemperature();
-	}
-	else {
-		printf("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
-		printLog("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
-		exit(0);
-	}
-	double concentration = source->getConcentration(irho, iz, iphi);
-	double m = electronDistribution->getMass();
-	double theta = photonFinalEnergy / (kBoltzman * temperature);
-	double ritberg = m * electron_charge * electron_charge * electron_charge * electron_charge * 2 * pi * pi / (hplank * hplank);
-	double eta = kBoltzman * temperature / ritberg;
-
-
-	double gauntFactor = 1.0;
 	if (eta >= 1.0) {
 		if (theta >= 1.0) {
 			gauntFactor = sqrt(3 / (pi * theta));
@@ -135,6 +57,34 @@ double BremsstrahlungThermalEvaluator::evaluateEmissivity(const double& photonFi
 		}
 	}
 
+	return gauntFactor;
+}
+
+double BremsstrahlungThermalEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+{
+	MassiveParticleDistribution* electronDistribution = source->getParticleDistribution(irho, iz, iphi);
+	MassiveParticleMaxwellDistribution* maxwellDistribution = dynamic_cast<MassiveParticleMaxwellDistribution*>(electronDistribution);
+	MassiveParticleMaxwellJuttnerDistribution* maxwellJuttnerDistribution = dynamic_cast<MassiveParticleMaxwellJuttnerDistribution*>(electronDistribution);
+	double temperature;
+	if (maxwellDistribution != NULL) {
+		temperature = maxwellDistribution->getTemperature();
+	}
+	else if (maxwellJuttnerDistribution != NULL) {
+		temperature = maxwellJuttnerDistribution->getTemperature();
+	}
+	else {
+		printf("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
+		printLog("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
+		exit(0);
+	}
+	double concentration = source->getConcentration(irho, iz, iphi);
+	double m = electronDistribution->getMass();
+	double theta = photonFinalEnergy / (kBoltzman * temperature);
+	double ritberg = m * electron_charge * electron_charge * electron_charge * electron_charge * 2 * pi * pi / (hplank * hplank);
+	double eta = kBoltzman * temperature / ritberg;
+
+	double gauntFactor = evaluateGauntFactor(eta, theta);
+
 	double a = (32 * pi * pow(electron_charge, 6) / (3 * m * speed_of_light * speed_of_light2)) * sqrt(2 * pi / (3 * kBoltzman * m));
 	double result = (1.0 / hplank) * (a / sqrt(temperature)) * concentration * concentration * exp(-theta) * gauntFactor;
 	result *= 1 / (4 * pi);
@@ -143,7 +93,35 @@ double BremsstrahlungThermalEvaluator::evaluateEmissivity(const double& photonFi
 
 double BremsstrahlungThermalEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
 {
-	return 0.0;
+	MassiveParticleDistribution* electronDistribution = source->getParticleDistribution(irho, iz, iphi);
+	MassiveParticleMaxwellDistribution* maxwellDistribution = dynamic_cast<MassiveParticleMaxwellDistribution*>(electronDistribution);
+	MassiveParticleMaxwellJuttnerDistribution* maxwellJuttnerDistribution = dynamic_cast<MassiveParticleMaxwellJuttnerDistribution*>(electronDistribution);
+	double temperature;
+	if (maxwellDistribution != NULL) {
+		temperature = maxwellDistribution->getTemperature();
+	}
+	else if (maxwellJuttnerDistribution != NULL) {
+		temperature = maxwellJuttnerDistribution->getTemperature();
+	}
+	else {
+		printf("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
+		printLog("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
+		exit(0);
+	}
+
+	double concentration = source->getConcentration(irho, iz, iphi);
+	double m = electronDistribution->getMass();
+	double theta = photonFinalEnergy / (kBoltzman * temperature);
+	double ritberg = m * electron_charge * electron_charge * electron_charge * electron_charge * 2 * pi * pi / (hplank * hplank);
+	double eta = kBoltzman * temperature / ritberg;
+
+	double gauntFactor = evaluateGauntFactor(eta, theta);
+	
+	double photonFinalFrequency = photonFinalEnergy / hplank;
+
+	double a = (4 * pow(electron_charge, 6.0) / (3 * m * hplank * speed_of_light)) * pow(2 * pi / (3 * kBoltzman * m), 0.5) * concentration * concentration* gauntFactor * (1.0 - exp(-photonFinalEnergy/(kBoltzman*temperature))) / (pow(temperature, 0.5) * cube(photonFinalFrequency));
+
+	return a;
 }
 
 double BremsstrahlungEvaluator::evaluateSigma1(const double& gammaE, const double& epsilonG)
@@ -373,37 +351,29 @@ void BremsstrahlungEvaluator::resetParameters(const double* parameters, const do
 {
 }
 
-double BremsstrahlungEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* electronDistribution, const double& volume, const double& distance)
-{
-	double result = 0;
+void BremsstrahlungEvaluator::evaluateEmissivityAndAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source, double& I, double& A) {
+	I = evaluateEmissivity(photonFinalEnergy, irho, iz, iphi, source);
 
-	for (int i = 0; i < my_Ne; ++i) {
-		double electronEnergy = my_Ee[i];
-		double delectronEnergy;
-		if (i == 0) {
-			delectronEnergy = my_Ee[1] - my_Ee[0];
-		}
-		else {
-			delectronEnergy = my_Ee[i] - my_Ee[i - 1];
-		}
-		double electronGamma = electronEnergy / (massElectron * speed_of_light2);
-		double electronBeta = sqrt(1.0 - 1.0 / (electronGamma * electronGamma));
-		double electronKineticEnergy = massElectron * speed_of_light2 * (electronGamma - 1.0);
-		double epsilonG = photonFinalEnergy / (massElectron * speed_of_light2);
-		double concentration = electronDistribution->getConcentration();
-
-		double sigma = evaluateSigma(electronGamma, epsilonG);
-
-		result += photonFinalEnergy * (speed_of_light * electronBeta) * sigma*concentration * (4*pi*electronDistribution->distribution(electronEnergy)) * volume * delectronEnergy / (4*pi*sqr(distance));
-
-		if (result != result) {
-			printf("result = NaN in bremsstrahlung\n");
-			printLog("result = NaN in bremsstrahlung\n");
-			exit(0);
-		}
+	MassiveParticleDistribution* electronDistribution = source->getParticleDistribution(irho, iz, iphi);
+	MassiveParticleMaxwellDistribution* maxwellDistribution = dynamic_cast<MassiveParticleMaxwellDistribution*>(electronDistribution);
+	MassiveParticleMaxwellJuttnerDistribution* maxwellJuttnerDistribution = dynamic_cast<MassiveParticleMaxwellJuttnerDistribution*>(electronDistribution);
+	double temperature;
+	if (maxwellDistribution != NULL) {
+		temperature = maxwellDistribution->getTemperature();
+	}
+	else if (maxwellJuttnerDistribution != NULL) {
+		temperature = maxwellJuttnerDistribution->getTemperature();
+	}
+	else {
+		printf("free-free absorption works only with maxwellian distribution\n");
+		printLog("free-free absorption works only with maxwellian distribution\n");
+		exit(0);
 	}
 
-	return result;
+	double photonFinalFrequency = photonFinalEnergy / hplank;
+	double B = (2 * hplank * cube(photonFinalFrequency) / (speed_of_light2)) / (exp(photonFinalEnergy / (kBoltzman * temperature)) - 1.0);
+
+	A = hplank * I / B;
 }
 
 double BremsstrahlungEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
@@ -448,5 +418,28 @@ double BremsstrahlungEvaluator::evaluateEmissivity(const double& photonFinalEner
 
 double BremsstrahlungEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
 {
-	return 0.0;
+	double I = evaluateEmissivity(photonFinalEnergy, irho, iz, iphi, source);
+
+	MassiveParticleDistribution* electronDistribution = source->getParticleDistribution(irho, iz, iphi);
+	MassiveParticleMaxwellDistribution* maxwellDistribution = dynamic_cast<MassiveParticleMaxwellDistribution*>(electronDistribution);
+	MassiveParticleMaxwellJuttnerDistribution* maxwellJuttnerDistribution = dynamic_cast<MassiveParticleMaxwellJuttnerDistribution*>(electronDistribution);
+	double temperature;
+	if (maxwellDistribution != NULL) {
+		temperature = maxwellDistribution->getTemperature();
+	}
+	else if (maxwellJuttnerDistribution != NULL) {
+		temperature = maxwellJuttnerDistribution->getTemperature();
+	}
+	else {
+		printf("free-free absorption works only with maxwellian distribution\n");
+		printLog("free-free absorption works only with maxwellian distribution\n");
+		exit(0);
+	}
+
+	double photonFinalFrequency = photonFinalEnergy / hplank;
+	double B = (2 * hplank * cube(photonFinalFrequency) / (speed_of_light2)) / exp(photonFinalEnergy / (kBoltzman * temperature) - 1);
+
+	double a = hplank * I / B;
+
+	return a;
 }

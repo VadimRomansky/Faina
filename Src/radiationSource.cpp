@@ -150,12 +150,25 @@ double SimpleFlatSource::getConcentration(int irho, int iz, int iphi)
 void SimpleFlatSource::getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi)
 {
 	velocity = my_velocity;
+	if (velocity > speed_of_light) {
+		printf("v > c in get velocity %g, irho = %d, iz = %d, iphi = %d\n", velocity / speed_of_light, irho, iz, iphi);
+		printLog("v > c in get velocity %g, irho = %d, iz = %d, iphi = %d\n", velocity / speed_of_light, irho, iz, iphi);
+		exit(0);
+	}
 	theta = 0;
 	phi = 0;
 }
 double SimpleFlatSource::getSinTheta(int irho, int iz, int iphi)
 {
 	return sin(my_theta);
+}
+double SimpleFlatSource::getBTheta(int irho, int iz, int iphi)
+{
+	return my_theta;
+}
+double SimpleFlatSource::getBPhi(int irho, int iz, int iphi)
+{
+	return my_phi;
 }
 /*void SimpleFlatSource::resetConcentration(const double& concentration)
 {
@@ -479,12 +492,25 @@ double TabulatedDiskSource::getConcentration(int irho, int iz, int iphi)
 void TabulatedDiskSource::getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi)
 {
 	velocity = my_v[irho][iz][iphi];
+	if (velocity > speed_of_light) {
+		printf("v > c in get velocity %g, irho = %d, iz = %d, iphi = %d\n", velocity / speed_of_light, irho, iz, iphi);
+		printLog("v > c in get velocity %g, irho = %d, iz = %d, iphi = %d\n", velocity / speed_of_light, irho, iz, iphi);
+		exit(0);
+	}
 	theta = my_vtheta[irho][iz][iphi];
 	phi = my_vphi[irho][iz][iphi];
 }
 double TabulatedDiskSource::getSinTheta(int irho, int iz, int iphi)
 {
 	return sin(my_theta[irho][iz][iphi]);
+}
+double TabulatedDiskSource::getBTheta(int irho, int iz, int iphi)
+{
+	return my_theta[irho][iz][iphi];
+}
+double TabulatedDiskSource::getBPhi(int irho, int iz, int iphi)
+{
+	return my_phi[irho][iz][iphi];
 }
 /*void TabulatedDiskSource::resetConcentration(const double& concentration)
 {
@@ -1595,11 +1621,24 @@ double TabulatedSphericalLayerSource::getConcentration(int irho, int iz, int iph
 void TabulatedSphericalLayerSource::getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi)
 {
 	velocity = my_v[irho][iz][iphi];
+	if (velocity > speed_of_light) {
+		printf("v > c in get velocity %g, irho = %d, iz = %d, iphi = %d\n", velocity / speed_of_light, irho, iz, iphi);
+		printLog("v > c in get velocity %g, irho = %d, iz = %d, iphi = %d\n", velocity / speed_of_light, irho, iz, iphi);
+		exit(0);
+	}
 	theta = my_vtheta[irho][iz][iphi];
 	phi = my_vphi[irho][iz][iphi];
 }
 double TabulatedSphericalLayerSource::getSinTheta(int irho, int iz, int iphi) {
 	return sin(my_theta[irho][iz][iphi]);
+}
+double TabulatedSphericalLayerSource::getBTheta(int irho, int iz, int iphi)
+{
+	return my_theta[irho][iz][iphi];
+}
+double TabulatedSphericalLayerSource::getBPhi(int irho, int iz, int iphi)
+{
+	return my_phi[irho][iz][iphi];
 }
 /*void TabulatedSphericalLayerSource::resetConcentration(const double& concentration)
 {
@@ -2421,12 +2460,14 @@ double SectoralSphericalLayerSource::getTotalVolume()
 
 void SectoralSphericalLayerSource::getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi)
 {
-	velocity = my_velocity;
-	double rho = my_minrho + (irho + 0.5) * my_drho;
-	double z = -my_z + (iz + 0.5) * my_dz;
-	double r = sqrt(z * z + rho * rho);
-	theta = acos(z / r);
-	phi = (iphi + 0.5) * my_dphi;
+	velocity = my_v[irho][iz][iphi];
+	if (velocity > speed_of_light) {
+		printf("v > c in get velocity %g, irho = %d, iz = %d, iphi = %d\n", velocity / speed_of_light, irho, iz, iphi);
+		printLog("v > c in get velocity %g, irho = %d, iz = %d, iphi = %d\n", velocity / speed_of_light, irho, iz, iphi);
+		exit(0);
+	}
+	theta = my_vtheta[irho][iz][iphi];
+	phi = my_vphi[irho][iz][iphi];
 }
 
 double SectoralSphericalLayerSource::getArea(int irho, int iz, int iphi)
@@ -3109,6 +3150,16 @@ double TabulatedSectoralSphericalLayerSource::getConcentration(int irho, int iz,
 
 double TabulatedSectoralSphericalLayerSource::getSinTheta(int irho, int iz, int iphi) {
 	return sin(my_theta[irho][iz][iphi]);
+}
+
+double TabulatedSectoralSphericalLayerSource::getBTheta(int irho, int iz, int iphi)
+{
+	return my_theta[irho][iz][iphi];
+}
+
+double TabulatedSectoralSphericalLayerSource::getBPhi(int irho, int iz, int iphi)
+{
+	return my_phi[irho][iz][iphi];
 }
 
 void TabulatedSectoralSphericalLayerSource::resetParameters(const double* parameters, const double* normalizationUnits)

@@ -68,7 +68,7 @@ double RadiationEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFin
         double v;
         double theta;
         double phi;
-        source->getVelocity(irho, iz, iphi, v, theta, phi);
+        /*source->getVelocity(irho, iz, iphi, v, theta, phi);
         if (!my_doppler) {
             v = 0;
         }
@@ -77,15 +77,15 @@ double RadiationEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFin
         double mu = cos(theta);
 
         double D = gamma * (1.0 - beta * mu);
-        double photonFinalEnergyPrimed = photonFinalEnergy * D;
+        double photonFinalEnergyPrimed = photonFinalEnergy * D;*/
 
-        //evaluateEmissivityAndAbsorption(photonFinalEnergy, irho, iz, iphi, source, I, A);
-        evaluateEmissivityAndAbsorption(photonFinalEnergyPrimed, irho, iz, iphi, source, I, A);
+        evaluateEmissivityAndAbsorption(photonFinalEnergy, irho, iz, iphi, source, I, A);
+        /*evaluateEmissivityAndAbsorption(photonFinalEnergyPrimed, irho, iz, iphi, source, I, A);
 
         if (my_doppler) {
             I = I / (D * D);
             A = A * D;
-        }
+        }*/
 
         double length = source->getLength(irho, iz, iphi);
         if (length > 0) {
@@ -165,7 +165,12 @@ double RadiationEvaluator::evaluateTotalFluxInEnergyRange(const double& Ephmin, 
 
 void RadiationEvaluator::evaluateEmissivityAndAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source, double& I, double& A) {
     I = evaluateEmissivity(photonFinalEnergy, irho, iz, iphi, source);
-    A = evaluateAbsorption(photonFinalEnergy, irho, iz, iphi, source);
+    if (my_absorption) {
+        A = evaluateAbsorption(photonFinalEnergy, irho, iz, iphi, source);
+    }
+    else {
+        A = 0;
+    }
 }
 
 void RadiationEvaluator::writeFluxFromSourceToFile(const char* fileName, RadiationSource* source, const double& Ephmin, const double& Ephmax, const int Nph) {

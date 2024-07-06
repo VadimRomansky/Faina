@@ -44,6 +44,8 @@ public:
 	virtual double getB(int irho, int iz, int iphi) = 0;
 	virtual double getConcentration(int irho, int iz, int iphi) = 0;
 	virtual double getSinTheta(int irho, int iz, int iphi) = 0;
+	virtual double getBTheta(int irho, int iz, int iphi) = 0;
+	virtual double getBPhi(int irho, int iz, int iphi) = 0;
 	virtual double getTotalVolume()=0;
 	virtual double getLength(int irho, int iz, int iphi) = 0;
 	//virtual void resetConcentration(const double& concentration) = 0;
@@ -68,6 +70,8 @@ public:
 	virtual double getCrossSectionArea(int irho, int iphi);
 	virtual double getB(int irho, int iz, int iphi) = 0;
 	virtual double getSinTheta(int irho, int iz, int iphi) = 0;
+	virtual double getBTheta(int irho, int iz, int iphi) = 0;
+	virtual double getBPhi(int irho, int iz, int iphi) = 0;
 	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi) = 0;
 };
 
@@ -97,6 +101,8 @@ public:
 	double getConcentration(int irho, int iz, int iphi);
 	void getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi);
 	double getSinTheta(int irho, int iz, int iphi);
+	double getBTheta(int irho, int iz, int iphi);
+	double getBPhi(int irho, int iz, int iphi);
 	//void resetConcentration(const double& concentration);
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
 	MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
@@ -139,6 +145,8 @@ public:
 	virtual double getConcentration(int irho, int iz, int iphi);
 	virtual void getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi);
 	virtual double getSinTheta(int irho, int iz, int iphi);
+	virtual double getBTheta(int irho, int iz, int iphi);
+	virtual double getBPhi(int irho, int iz, int iphi);
 	//void resetConcentration(const double& concentration);
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
 	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
@@ -200,6 +208,8 @@ public:
 	virtual double getCrossSectionArea(int irho, int iphi);
 	virtual double getB(int irho, int iz, int iphi) = 0;
 	virtual double getSinTheta(int irho, int iz, int iphi) = 0;
+	virtual double getBTheta(int irho, int iz, int iphi) = 0;
+	virtual double getBPhi(int irho, int iz, int iphi) = 0;
 	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi) = 0;
 };
 
@@ -233,6 +243,8 @@ public:
 	double getConcentration(int irho, int iz, int iphi);
 	virtual void getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi);
 	virtual double getSinTheta(int irho, int iz, int iphi);
+	virtual double getBTheta(int irho, int iz, int iphi);
+	virtual double getBPhi(int irho, int iz, int iphi);
 	//void resetConcentration(const double& concentration);
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
 	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
@@ -322,6 +334,8 @@ public:
 	virtual double getCrossSectionArea(int irho, int iphi);
 	virtual double getB(int irho, int iz, int iphi) = 0;
 	virtual double getSinTheta(int irho, int iz, int iphi) = 0;
+	virtual double getBTheta(int irho, int iz, int iphi) = 0;
+	virtual double getBPhi(int irho, int iz, int iphi) = 0;
 	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi) = 0;
 
 };
@@ -356,6 +370,8 @@ public:
 	virtual double getAverageConcentration();
 	double getConcentration(int irho, int iz, int iphi);
 	virtual double getSinTheta(int irho, int iz, int iphi);
+	virtual double getBTheta(int irho, int iz, int iphi);
+	virtual double getBPhi(int irho, int iz, int iphi);
 	//void resetConcentration(const double& concentration);
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
 	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);

@@ -17,6 +17,7 @@ from plot_long_radiation import plot_long_radiation
 from plot_mask import plot_mask
 from plot_pion import plot_pion
 from plot_radiation import plot_radiation
+from plot_radiation10 import plot_radiation10
 from plot_radiation2 import plot_radiation2
 from plot_radiation4 import plot_radiation4
 from plot_synchrotron import plot_synchrotron
@@ -29,16 +30,17 @@ if __name__ == '__main__':
     #plot_distributions_protons()
     #plot_distributions2()
     #plot_radiation()
-    plot_synchrotron()
-    #plot_bremsstrahlung()
+    #plot_synchrotron()
+    plot_bremsstrahlung()
     #plot_pion()
     #plot_radiation4()
+    #plot_radiation10()
     #plot_compton_radiation()
     #plot_long_radiation()
     #plot_radiation2()
     #plot_error_profile(1,2)
     #plot_mask()
-    plot_image("../image.dat", "image")
+    #plot_image("../image.dat", "image")
     #plot_image("../image1.dat", "image1")
     #plot_image_array_animated("../image_array.dat","image_array")
     #plot_array3d()
