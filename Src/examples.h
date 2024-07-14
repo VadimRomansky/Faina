@@ -46,5 +46,8 @@ void fitAngleDependentFlux();
 //example test vary parameters
 void varyParameters();
 
+//example test versin and delta
+void testVersin();
+
 
 #endif

@@ -166,18 +166,19 @@ double McDonaldFunction(double index, double x) {
 
 //1 - cos
 double versin(const double& x) {
-    if (x > pi / 4) {
+    if (fabs(x) > pi / 1000) {
         return 1.0 - cos(x);
     }
     double result = 0;
-    double temp = x * x;
+    double x2 = x * x;
+    double temp = x2;
     int factorial = 2.0;
     int i = 2;
     double df = 1.0;
-    while(fabs(df) > 1E-10){
+    while(fabs(df) > x2*1E-16){
         df = temp / factorial;
         result = result + df;
-        temp = temp * x * x;
+        temp = temp * x2;
         factorial = -factorial * (2 * i - 1) * (2 * i);
         ++i;
         if (i > 1000000) {
@@ -191,19 +192,20 @@ double versin(const double& x) {
 
 //1 - beta
 double relativisticDelta(const double& gamma) {
-    if (gamma < 10) {
+    if (gamma < 1000) {
         return 1.0 - sqrt(1.0 - 1.0 / (gamma * gamma));
     }
     double result = 0;
-    double temp = gamma*gamma;
+    double gamma2 = gamma * gamma;
+    double temp = gamma2;
     double factor = 0.5;
     int i = 1;
     double df = 1.0;
 
-    while(df > 1E-16) {
+    while(df > (1E-16)/gamma2) {
         df = factor / temp;
         result = result + df;
-        temp = temp * gamma*gamma;
+        temp = temp * gamma2;
         factor = factor * (2 * i - 1) / (2.0 * (i + 1));
         ++i;
         if (i > 1000000) {

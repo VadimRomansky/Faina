@@ -8,9 +8,9 @@
 
 void LorentzTransformationPhotonZ(const double& gamma, const double& Einit, const double& thetaInit, double& Eprime, double& thetaPrime) {
 	//double gamma = 1.0 / sqrt(1.0 - beta * beta);
-	double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
+	//double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
 	double delta = relativisticDelta(gamma);
-	double cosThetaInit = cos(thetaInit);
+	//double cosThetaInit = cos(thetaInit);
 	double epsilon = versin(thetaInit);
 
 	if (epsilon == 0) {
@@ -51,9 +51,9 @@ void LorentzTransformationPhotonZ(const double& gamma, const double& Einit, cons
 
 void LorentzTransformationPhotonReverseZ(const double& gamma, const double& Einit, const double& thetaInit, double& Eprime, double& thetaPrime) {
 	//double gamma = 1.0 / sqrt(1.0 - beta * beta);
-	double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
+	//double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
 	double delta = relativisticDelta(gamma);
-	double cosThetaInit = cos(thetaInit);
+	//double cosThetaInit = cos(thetaInit);
 	double epsilon = versin(pi - thetaInit);
 
 	if (epsilon == 0) {
@@ -91,7 +91,7 @@ void LorentzTransformationPhotonReverseZ(const double& gamma, const double& Eini
 
 void LorentzTransformationPhotonReverseZalpha(const double& gamma, const double& Einit, const double& alphaInit, double& Eprime, double& alphaPrime) {
 	//double gamma = 1.0 / sqrt(1.0 - beta * beta);
-	double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
+	//double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
 	double delta = relativisticDelta(gamma);
 	//double cosThetaInit = cos(thetaInit);
 	double epsilon = versin(alphaInit);

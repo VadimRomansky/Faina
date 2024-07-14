@@ -4,23 +4,22 @@ from pylab import *
 import numpy as np
 
 def plot_compton_radiation():
-    radiationFile = open('../output1.dat','r')
+    radiationFile = open('../outputCompt.dat','r')
     lines = radiationFile.readlines()
     N = len(lines)
 
     h=6.626E-27
     tokeV = 1.6E-9
 
-    radiation = np.zeros([2,N])
+    radiation = np.zeros([11,N])
     integral = 0
     for i in range(N):
         s = lines[i].split()
-        radiation[0,i] = float(s[0])
+        for j in range(11):
+            radiation[j, i] = float(s[j])
+
         if((radiation[0,i] > 0.3) and (radiation[0,i] < 10) and (i > 0)):
-            integral = integral + float(s[1])*(radiation[0,i] - radiation[0, i-1])*tokeV
-        #radiation[1,i] = float(s[1])*radiation[0,i]*tokeV
-        radiation[1,i] = float(s[1])
-        #radiation[0,i] = radiation[0,i]/tokeV;
+            integral = integral + radiation[1,i]*(radiation[0,i] - radiation[0, i-1])*tokeV
 
     print("0.3-10 keV flux = ", 1.5*integral)
 
@@ -32,8 +31,8 @@ def plot_compton_radiation():
     ax.set_xlabel(r'$E~keV$', fontsize=40,fontweight='bold')
     ax.set_ylabel(r'$E F(E)~erg~cm^{-2}~s^{-1}$', fontsize=40,fontweight='bold')
     ax.set_yscale("log")
-    #ax.set_xlim([2E-1, 0.5E2])
-    ax.set_ylim([1E-32, 1E-29])
+    ax.set_xlim([1E4, 0.5E15])
+    ax.set_ylim([1E-21, 1E-14])
     ax.set_xscale("log")
     #extraticks=[1E-6,1E-2,100]
     #plt.xticks(list(plt.xticks()[0]+extraticks))
@@ -49,8 +48,17 @@ def plot_compton_radiation():
     plt.xticks(fontsize=30)
     ax.minorticks_on()
     # plt.axis([0.0,1.0,0.0,1.0])
-    plt.plot(radiation[0], radiation[1], 'r', linewidth=4)
+    plt.plot(radiation[0], radiation[1], 'aqua', linewidth=4, label='$0^\circ$')
+    plt.plot(radiation[0], radiation[2], 'lawngreen', linewidth=4, label='$30^\circ$')
+    plt.plot(radiation[0], radiation[3], 'purple', linewidth=4, label='$60^\circ$')
+    plt.plot(radiation[0], radiation[4], 'orange', linewidth=4, label='$90^\circ$')
+    plt.plot(radiation[0], radiation[5], 'b', linewidth=4, label='$120^\circ$')
+    plt.plot(radiation[0], radiation[6], 'g', linewidth=4, label='$150^\circ$')
+    plt.plot(radiation[0], radiation[7], 'r', linewidth=4, label='$180^\circ$')
+    #plt.plot(radiation[0], radiation[8], 'maroon', linewidth=4, label='isotropic 1')
+    #plt.plot(radiation[0], radiation[9], 'orangered', linewidth=4, label='isotropic 2')
+    #plt.plot(radiation[0], radiation[10], 'indianred', linewidth=4, label='isotropic 3')
     #plt.errorbar(cssx1, cssy1, cssError1, ecolor = 'b', elinewidth = 4, linewidth=0, capsize = 5, capthick = 4)
-
+    ax.legend(fontsize = 20)
     #plt.show()
     plt.savefig('compton.png', bbox_inches='tight')

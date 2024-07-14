@@ -586,7 +586,7 @@ void evaluateComtonFromWind() {
 	double Ephmax = 100 * Tstar * kBoltzman;
 	double luminosity = 510000 * 4 * 1E33;
 	double rsun = 7.5E10;
-	double rstar = rsun * sqrt(510000.0 / pow(Tstar / 5500, 4));
+	double rstar = rsun * sqrt(510000.0 / pow(Tstar / 5772, 4));
 	//PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rmax));
 	PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
 
@@ -925,11 +925,11 @@ void fitTychoProfile() {
 int main() {
 	resetLog();
 	//evaluateSimpleSynchrotron();
-	//evaluateComptonWithPowerLawDistribution();
+	evaluateComptonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
-	evaluatePionDecay();
+	//evaluatePionDecay();
 	//evaluateBremsstrahlung();
 	//compareComptonSynchrotron();
 	//evaluateSynchrotronImage();
@@ -939,6 +939,7 @@ int main() {
 	//testReadingSource();
 	//fitAngleDependentFlux();
 	//varyParameters();
+	//testVersin();
 
 
 	//evaluateFluxSNRtoWind();
