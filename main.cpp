@@ -921,11 +921,31 @@ void fitTychoProfile() {
 	delete3dArray(phi, Nrho, Nz, Nphi);
 }
 
+void testBessel() {
+	printf("Bessel0(0.00001) = %g\n", bessj0(0.00001));
+	printf("Bessel0(0.001) = %g\n", bessj0(0.001));
+	printf("Bessel0(0.05) = %g\n", bessj0(0.05));
+	printf("Bessel0(1.0) = %g\n", bessj0(1.0));
+	printf("Bessel0(5.0) = %g\n", bessj0(5.0));
+	printf("Bessel0(10.0) = %g\n", bessj0(10.0));
+	printf("Bessel0(20.0) = %g\n", bessj0(20.0));
+	printf("Bessel0(100.0) = %g\n", bessj0(100.0));
+
+	printf("Bessel1(0.00001) = %g\n", bessj1(0.00001));
+	printf("Bessel1(0.001) = %g\n", bessj1(0.001));
+	printf("Bessel1(0.05) = %g\n", bessj1(0.05));
+	printf("Bessel1(1.0) = %g\n", bessj1(1.0));
+	printf("Bessel1(5.0) = %g\n", bessj1(5.0));
+	printf("Bessel1(10.0) = %g\n", bessj1(10.0));
+	printf("Bessel1(20.0) = %g\n", bessj1(20.0));
+	printf("Bessel1(100.0) = %g\n", bessj1(100.0));
+}
+
 
 int main() {
 	resetLog();
 	//evaluateSimpleSynchrotron();
-	evaluateComptonWithPowerLawDistribution();
+	//evaluateComptonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
@@ -941,6 +961,7 @@ int main() {
 	//varyParameters();
 	//testVersin();
 
+	testBessel();
 
 	//evaluateFluxSNRtoWind();
 	//evaluateComtonFromWind();
