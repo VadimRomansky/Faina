@@ -29,4 +29,7 @@ int readRadiationFromFile(double*& E, double*& F, double*& error, const char* fi
 //from numerical recepies
 double bessj0(double x);
 double bessj1(double x);
+double chebev(double a, double b, double c[], int m, double x);
+void beschb(double x, double* gam1, double* gam2, double* gampl, double* gammi);
+void bessik(double x, double xnu, double* ri, double* rk, double* rip, double* rkp);
 #endif
