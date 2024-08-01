@@ -25,4 +25,11 @@ double*** create3dArray(const int N1, const int N2, const int N3, const double& 
 void delete3dArray(double*** a, const int N1, const int N2, const int N3);
 void write3dArrayToFile(double*** a, const int N1, const int N2, const int N3, const char* fileName);
 int readRadiationFromFile(double*& E, double*& F, double*& error, const char* fileName);
+
+//from numerical recepies
+double bessj0(double x);
+double bessj1(double x);
+double chebev(double a, double b, double c[], int m, double x);
+void beschb(double x, double* gam1, double* gam2, double* gampl, double* gammi);
+void bessik(double x, double xnu, double* ri, double* rk, double* rip, double* rkp);
 #endif

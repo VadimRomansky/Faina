@@ -50,4 +50,8 @@ void varyParameters();
 void testVersin();
 
 
+//example test Bessel functions from numerical recepies
+void testBessel()
+
+
 #endif

@@ -1612,3 +1612,42 @@ void testVersin() {
 	double gamma = 1E8;
 	double delta = relativisticDelta(gamma);
 }
+
+//example test Bessel functions from numerical recepies
+void testBessel() {
+	printf("Bessel0(0.00001) = %g\n", bessj0(0.00001));
+	printf("Bessel0(0.001) = %g\n", bessj0(0.001));
+	printf("Bessel0(0.05) = %g\n", bessj0(0.05));
+	printf("Bessel0(1.0) = %g\n", bessj0(1.0));
+	printf("Bessel0(5.0) = %g\n", bessj0(5.0));
+	printf("Bessel0(10.0) = %g\n", bessj0(10.0));
+	printf("Bessel0(20.0) = %g\n", bessj0(20.0));
+	printf("Bessel0(100.0) = %g\n", bessj0(100.0));
+
+	printf("Bessel1(0.00001) = %g\n", bessj1(0.00001));
+	printf("Bessel1(0.001) = %g\n", bessj1(0.001));
+	printf("Bessel1(0.05) = %g\n", bessj1(0.05));
+	printf("Bessel1(1.0) = %g\n", bessj1(1.0));
+	printf("Bessel1(5.0) = %g\n", bessj1(5.0));
+	printf("Bessel1(10.0) = %g\n", bessj1(10.0));
+	printf("Bessel1(20.0) = %g\n", bessj1(20.0));
+	printf("Bessel1(100.0) = %g\n", bessj1(100.0));
+
+	double I, K, Ip, Kp;
+	bessik(0.00001, 2.0 / 3.0, &I, &K, &Ip, &Kp);
+	printf("BesselK(2/3,0.00001) = %g\n", K);
+	bessik(0.001, 2.0 / 3.0, &I, &K, &Ip, &Kp);
+	printf("BesselK(2/3, 0.001) = %g\n", K);
+	bessik(0.05, 2.0 / 3.0, &I, &K, &Ip, &Kp);
+	printf("BesselK(2/3, 0.05) = %g\n", K);
+	bessik(1.0, 2.0 / 3.0, &I, &K, &Ip, &Kp);
+	printf("BesselK(2/3, 1.0) = %g\n", K);
+	bessik(5.0, 2.0 / 3.0, &I, &K, &Ip, &Kp);
+	printf("BesselK(2/3, 5.0) = %g\n", K);
+	bessik(10.0, 2.0 / 3.0, &I, &K, &Ip, &Kp);
+	printf("BesselK(2/3, 10.0) = %g\n", K);
+	bessik(20.0, 2.0 / 3.0, &I, &K, &Ip, &Kp);
+	printf("BesselK(2/3, 20.0) = %g\n", K);
+	bessik(100.0, 2.0 / 3.0, &I, &K, &Ip, &Kp);
+	printf("BesselK(2/3, 100.0) = %g\n", K);
+}

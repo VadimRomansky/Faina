@@ -940,7 +940,7 @@ int main() {
 	fitAngleDependentFlux();
 	//varyParameters();
 	//testVersin();
-
+	testBessel();
 
 	//evaluateFluxSNRtoWind();
 	//evaluateComtonFromWind();
