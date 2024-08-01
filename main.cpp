@@ -925,7 +925,7 @@ void fitTychoProfile() {
 int main() {
 	resetLog();
 	//evaluateSimpleSynchrotron();
-	evaluateComptonWithPowerLawDistribution();
+	//evaluateComptonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
@@ -937,7 +937,7 @@ int main() {
 	//testAnisotropicCompton();
 	//compareComptonWithPowerLawDistribution();
 	//testReadingSource();
-	//fitAngleDependentFlux();
+	fitAngleDependentFlux();
 	//varyParameters();
 	//testVersin();
 

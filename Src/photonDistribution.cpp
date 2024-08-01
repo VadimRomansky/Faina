@@ -263,13 +263,15 @@ double PhotonPlankDirectedDistribution::distributionNormalized(const double& ene
 	if (cosDelta < cos(my_deltaTheta)) {
 		return 0;
 	}
-
+	//debug
+	//double factor1 = (1.0/ (fabs(cos(my_deltaTheta) - 1)*sqrt(pi)))*exp(-sqr((cosDelta - 1) / (cos(my_deltaTheta) - 1)));
+	double factor1 = 1;
 
 	double theta = energy / (kBoltzman * my_temperature);
 	if (theta < 1E-12) {
-		return my_A * (2 * kBoltzman * my_temperature * energy / cube(hplank * speed_of_light)) / my_concentration;
+		return factor1*my_A * (2 * kBoltzman * my_temperature * energy / cube(hplank * speed_of_light)) / my_concentration;
 	}
-	return my_A * (2 * energy * energy / cube(hplank * speed_of_light)) / (exp(theta) - 1.0) / my_concentration;
+	return factor1*my_A * (2 * energy * energy / cube(hplank * speed_of_light)) / (exp(theta) - 1.0) / my_concentration;
 }
 
 double PhotonPlankDirectedDistribution::getMeanEnergy()

@@ -50,7 +50,7 @@ void evaluateComptonWithPowerLawDistribution() {
 	//double Emin = 652.317 * me_c2 * 1;
 	double Emin = 1000*me_c2;
 	double Emax = 1E8 * me_c2;
-	int Ne = 100;
+	int Ne = 400;
 	int Nmu = 20;
 	int Nphi = 10;
 	double index =2.0;
@@ -89,7 +89,7 @@ void evaluateComptonWithPowerLawDistribution() {
 	InverseComptonEvaluator* comptonEvaluator10 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution8, ComptonSolverType::ISOTROPIC_JONES);
 
 	//initializing photon energy grid for output
-	int Nnu = 100;
+	int Nnu = 50;
 	double* E = new double[Nnu];
 
 	double EphFinalmin = 0.01 * kBoltzman * T;
@@ -1289,15 +1289,15 @@ void fitAngleDependentFlux() {
 	//CSS161010
 	const double distance = 150 * 1000000 * parsec;
 
-	double electronConcentration = 25;
-	double B = 0.29;
+	double electronConcentration = 1.9;
+	double B = 0.052;
 	double theta = pi / 2;
 	double index = 3.5;
 	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
 	double fraction = 0.5;
 
 	double velocity = 0.75 * speed_of_light;
-	double R = velocity * 99 * 24 * 3600;
+	double R = velocity * 357 * 24 * 3600;
 
 	int Nrho = 10;
 	int Nz = 10;
@@ -1337,14 +1337,14 @@ void fitAngleDependentFlux() {
 	//RadiationSource* source = RadiationSourceFactory::createSourceWithTurbulentField(angleDependentDistributions, 10, Nrho, Nz, Nphi, B, pi / 2, 0, electronConcentration, 0.00000000000001, 3.5, 0.5 * R, 10, R, fraction*R, distance);
 	RadiationSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, B, theta, 0, electronConcentration, R, (1.0 - fraction) * R, distance, velocity);
 	int Ne = 50;
-	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true, true);
+	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true, false);
 
 
 
 	//number of parameters of the source
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 0.5 * R, 1E-6, 1, 0.001, 0.5 * speed_of_light };
+	double minParameters[Nparams] = { 0.5 * R, 1E-6, 0.01, 0.001, 0.5 * speed_of_light };
 	double maxParameters[Nparams] = { 1.1 * R, 5E-1, 2E4, 0.5, 0.75 * speed_of_light };
 	bool optPar[Nparams] = { false, true, true, false, false };
 	//starting point of optimization and normalization
@@ -1352,12 +1352,12 @@ void fitAngleDependentFlux() {
 
 	//fraction = (0.4-0.04 + 0.004/3);
 	fraction = 0.2;
-	int Ndays = 99;
-	double denseFactor = 0.5 / fraction;
-	electronConcentration = 20*sqr(99.0 / Ndays) * 17 * denseFactor;
+	int Ndays = 357;
+	//double denseFactor = 0.5 / fraction;
+	//electronConcentration = 20*sqr(99.0 / Ndays) * 17 * denseFactor;
 	//sigma = 0.5*(0.01 * 0.5 / (0.012))/denseFactor;
 	//sigma = 0.34 * 0.34 / (4 * pi * massProton * speed_of_light2 * electronConcentration);
-	sigma = 0.8333;
+	//sigma = 0.8333;
 	//electronConcentration = 3167 * sqr(69.0 / Ndays);
 	//sigma = 2.33E-5;
 	double vector[Nparams] = { R, sigma, electronConcentration, fraction, velocity };
@@ -1377,7 +1377,7 @@ void fitAngleDependentFlux() {
 	double* energy1;
 	double* observedFlux1;
 	double* observedError1;
-	int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/css_data/coppejans99.txt");
+	int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/css_data/coppejans357.txt");
 	for (int i = 0; i < Nenergy1; ++i) {
 		energy1[i] = energy1[i] * hplank * 1E9;
 		observedFlux1[i] = observedFlux1[i] / (hplank * 1E26);

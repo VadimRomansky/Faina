@@ -24,24 +24,24 @@ from plot_synchrotron import plot_synchrotron
 
 if __name__ == '__main__':
     #plt.rcParams['image.cmap'] = 'jet'
-    plt.rcParams['image.cmap'] = 'jet'
+    plt.rcParams['image.cmap'] = 'hot'
     #plot_dummy()
     #plot_distributions()
     #plot_distributions9()
     #plot_distributions_protons()
     #plot_distributions2()
     #plot_radiation()
-    #plot_synchrotron()
+    plot_synchrotron()
     #plot_bremsstrahlung()
     #plot_pion()
     #plot_radiation4()
     #plot_radiation10()
-    plot_compton_radiation()
+    #plot_compton_radiation()
     #plot_long_radiation()
     #plot_radiation2()
     #plot_error_profile(1,2)
     #plot_mask()
-    #plot_image("../image.dat", "image")
+    plot_image("../image.dat", "image")
     #plot_image("../image1.dat", "image1")
     #plot_image_array_animated("../image_array.dat","image_array")
     #plot_array3d()
