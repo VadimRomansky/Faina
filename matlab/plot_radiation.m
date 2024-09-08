@@ -1,11 +1,11 @@
 clear;
 
-radiation = importdata('../outputSynch.dat');
+radiation = importdata('../outputSynch1.dat');
 %compton = importdata('../outputCompt.dat');
 %radiation2 = importdata('../outputSynch2.dat');
 %radiation3 = importdata('../outputSynch3.dat');
 
-radiationObserved = importdata('../examples_data/css_data/coppejans99.txt');
+radiationObserved = importdata('../examples_data/AT2020xnd_data/bright75.dat');
 
 N = size(radiation,1);
 Nr = size(radiation,2);

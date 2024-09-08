@@ -266,7 +266,7 @@ TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassivePart
 		my_concentration[irho] = new double* [my_Nz];
 		my_v[irho] = new double* [my_Nz];
 		my_vtheta[irho] = new double* [my_Nz];
-		my_vphi[irho] = new double* [my_Nphi];
+		my_vphi[irho] = new double* [my_Nz];
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			my_B[irho][iz] = new double[my_Nphi];
 			my_theta[irho][iz] = new double[my_Nphi];
