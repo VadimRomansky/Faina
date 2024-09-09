@@ -946,8 +946,9 @@ int main() {
 	//varyParameters();
 	//testVersin();
 	//testBessel();
+	testChevalier();
 
-	evaluateFluxSNRtoWind();
+	//evaluateFluxSNRtoWind();
 	//evaluateComtonFromWind();
 	//evaluateTychoProfile();
 	//fitTychoProfile();

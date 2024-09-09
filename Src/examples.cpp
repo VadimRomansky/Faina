@@ -1651,3 +1651,57 @@ void testBessel() {
 	bessik(100.0, 2.0 / 3.0, &I, &K, &Ip, &Kp);
 	printf("BesselK(2/3, 100.0) = %g\n", K);
 }
+
+//example test Chevalier model
+void testChevalier() {
+	double B = 10.0;
+	double electronConcentration = 10.0;
+	double E0 = me_c2;
+	double index = 3.5;
+	double c1 = 0.6265E19;
+	double c5 = 0.5013E-23;
+	double c6 = 0.49697E-40;
+	double N0 = electronConcentration * (index - 1) * pow(E0, index - 1);
+	double D = 1000 * parsec;
+	double R = parsec;
+	double f = 0.5;
+	double s = (4.0 / 3.0)*f * R;
+	MassiveParticleIsotropicDistribution* distribution = new MassiveParticlePowerLawDistribution(massElectron, index, E0, electronConcentration);
+	//MassiveParticleIsotropicDistribution* distribution = new MassiveParticleMonoenergeticDistribution(massElectron, 1000*me_c2, me_c2, 1.0);
+	RadiationSource* source = new SimpleFlatSource(distribution, B, pi / 2, 0, R, s, D);
+	RadiationEvaluator* evaluator = new SynchrotronEvaluator(10000, me_c2, 10000 * me_c2, true);
+	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
+
+	const int Nnu = 1000;
+	double* Nu = new double[Nnu];
+	double* F = new double[Nnu];
+	double* F1 = new double[Nnu];
+	double* F2 = new double[Nnu];
+	double Numin = cyclotronOmega;
+	double Numax = 10000 * cyclotronOmega;
+	double factor = pow(Numax / Numin, 1.0 / (Nnu - 1));
+	Nu[0] = Numin;
+	F[0] = 0;
+	F1[0] = 0;
+	F2[0] = 0;
+	for (int i = 1; i < Nnu; ++i) {
+		Nu[i] = Nu[i - 1] * factor;
+		F[i] = 0;
+		F1[i] = 0;
+		F2[i] = 0;
+	}
+
+	FILE* file = fopen("outputSynch3.dat", "w");
+	for (int i = 0; i < Nnu; ++i) {
+		F[i] = hplank*evaluator->evaluateFluxFromSource(hplank * Nu[i], source);
+		F1[i] = (pi * R * R / (D * D)) * (c5 / c6) * sqrt(1 / B) * pow(Nu[i] / (2 * c1), 5.0 / 2.0);
+		F2[i] = (4 * pi * f * R * R * R / (3 * D * D)) * c5 * N0 * pow(B, (index + 1) / 2.0) * pow(Nu[i] / (2 * c1), -(index - 1) / 2.0);
+		fprintf(file, "%g %g %g %g\n", Nu[i], F[i], F1[i], F2[i]);
+	}
+	fclose(file);
+
+	delete[] Nu;
+	delete[] F;
+	delete[] F1;
+	delete[] F2;
+}
