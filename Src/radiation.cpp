@@ -35,24 +35,28 @@ double RadiationEvaluator::evaluateFluxFromSource(const double& photonFinalEnerg
     double result = 0;
     int irho = 0;
 
+    double redShift = source->getRedShift();
+
+    double photonFinalEnergy1 = photonFinalEnergy * (1 + redShift);
+
     omp_init_lock(&my_lock);
 
-#pragma omp parallel for private(irho) shared(photonFinalEnergy, source, Nrho, Nz, Nphi) reduction(+:result)
+#pragma omp parallel for private(irho) shared(photonFinalEnergy1, source, Nrho, Nz, Nphi) reduction(+:result)
 
     for (irho = 0; irho < Nrho; ++irho) {
         for (int iphi = 0; iphi < Nphi; ++iphi) {
             /*for (int iz = 0; iz < Nz; ++iz) {
-                result += evaluateFluxFromIsotropicFunction(photonFinalEnergy, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
+                result += evaluateFluxFromIsotropicFunction(photonFinalEnergy1, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
             }*/
             if (source->isSource(irho, iphi)) {
-                result += evaluateFluxFromSourceAtPoint(photonFinalEnergy, source, irho, iphi);
+                result += evaluateFluxFromSourceAtPoint(photonFinalEnergy1, source, irho, iphi);
             }
         }
     }
 
     omp_destroy_lock(&my_lock);
 
-    return result;
+    return result*(1+redShift)*(1+redShift);
 }
 
 double RadiationEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi) {
