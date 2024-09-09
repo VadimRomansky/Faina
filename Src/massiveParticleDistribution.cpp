@@ -536,15 +536,20 @@ MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropic
 	normalizeDistribution();
 }
 
-MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* fileName, const int N, const double& concentration, DistributionInputType inputType) {
+MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* fileName, const double& concentration, DistributionInputType inputType) {
 	my_mass = mass;
-	
-	if (N <= 0) {
-		printf("grid number <= 0 in tabulated spherical distribution\n");
-		printLog("grid number <= 0 in tabulated spherical distribution\n");
-		exit(0);
+
+
+	int n = 0;
+	FILE* file = fopen(fileName, "r");
+	while (!feof(file)) {
+		double a;
+		double b;
+		fscanf(file, "%lf %lf", &a, &b);
+		n = n + 1;
 	}
-	my_Ne = N;
+	fclose(file);
+	my_Ne = n - 1;
 
 	if (concentration <= 0) {
 		printf("electrons concentration <= 0\n");
@@ -558,7 +563,7 @@ MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropic
 	my_energy = new double[my_Ne];
 	my_distribution = new double[my_Ne];
 
-	FILE* file = fopen(fileName, "r");
+	file = fopen(fileName, "r");
 	for (int i = 0; i < my_Ne; ++i) {
 		double x;
 		double y;
@@ -577,14 +582,18 @@ MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropic
 	fclose(file);
 }
 
-MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* energyFileName, const char* distributionFileName, const int N, const double& concentration, DistributionInputType inputType) {
+MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* energyFileName, const char* distributionFileName, const double& concentration, DistributionInputType inputType) {
 	my_mass = mass;
-	if (N <= 0) {
-		printf("grid number <= 0 in tabulated spherical distribution\n");
-		printLog("grid number <= 0 in tabulated spherical distribution\n");
-		exit(0);
+
+	int n = 0;
+	FILE* energyFile = fopen(energyFileName, "r");
+	while (!feof(energyFile)) {
+		double a;
+		fscanf(energyFile, "%lf", &a);
+		n = n + 1;
 	}
-	my_Ne = N;
+	fclose(energyFile);
+	my_Ne = n-1;
 
 	if (concentration <= 0) {
 		printf("electrons concentration <= 0\n");
@@ -598,8 +607,9 @@ MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropic
 	my_energy = new double[my_Ne];
 	my_distribution = new double[my_Ne];
 
-	FILE* energyFile = fopen(energyFileName, "r");
+	energyFile = fopen(energyFileName, "r");
 	FILE* distributionFile = fopen(distributionFileName, "r");
+	
 	for (int i = 0; i < my_Ne; ++i) {
 		double x;
 		double y;
@@ -2014,7 +2024,7 @@ MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedI
 		std::string b = fileNameF + fileNumber + fileExtension;
 		const char* energyFileName = a.c_str();
 		const char* distributionFileName = b.c_str();
-		distributions[i] = new MassiveParticleTabulatedIsotropicDistribution(mass, energyFileName, distributionFileName, Ne, electronConcentration, inputType);
+		distributions[i] = new MassiveParticleTabulatedIsotropicDistribution(mass, energyFileName, distributionFileName, electronConcentration, inputType);
 	}
 	return distributions;
 }
@@ -2026,7 +2036,7 @@ MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedI
 		std::string fileNumber = convertIntToString(i);
 		const std::string fileName = fileName;
 		std::string a = fileName + fileNumber + fileExtension;
-		distributions[i] = new MassiveParticleTabulatedIsotropicDistribution(mass, a.c_str(), Ne, electronConcentration, inputType);
+		distributions[i] = new MassiveParticleTabulatedIsotropicDistribution(mass, a.c_str(), electronConcentration, inputType);
 	}
 	return distributions;
 }
@@ -2038,7 +2048,7 @@ MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedI
 		std::string fileNumber = convertIntToString(i);
 		const std::string fileName = fileName;
 		std::string a = fileName + fileNumber + fileExtension;
-		MassiveParticleTabulatedIsotropicDistribution* distributionTabulated = new MassiveParticleTabulatedIsotropicDistribution(mass, a.c_str(), Ne, electronConcentration, inputType);
+		MassiveParticleTabulatedIsotropicDistribution* distributionTabulated = new MassiveParticleTabulatedIsotropicDistribution(mass, a.c_str(), electronConcentration, inputType);
 		distributionTabulated->addPowerLaw(Epower, index);
 		distributions[i] = distributionTabulated;
 	}
@@ -2056,7 +2066,7 @@ MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedI
 		std::string b = fileNameF + fileNumber + fileExtension;
 		const char* energyFileName = a.c_str();
 		const char* distributionFileName = b.c_str();
-		MassiveParticleTabulatedIsotropicDistribution* distributionTabulated = new MassiveParticleTabulatedIsotropicDistribution(mass, energyFileName, distributionFileName, Ne, electronConcentration, inputType);
+		MassiveParticleTabulatedIsotropicDistribution* distributionTabulated = new MassiveParticleTabulatedIsotropicDistribution(mass, energyFileName, distributionFileName, electronConcentration, inputType);
 		distributionTabulated->addPowerLaw(Epower, index);
 		distributions[i] = distributionTabulated;
 	}

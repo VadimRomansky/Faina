@@ -186,8 +186,8 @@ protected:
 public:
 	MassiveParticleTabulatedIsotropicDistribution(const MassiveParticleTabulatedIsotropicDistribution& distribution);
 
-	MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* fileName, const int N, const double& concentration, DistributionInputType inputType);
-	MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* energyFileName, const char* distributionFileName, const int N, const double& concentration, DistributionInputType inputType);
+	MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* fileName, const double& concentration, DistributionInputType inputType);
+	MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* energyFileName, const char* distributionFileName, const double& concentration, DistributionInputType inputType);
 	MassiveParticleTabulatedIsotropicDistribution(const double& mass, const double* energy, const double* distribution, const int N, const double& concentration, DistributionInputType inputType);
     virtual ~MassiveParticleTabulatedIsotropicDistribution();
 	virtual double distributionNormalized(const double& energy);
