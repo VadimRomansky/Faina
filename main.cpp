@@ -937,7 +937,7 @@ int main() {
 	//testAnisotropicCompton();
 	//compareComptonWithPowerLawDistribution();
 	//testReadingSource();
-	fitAngleDependentFlux();
+	//fitAngleDependentFlux();
 	//varyParameters();
 	//testVersin();
 	testBessel();

@@ -1,4 +1,4 @@
-#include <cstdlib>
+ï»¿#include <cstdlib>
 #include <math.h>
 #include "stdio.h"
 #include <time.h>
@@ -411,6 +411,62 @@ double bessj1(double x)
     return ans;
 }
 
+#define ACC 40.0 //Make larger to increase accuracy.
+#define BIGNO 1.0e10
+#define BIGNI 1.0e-10
+double bessj(int n, double x)
+//Returns the Bessel function Jn(x) for any real xand n â‰¥ 2.
+{
+    int j, jsum, m;
+    double ax, bj, bjm, bjp, sum, tox, ans;
+    if (n < 2) {
+        printf("Index n less than 2 in bessj");
+        exit(0);
+    }
+    ax = fabs(x);
+    if (ax == 0.0)
+        return 0.0;
+    else if (ax > (float) n) {
+        //Upwards recurrence from J0and J1.
+        tox = 2.0 / ax;
+        bjm = bessj0(ax);
+        bj = bessj1(ax);
+        for (j = 1; j < n; j++) {
+            bjp = j * tox * bj - bjm;
+            bjm = bj;
+            bj = bjp;
+        }
+        ans = bj;
+    }
+    else {
+        //Downwards recurrence from an even m here computed
+        tox = 2.0 / ax;
+        m = 2 * ((n + (int)sqrt(ACC * n)) / 2);
+        jsum = 0; //jsum will alternate between 0 and 1; when it is1, we accumulate in sum the even terms in(5.5.16).
+        bjp = ans = sum = 0.0;
+        bj = 1.0;
+        for (j = m; j > 0; j--) {
+            //The downward recurrence.
+            bjm = j * tox * bj - bjp;
+            bjp = bj;
+            bj = bjm;
+            if (fabs(bj) > BIGNO) {
+                //Renormalize to prevent overflows.
+                bj *= BIGNI;
+                bjp *= BIGNI;
+                ans *= BIGNI;
+                sum *= BIGNI;
+            }
+            if (jsum) sum += bj; //Accumulate the sum.
+                jsum = !jsum; //Change 0 to 1 or vice versa.
+                if (j == n) ans = bjp; //Save the unnormalized answer.
+        }
+        sum = 2.0 * sum - bj; //Compute(5.5.16)
+        ans /= sum;//and use it to normalize the answer.
+    }
+    return x < 0.0 && (n & 1) ? -ans : ans;
+}
+
 double chebev(double a, double b, double c[], int m, double x)
 /*Chebyshev evaluation : All arguments are input.c[0..m - 1] is an array of Chebyshev coeffi -
 cients, the first m elements of c output from chebft(which must have been called with the
@@ -427,7 +483,7 @@ cients, the first m elements of c output from chebft(which must have been called
     }
     y2 = 2.0 * (y = (2.0 * x - a - b) / (b - a)); //Change of variable.
         for (j = m - 1; j >= 1; j--) {
-            //Clenshaw’s recurrence.
+            //Clenshawâ€™s recurrence.
             sv = d;
             d = y2 * d - dd + c[j];
             dd = sv;
@@ -467,7 +523,7 @@ void beschb(double x, double* gam1, double* gam2, double* gampl, double* gammi)
 void bessik(double x, double xnu, double* ri, double* rk, double* rip, double* rkp)
 /*Returns the modified Bessel functions ri = I , rk = K and their derivatives rip = I ,
 rkp = K, for positive x and for xnu. The relative accuracy is within one or two
-significant digits of EPS. FPMIN is a number close to the machine’s smallest floating-point
+significant digits of EPS. FPMIN is a number close to the machineâ€™s smallest floating-point
 number. All internal arithmetic is in double precision. To convert the entire routine to double
 precision, change the float declarations above to double and decrease EPS to 10?16. Also
 convert the function beschb.*/
@@ -481,12 +537,12 @@ convert the function beschb.*/
         printf("bad arguments in bessik\n");
         exit(0);
     }
-    nl = (int)(xnu + 0.5); //nl is the number of downward recurrences of the I’s and upwardrecurrences of K’s. xmulies be-tween ?1/2 and 1/2.
+    nl = (int)(xnu + 0.5); //nl is the number of downward recurrences of the Iâ€™s and upwardrecurrences of Kâ€™s. xmulies be-tween ?1/2 and 1/2.
     xmu = xnu - nl;
     xmu2 = xmu * xmu;
     xi = 1.0 / x;
     xi2 = 2.0 * xi;
-    h = xnu * xi; //Evaluate CF1 by modified Lentz’smethod (5.2).
+    h = xnu * xi; //Evaluate CF1 by modified Lentzâ€™smethod (5.2).
     if (h < FPMIN) h = FPMIN;
     b = xi2 * xnu;
     d = 0.0;
@@ -549,7 +605,7 @@ convert the function beschb.*/
         rkmu = sum;
         rk1 = sum1 * xi2;
     }
-    else { //Evaluate CF2 by Steed’s algorithm (5.2), which is OK because there can be no zero denominators.
+    else { //Evaluate CF2 by Steedâ€™s algorithm (5.2), which is OK because there can be no zero denominators.
         b = 2.0 * (1.0 + x);
         d = 1.0 / b;
         h = delh = d;

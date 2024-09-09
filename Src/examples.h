@@ -51,7 +51,7 @@ void testVersin();
 
 
 //example test Bessel functions from numerical recepies
-void testBessel()
+void testBessel();
 
 
 #endif
