@@ -130,13 +130,7 @@ void evaluateFluxSNRtoWind() {
 		}
 	}
 
-	//RadiationSourceFactory::initialize3dAngularMask(mask, Nrho, Nphi, pi / 20);
-	RadiationSourceFactory::initializeRhoMask(mask, Nrho, Nphi, sin(pi/20));
-	//source->setMask(mask);
-	for (int irho = 0; irho < Nrho; ++irho) {
-		delete[] mask[irho];
-	}
-	delete[] mask;
+
 
 	//SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true);
 	//SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, newEmax, true, true);
