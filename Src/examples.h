@@ -53,5 +53,8 @@ void testVersin();
 //example test Bessel functions from numerical recepies
 void testBessel();
 
+//example test Chevalier model
+void testChevalier();
+
 
 #endif
