@@ -65,18 +65,18 @@ void evaluateFluxSNRtoWind() {
 	double*** concentration = create3dArray(Nrho, Nz, Nphi, electronConcentration);
 	RadiationSourceFactory::initializeTurbulentField(Bturb, thetaTurb, phiTurb, Nrho, Nz, Nphi, B, pi / 2, 0, 0.9, 11.0 / 6.0, rmax, 10, rmax);
 	//initializing electrons distribution
-	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, 10*me_c2, electronConcentration);
+	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, 10*me_c2, electronConcentration);
 	//MassiveParticleBrokenPowerLawDistribution* electrons = new MassiveParticleBrokenPowerLawDistribution(massElectron, index, 2.001, 2*me_c2, 1000*me_c2, electronConcentration);
     //MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
-    MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.3_theta0-90/Ee3.dat", "./examples_data/gamma0.3_theta0-90/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+    //MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.2_theta0-90/Ee3.dat", "./examples_data/gamma0.2_theta0-90/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee3.dat", "./examples_data/gamma0.5_theta0-90/Fs3.dat", 259, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 	MassiveParticleTabulatedIsotropicDistribution* protons = new MassiveParticleTabulatedIsotropicDistribution(massProton, "./examples_data/gamma1.5_theta0-90_protons/Ee3.dat", "./examples_data/gamma1.5_theta0-90_protons/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 	MassiveParticleMaxwellJuttnerDistribution* thermalElectrons = new MassiveParticleMaxwellJuttnerDistribution(massElectron, 4 * me_c2 / kBoltzman, electronConcentration);
-	double velocity = 0.3 * speed_of_light;
+	double velocity = 0.2 * speed_of_light;
 	//double velocity = 0.55 * speed_of_light;
 	double gamma = 1.0 / sqrt(1.0 - velocity * velocity / speed_of_light2);
 	//electrons->addPowerLaw(50 * massElectron * speed_of_light2, 2.5);
-	electrons->rescaleDistribution(1.2);
+	//electrons->rescaleDistribution(1.2);
 	//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electrons))->prolongEnergyRange(1E6, 100);
 	//electrons->addPowerLaw(200 * massElectron * speed_of_light2, 3.5);
 	electrons->writeDistribution("distribution.dat", 200, Emin, Emax);
@@ -122,14 +122,6 @@ void evaluateFluxSNRtoWind() {
 		}
 	}*/
 
-	bool** mask = new bool* [Nrho];
-	for (int irho = 0; irho < Nrho; ++irho) {
-		mask[irho] = new bool[Nphi];
-		for (int iphi = 0; iphi < Nphi; ++iphi) {
-			mask[irho][iphi] = true;
-		}
-	}
-
 
 
 	//SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true);
@@ -138,19 +130,19 @@ void evaluateFluxSNRtoWind() {
 	SynchrotronEvaluator* synchrotronEvaluator2 = new SynchrotronEvaluator(Ne, Emin, Emax, false, false);
 	//comptonEvaluator->outputDifferentialFlux("output1.dat");
 	//return;
-	int Ndays = 75;
+	int Ndays = 26;
 	rmax = velocity * Ndays * 24 * 3600;
 	//rmax = velocity * 99 * 24 * 3600 + 0.5 * speed_of_light * (Ndays - 99) * 24 * 3600;
 	//number of parameters of the source
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 0.5*rmax, 1E-6, 0.01, 0.01, 0.1*speed_of_light };
-	double maxParameters[Nparams] = { 1.3*rmax, 5E-1, 2E3, 0.5, 0.3*speed_of_light };
+	double minParameters[Nparams] = { 0.5*rmax, 1E-6, 1, 0.01, 0.1*speed_of_light };
+	double maxParameters[Nparams] = { 1.3*rmax, 5E-1, 2E6, 0.5, 0.3*speed_of_light };
 	//starting point of optimization and normalization
 	//fraction = 2E13 / rmax;
 
 	//fraction = (0.4-0.04 + 0.004/3);
-	fraction = 0.5;
+	fraction = 0.5*4.0/3.0;
 
 	double denseFactor = 0.5 / fraction;
 	electronConcentration = 1.0;
@@ -192,7 +184,7 @@ void evaluateFluxSNRtoWind() {
 	double* energy1;
 	double* observedFlux1;
 	double* observedError1;
-	int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/AT2020xnd_data/bright75.dat");
+	int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/AT2020xnd_data/bright26.dat");
 	for (int i = 0; i < Nenergy1; ++i) {
 		energy1[i] = energy1[i] * hplank * 1E9;
 		observedFlux1[i] = observedFlux1[i] / (hplank * 1E26);
@@ -296,27 +288,27 @@ void evaluateFluxSNRtoWind() {
 	gamma = 1.0 / sqrt(1.0 - velocity * velocity);
 
 	//double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0)*(4*pi*rmax*rmax*rmax/3)*(1.0 - cube(1.0 - fraction));
-	double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0)*source->getTotalVolume();
-	double energyInRadioElectrons = electronConcentration * (electrons->getMeanEnergy() - me_c2) * source->getTotalVolume();
-	double energyInRadioProtons = electronConcentration * (protons->getMeanEnergy() - massProton*speed_of_light2) * source->getTotalVolume();
-	double magneticEnergy = (B * B / (8 * pi)) * source->getTotalVolume();
-	printf("total kinetik energy = %g\n", totalEnergy);
-	printLog("total kinetik energy = %g\n", totalEnergy);
-	printf("energy in radio electrons = %g\n", energyInRadioElectrons);
-	printLog("energy in radio electrons = %g\n", energyInRadioElectrons);
-	printf("energy in radio protons = %g\n", energyInRadioProtons);
-	printLog("energy in radio protons = %g\n", energyInRadioProtons);
-	printf("energy in magnetic field = %g\n", magneticEnergy);
-	printLog("energy in magnetic field = %g\n", magneticEnergy);
-	double totalMass = electronConcentration * massProton * source->getTotalVolume();
-	printf("total mass = %g\n", totalMass);
-	printLog("total mass = %g\n", totalMass);
+	//double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0)*source->getTotalVolume();
+	//double energyInRadioElectrons = electronConcentration * (electrons->getMeanEnergy() - me_c2) * source->getTotalVolume();
+	//double energyInRadioProtons = electronConcentration * (protons->getMeanEnergy() - massProton*speed_of_light2) * source->getTotalVolume();
+	//double magneticEnergy = (B * B / (8 * pi)) * source->getTotalVolume();
+	//printf("total kinetik energy = %g\n", totalEnergy);
+	//printLog("total kinetik energy = %g\n", totalEnergy);
+	//printf("energy in radio electrons = %g\n", energyInRadioElectrons);
+	//printLog("energy in radio electrons = %g\n", energyInRadioElectrons);
+	//printf("energy in radio protons = %g\n", energyInRadioProtons);
+	//printLog("energy in radio protons = %g\n", energyInRadioProtons);
+	///printf("energy in magnetic field = %g\n", magneticEnergy);
+	//printLog("energy in magnetic field = %g\n", magneticEnergy);
+	//double totalMass = electronConcentration * massProton * source->getTotalVolume();
+	//printf("total mass = %g\n", totalMass);
+	//printLog("total mass = %g\n", totalMass);
 
 	BremsstrahlungThermalEvaluator* bremsstrahlungEvaluator = new BremsstrahlungThermalEvaluator();
-	bremsstrahlungEvaluator->writeFluxFromSourceToFile("bremsstrahlung.dat", thermalSource, 1.6E-9, 1.6E-5, 200);
-	double bremMevFlux = bremsstrahlungEvaluator->evaluateTotalFluxInEnergyRange(0.3 * 1000000 * 1.6E-12, 10 * 1000000 * 1.6E-12, 200, thermalSource);
-	printf("bremMevFlux = %g\n", bremMevFlux);
-	printLog("bremMevFlux = %g\n", bremMevFlux);
+	//bremsstrahlungEvaluator->writeFluxFromSourceToFile("bremsstrahlung.dat", thermalSource, 1.6E-9, 1.6E-5, 200);
+	//double bremMevFlux = bremsstrahlungEvaluator->evaluateTotalFluxInEnergyRange(0.3 * 1000000 * 1.6E-12, 10 * 1000000 * 1.6E-12, 200, thermalSource);
+	//printf("bremMevFlux = %g\n", bremMevFlux);
+	//printLog("bremMevFlux = %g\n", bremMevFlux);
 	//initialization arrays for full synchrotron spectrum
 	const int Nnu = 50;
 	double* Nu = new double[Nnu];
@@ -940,9 +932,9 @@ int main() {
 	//varyParameters();
 	//testVersin();
 	//testBessel();
-	testChevalier();
+	//testChevalier();
 
-	//evaluateFluxSNRtoWind();
+	evaluateFluxSNRtoWind();
 	//evaluateComtonFromWind();
 	//evaluateTychoProfile();
 	//fitTychoProfile();

@@ -1565,7 +1565,7 @@ void varyParameters() {
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 0.5 * R, 1E-6, 1, 0.001, 0.5 * speed_of_light };
-	double maxParameters[Nparams] = { 1.1 * R, 5E-1, 2E3, 0.5, 0.75 * speed_of_light };
+	double maxParameters[Nparams] = { 1.1 * R, 5E-1, 2E5, 0.5, 0.75 * speed_of_light };
 
 	double vector[Nparams] = { R, sigma, electronConcentration, fraction, velocity };
 	for (int i = 0; i < Nparams; ++i) {

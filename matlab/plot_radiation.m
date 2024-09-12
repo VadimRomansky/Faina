@@ -5,7 +5,7 @@ radiation = importdata('../outputSynch1.dat');
 %radiation2 = importdata('../outputSynch2.dat');
 %radiation3 = importdata('../outputSynch3.dat');
 
-radiationObserved = importdata('../examples_data/AT2020xnd_data/bright75.dat');
+radiationObserved = importdata('../examples_data/AT2020xnd_data/bright26.dat');
 
 N = size(radiation,1);
 Nr = size(radiation,2);
@@ -165,9 +165,10 @@ s = 4*f*r/3;
 
 h = 6.626*10^-27;
 
+radiationLinear(Nn) = 0;
+power = 2.0;
 for i = 1:Nn,
-    radiationObserved(i,1)=radiationObserved(i,1)*10^-9;
-    radiationObserved(i,2)=radiationObserved(i,2)*1000;
+    radiationLinear(i) = radiationObserved(1,7)*(radiationObserved(i,5)/radiationObserved(1,5))^power;
 end;
 
 
@@ -203,7 +204,7 @@ loglog(radiation(1:N,1),radiation(1:N,2),'red','LineWidth',2);
 %errorbar(cssx3,cssy3,cssError3,'blue','LineWidth',2);
 
 errorbar(radiationObserved(1:Nn,5), radiationObserved(1:Nn,7), radiationObserved(1:Nn,8),'blue','LineWidth',2);
-
+loglog(radiationObserved(1:Nn,5), radiationLinear(1:Nn),'green');
 %loglog(radiation4(1:Nn,1),radiation4(1:Nn,2),'blue','LineWidth',2);
 %errorbar(cssx2,cssy2,cssError2,'green','LineWidth',2);
 %errorbar(cssx3,cssy3,cssError3,'blue','LineWidth',2);

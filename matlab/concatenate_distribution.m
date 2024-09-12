@@ -23,9 +23,21 @@ for i = 1:N1,
     FEE1(i)=F1(i)*E1(i)*E1(i);
 end;
 
-%MC_F = importdata('../examples_data/pdf_sf_gamma1.5/GLE_pdf_sf_B0_00003.dat');
-MC_F = importdata('../examples_data/pdf_sf_gamma1.5/GLE_pdf_pf_306.dat');
+MC_F = importdata('../examples_data/Grafik_u0_03_B0_003/GLE_pdf_sf8.dat');
+%MC_F = importdata('../examples_data/pdf_sf_gamma1.5/GLE_pdf_pf_306.dat');
 N2 = size(MC_F,1);
+
+figure(1);
+hold on;
+set(gca, 'YScale', 'log');
+set(gca, 'XScale', 'log');
+title ('F_{p}');
+xlabel ('p');
+ylabel ('F_{p}');
+
+
+plot(MC_F(1:N2,1), MC_F(1:N2,2),'red','LineWidth',2);
+grid;
 
 
 E2(1:N2)=0;
@@ -133,7 +145,7 @@ realdensity = 10^-8;
 set(0,'DefaultAxesFontSize',14,'DefaultAxesFontName','Times New Roman');
 set(0,'DefaultTextFontSize',20,'DefaultTextFontName','Times New Roman'); 
 
-figure(1);
+figure(2);
 hold on;
 set(gca, 'YScale', 'log');
 set(gca, 'XScale', 'log');
