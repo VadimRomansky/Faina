@@ -5,8 +5,8 @@ mp = 1.6*10^-24;
 c =3*10^10;
 m=mp;
 
-E1 = importdata('../examples_data/gamma1.5_theta0-90_protons/Ee3.dat');
-F1 = importdata('../examples_data/gamma1.5_theta0-90_protons/Fs3.dat');
+E1 = importdata('../examples_data/gamma0.2_theta0-90_protons/Ee3.dat');
+F1 = importdata('../examples_data/gamma0.2_theta0-90_protons/Fs3.dat');
 N1 = size(E1,2);
 dE1(1:N1)=0;
 FEE1(1:N1)=0;
@@ -23,11 +23,23 @@ for i = 1:N1,
     FEE1(i)=F1(i)*E1(i)*E1(i);
 end;
 
+figure(1);
+hold on;
+set(gca, 'YScale', 'log');
+set(gca, 'XScale', 'log');
+title ('F_{E}');
+xlabel ('E');
+ylabel ('F_{E}');
+
+
+plot(E1(1:N1)/(mp*c*c)-1, F1(1:N1),'red','LineWidth',2);
+grid;
+
 MC_F = importdata('../examples_data/Grafik_u0_03_B0_003/GLE_pdf_sf8.dat');
 %MC_F = importdata('../examples_data/pdf_sf_gamma1.5/GLE_pdf_pf_306.dat');
 N2 = size(MC_F,1);
 
-figure(1);
+figure(2);
 hold on;
 set(gca, 'YScale', 'log');
 set(gca, 'XScale', 'log');
@@ -46,7 +58,8 @@ P2(1:N2)=0;
 dE2(1:N2)=0;
 FEE2(1:N2)=0;
 for i = 1:N2,
-    P2(i)=(10^MC_F(i,1))*mp*c;
+    %P2(i)=(10^MC_F(i,1))*mp*c;
+    P2(i)=MC_F(i,1)*mp*c;
     E2(i)=sqrt(P2(i)*P2(i)*c*c + mp*mp*c*c*c*c);
     F2(i)=MC_F(i,2)*E2(i)/(P2(i)*P2(i)*P2(i)*c*c);
 end;
@@ -64,7 +77,19 @@ for i=1:N2,
     FEE2(i)=F2(i)*E2(i)*E2(i);
 end;
 
-Nconcat1 = 188;
+figure(3);
+hold on;
+set(gca, 'YScale', 'log');
+set(gca, 'XScale', 'log');
+title ('F_{E}');
+xlabel ('E');
+ylabel ('F_{E}');
+
+
+loglog(E2(1:N2)/(mp*c*c)-1, F2(1:N2),'red','LineWidth',2);
+grid;
+
+Nconcat1 = 104;
 Econcat1 = E1(Nconcat1);
 Nconcat2=1;
 for i=1:N2,
@@ -145,7 +170,7 @@ realdensity = 10^-8;
 set(0,'DefaultAxesFontSize',14,'DefaultAxesFontName','Times New Roman');
 set(0,'DefaultTextFontSize',20,'DefaultTextFontName','Times New Roman'); 
 
-figure(2);
+figure(4);
 hold on;
 set(gca, 'YScale', 'log');
 set(gca, 'XScale', 'log');
