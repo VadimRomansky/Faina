@@ -3,10 +3,10 @@ clear;
 me = 9.1*10^-28;
 mp = 1.6*10^-24;
 c =3*10^10;
-m=mp;
+m=me;
 
-E1 = importdata('../examples_data/gamma0.2_theta0-90_protons/Ee3.dat');
-F1 = importdata('../examples_data/gamma0.2_theta0-90_protons/Fs3.dat');
+E1 = importdata('../examples_data/gamma0.2_theta0-90/Ee3.dat');
+F1 = importdata('../examples_data/gamma0.2_theta0-90/Fs3.dat');
 N1 = size(E1,2);
 dE1(1:N1)=0;
 FEE1(1:N1)=0;
@@ -19,7 +19,9 @@ dE1(1)=0;
 for i = 2:N1,
     dE1(i) = E1(i)-E1(i-1);
 end;
+norm1 = 0;
 for i = 1:N1,
+    norm1 = norm1 + F1(i)*dE1(i);
     FEE1(i)=F1(i)*E1(i)*E1(i);
 end;
 
@@ -32,7 +34,7 @@ xlabel ('E');
 ylabel ('F_{E}');
 
 
-plot(E1(1:N1)/(mp*c*c)-1, F1(1:N1),'red','LineWidth',2);
+plot(E1(1:N1)/(m*c*c)-1, F1(1:N1),'red','LineWidth',2);
 grid;
 
 MC_F = importdata('../examples_data/Grafik_u0_03_B0_003/GLE_pdf_sf8.dat');
@@ -53,28 +55,35 @@ grid;
 
 
 E2(1:N2)=0;
+dE2(1:N2)=0;
 F2(1:N2)=0;
 P2(1:N2)=0;
 dE2(1:N2)=0;
 FEE2(1:N2)=0;
+norm2 = 0;
+dE2(1)=0;
+for i = 2:N2,
+    dE2(i) = E2(i)-E2(i-1);
+end;
 for i = 1:N2,
     %P2(i)=(10^MC_F(i,1))*mp*c;
     P2(i)=MC_F(i,1)*mp*c;
     E2(i)=sqrt(P2(i)*P2(i)*c*c + mp*mp*c*c*c*c);
     F2(i)=MC_F(i,2)*E2(i)/(P2(i)*P2(i)*P2(i)*c*c);
+    if(i > 1)
+        dE2(i) = E2(i)-E2(i-1);
+    end;
+    norm2 = norm2 + (F2(i))*dE2(i);
 end;
 
-dE2(1)=0;
-for i=2:N2,
-    dE2(i)=E2(i)-E2(i-1);
-end;
-norm2 = 0;
-for i = 1:N2,
-    norm2 =norm2 + F2(i)*dE2(i);
-end;
+
 for i=1:N2,
     F2(i) = F2(i)/norm2;
     FEE2(i)=F2(i)*E2(i)*E2(i);
+end;
+
+for i=1:N1,
+    F1(i) = F1(i)/norm1;
 end;
 
 figure(3);
@@ -86,18 +95,18 @@ xlabel ('E');
 ylabel ('F_{E}');
 
 
-loglog(E2(1:N2)/(mp*c*c)-1, F2(1:N2),'red','LineWidth',2);
+loglog(E2(1:N2)/(m*c*c)-1, F2(1:N2),'red','LineWidth',2);
 grid;
 
-Nconcat1 = 104;
+Nconcat1 = 140;
 Econcat1 = E1(Nconcat1);
-Nconcat2=1;
-for i=1:N2,
-    if(E2(i) > Econcat1)
-        Nconcat2=i;
-        break;
-    end;
-end;
+Nconcat2=50;
+%for i=1:N2,
+%    if(E2(i) > Econcat1)
+%        Nconcat2=i;
+%        break;
+%    end;
+%end;
 
 N3 = Nconcat1 + (N2 - Nconcat2 + 1);
 E3(1:N3)=0;
@@ -108,8 +117,9 @@ for i=1:Nconcat1,
     E3(i)=E1(i);
     F3(i)=F1(i);
 end;
-tempF = exp(log(F1(Nconcat1)) + (log(F1(Nconcat1)/F1(Nconcat1-1))/log(E1(Nconcat1)/E1(Nconcat1-1)))*log(E2(Nconcat2)/E1(Nconcat1)));
+%tempF = exp(log(F1(Nconcat1)) + (log(F1(Nconcat1)/F1(Nconcat1-1))/log(E1(Nconcat1)/E1(Nconcat1-1)))*log(E2(Nconcat2)/E1(Nconcat1)));
 %tempF = F1(Nconcat1) + ((F1(Nconcat1) - F1(Nconcat1-1))/(E1(Nconcat1)-E1(Nconcat1-1))*(E2(Nconcat2)-E1(Nconcat1)));
+tempF = F1(Nconcat1)*(E1(Nconcat1)/E2(Nconcat2))^2.3;
 for i=Nconcat1+1:N3,
     E3(i)=E2(i - Nconcat1-1 + Nconcat2);
     F3(i)=F2(i - Nconcat1-1 + Nconcat2)*tempF/F2(Nconcat2);
@@ -175,19 +185,25 @@ hold on;
 set(gca, 'YScale', 'log');
 set(gca, 'XScale', 'log');
 title ('F_{E}');
-xlabel ('E/m_p c^2');
+xlabel ('E/m c^2');
 ylabel ('F_{E} E^2');
 
 
-plot(E1(1:N1)/(mp*c*c)-1, F1(1:N1),'red','LineWidth',2);
-plot(E2(1:N2)/(mp*c*c)-1, F2(1:N2),'green','LineWidth',2);
-plot(E3(1:N3)/(mp*c*c)-1, F3(1:N3),'blue','LineWidth',2);
+plot(E1(1:N1)/(m*c*c)-1, F1(1:N1),'red','LineWidth',2);
+plot(E2(1:N2)/(m*c*c)-1, F2(1:N2),'green','LineWidth',2);
+plot(E3(1:N3)/(m*c*c)-1, F3(1:N3),'blue','LineWidth',2);
 
 E3kin(1:N3)=0;
 F3kin(1:N3)=0;
+
+%Emax = 1.4E8;
+q=4.84E-10;
+B =0.5;
+Emax = 0.2*m*c*c/sqrt(q*q*q*B);
 for i=1:N3,
     E3kin(i) = E3(i)/(m*c*c) - 1.0;
-    F3kin(i) = F3(i)*m*c*c;
+    %F3kin(i) = F3(i)*m*c*c;
+    F3kin(i) = F3(i)*exp(-E3(i)/(m*c*c*Emax))*m*c*c;
 end;
 
 

@@ -3,11 +3,11 @@ from pylab import *
 import numpy as np
 
 def plot_distributions2():
-    Efile0e = open('../examples_data/gamma1.5_combined/Ee3.dat','r').readline().split()
-    Ffile0e= open('../examples_data/gamma1.5_combined/Fs3.dat','r').readline().split()
+    Efile0e = open('../examples_data/gamma0.2_combined_cutoff/Ee3.dat','r').readline().split()
+    Ffile0e= open('../examples_data/gamma0.2_combined_cutoff/Fs3.dat','r').readline().split()
 
-    Efile0p = open('../examples_data/gamma1.5_combined_protons/Ee3.dat', 'r').readline().split()
-    Ffile0p = open('../examples_data/gamma1.5_combined_protons/Fs3.dat', 'r').readline().split()
+    Efile0p = open('../examples_data/gamma0.2_combined_protons/Ee3.dat', 'r').readline().split()
+    Ffile0p = open('../examples_data/gamma0.2_combined_protons/Fs3.dat', 'r').readline().split()
 
     me = 9.1E-28
     mp = 1.6E-24
@@ -135,8 +135,8 @@ def plot_distributions2():
     #plt.plot(P1, F1, 'b', linewidth=50, linestyle='dashed', dashes=(5, 1), alpha=0.5)
     #plt.plot(E2, F2, 'r', linewidth=50, linestyle='dashed', dashes=(5, 1), alpha=0.5)
     ax.legend([r'electrons',r'protons'], fontsize="25")
-    ax.set_xlim(xmin=0.5E-3, xmax=5E8)
-    ax.set_ylim(ymin=1E-9, ymax=1E-3)
+    #ax.set_xlim(xmin=0.5E-3, xmax=5E8)
+    #ax.set_ylim(ymin=1E-9, ymax=1E-3)
     #ax.set_xticks([1E-2, 1, 1E2, 1E4, 1E6, 1E8])
     #ax.set_xbound(lower=0.5, upper=2E3)
     #plt.show()

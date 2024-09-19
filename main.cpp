@@ -21,7 +21,7 @@ void evaluateFluxSNRtoWind() {
 	fclose(logFile);
 
 	double theta = pi/2;
-	double index = 3.5;
+	double index = 2.5;
 	double Tstar = 3 * 1000;
 	double luminosity = 10000 * 4 * 1E33;
 	double rsun = 6.9E10;
@@ -65,11 +65,11 @@ void evaluateFluxSNRtoWind() {
 	double*** concentration = create3dArray(Nrho, Nz, Nphi, electronConcentration);
 	RadiationSourceFactory::initializeTurbulentField(Bturb, thetaTurb, phiTurb, Nrho, Nz, Nphi, B, pi / 2, 0, 0.9, 11.0 / 6.0, rmax, 10, rmax);
 	//initializing electrons distribution
-	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, 10*me_c2, electronConcentration);
+	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, 10*me_c2, electronConcentration);
 	//MassiveParticleBrokenPowerLawDistribution* electrons = new MassiveParticleBrokenPowerLawDistribution(massElectron, index, 2.001, 2*me_c2, 1000*me_c2, electronConcentration);
-    //MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+    //MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.2_combined_cutoff/Ee3.dat", "./examples_data/gamma0.2_combined_cutoff/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
     //MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.2_theta0-90/Ee3.dat", "./examples_data/gamma0.2_theta0-90/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
-	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee3.dat", "./examples_data/gamma0.5_theta0-90/Fs3.dat", 259, electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+	MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.3_theta0-90/Ee3.dat", "./examples_data/gamma0.3_theta0-90/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 	MassiveParticleTabulatedIsotropicDistribution* protons = new MassiveParticleTabulatedIsotropicDistribution(massProton, "./examples_data/gamma1.5_theta0-90_protons/Ee3.dat", "./examples_data/gamma1.5_theta0-90_protons/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 	MassiveParticleMaxwellJuttnerDistribution* thermalElectrons = new MassiveParticleMaxwellJuttnerDistribution(massElectron, 4 * me_c2 / kBoltzman, electronConcentration);
 	double velocity = 0.2 * speed_of_light;
@@ -136,8 +136,8 @@ void evaluateFluxSNRtoWind() {
 	//number of parameters of the source
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 0.5*rmax, 1E-6, 1, 0.01, 0.1*speed_of_light };
-	double maxParameters[Nparams] = { 1.3*rmax, 5E-1, 2E6, 0.5, 0.3*speed_of_light };
+	double minParameters[Nparams] = { 0.9*rmax, 1E-6, 2E4, 0.01, 0.1*speed_of_light };
+	double maxParameters[Nparams] = { 1.3*rmax, 5E-1, 5E6, 0.7, 0.3*speed_of_light };
 	//starting point of optimization and normalization
 	//fraction = 2E13 / rmax;
 
@@ -316,7 +316,7 @@ void evaluateFluxSNRtoWind() {
 	double* F2 = new double[Nnu];
 
 	double Numin = 1E8;
-	double Numax = 1E11;
+	double Numax = 1E12;
 	double factor = pow(Numax / Numin, 1.0 / (Nnu - 1));
 	Nu[0] = Numin;
 	F[0] = 0;
