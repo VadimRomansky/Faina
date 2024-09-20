@@ -713,8 +713,8 @@ double MassiveParticleTabulatedIsotropicDistribution::distributionNormalized(con
 			result = (my_distribution[currentI] * (my_energy[nextI] - energy) + my_distribution[nextI] * (energy - my_energy[currentI])) / (my_energy[nextI] - my_energy[currentI]);
 		}
 		else {
-			//result = my_distribution[currentI] * exp(log(my_distribution[nextI] / my_distribution[currentI]) * ((energy - my_energy[currentI]) / (my_energy[nextI] - my_energy[currentI])));
-			result = (my_distribution[currentI] * (my_energy[nextI] - energy) + my_distribution[nextI] * (energy - my_energy[currentI])) / (my_energy[nextI] - my_energy[currentI]);
+			result = my_distribution[currentI] * exp(log(my_distribution[nextI] / my_distribution[currentI]) * ((log(energy/my_energy[currentI])) / (log(my_energy[nextI]/my_energy[currentI]))));
+			//result = (my_distribution[currentI] * (my_energy[nextI] - energy) + my_distribution[nextI] * (energy - my_energy[currentI])) / (my_energy[nextI] - my_energy[currentI]);
 		}
 		if (result != result) {
 			printf("result = NaN in electron tabulated distribution\n");
