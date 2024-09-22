@@ -536,34 +536,50 @@ void fitCSS161010withTabulatedDistributions() {
 //example 4. Fitting observed synchrotron radio fluxes from CSS161010 at 3 time moments
 void fitTimeDependentCSS161010() {
 	//observed data at 99, 162 and 357 days after explosion in units erg and cm^-2 s^-2
-	const double cssx1[4] = { 1.5 * hplank * 1E9, 3.0 * hplank * 1E9, 6.1 * hplank * 1E9, 9.87 * hplank * 1E9 };
-	const double cssy1[4] = { 1.5 / (hplank * 1E26), 4.3 / (hplank * 1E26), 6.1 / (hplank * 1E26), 4.2 / (hplank * 1E26) };
-	const double cssError1[4] = { 0.1 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.3 / (hplank * 1E26), 0.2 / (hplank * 1E26) };
+	double* energy1;
+	double* observedFlux1;
+	double* observedError1;
+	//int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/css_data/coppejans69.txt");
+	int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/css_data/coppejans99.txt");
+	for (int i = 0; i < Nenergy1; ++i) {
+		energy1[i] = energy1[i] * hplank * 1E9;
+		observedFlux1[i] = observedFlux1[i] / (hplank * 1E26);
+		observedError1[i] = observedError1[i] / (hplank * 1E26);
+	}
 
-	//remove first point because The measurements below 2 GHz at 162 days post explosion were strongly affected by radio frequency interference
-	//const double cssx2[5] = { 1.5 * hplank * 1E9, 2.94 * hplank * 1E9, 6.1 * hplank * 1E9, 9.74 * hplank * 1E9, 22.0 * hplank * 1E9 };
-	//const double cssy2[5] = { 4.7 / (hplank * 1E26), 2.9 / (hplank * 1E26), 2.3 / (hplank * 1E26), 1.74 / (hplank * 1E26), 0.56 / (hplank * 1E26) };
-	//const double cssError2[5] = { 0.6 / (hplank * 1E26), 0.2 / (hplank * 1E26), 0.1 / (hplank * 1E26), 0.09 / (hplank * 1E26), 0.03 / (hplank * 1E26) };
+	double* energy2;
+	double* observedFlux2;
+	double* observedError2;
+	//int Nenergy2 = readRadiationFromFile(energy2, observedFlux2, observedError2, "./examples_data/css_data/coppejans99.txt");
+	int Nenergy2 = readRadiationFromFile(energy2, observedFlux2, observedError2, "./examples_data/css_data/coppejans357.txt");
+	for (int i = 0; i < Nenergy2; ++i) {
+		energy2[i] = energy2[i] * hplank * 1E9;
+		observedFlux2[i] = observedFlux2[i] / (hplank * 1E26);
+		observedError2[i] = observedError2[i] / (hplank * 1E26);
+	}
 
-	const double cssx2[4] = { 2.94 * hplank * 1E9, 6.1 * hplank * 1E9, 9.74 * hplank * 1E9, 22.0 * hplank * 1E9 };
-	const double cssy2[4] = { 2.9 / (hplank * 1E26), 2.3 / (hplank * 1E26), 1.74 / (hplank * 1E26), 0.56 / (hplank * 1E26) };
-	const double cssError2[4] = { 0.2 / (hplank * 1E26), 0.1 / (hplank * 1E26), 0.09 / (hplank * 1E26), 0.03 / (hplank * 1E26) };
-
-	//todo first point
-	const double cssx3[6] = { 0.33 * hplank * 1E9, 0.61 * hplank * 1E9, 1.5 * hplank * 1E9, 3.0 * hplank * 1E9, 6.05 * hplank * 1E9, 10.0 * hplank * 1E9 };
-	const double cssy3[6] = { 0.375 / (hplank * 1E26), 0.79 / (hplank * 1E26), 0.27 / (hplank * 1E26), 0.17 / (hplank * 1E26), 0.07 / (hplank * 1E26), 0.032 / (hplank * 1E26) };
-	const double cssError3[6] = { 0.375 / (hplank * 1E26), 0.09 / (hplank * 1E26), 0.07 / (hplank * 1E26), 0.03 / (hplank * 1E26), 0.01 / (hplank * 1E26), 0.008 / (hplank * 1E26) };
+	double* energy3;
+	double* observedFlux3;
+	double* observedError3;
+	int Nenergy3 = readRadiationFromFile(energy3, observedFlux3, observedError3, "./examples_data/css_data/coppejans357.txt");
+	for (int i = 0; i < Nenergy3; ++i) {
+		energy3[i] = energy3[i] * hplank * 1E9;
+		observedFlux3[i] = observedFlux3[i] / (hplank * 1E26);
+		observedError3[i] = observedError3[i] / (hplank * 1E26);
+	}
 
 	//initializing time moments
-	const int Ntimes = 3;
-	double times[Ntimes] = { 99 * 24 * 3600, 162 * 24 * 3600, 357 * 24 * 3600 };
+	//const int Ntimes = 3;
+	const int Ntimes = 2;
+	//double times[Ntimes] = { 69 * 24 * 3600, 99 * 24 * 3600, 357 * 24 * 3600 };
+	double times[Ntimes] = {99 * 24 * 3600, 357 * 24 * 3600 };
 
 
 	//putting observed data into 2d arrays for optimizer
 	int Nenergy[Ntimes];
-	Nenergy[0] = 4;
-	Nenergy[1] = 4;
-	Nenergy[2] = 6;
+	Nenergy[0] = Nenergy1;
+	Nenergy[1] = Nenergy2;
+	//Nenergy[2] = Nenergy3;
 
 	double** energy = new double* [Ntimes];
 	double** F = new double* [Ntimes];
@@ -575,22 +591,22 @@ void fitTimeDependentCSS161010() {
 	}
 
 	for (int i = 0; i < Nenergy[0]; ++i) {
-		energy[0][i] = cssx1[i];
-		F[0][i] = cssy1[i];
-		Error[0][i] = cssError1[i];
+		energy[0][i] = energy1[i];
+		F[0][i] = observedFlux1[i];
+		Error[0][i] = observedError1[i];
 	}
 
 	for (int i = 0; i < Nenergy[1]; ++i) {
-		energy[1][i] = cssx2[i];
-		F[1][i] = cssy2[i];
-		Error[1][i] = cssError2[i];
+		energy[1][i] = energy2[i];
+		F[1][i] = observedFlux2[i];
+		Error[1][i] = observedError2[i];
 	}
 
-	for (int i = 0; i < Nenergy[2]; ++i) {
-		energy[2][i] = cssx3[i];
-		F[2][i] = cssy3[i];
-		Error[2][i] = cssError3[i];
-	}
+	/*for (int i = 0; i < Nenergy[2]; ++i) {
+		energy[2][i] = energy3[i];
+		F[2][i] = observedFlux3[i];
+		Error[2][i] = observedError3[i];
+	}*/
 
 
 	//distance to source
@@ -598,24 +614,24 @@ void fitTimeDependentCSS161010() {
 
 	//initial parameters of source
 	double electronConcentration = 150;
-	double rmax = 1.3E17;
+	double rmax = times[0]*0.75*speed_of_light;
 	//rmax = 1.0;
 	double B = 0.6;
 	double widthFraction = 0.5;
-	double v = 0.3 * speed_of_light;
+	double v = 0.75 * speed_of_light;
 	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
 	//number of optimized parameters
-	const int Nparams = 8;
+	const int Nparams = 9;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 1E16, 0.0001, 0.01, 0.1, 0.01 * speed_of_light, 1.1, 1.0, 1.0 };
-	double maxParameters[Nparams] = { 2E17, 1, 1000, 1.0, 0.6 * speed_of_light, 2.0, 3.5, 3.5 };
+	double minParameters[Nparams] = { 0.5*rmax, 0.00001, 1, 0.01, 0.5 * speed_of_light, 1.0, 1.0, 1.0, 1.0 };
+	double maxParameters[Nparams] = { times[0] * 0.9 * speed_of_light, 1, 10000, 1.0, 0.8 * speed_of_light, 3.0, 6.0, 6.0, 3.0 };
 	//starting point of optimization and normalization
-	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v, 2.0, 2.0, 3.0 };
+	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v, 1.01, 2.0, 3.0, 1.01 };
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
 	}
 	//picking parameters to be optimized
-	bool optPar[Nparams] = { true, true, true, true, true, true, true, true };
+	bool optPar[Nparams] = { true, true, true, false, true, true, true, true, true };
 	
 
 	//number of different distributions depending on inclination angle, wich will be read from files
@@ -624,18 +640,24 @@ void fitTimeDependentCSS161010() {
 	//reading electron distributions from files
 	//ElectronIsotropicDistribution** angleDependentDistributions = ElectronDistributionFactory::readTabulatedIsotropicDistributions("./input/Ee", "./input/Fs", ".dat", 10, ElectronInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
 	MassiveParticleDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(massElectron, "./input/Ee", "./input/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200, 20 * me_c2, 3.5);
-	for (int i = 0; i < Ndistributions; ++i) {
+	//for (int i = 0; i < Ndistributions; ++i) {
 		//rescale distributions to real mp/me relation
-		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
-	}
+	//	(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
+	//}
 	//angleDependentDistributions[9]->writeDistribution("output1.dat", 200, Emin, Emax);
 	//creating radiation source, which does not depend on time
+	//MassiveParticleTabulatedIsotropicDistribution* electronDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_theta0-90/Ee3.dat", "./examples_data/gamma1.5_theta0-90/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+	MassiveParticleTabulatedIsotropicDistribution* electronDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+	//MassiveParticleIsotropicDistribution* electronDistribution = new MassiveParticlePowerLawDistribution(massElectron, 3.5, 10*me_c2, electronConcentration);
+	//electronDistribution->rescaleDistribution(1.2);
+	SimpleFlatSource* source1 = new SimpleFlatSource(electronDistribution, B, pi/2, 0, rmax, widthFraction*rmax, distance);
 	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, pi/2, 0, electronConcentration, rmax, 0.5 * rmax, distance, 0.3*speed_of_light);
 	//creating time dependent radiation source
-	RadiationTimeDependentSource* source = new ExpandingRemnantSource(rmax, B, electronConcentration, 0.3 * speed_of_light, 0.5, angleDependentSource, times[0]);
+	//RadiationTimeDependentSource* source = new ExpandingRemnantSource(rmax, B, electronConcentration, 0.3 * speed_of_light, 0.5, angleDependentSource, times[0]);
+	RadiationTimeDependentSource* source = new ExpandingRemnantSource(rmax, B, electronConcentration, 0.75 * speed_of_light, 0.1, source1, times[0]);
 	
 	//number of points per axis in gridEnumOptimizer
-	int Npoints[Nparams] = { 3,3,3,3,3, 3, 3, 3 };
+	int Npoints[Nparams] = { 4,4,4,4,4, 4, 4, 4,4 };
 	//number of iterations in gradient descent optimizer
 	int Niterations = 5;
 	//energies of electrons wich will be used for evaluatig radiation
@@ -645,24 +667,27 @@ void fitTimeDependentCSS161010() {
 	LossEvaluator* KPIevaluator = new TimeDependentSpectrumLossEvaluator(energy, F, Error, Nenergy, times, Ntimes, source);
 	//creating time dependent synchrotron evaluator
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax, true, true);
+	CombinedRadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints, KPIevaluator);
 	//creating time depedent grid enumeration optimizer, which will chose the best starting poin for gradien descent
-	RadiationOptimizer* gridEnumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
+	//RadiationOptimizer* gridEnumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
 	//gridEnumOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
-	/*vector[0] = 9.457E16 / maxParameters[0];
+	/*vector[0] = rmax / maxParameters[0];
 	vector[1] = 0.1 / maxParameters[1];
-	vector[2] = 560.2341 / maxParameters[2];
+	vector[2] = 100 / maxParameters[2];
 	vector[3] = 0.1 / maxParameters[3];
-	vector[4] = 1.798E10 / maxParameters[4];
-	vector[5] = 2.0 / maxParameters[5];
-	vector[6] = 2.0 / maxParameters[6];
-	vector[7] = 3.0 / maxParameters[7];*/
+	vector[4] = 0.75*speed_of_light / maxParameters[4];
+	vector[5] = 1.0 / maxParameters[5];
+	vector[6] = 3.0 / maxParameters[6];
+	vector[7] = 2.0 / maxParameters[7];
+	vector[8] = 1.0 / maxParameters[8];*/
 	//creating gradient descent optimizer and optimizing
-	RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
-	gradientOptimizer->optimize(vector, optPar);
+	//RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
+	//gradientOptimizer->optimize(vector, optPar);
+	combinedOptimizer->optimize(vector, optPar);
 	//reset parameters of source to the found values
 	source->resetParameters(vector, maxParameters);
 	//evaluating final error
-	double error = gradientOptimizer->evaluateOptimizationFunction(vector);
+	double error = combinedOptimizer->evaluateOptimizationFunction(vector);
 
 	//initializing arrays for evaluationg full spectrum of source with found values
 	int Nout = 200;
@@ -670,7 +695,7 @@ void fitTimeDependentCSS161010() {
 	double** Fout = new double* [Ntimes];
 
 	double Numin = 1E8;
-	double Numax = 1E18;
+	double Numax = 1E12;
 	double factor = pow(Numax / Numin, 1.0 / (Nout - 1));
 	Nuout[0] = Numin;
 	for (int j = 0; j < Ntimes; ++j) {
@@ -713,6 +738,8 @@ void fitTimeDependentCSS161010() {
 	fprintf(paramFile, "parameters at first time moment:\n");
 	printf("R = %g\n", vector[0] * maxParameters[0]);
 	fprintf(paramFile, "R = %g\n", vector[0] * maxParameters[0]);
+	printf("R/ct = %g\n", vector[0] * maxParameters[0]/(speed_of_light*times[0]));
+	fprintf(paramFile, "R/ct = %g\n", vector[0] * maxParameters[0]/(speed_of_light*times[0]));
 	printf("sigma = %g\n", vector[1] * maxParameters[1]);
 	fprintf(paramFile, "sigma = %g\n", vector[1] * maxParameters[1]);
 	printf("n = %g\n", vector[2] * maxParameters[2]);
@@ -727,6 +754,8 @@ void fitTimeDependentCSS161010() {
 	fprintf(paramFile, "concentration power = %g\n", vector[6] * maxParameters[6] - 1.0);
 	printf("B power = %g\n", vector[7] * maxParameters[7] - 1.0);
 	fprintf(paramFile, "B power = %g\n", vector[7] * maxParameters[7] - 1.0);
+	printf("width power = %g\n", vector[8] * maxParameters[8] - 1.0);
+	fprintf(paramFile, "width power = %g\n", vector[8] * maxParameters[8] - 1.0);
 	B = sqrt(vector[1] * maxParameters[1] * 4 * pi * massProton * vector[2] * maxParameters[2] * speed_of_light2);
 	printf("B = %g\n", B);
 	fprintf(paramFile, "B = %g\n", B);
@@ -752,8 +781,8 @@ void fitTimeDependentCSS161010() {
 	delete angleDependentSource;
 	delete synchrotronEvaluator;
 	delete source;
-	delete gridEnumOptimizer;
-	delete gradientOptimizer;
+	//delete gridEnumOptimizer;
+	//delete gradientOptimizer;
 
 }
 

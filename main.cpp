@@ -68,7 +68,7 @@ void evaluateFluxSNRtoWind() {
 	//MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, 10*me_c2, electronConcentration);
 	//MassiveParticleBrokenPowerLawDistribution* electrons = new MassiveParticleBrokenPowerLawDistribution(massElectron, index, 2.001, 2*me_c2, 1000*me_c2, electronConcentration);
     //MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.2_combined_cutoff/Ee3.dat", "./examples_data/gamma0.2_combined_cutoff/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
-    MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.2_theta0-90/Ee3.dat", "./examples_data/gamma0.2_theta0-90/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+    MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee3.dat", "./examples_data/gamma0.5_theta0-90/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 	//MassiveParticleTabulatedIsotropicDistribution* electrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.2_theta0-90/Ee3.dat", "./examples_data/gamma0.2_theta0-90/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 	//MassiveParticleMaxwellJuttnerDistribution* electrons = new MassiveParticleMaxwellJuttnerDistribution(massElectron, 1.08 * me_c2 / kBoltzman, electronConcentration);
 	MassiveParticleTabulatedIsotropicDistribution* protons = new MassiveParticleTabulatedIsotropicDistribution(massProton, "./examples_data/gamma1.5_theta0-90_protons/Ee3.dat", "./examples_data/gamma1.5_theta0-90_protons/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
@@ -76,32 +76,13 @@ void evaluateFluxSNRtoWind() {
 	double velocity = 0.2 * speed_of_light;
 	//double velocity = 0.55 * speed_of_light;
 	double gamma = 1.0 / sqrt(1.0 - velocity * velocity / speed_of_light2);
-	electrons->rescaleDistribution(1.2);
-	electrons->addPowerLaw(10 * massElectron * speed_of_light2, 3.0);
+	//electrons->rescaleDistribution(1.2);
+	//electrons->addPowerLaw(10 * massElectron * speed_of_light2, 3.0);
 	//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electrons))->prolongEnergyRange(1E6, 100);
 	//electrons->addPowerLaw(200 * massElectron * speed_of_light2, 3.5);
 	electrons->writeDistribution("distribution.dat", 200, Emin, Emax);
 	thermalElectrons->writeDistribution("distribution1.dat", 200, Emin, Emax);
-	int Ndistributions = 10;
-	//reading electron distributions from files
-	//MassiveParticleIsotropicDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.3_theta0-90/Ee", "./examples_data/gamma0.3_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
-	//MassiveParticleDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(massElectron, "./examples_data/gamma0.5_theta0-90/Ee", "./examples_data/gamma0.5_theta0-90/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, electronConcentration, 200);
-	//double newEmax = 1E8 * me_c2;
-	/*for (int i = 0; i < Ndistributions; ++i) {
-		//rescale distributions to real mp/me relation
-		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
-		(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->prolongEnergyRange(newEmax, 100);
-		if (i < 4) {
-			//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(100 * me_c2, 3.5);
-			(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(300 * me_c2, 3.5);
-			(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->addPowerLaw(500 * me_c2, 2);
-		}
-		
-	}*/
-
-	//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[1]))->writeDistribution("dist1.dat", 300, Emin, newEmax);
-	//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[4]))->writeDistribution("dist4.dat", 300, Emin, newEmax);
-	//(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[8]))->writeDistribution("dist8.dat", 300, Emin, newEmax);
+	
 
 	//creating radiation source
 	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, 0, rmax, fraction*rmax, distance, 0, 0.2433);
@@ -219,14 +200,14 @@ void evaluateFluxSNRtoWind() {
 	//reseting source parameters to found values
 	//synchrotronOptimizer->outputProfileDiagrams(vector, source, 10);
 	//synchrotronOptimizer->outputOptimizedProfileDiagram(vector, optPar, source, 10, 1, 2);
-	combinedOptimizer->optimize(vector, optPar);
-	/*B = 0.29;
-	electronConcentration = 2500;
-	vector[0] = 1.4E17 / maxParameters[0];
+	//combinedOptimizer->optimize(vector, optPar);
+	B = 4.986;
+	electronConcentration = 1.15E6;
+	vector[0] = 1.782E16 / maxParameters[0];
 	vector[1] = (B*B/(4*pi*massProton*electronConcentration*speed_of_light2)) / maxParameters[1];
 	vector[2] = electronConcentration / maxParameters[2];
-	vector[3] = 1.33*0.5 / maxParameters[3];
-	vector[4] = 0.55*speed_of_light / maxParameters[4];*/
+	//vector[3] = 1.33*0.5 / maxParameters[3];
+	//vector[4] = 0.55*speed_of_light / maxParameters[4];
 	source->resetParameters(vector, maxParameters);
 	thermalSource->resetParameters(vector, maxParameters);
 	//evaluating resulting error
@@ -288,22 +269,41 @@ void evaluateFluxSNRtoWind() {
 	velocity = vector[4] * maxParameters[4] / speed_of_light;
 	gamma = 1.0 / sqrt(1.0 - velocity * velocity);
 
-	//double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0)*(4*pi*rmax*rmax*rmax/3)*(1.0 - cube(1.0 - fraction));
+	double actualVelocity = rmax / (Ndays * 24 * 3600 * speed_of_light);
+	double actualGamma = 1.0 / sqrt(1.0 - actualVelocity * actualVelocity);
+
+	double energy2 = 0;
+	double Estart = 10 * me_c2;
+	double factor = pow(Emax / Estart, 1.0 / (200.0 - 1));
+	double e1 = Estart;
+	for (int i = 0; i < 200; ++i) {
+		double de = e1 * (factor - 1);
+		energy2 = energy2 + electronConcentration * electrons->distributionNormalized(e1) *(e1 - me_c2)* (pi * rmax * rmax * rmax * fraction)* de;
+	}
+
+	double totalEnergy = electronConcentration * massProton * speed_of_light2 * (actualGamma - 1.0)*(pi*rmax*rmax*rmax*fraction);
 	//double totalEnergy = electronConcentration * massProton * speed_of_light2 * (gamma - 1.0)*source->getTotalVolume();
-	//double energyInRadioElectrons = electronConcentration * (electrons->getMeanEnergy() - me_c2) * source->getTotalVolume();
+	double energyInRadioElectrons = electronConcentration * (electrons->getMeanEnergy() - me_c2) * (pi * rmax * rmax * rmax * fraction);
 	//double energyInRadioProtons = electronConcentration * (protons->getMeanEnergy() - massProton*speed_of_light2) * source->getTotalVolume();
-	//double magneticEnergy = (B * B / (8 * pi)) * source->getTotalVolume();
-	//printf("total kinetik energy = %g\n", totalEnergy);
-	//printLog("total kinetik energy = %g\n", totalEnergy);
-	//printf("energy in radio electrons = %g\n", energyInRadioElectrons);
-	//printLog("energy in radio electrons = %g\n", energyInRadioElectrons);
+	double magneticEnergy = (B * B / (8 * pi)) * (pi * rmax * rmax * rmax * fraction);
+	printf("total kinetik energy = %g\n", totalEnergy);
+	printLog("total kinetik energy = %g\n", totalEnergy);
+	printf("energy in radio electrons = %g\n", energyInRadioElectrons);
+	printLog("energy in radio electrons = %g\n", energyInRadioElectrons);
 	//printf("energy in radio protons = %g\n", energyInRadioProtons);
 	//printLog("energy in radio protons = %g\n", energyInRadioProtons);
-	///printf("energy in magnetic field = %g\n", magneticEnergy);
-	//printLog("energy in magnetic field = %g\n", magneticEnergy);
+	printf("energy in magnetic field = %g\n", magneticEnergy);
+	printLog("energy in magnetic field = %g\n", magneticEnergy);
 	//double totalMass = electronConcentration * massProton * source->getTotalVolume();
 	//printf("total mass = %g\n", totalMass);
 	//printLog("total mass = %g\n", totalMass);
+
+	double epsilone = energyInRadioElectrons / (totalEnergy);
+	double epsilonB = magneticEnergy / totalEnergy;
+	printf("epsilon e = %g\n", epsilone);
+	printLog("epsilon e = %g\n", epsilone);
+	printf("epsilon B = %g\n", epsilonB);
+	printLog("epsilon B = %g\n", epsilonB);
 
 	BremsstrahlungThermalEvaluator* bremsstrahlungEvaluator = new BremsstrahlungThermalEvaluator();
 	//bremsstrahlungEvaluator->writeFluxFromSourceToFile("bremsstrahlung.dat", thermalSource, 1.6E-9, 1.6E-5, 200);
@@ -318,7 +318,7 @@ void evaluateFluxSNRtoWind() {
 
 	double Numin = 1E8;
 	double Numax = 1E14;
-	double factor = pow(Numax / Numin, 1.0 / (Nnu - 1));
+	factor = pow(Numax / Numin, 1.0 / (Nnu - 1));
 	Nu[0] = Numin;
 	F[0] = 0;
 	F2[0] = 0;
@@ -920,7 +920,7 @@ int main() {
 	//evaluateComptonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
-	//fitTimeDependentCSS161010();
+	fitTimeDependentCSS161010();
 	//evaluatePionDecay();
 	//evaluateBremsstrahlung();
 	//compareComptonSynchrotron();
@@ -935,7 +935,7 @@ int main() {
 	//testBessel();
 	//testChevalier();
 
-	evaluateFluxSNRtoWind();
+	//evaluateFluxSNRtoWind();
 	//evaluateComtonFromWind();
 	//evaluateTychoProfile();
 	//fitTychoProfile();

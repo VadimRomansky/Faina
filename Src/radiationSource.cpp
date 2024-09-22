@@ -1936,15 +1936,16 @@ MassiveParticleDistribution* AngleDependentElectronsSphericalSource::getParticle
 
 }
 
-ExpandingRemnantSource::ExpandingRemnantSource(const double& R0, const double& B0, const double& concentration0, const double& v, const double& widthFraction, RadiationSource* source, const double& t0, const double& radiusPower, const double& Bpower, const double& concentrationPower) : RadiationTimeDependentSource(source, t0) {
+ExpandingRemnantSource::ExpandingRemnantSource(const double& R0, const double& B0, const double& concentration0, const double& v, const double& widthFraction, RadiationSource* source, const double& t0, const double& velocityPower, const double& Bpower, const double& concentrationPower, const double& widthPower) : RadiationTimeDependentSource(source, t0) {
 	my_R0 = R0;
 	my_B0 = B0;
 	my_concentration0 = concentration0;
 	my_widthFraction = widthFraction;
 	my_v = v;
-	my_radiusPower = radiusPower;
+	my_velocityPower = velocityPower;
 	my_Bpower = Bpower;
 	my_concentrationPower = concentrationPower;
+	my_widthPower = widthPower;
 }
 
 void ExpandingRemnantSource::resetParameters(const double* parameters, const double* normalizationUnits) {
@@ -1954,15 +1955,22 @@ void ExpandingRemnantSource::resetParameters(const double* parameters, const dou
 	my_widthFraction = parameters[3] * normalizationUnits[3];
 	my_v = parameters[4] * normalizationUnits[4];
 	my_B0 = sqrt(sigma * 4 * pi * massProton * my_concentration0 * speed_of_light2);
-	my_radiusPower = parameters[5] * normalizationUnits[5] - 1.0;
+	my_velocityPower = parameters[5] * normalizationUnits[5] - 1.0;
 	my_concentrationPower = parameters[6] * normalizationUnits[6] - 1.0;
 	my_Bpower = parameters[7] * normalizationUnits[7] - 1.0;
+	my_widthPower = parameters[8] * normalizationUnits[8] - 1.0;
 }
 
 //just one possible example
 RadiationSource* ExpandingRemnantSource::getRadiationSource(double& time, const double* normalizationUnits) {
 	//double R = my_R0 + my_v * (time - my_t0);
-	double R = my_R0 + (1.0/my_radiusPower) * my_v * my_t0 * (pow(time/my_t0, my_radiusPower) - 1.0);
+	double R;
+	if (my_velocityPower == 1.0) {
+		R = my_R0 + my_v * my_t0 * log(time / my_t0);
+	}
+	else {
+		R = my_R0 + my_v * my_t0 * (1.0 - pow(time / my_t0, 1.0 - my_velocityPower))/(my_velocityPower - 1.0);
+	}
 	//double sigma = sqr(my_B0) / (4 * pi * massProton * my_concentration0 * speed_of_light2)/(my_R0/R);
 	double sigma = sqr(my_B0) / (4 * pi * massProton * my_concentration0 * speed_of_light2)*pow(my_R0/R, 2*my_Bpower- my_concentrationPower);
 	//double B = my_B0;
@@ -1970,10 +1978,10 @@ RadiationSource* ExpandingRemnantSource::getRadiationSource(double& time, const 
 	//double n = my_concentration0;
 	//double n = my_concentration0*cube(my_R0/R);
 	double n = my_concentration0*pow(my_R0/R, my_concentrationPower);
-	double fracton = my_widthFraction * my_R0/R;
+	double fracton = my_widthFraction * pow(my_R0/R, my_widthPower);
 	//double fracton = my_widthFraction;
 
-	double localV = my_v * pow(time / my_t0, my_radiusPower - 1.0);
+	double localV = my_v * pow(time / my_t0, -my_velocityPower);
 
 	double parameters[5];
 	parameters[0] = R / normalizationUnits[0];
