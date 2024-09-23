@@ -551,7 +551,7 @@ void fitTimeDependentCSS161010() {
 	double* observedFlux2;
 	double* observedError2;
 	//int Nenergy2 = readRadiationFromFile(energy2, observedFlux2, observedError2, "./examples_data/css_data/coppejans99.txt");
-	int Nenergy2 = readRadiationFromFile(energy2, observedFlux2, observedError2, "./examples_data/css_data/coppejans357.txt");
+	int Nenergy2 = readRadiationFromFile(energy2, observedFlux2, observedError2, "./examples_data/css_data/coppejans162.txt");
 	for (int i = 0; i < Nenergy2; ++i) {
 		energy2[i] = energy2[i] * hplank * 1E9;
 		observedFlux2[i] = observedFlux2[i] / (hplank * 1E26);
@@ -568,18 +568,19 @@ void fitTimeDependentCSS161010() {
 		observedError3[i] = observedError3[i] / (hplank * 1E26);
 	}
 
+
 	//initializing time moments
 	//const int Ntimes = 3;
-	const int Ntimes = 2;
-	//double times[Ntimes] = { 69 * 24 * 3600, 99 * 24 * 3600, 357 * 24 * 3600 };
-	double times[Ntimes] = {99 * 24 * 3600, 357 * 24 * 3600 };
+	const int Ntimes = 3;
+	double times[Ntimes] = { 99 * 24 * 3600, 162 * 24 * 3600, 357 * 24 * 3600 };
+	//double times[Ntimes] = {99 * 24 * 3600, 357 * 24 * 3600 };
 
 
 	//putting observed data into 2d arrays for optimizer
 	int Nenergy[Ntimes];
 	Nenergy[0] = Nenergy1;
 	Nenergy[1] = Nenergy2;
-	//Nenergy[2] = Nenergy3;
+	Nenergy[2] = Nenergy3;
 
 	double** energy = new double* [Ntimes];
 	double** F = new double* [Ntimes];
@@ -602,11 +603,11 @@ void fitTimeDependentCSS161010() {
 		Error[1][i] = observedError2[i];
 	}
 
-	/*for (int i = 0; i < Nenergy[2]; ++i) {
+	for (int i = 0; i < Nenergy[2]; ++i) {
 		energy[2][i] = energy3[i];
 		F[2][i] = observedFlux3[i];
 		Error[2][i] = observedError3[i];
-	}*/
+	}
 
 
 	//distance to source
@@ -617,14 +618,14 @@ void fitTimeDependentCSS161010() {
 	double rmax = times[0]*0.75*speed_of_light;
 	//rmax = 1.0;
 	double B = 0.6;
-	double widthFraction = 0.5;
+	double widthFraction = 0.1;
 	double v = 0.75 * speed_of_light;
 	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
 	//number of optimized parameters
 	const int Nparams = 9;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 0.5*rmax, 0.00001, 1, 0.01, 0.5 * speed_of_light, 1.0, 1.0, 1.0, 1.0 };
-	double maxParameters[Nparams] = { times[0] * 0.9 * speed_of_light, 1, 1000, 1.0, 0.8 * speed_of_light, 4.0, 4.0, 4.0, 4.0 };
+	double maxParameters[Nparams] = { times[0] * 0.9 * speed_of_light, 2, 2000, 1.0, 0.8 * speed_of_light, 4.0, 4.0, 4.0, 4.0 };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v, 1.01, 2.0, 3.0, 1.01 };
 	for (int i = 0; i < Nparams; ++i) {
@@ -632,6 +633,18 @@ void fitTimeDependentCSS161010() {
 	}
 	//picking parameters to be optimized
 	bool optPar[Nparams] = { true, true, true, false, true, true, true, true, true };
+
+	int numberOfOptpar = 0;
+	for (int i = 0; i < Nparams; ++i) {
+		if (optPar[i]) {
+			numberOfOptpar++;
+		}
+	}
+
+	int numberOfPoints = 0;
+	for (int i = 0; i < Ntimes; ++i) {
+		numberOfPoints += Nenergy[i];
+	}
 	
 
 	//number of different distributions depending on inclination angle, wich will be read from files
@@ -755,6 +768,8 @@ void fitTimeDependentCSS161010() {
 	FILE* paramFile = fopen("parametersCSS161010.dat", "w");
 	printf("hi^2 = %g\n", error);
 	fprintf(paramFile, "hi^2 = %g\n", error);
+	printf("relative hi^2 = %g\n", error/(numberOfPoints - numberOfOptpar - 1));
+	fprintf(paramFile, "relative hi^2 = %g\n", error / (numberOfPoints - numberOfOptpar - 1));
 	printf("parameters at first time moment:\n");
 	fprintf(paramFile, "parameters at first time moment:\n");
 	printf("R = %g\n", vector[0] * maxParameters[0]);
