@@ -114,9 +114,9 @@ class SimpleFlatSource2 : public SimpleFlatSource {
 	protected:
 		int my_Ndistributions;
 		double* my_velocities;
-		MassiveParticleDistribution** my_distributions;
+		MassiveParticleIsotropicDistribution** my_distributions;
 	public:
-		SimpleFlatSource2(int Ndistributions, double* velocities, MassiveParticleDistribution** electronDistributions, const double& B, const double& theta, const double& phi, const double& rho, const double& z, const double& distance, const double& velocity = 0, const double& redShift = 0);
+		SimpleFlatSource2(int Ndistributions, double* velocities, MassiveParticleIsotropicDistribution** electronDistributions, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& z, const double& distance, const double& velocity = 0, const double& redShift = 0);
 		virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
 };
 

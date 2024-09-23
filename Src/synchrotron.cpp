@@ -184,7 +184,8 @@ void SynchrotronEvaluator::evaluateEmissivityAndAbsorption(const double& photonF
 		}
 		concentration = concentrationPrimed;
 	}
-	MassiveParticleIsotropicDistribution* electronDistribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
+	MassiveParticleDistribution* distribution = source->getParticleDistribution(irho, iz, iphi);
+	MassiveParticleIsotropicDistribution* electronDistribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(distribution);
 	if (electronDistribution == NULL) {
 		printf("Synchrotron evaluator works only with isotropic distributions\n");
 		printLog("Synchrotron evaluator works only with isotropic distributions\n");

@@ -158,11 +158,10 @@ double TimeDependentSpectrumLossEvaluator::evaluate(const double* vector, const 
 
 		double totalInu = 0;
 		RadiationSource* source1 = my_radiationSource->getRadiationSource(my_times[k], maxParameters);
-		for (int i = 0; i < my_Ne[k]; ++i) {
-			//1E26 from Jansky
-			totalInu = evaluator->evaluateFluxFromSource(my_energy[k][i], source1);
-		}
 		for (int j = 0; j < my_Ne[k]; ++j) {
+			//1E26 from Jansky
+			totalInu = evaluator->evaluateFluxFromSource(my_energy[k][j], source1);
+
 			double err1 = 0;
 			err1 = sqr(totalInu - my_observedFlux[k][j]) / sqr(my_observedError[k][j]);
 
@@ -170,6 +169,18 @@ double TimeDependentSpectrumLossEvaluator::evaluate(const double* vector, const 
 		}
 
 		//delete[] totalInu;
+	}
+
+	if (isinf(err)) {
+		printf("error function is infinity\n");
+		printLog("error function is infinity\n");
+		exit(0);
+	}
+
+	if (err != err) {
+		printf("error function is NaN\n");
+		printLog("error function is NaN\n");
+		exit(0);
 	}
 
 	return err;

@@ -30,7 +30,7 @@ h = 6.626*10^-27;
 set(0,'DefaultAxesFontSize',14,'DefaultAxesFontName','Times New Roman');
 set(0,'DefaultTextFontSize',20,'DefaultTextFontName','Times New Roman'); 
 
-figure(1);
+figure(2);
 hold on;
 set(gca, 'YScale', 'log');
 set(gca, 'XScale', 'log');
@@ -44,8 +44,8 @@ loglog(radiation(1:N,1),radiation(1:N,3),'green','LineWidth',2);
 
 
 %errorbar(css0(:,5),css0(:,7),css0(:,8),'red','LineWidth',2,'LineStyle','none');
-errorbar(css1(:,5),css1(:,7),css1(:,8),'green','LineWidth',2,'LineStyle','none');
-errorbar(css2(:,5),css2(:,7),css2(:,8),'blue','LineWidth',2,'LineStyle','none');
+errorbar(css1(:,5),css1(:,7),css1(:,8),'red','LineWidth',2,'LineStyle','none');
+errorbar(css2(:,5),css2(:,7),css2(:,8),'green','LineWidth',2,'LineStyle','none');
 
 legend('69 days', '99 days', '357 days');
 

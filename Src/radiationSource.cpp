@@ -204,10 +204,10 @@ MassiveParticleDistribution* SimpleFlatSource::getParticleDistribution(int irho,
 	return my_distribution;
 }
 
-SimpleFlatSource2::SimpleFlatSource2(int Ndistributions, double* velocities, MassiveParticleDistribution** electronDistributions, const double& B, const double& theta, const double& phi, const double& rho, const double& z, const double& distance, const double& velocity, const double& redShift) : SimpleFlatSource(NULL, B, theta, phi, rho, z, distance, velocity, redShift){
+SimpleFlatSource2::SimpleFlatSource2(int Ndistributions, double* velocities, MassiveParticleIsotropicDistribution** electronDistributions, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& z, const double& distance, const double& velocity, const double& redShift) : SimpleFlatSource(NULL, B, theta, phi, concentration, rho, z, distance, velocity, redShift){
 	my_Ndistributions = Ndistributions;
 	my_velocities = new double[my_Ndistributions];
-	my_distributions = new MassiveParticleDistribution * [my_Ndistributions];
+	my_distributions = new MassiveParticleIsotropicDistribution * [my_Ndistributions];
 	for (int i = 0; i < my_Ndistributions; ++i) {
 		my_velocities[i] = velocities[i];
 		my_distributions[i] = electronDistributions[i];
@@ -225,17 +225,17 @@ MassiveParticleDistribution* SimpleFlatSource2::getParticleDistribution(int irho
 		my_distributions[i]->resetConcentration(getConcentration(irho, iz, iphi));
 	}
 	if (my_velocity <= my_velocities[0]) {
-		my_distribution = new CompoundWeightedMassiveParticleDistribution(my_distributions[0], 0.5, my_distributions[0], 0.5);
+		my_distribution = new CompoundWeightedMassiveParticleIsotropicDistribution(my_distributions[0], 0.5, my_distributions[0], 0.5);
 	}
 	else if (my_velocity >= my_velocities[my_Ndistributions - 1]) {
-		my_distribution = new CompoundWeightedMassiveParticleDistribution(my_distributions[my_Ndistributions-1], 0.5, my_distributions[my_Ndistributions-1], 0.5);
+		my_distribution = new CompoundWeightedMassiveParticleIsotropicDistribution(my_distributions[my_Ndistributions-1], 0.5, my_distributions[my_Ndistributions-1], 0.5);
 	}
 	else {
 		for (int i = 1; i < my_Ndistributions; ++i) {
 			if (my_velocities[i] > my_velocity) {
 				double left = (my_velocities[i] - my_velocity) / (my_velocities[i] - my_velocities[i - 1]);
 				double right = (my_velocity - my_velocities[i - 1]) / (my_velocities[i] - my_velocities[i - 1]);
-				my_distribution = new CompoundWeightedMassiveParticleDistribution(my_distributions[i-1], left, my_distributions[i], right);
+				my_distribution = new CompoundWeightedMassiveParticleIsotropicDistribution(my_distributions[i-1], left, my_distributions[i], right);
 				return my_distribution;
 			}
 		}

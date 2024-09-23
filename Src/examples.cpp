@@ -624,7 +624,7 @@ void fitTimeDependentCSS161010() {
 	const int Nparams = 9;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 0.5*rmax, 0.00001, 1, 0.01, 0.5 * speed_of_light, 1.0, 1.0, 1.0, 1.0 };
-	double maxParameters[Nparams] = { times[0] * 0.9 * speed_of_light, 1, 10000, 1.0, 0.8 * speed_of_light, 3.0, 10.0, 6.0, 3.0 };
+	double maxParameters[Nparams] = { times[0] * 0.9 * speed_of_light, 1, 1000, 1.0, 0.8 * speed_of_light, 4.0, 4.0, 4.0, 4.0 };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v, 1.01, 2.0, 3.0, 1.01 };
 	for (int i = 0; i < Nparams; ++i) {
@@ -653,10 +653,16 @@ void fitTimeDependentCSS161010() {
 	MassiveParticleTabulatedIsotropicDistribution* electronDistribution2 = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.3_theta0-90/Ee3.dat", "./examples_data/gamma0.3_theta0-90/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 	MassiveParticleTabulatedIsotropicDistribution* electronDistribution3 = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee3.dat", "./examples_data/gamma0.5_theta0-90/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 	MassiveParticleTabulatedIsotropicDistribution* electronDistribution4 = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+	electronDistribution1->addPowerLaw(10 * me_c2, 3.5);
+	electronDistribution1->rescaleDistribution(1.2);
+	electronDistribution2->addPowerLaw(20 * me_c2, 3.5);
+	electronDistribution2->rescaleDistribution(1.2);
+	electronDistribution3->addPowerLaw(50 * me_c2, 3.5);
+	electronDistribution3->rescaleDistribution(1.2);
 
 	double velocities[4] = { 0.2 * speed_of_light, 0.3 * speed_of_light, 0.5 * speed_of_light, 0.75 * speed_of_light };
 
-	MassiveParticleDistribution** distributions = new MassiveParticleDistribution*[4];
+	MassiveParticleIsotropicDistribution** distributions = new MassiveParticleIsotropicDistribution*[4];
 	distributions[0] = electronDistribution1;
 	distributions[1] = electronDistribution2;
 	distributions[2] = electronDistribution3;
@@ -665,7 +671,7 @@ void fitTimeDependentCSS161010() {
 	//MassiveParticleIsotropicDistribution* electronDistribution = new MassiveParticlePowerLawDistribution(massElectron, 3.5, 10*me_c2, electronConcentration);
 	//electronDistribution->rescaleDistribution(1.2);
 	//SimpleFlatSource* source1 = new SimpleFlatSource(electronDistribution, B, pi/2, 0, rmax, widthFraction*rmax, distance);
-	SimpleFlatSource* source1 = new SimpleFlatSource2(4, velocities, distributions, B, pi/2, 0, rmax, widthFraction*rmax, distance);
+	SimpleFlatSource2* source1 = new SimpleFlatSource2(4, velocities, distributions, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance);
 	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, pi/2, 0, electronConcentration, rmax, 0.5 * rmax, distance, 0.3*speed_of_light);
 	//creating time dependent radiation source
 	//RadiationTimeDependentSource* source = new ExpandingRemnantSource(rmax, B, electronConcentration, 0.3 * speed_of_light, 0.5, angleDependentSource, times[0]);
@@ -686,17 +692,17 @@ void fitTimeDependentCSS161010() {
 	//creating time depedent grid enumeration optimizer, which will chose the best starting poin for gradien descent
 	//RadiationOptimizer* gridEnumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
 	//gridEnumOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
-	/*vector[0] = rmax / maxParameters[0];
-	vector[1] = 0.1 / maxParameters[1];
-	vector[2] = 100 / maxParameters[2];
-	vector[3] = 0.1 / maxParameters[3];
+	vector[0] = 0.75*speed_of_light*times[0] / maxParameters[0];
+	vector[1] = (0.34*0.34/(4*3.14*30*massProton*speed_of_light2)) / maxParameters[1];
+	vector[2] = 10 / maxParameters[2];
+	vector[3] = 0.5 / maxParameters[3];
 	vector[4] = 0.75*speed_of_light / maxParameters[4];
 	vector[5] = 1.0 / maxParameters[5];
-	vector[6] = 3.0 / maxParameters[6];
-	vector[7] = 2.0 / maxParameters[7];
-	vector[8] = 1.0 / maxParameters[8];*/
+	vector[6] = 4.0 / maxParameters[6];
+	vector[7] = 2.5 / maxParameters[7];
+	vector[8] = 1.0 / maxParameters[8];
 	//creating gradient descent optimizer and optimizing
-	//RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
+	RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	//gradientOptimizer->optimize(vector, optPar);
 	combinedOptimizer->optimize(vector, optPar);
 	//reset parameters of source to the found values
