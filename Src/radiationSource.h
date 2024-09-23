@@ -86,7 +86,7 @@ protected:
 	double my_velocity;
 	MassiveParticleDistribution* my_distribution;
 public:
-	SimpleFlatSource(MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& rho, const double& z, const double& distance, const double& velocity = 0, const double& redShift = 0);
+	SimpleFlatSource(MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& z, const double& distance, const double& velocity = 0, const double& redShift = 0);
 	virtual double getRho(int irho);
 	virtual double getZ(int iz);
 	virtual double getPhi(int iphi);
@@ -107,7 +107,17 @@ public:
 	double getBPhi(int irho, int iz, int iphi);
 	//void resetConcentration(const double& concentration);
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
-	MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
+	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
+};
+
+class SimpleFlatSource2 : public SimpleFlatSource {
+	protected:
+		int my_Ndistributions;
+		double* my_velocities;
+		MassiveParticleDistribution** my_distributions;
+	public:
+		SimpleFlatSource2(int Ndistributions, double* velocities, MassiveParticleDistribution** electronDistributions, const double& B, const double& theta, const double& phi, const double& rho, const double& z, const double& distance, const double& velocity = 0, const double& redShift = 0);
+		virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
 };
 
 class TabulatedDiskSource : public DiskSource {

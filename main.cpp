@@ -87,7 +87,7 @@ void evaluateFluxSNRtoWind() {
 	//creating radiation source
 	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, 0, rmax, fraction*rmax, distance, 0, 0.2433);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(20, 20, 1,electrons, B, theta, electronConcentration, rmax, (1-fraction)*rmax, distance);
-	RadiationSource* thermalSource = new SimpleFlatSource(thermalElectrons, B, theta, 0, rmax, fraction*rmax, distance);
+	RadiationSource* thermalSource = new SimpleFlatSource(thermalElectrons, B, theta, 0, electronConcentration, rmax, fraction*rmax, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, electronConcentration, rmax, 0.5*rmax, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electronsFromSmilei, Bturb, thetaTurb, concentration, rsource, 0.9*rsource, distance);
 	//AngleDependentElectronsSphericalSource* source = new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ndistributions, angleDependentDistributions, Bturb, thetaTurb, phiTurb, concentration, rmax, 0.9*rmax, distance, 0.5*speed_of_light);
@@ -430,7 +430,7 @@ void evaluateFluxSNRtoWind() {
 	fclose(angleDistribution);
 
 	jetelectrons->resetConcentration(jetelectronConcentration);
-	RadiationSource* source2 = new SimpleFlatSource(jetelectrons, B, pi / 2, 0, rmax, rmax*fraction, distance);
+	RadiationSource* source2 = new SimpleFlatSource(jetelectrons, B, pi / 2, 0, electronConcentration, rmax, rmax*fraction, distance);
 
 	double V = source2->getTotalVolume();
 	double totalEnergy2 = jetelectronConcentration * massProton * speed_of_light2 * 10 * source2->getTotalVolume();
@@ -612,7 +612,7 @@ void evaluateComtonFromWind() {
 	printf("available fraction = %g\n", availableEnergyFraction);
 	printLog("tavailable fraction = %g\n", availableEnergyFraction);
 	//creating radiation source
-	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, 0, rmax, 0.2*rmax, distance);
+	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, 0, electronConcentration, rmax, 0.2*rmax, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, electronConcentration, rmax, 0.8 * rmax, distance);
 	InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);

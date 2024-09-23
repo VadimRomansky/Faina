@@ -1832,8 +1832,9 @@ CompoundWeightedMassiveParticleDistribution::CompoundWeightedMassiveParticleDist
 
 CompoundWeightedMassiveParticleDistribution::~CompoundWeightedMassiveParticleDistribution()
 {
+	//todo delete or not?
 	delete[] my_weights;
-	delete[] my_distributions;
+	//delete[] my_distributions;
 }
 
 double CompoundWeightedMassiveParticleDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
