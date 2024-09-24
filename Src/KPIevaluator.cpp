@@ -166,7 +166,7 @@ double TimeDependentSpectrumLossEvaluator::evaluate(const double* vector, const 
 			err1 = sqr(totalInu - my_observedFlux[k][j]) / sqr(my_observedError[k][j]);
 			//todo hack!!!
 			if (k == my_Ntimes - 1) {
-				err1 *= 5;
+				err1 *= 3;
 			}
 
 			err = err + err1;

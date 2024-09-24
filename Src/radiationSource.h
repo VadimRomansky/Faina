@@ -118,6 +118,7 @@ class SimpleFlatSource2 : public SimpleFlatSource {
 	public:
 		SimpleFlatSource2(int Ndistributions, double* velocities, MassiveParticleIsotropicDistribution** electronDistributions, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& z, const double& distance, const double& velocity = 0, const double& redShift = 0);
 		virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
+		virtual void resetParameters(const double* parameters, const double* normalizationUnits);
 };
 
 class TabulatedDiskSource : public DiskSource {
@@ -260,6 +261,17 @@ public:
 	//void resetConcentration(const double& concentration);
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
 	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
+};
+
+class TabulatedSphericalLayerSource2 : public TabulatedSphericalLayerSource {
+protected:
+	int my_Ndistributions;
+	double* my_velocities;
+	MassiveParticleIsotropicDistribution** my_distributions;
+public:
+	TabulatedSphericalLayerSource2(int Ndistributions, double* velocities, MassiveParticleIsotropicDistribution** distributions, int Nrho, int Nz, int Nphi, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity = 0, const double& redShift = 0);
+	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
+	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
 };
 
 class AngleDependentElectronsSphericalSource : public TabulatedSphericalLayerSource {
