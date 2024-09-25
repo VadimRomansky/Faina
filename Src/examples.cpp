@@ -627,8 +627,8 @@ void fitTimeDependentCSS161010() {
 	//number of optimized parameters
 	const int Nparams = 9;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 0.7*rmax, 0.00001, 1, 0.2, 0.5 * speed_of_light, 1.0, 1.0, 1.0, 1.0 };
-	double maxParameters[Nparams] = { times[0] * 0.9 * speed_of_light, 2, 200, 0.6, 0.8 * speed_of_light, 3.0, 5.0, 4.0, 3.0 };
+	double minParameters[Nparams] = { 0.5*rmax, 0.00001, 1, 0.01, 0.5 * speed_of_light, 1.0, 1.0, 1.0, 1.0 };
+	double maxParameters[Nparams] = { times[0] * 0.9 * speed_of_light, 2, 2000, 1.0, 0.8 * speed_of_light, 4.0, 4.0, 4.0, 4.0 };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v, 1.01, 2.0, 3.0, 1.01 };
 	for (int i = 0; i < Nparams; ++i) {
@@ -679,11 +679,11 @@ void fitTimeDependentCSS161010() {
 	printf("distribution 4\n");
 	printLog("distribution 4\n");
 	MassiveParticleTabulatedIsotropicDistribution* electronDistribution4 = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
-	electronDistribution1->addPowerLaw(10 * me_c2, 3.4);
+	electronDistribution1->addPowerLaw(10 * me_c2, 3.5);
 	electronDistribution1->rescaleDistribution(1.2);
-	electronDistribution2->addPowerLaw(20 * me_c2, 3.4);
+	electronDistribution2->addPowerLaw(20 * me_c2, 3.5);
 	electronDistribution2->rescaleDistribution(1.2);
-	electronDistribution3->addPowerLaw(50 * me_c2, 3.4);
+	electronDistribution3->addPowerLaw(50 * me_c2, 3.5);
 	electronDistribution3->rescaleDistribution(1.2);
 
 	double velocities[4] = { 0.2 * speed_of_light, 0.3 * speed_of_light, 0.5 * speed_of_light, 0.75 * speed_of_light };
@@ -700,11 +700,11 @@ void fitTimeDependentCSS161010() {
 	//MassiveParticleIsotropicDistribution* electronDistribution = new MassiveParticlePowerLawDistribution(massElectron, 3.5, 10*me_c2, electronConcentration);
 	//electronDistribution->rescaleDistribution(1.2);
 	//SimpleFlatSource* source1 = new SimpleFlatSource(electronDistribution, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance);
-	SimpleFlatSource2* source1 = new SimpleFlatSource2(4, velocities, distributions, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance);
+	//SimpleFlatSource2* source1 = new SimpleFlatSource2(4, velocities, distributions, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance);
 	int Nrho = 20;
 	int Nz = 20;
 	int Nphi = 2;
-	//SphericalLayerSource* source1 = new TabulatedSphericalLayerSource2(4, velocities, distributions, Nrho, Nz, Nphi, B, pi / 2, 0, electronConcentration, rmax, (1.0 - widthFraction) * rmax, distance);
+	SphericalLayerSource* source1 = new TabulatedSphericalLayerSource2(4, velocities, distributions, Nrho, Nz, Nphi, B, pi / 2, 0, electronConcentration, rmax, (1.0 - widthFraction) * rmax, distance);
 	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, pi/2, 0, electronConcentration, rmax, 0.5 * rmax, distance, 0.3*speed_of_light);
 	//creating time dependent radiation source
 	//RadiationTimeDependentSource* source = new ExpandingRemnantSource(rmax, B, electronConcentration, 0.3 * speed_of_light, 0.5, angleDependentSource, times[0]);
