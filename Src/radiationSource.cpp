@@ -218,12 +218,12 @@ MassiveParticleDistribution* SimpleFlatSource2::getParticleDistribution(int irho
 {
 	//todo not thread safe!!!
 	if (my_distribution != NULL) {
-		delete my_distribution;
+		return my_distribution;
 	}
-	my_distribution = NULL;
-	for (int i = 0; i < my_Ndistributions; ++i) {
+
+	/*for (int i = 0; i < my_Ndistributions; ++i) {
 		my_distributions[i]->resetConcentration(getConcentration(irho, iz, iphi));
-	}
+	}*/
 	if (my_velocity <= my_velocities[0]) {
 		my_distribution = new CompoundWeightedMassiveParticleIsotropicDistribution(my_distributions[0], 0.5, my_distributions[0], 0.5);
 	}
@@ -241,6 +241,16 @@ MassiveParticleDistribution* SimpleFlatSource2::getParticleDistribution(int irho
 		}
 	}
 	return my_distribution;
+}
+
+void SimpleFlatSource2::resetParameters(const double* parameters, const double* normalizationUnits)
+{
+	if (my_distribution != NULL) {
+		delete my_distribution;
+		my_distribution = NULL;
+	}
+
+	SimpleFlatSource::resetParameters(parameters, normalizationUnits);
 }
 
 TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& z, const double& distance, const double& velocity, const double& redShift) : DiskSource(Nrho, Nz, Nphi, rho, z, distance, redShift) {
@@ -1736,6 +1746,55 @@ void TabulatedSphericalLayerSource::resetParameters(const double* parameters, co
 MassiveParticleDistribution* TabulatedSphericalLayerSource::getParticleDistribution(int irho, int iz, int iphi) {
 	my_distribution->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_distribution;
+}
+
+TabulatedSphericalLayerSource2::TabulatedSphericalLayerSource2(int Ndistributions, double* velocities, MassiveParticleIsotropicDistribution** distributions, int Nrho, int Nz, int Nphi, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity, const double& redShift) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, theta, phi, concentration, rho, rhoin, distance, velocity, redShift) {
+	my_Ndistributions = Ndistributions;
+	my_velocities = new double[my_Ndistributions];
+	my_distributions = new MassiveParticleIsotropicDistribution * [my_Ndistributions];
+	for (int i = 0; i < my_Ndistributions; ++i) {
+		my_velocities[i] = velocities[i];
+		my_distributions[i] = distributions[i];
+	}
+}
+
+MassiveParticleDistribution* TabulatedSphericalLayerSource2::getParticleDistribution(int irho, int iz, int iphi)
+{
+	//todo not thread safe!!!
+	if (my_distribution != NULL) {
+		return my_distribution;
+	}
+
+	/*for (int i = 0; i < my_Ndistributions; ++i) {
+		my_distributions[i]->resetConcentration(getConcentration(irho, iz, iphi));
+	}*/
+	if (my_velocity <= my_velocities[0]) {
+		my_distribution = new CompoundWeightedMassiveParticleIsotropicDistribution(my_distributions[0], 0.5, my_distributions[0], 0.5);
+	}
+	else if (my_velocity >= my_velocities[my_Ndistributions - 1]) {
+		my_distribution = new CompoundWeightedMassiveParticleIsotropicDistribution(my_distributions[my_Ndistributions - 1], 0.5, my_distributions[my_Ndistributions - 1], 0.5);
+	}
+	else {
+		for (int i = 1; i < my_Ndistributions; ++i) {
+			if (my_velocities[i] > my_velocity) {
+				double left = (my_velocities[i] - my_velocity) / (my_velocities[i] - my_velocities[i - 1]);
+				double right = (my_velocity - my_velocities[i - 1]) / (my_velocities[i] - my_velocities[i - 1]);
+				my_distribution = new CompoundWeightedMassiveParticleIsotropicDistribution(my_distributions[i - 1], left, my_distributions[i], right);
+				return my_distribution;
+			}
+		}
+	}
+	return my_distribution;
+}
+
+void TabulatedSphericalLayerSource2::resetParameters(const double* parameters, const double* normalizationUnits)
+{
+	if (my_distribution != NULL) {
+		delete my_distribution;
+		my_distribution = NULL;
+	}
+
+	TabulatedSphericalLayerSource::resetParameters(parameters, normalizationUnits);
 }
 
 AngleDependentElectronsSphericalSource::AngleDependentElectronsSphericalSource(int Nrho, int Nz, int Nphi, int Ntheta, MassiveParticleDistribution** electronDistributions, double*** B, double*** sinTheta, double*** phi, double*** concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity, const double& redShift) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, sinTheta, phi, concentration, rho, rhoin, distance, velocity, redShift)
