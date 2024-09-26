@@ -551,14 +551,15 @@ void fitTimeDependentCSS161010() {
 	double* observedFlux2;
 	double* observedError2;
 	//int Nenergy2 = readRadiationFromFile(energy2, observedFlux2, observedError2, "./examples_data/css_data/coppejans99.txt");
-	int Nenergy2 = readRadiationFromFile(energy2, observedFlux2, observedError2, "./examples_data/css_data/coppejans162.txt");
+	//int Nenergy2 = readRadiationFromFile(energy2, observedFlux2, observedError2, "./examples_data/css_data/coppejans162.txt");
+	int Nenergy2 = readRadiationFromFile(energy2, observedFlux2, observedError2, "./examples_data/css_data/coppejans357.txt");
 	for (int i = 0; i < Nenergy2; ++i) {
 		energy2[i] = energy2[i] * hplank * 1E9;
 		observedFlux2[i] = observedFlux2[i] / (hplank * 1E26);
 		observedError2[i] = observedError2[i] / (hplank * 1E26);
 	}
 
-	double* energy3;
+	/*double* energy3;
 	double* observedFlux3;
 	double* observedError3;
 	int Nenergy3 = readRadiationFromFile(energy3, observedFlux3, observedError3, "./examples_data/css_data/coppejans357.txt");
@@ -566,7 +567,7 @@ void fitTimeDependentCSS161010() {
 		energy3[i] = energy3[i] * hplank * 1E9;
 		observedFlux3[i] = observedFlux3[i] / (hplank * 1E26);
 		observedError3[i] = observedError3[i] / (hplank * 1E26);
-	}
+	}*/
 
 	printf("finish reading data\n");
 	printLog("finish reading data\n");
@@ -574,16 +575,18 @@ void fitTimeDependentCSS161010() {
 
 	//initializing time moments
 	//const int Ntimes = 3;
-	const int Ntimes = 3;
-	double times[Ntimes] = { 99 * 24 * 3600, 162 * 24 * 3600, 357 * 24 * 3600 };
-	//double times[Ntimes] = {99 * 24 * 3600, 357 * 24 * 3600 };
+	const int Ntimes = 2;
+	const int Ntimes3 = 3;
+	//double times[Ntimes] = { 99 * 24 * 3600, 162 * 24 * 3600, 357 * 24 * 3600 };
+	double times[Ntimes] = {99 * 24 * 3600, 357 * 24 * 3600 };
+	double times3[Ntimes3] = { 99 * 24 * 3600, 162*24*3600, 357 * 24 * 3600 };
 
 
 	//putting observed data into 2d arrays for optimizer
 	int Nenergy[Ntimes];
 	Nenergy[0] = Nenergy1;
 	Nenergy[1] = Nenergy2;
-	Nenergy[2] = Nenergy3;
+	//Nenergy[2] = Nenergy3;
 
 	double** energy = new double* [Ntimes];
 	double** F = new double* [Ntimes];
@@ -606,11 +609,11 @@ void fitTimeDependentCSS161010() {
 		Error[1][i] = observedError2[i];
 	}
 
-	for (int i = 0; i < Nenergy[2]; ++i) {
+	/*for (int i = 0; i < Nenergy[2]; ++i) {
 		energy[2][i] = energy3[i];
 		F[2][i] = observedFlux3[i];
 		Error[2][i] = observedError3[i];
-	}
+	}*/
 
 
 	//distance to source
@@ -627,15 +630,15 @@ void fitTimeDependentCSS161010() {
 	//number of optimized parameters
 	const int Nparams = 9;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 0.5*rmax, 0.00001, 1, 0.01, 0.5 * speed_of_light, 1.0, 1.0, 1.0, 1.0 };
-	double maxParameters[Nparams] = { times[0] * 0.9 * speed_of_light, 2, 2000, 1.0, 0.8 * speed_of_light, 4.0, 4.0, 4.0, 4.0 };
+	double minParameters[Nparams] = { 0.8*rmax, 0.000001, 1, 0.05, 0.5 * speed_of_light, 1.0, 1.0, 1.0, 1.0 };
+	double maxParameters[Nparams] = { times[0] * 0.9 * speed_of_light, 2, 200, 1.0, 0.8 * speed_of_light, 4.0, 4.0, 4.0, 4.0 };
 	//starting point of optimization and normalization
-	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v, 1.01, 2.0, 3.0, 1.01 };
+	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v, 1.01, 2.0, 3.0, 1.0 };
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
 	}
 	//picking parameters to be optimized
-	bool optPar[Nparams] = { true, true, true, false, true, true, true, true, true };
+	bool optPar[Nparams] = { true, true, true, false, true, true, true, true, false };
 
 	int numberOfOptpar = 0;
 	for (int i = 0; i < Nparams; ++i) {
@@ -700,18 +703,18 @@ void fitTimeDependentCSS161010() {
 	//MassiveParticleIsotropicDistribution* electronDistribution = new MassiveParticlePowerLawDistribution(massElectron, 3.5, 10*me_c2, electronConcentration);
 	//electronDistribution->rescaleDistribution(1.2);
 	//SimpleFlatSource* source1 = new SimpleFlatSource(electronDistribution, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance);
-	//SimpleFlatSource2* source1 = new SimpleFlatSource2(4, velocities, distributions, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance);
+	SimpleFlatSource2* source1 = new SimpleFlatSource2(4, velocities, distributions, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance);
 	int Nrho = 20;
 	int Nz = 20;
 	int Nphi = 2;
-	SphericalLayerSource* source1 = new TabulatedSphericalLayerSource2(4, velocities, distributions, Nrho, Nz, Nphi, B, pi / 2, 0, electronConcentration, rmax, (1.0 - widthFraction) * rmax, distance);
+	//SphericalLayerSource* source1 = new TabulatedSphericalLayerSource2(4, velocities, distributions, Nrho, Nz, Nphi, B, pi / 2, 0, electronConcentration, rmax, (1.0 - widthFraction) * rmax, distance);
 	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, pi/2, 0, electronConcentration, rmax, 0.5 * rmax, distance, 0.3*speed_of_light);
 	//creating time dependent radiation source
 	//RadiationTimeDependentSource* source = new ExpandingRemnantSource(rmax, B, electronConcentration, 0.3 * speed_of_light, 0.5, angleDependentSource, times[0]);
 	RadiationTimeDependentSource* source = new ExpandingRemnantSource(rmax, B, electronConcentration, 0.75 * speed_of_light, 0.1, source1, times[0]);
 	
 	//number of points per axis in gridEnumOptimizer
-	int Npoints[Nparams] = { 4,4,4,4,4, 4, 4, 4,4 };
+	int Npoints[Nparams] = { 5,5,5,5,5, 5, 5, 5,5 };
 	//number of iterations in gradient descent optimizer
 	int Niterations = 2;
 	//energies of electrons wich will be used for evaluatig radiation
@@ -728,7 +731,7 @@ void fitTimeDependentCSS161010() {
 	vector[0] = 0.75*speed_of_light*times[0] / maxParameters[0];
 	vector[1] = (0.34*0.34/(4*3.14*30*massProton*speed_of_light2)) / maxParameters[1];
 	vector[2] = 10 / maxParameters[2];
-	vector[3] = 0.5 / maxParameters[3];
+	vector[3] = 0.1 / maxParameters[3];
 	vector[4] = 0.75*speed_of_light / maxParameters[4];
 	vector[5] = 1.0 / maxParameters[5];
 	vector[6] = 4.0 / maxParameters[6];
@@ -751,27 +754,27 @@ void fitTimeDependentCSS161010() {
 	printLog("evaluationg radiation\n");
 	int Nout = 200;
 	double* Nuout = new double[Nout];
-	double** Fout = new double* [Ntimes];
+	double** Fout = new double* [Ntimes3];
 
 	double Numin = 1E8;
 	double Numax = 1E12;
 	double factor = pow(Numax / Numin, 1.0 / (Nout - 1));
 	Nuout[0] = Numin;
-	for (int j = 0; j < Ntimes; ++j) {
+	for (int j = 0; j < Ntimes3; ++j) {
 		Fout[j] = new double[Nout];
 		Fout[j][0] = 0;
 	}
 
 	for (int i = 1; i < Nout; ++i) {
 		Nuout[i] = Nuout[i - 1] * factor;
-		for (int j = 0; j < Ntimes; ++j) {
+		for (int j = 0; j < Ntimes3; ++j) {
 			Fout[j][i] = 0;
 		}
 	}
 
 	//evaluating full spectrum at given time moments
-	for (int j = 0; j < Ntimes; ++j) {
-		RadiationSource* source1 = source->getRadiationSource(times[j], maxParameters);
+	for (int j = 0; j < Ntimes3; ++j) {
+		RadiationSource* source1 = source->getRadiationSource(times3[j], maxParameters);
 		for (int i = 0; i < Nout; ++i) {
 			Fout[j][i] = synchrotronEvaluator->evaluateFluxFromSource(hplank * Nuout[i], source1);
 		}
@@ -782,7 +785,7 @@ void fitTimeDependentCSS161010() {
 	for (int i = 0; i < Nout; ++i) {
 		//to GHz and mJansky
 		fprintf(output_GZ_Jansky, "%g", Nuout[i] * 1E-9);
-		for (int j = 0; j < Ntimes; ++j) {
+		for (int j = 0; j < Ntimes3; ++j) {
 			fprintf(output_GZ_Jansky, " %g", hplank * Fout[j][i] * 1E26);
 		}
 		fprintf(output_GZ_Jansky, "\n");
