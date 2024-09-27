@@ -4,7 +4,7 @@ from pylab import *
 import numpy as np
 
 def plot_long_radiation():
-    radiationFile = open('../outputSynch5.dat','r')
+    radiationFile = open('../wideRangeSynch.dat','r')
     lines = radiationFile.readlines()
     N = len(lines)
 
@@ -32,7 +32,7 @@ def plot_long_radiation():
     ax.set_ylabel(r'$E F(E)~erg~cm^{-2}~s^{-1}$', fontsize=40,fontweight='bold')
     ax.set_yscale("log")
     ax.set_xlim([1E-8, 0.5E4])
-    ax.set_ylim([1E-16, 1E-15])
+    ax.set_ylim([1E-16, 1E-14])
     ax.set_xscale("log")
     #extraticks=[1E-6,1E-2,100]
     #plt.xticks(list(plt.xticks()[0]+extraticks))

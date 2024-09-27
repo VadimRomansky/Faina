@@ -913,6 +913,43 @@ void fitTychoProfile() {
 	delete3dArray(phi, Nrho, Nz, Nphi);
 }
 
+void evaluateSynchrotronInWideRange() {
+	double R = 2E17;
+	double B = 0.24;
+	double f = 0.4;
+	double electronConcentration = 200;
+	double distance = 150 * 1000000 * parsec;
+
+	double velocity = 0.7 * speed_of_light;
+	double downstreamV = 0.25 * velocity;
+	
+	MassiveParticleTabulatedIsotropicDistribution* electronDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
+	
+	int Nrho = 1;
+	int Nz = 1000;
+	int Nphi = 1;
+
+
+	TabulatedDiskSourceWithSynchCutoff* source = new TabulatedDiskSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution, B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, velocity);
+
+	int Ne = 1000;
+	double Emin = me_c2;
+	double Emax = me_c2 * 1E8;
+	SynchrotronEvaluator* evaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true, true);
+
+	double kevFlux = evaluator->evaluateTotalFluxInEnergyRange(0.3 * keV, 10 * keV, 100, source);
+
+	double mevFlux = evaluator->evaluateTotalFluxInEnergyRange(0.1 * MeV, 3 * MeV, 100, source);
+
+	printf("keV flux = %g, luminosity = %g\n", kevFlux, kevFlux * 4 * pi * distance * distance);
+	printLog("keV flux = %g, luminosity = %g\n", kevFlux, kevFlux * 4 * pi * distance * distance);
+
+	printf("MeV flux = %g, luminocity = %g\n", mevFlux, mevFlux * 4 * pi * distance * distance);
+	printLog("MeV flux = %g, luminocity = %g\n", mevFlux, mevFlux * 4 * pi * distance * distance);
+
+	evaluator->writeFluxFromSourceToFile("wideRangeSynch.dat", source, 1E8 * hplank, 100 * MeV, 1000);
+}
+
 
 int main() {
 	resetLog();
@@ -920,7 +957,7 @@ int main() {
 	//evaluateComptonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
-	fitTimeDependentCSS161010();
+	//fitTimeDependentCSS161010();
 	//evaluatePionDecay();
 	//evaluateBremsstrahlung();
 	//compareComptonSynchrotron();
@@ -939,6 +976,7 @@ int main() {
 	//evaluateComtonFromWind();
 	//evaluateTychoProfile();
 	//fitTychoProfile();
+	evaluateSynchrotronInWideRange();
 
 	return 0;
 }

@@ -10,6 +10,7 @@ from plot_distributions import plot_distributions
 from plot_distributions2 import plot_distributions2
 from plot_distributions9 import plot_distributions9
 from plot_distributions_4 import plot_distributions_4
+from plot_distributions_mc import plot_distributions_mc
 from plot_distributions_protons import plot_distributions_protons
 from plot_error_profile import plot_error_profile
 from plot_image import plot_image
@@ -32,12 +33,13 @@ if __name__ == '__main__':
     #plot_distributions9()
     #plot_distributions_protons()
     #plot_distributions_4()
+    plot_distributions_mc()
     #plot_radiation()
     #plot_synchrotron()
     #plot_bremsstrahlung()
     #plot_pion()
     #plot_radiation4()
-    plot_radiation3()
+    #plot_radiation3()
     #plot_radiation10()
     #plot_compton_radiation()
     #plot_long_radiation()

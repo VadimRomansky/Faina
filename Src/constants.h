@@ -28,6 +28,9 @@ const double four_pi = 4*pi;
 const double euler_mascheroni = 1.781072417990;
 
 const double parsec = 3.0856776E18;
+const double eV = 1.6E-12;
+const double keV = 1000 * eV;
+const double MeV = 1000000 * eV;
 
 
 #endif
