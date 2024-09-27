@@ -16,6 +16,7 @@ def plot_distributions_mc():
     F = np.zeros([3,N])
     dE = np.zeros([3,N])
     P = np.zeros([3,N])
+    dP = np.zeros([3, N])
 
     mp = 1.67E-24
     me = 0.91E-27
@@ -30,36 +31,35 @@ def plot_distributions_mc():
         s = lines0[i].split()
 
         P[0, i] = 10**float(s[0])
-        F[0, i] = 10**float(s[1])/(mp*mp*mp*c*c*c)
+        F[0, i] = float(s[1])/(mp*mp*mp*c*c*c)
 
         s = lines1[i].split()
 
         P[1, i] = 10 ** float(s[0])
-        F[1, i] = 10 ** float(s[1])/(mp*mp*mp*c*c*c)
+        F[1, i] = float(s[1])/(mp*mp*mp*c*c*c)
 
         s = lines2[i].split()
 
         P[2, i] = 10 ** float(s[0])
-        F[2, i] = 10 ** float(s[1])/(mp*mp*mp*c*c*c)
+        F[2, i] = float(s[1])/(mp*mp*mp*c*c*c)
 
 
-    #for i in range(N):
-    #    for j in range(6):
-    #        if i == 0 :
-    #            dE[j,i] = E[j][1] - E[j][0]
-    #        else:
-    #            dE[j,i] = E[j][i] - E[j][i-1]
+    for i in range(N):
+        for j in range(3):
+            if i == 0 :
+                dP[j,i] = P[j][1] - P[j][0]
+            else:
+                dP[j,i] = P[j][i] - P[j][i-1]
 
-    #        P[j,i] = sqrt(E[j,i]*E[j,i] - m*m*c2*c2)/c
 
-    #norm = np.zeros([6])
-    #for i in range(N):
-    #    for j in range(6):
-    #        norm[j] = norm[j] + F[j][i]*dE[j][i]
+    norm = np.zeros([3])
+    for i in range(N):
+        for j in range(3):
+            norm[j] = norm[j] + F[j][i]*dP[j][i]/(P[j][i]*P[j][i])
 
-    #for i in range(N):
-    #    for j in range(6):
-    #        F[j][i] = F[j][i]/norm[j]
+    for i in range(N):
+        for j in range(3):
+            F[j][i] = F[j][i]/norm[j]
 
     #for i in range(N):
     #    for j in range(6):
@@ -95,10 +95,10 @@ def plot_distributions_mc():
     ax.set_yscale("log")
     ax.set_xscale("log")
     #extraticks=[1,100]
-    plt.xticks(list(plt.xticks()[0]))
-    ax.tick_params(axis='x', size=10, width=4)
-    ax.tick_params(axis='y', size=10, width=4)
-    ax.minorticks_on()
+    #plt.xticks(list(plt.xticks()[0]))
+    #ax.tick_params(axis='x', size=10, width=4)
+    #ax.tick_params(axis='y', size=10, width=4)
+    #ax.minorticks_on()
     # plt.axis([0.0,1.0,0.0,1.0])
     plt.plot(P[0], F[0], linewidth=4)
     plt.plot(P[1], F[1], linewidth=4)
@@ -106,8 +106,8 @@ def plot_distributions_mc():
     ax.legend([r'$B_{up} = 0.0003 G$',
                r'$B_{up} = 0.00003 G$',
                r'$B_{up} = 0.000003 G$'], fontsize="25")
-    #ax.set_xlim(xmin=1, xmax=2E3)
-    #ax.set_ylim(ymin=2E-5, ymax=2E1)
+    ax.set_xlim(xmin=0.01, xmax=1E10)
+    ax.set_ylim(ymin=1E-3, ymax=2E0)
     #ax.set_xbound(lower=0.5, upper=2E3)
     #plt.show()
     plt.savefig('distribution_mc.png', bbox_inches='tight')
