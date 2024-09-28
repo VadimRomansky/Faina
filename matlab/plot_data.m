@@ -5,7 +5,7 @@ clear;
 %data = importdata('../anisotropicCompton.dat');
 %data = importdata('../differentialFlux.dat');
 %data = importdata('../bremsstrahlung.dat');
-data = importdata('../outputBremNu.dat');
+data = importdata('../error3.dat');
 %data7 = importdata('../output7.dat');
 
 N = size(data,1);
@@ -52,10 +52,10 @@ hplank = 6.626E-27;
 %    Fpa(i) = exp(polyval(p, log(data(i,1))));
 %end;
 
-ratio = data(1,2)/data(1,3);
+%ratio = data(1,2)/data(1,3);
 
 loglog(data(1:N,1),data(1:N,2),'red','LineWidth',2,'Marker','+');
-loglog(data(1:N,1),data(1:N,3),'blue','LineWidth',2,'Marker','+');
+%loglog(data(1:N,1),data(1:N,3),'blue','LineWidth',2,'Marker','+');
 %loglog(data7(1:N7,1)/(1.6*10^-9), data7(1:N7,2),'blue','LineWidth',2,'Marker','+');
 %loglog(data(1:N,1)/(1.6*10^-9),Fpa(1:N),'green','LineWidth',2);
 %plot(data(1:N,1),data(1:N,3),'green','LineWidth',2,'Marker','+');

@@ -36,6 +36,30 @@ double RadiationOptimizer::evaluateOptimizationFunction(const double* vector) {
 }
 
 
+void RadiationOptimizer::outputOneVariableProfile(const double* vector, int Npoints, int Nparam1, const char* fileName)
+{
+	double* tempVector = new double[my_Nparams];
+	for (int i = 0; i < my_Nparams; ++i) {
+		tempVector[i] = vector[i];
+	}
+	FILE* file = fopen(fileName, "w");
+
+	double factor = pow(my_maxParameters[Nparam1] / my_minParameters[Nparam1], 1.0 / (Npoints - 1));
+
+	double value = my_minParameters[Nparam1] / my_maxParameters[Nparam1];
+
+	for (int i = 0; i < Npoints; ++i) {
+		printf("point number %d\n", i);
+		tempVector[Nparam1] = value;
+		double error = evaluateOptimizationFunction(tempVector);
+		fprintf(file, "%g %g\n", value, error);
+		value = value * factor;
+	}
+
+	fclose(file);
+	delete[] tempVector;
+}
+
 void RadiationOptimizer::outputProfileDiagrams(const double* vector, int Npoints)
 {
 	if (my_Nparams < 2) {
@@ -695,6 +719,10 @@ void GridEnumRadiationOptimizer::optimize(double* vector, bool* optPar)
 			}
 			printf("optimization function = %g\n", tempF);
 			printLog("optimization function = %g\n", tempF);
+			for (int j = 0; j < my_Nparams; ++j) {
+				printf("parameter[%d] = %g\n", j, vector[j] * my_maxParameters[j]);
+				printLog("parameter[%d] = %g\n", j, vector[j] * my_maxParameters[j]);
+			}
 		}
 	}
 

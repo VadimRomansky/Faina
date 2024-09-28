@@ -957,7 +957,7 @@ int main() {
 	//evaluateComptonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
-	//fitTimeDependentCSS161010();
+	fitTimeDependentCSS161010();
 	//evaluatePionDecay();
 	//evaluateBremsstrahlung();
 	//compareComptonSynchrotron();
@@ -976,7 +976,7 @@ int main() {
 	//evaluateComtonFromWind();
 	//evaluateTychoProfile();
 	//fitTychoProfile();
-	evaluateSynchrotronInWideRange();
+	//evaluateSynchrotronInWideRange();
 
 	return 0;
 }

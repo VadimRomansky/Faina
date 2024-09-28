@@ -39,7 +39,7 @@ if __name__ == '__main__':
     #plot_bremsstrahlung()
     #plot_pion()
     #plot_radiation4()
-    #plot_radiation3()
+    plot_radiation3()
     #plot_radiation10()
     #plot_compton_radiation()
     #plot_long_radiation()
