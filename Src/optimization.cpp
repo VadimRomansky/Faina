@@ -994,3 +994,49 @@ void CombinedRadiationOptimizer::optimize(double* vector, bool* optPar)
 	my_EnumOptimizer->optimize(vector, optPar);
 	my_GradientOptimzer->optimize(vector, optPar);
 }
+
+SequentCoordinateEnumOptimizer::SequentCoordinateEnumOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Npoints, int Niterations, LossEvaluator* lossEvaluator):RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, lossEvaluator)
+{
+	my_Npoints = Npoints;
+	my_Niterations = Niterations;
+}
+
+SequentCoordinateEnumOptimizer::~SequentCoordinateEnumOptimizer()
+{
+}
+
+void SequentCoordinateEnumOptimizer::optimize(double* vector, bool* optPar)
+{
+	double* tempVector = new double[my_Nparams];
+
+	double currentF = evaluateOptimizationFunction(vector);
+
+	for (int i = 0; i < my_Niterations; ++i) {
+		for (int j = 0; j < my_Nparams; ++j) {
+			for (int k = 0; k < my_Nparams; ++k) {
+				tempVector[k] = vector[k];
+			}
+			if (optPar[j]) {
+				double factor = pow(my_maxParameters[j] / my_minParameters[j], 1.0 / (my_Npoints - 1));
+				double value = my_minParameters[j]/my_maxParameters[j];
+				
+				for (int k = 0; k < my_Npoints; ++k) {
+					tempVector[j] = value;
+					double tempF = evaluateOptimizationFunction(tempVector);
+
+					if (tempF < currentF) {
+						vector[j] = tempVector[j];
+						currentF = tempF;
+
+						printf("optimization function = %g\n", currentF);
+						printLog("optimization function = %g\n", currentF);
+					}
+
+					value = value * factor;
+				}
+			}
+		}
+	}
+
+	delete[] tempVector;
+}

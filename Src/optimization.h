@@ -70,6 +70,16 @@ public:
 	virtual void optimize(double* vector, bool* optPar);
 };
 
+class SequentCoordinateEnumOptimizer : public RadiationOptimizer {
+protected:
+	int my_Npoints;
+	int my_Niterations;
+public:
+	SequentCoordinateEnumOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Npoints, int Niterations, LossEvaluator* lossEvaluator);
+	virtual ~SequentCoordinateEnumOptimizer();
+	virtual void optimize(double* vector, bool* optPar);
+};
+
 class CombinedRadiationOptimizer : public RadiationOptimizer {
 protected:
 	GradientDescentRadiationOptimizer* my_GradientOptimzer;

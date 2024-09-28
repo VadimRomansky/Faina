@@ -725,20 +725,21 @@ void fitTimeDependentCSS161010() {
 	//creating time dependent synchrotron evaluator
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax, true, true);
 	CombinedRadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints, KPIevaluator);
+	SequentCoordinateEnumOptimizer* sequentOptimizer = new SequentCoordinateEnumOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 100, Niterations, KPIevaluator);
 	//creating time depedent grid enumeration optimizer, which will chose the best starting poin for gradien descent
 	//RadiationOptimizer* gridEnumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
 	//gridEnumOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
 	vector[0] = 2.01509E17 / maxParameters[0];
 	vector[1] = 0.0158386 / maxParameters[1];
-	vector[2] = 199.994 / maxParameters[2];
-	vector[3] = 0.5 / maxParameters[3];
+	vector[2] = 50 / maxParameters[2];
+	vector[3] = 0.1 / maxParameters[3];
 	vector[4] = 0.584746 *speed_of_light / maxParameters[4];
 	vector[5] = 1.0 / maxParameters[5];
 	vector[6] = 2.52007 / maxParameters[6];
 	vector[7] = 2.52029 / maxParameters[7];
 	vector[8] = 4.0 / maxParameters[8];
 
-	combinedOptimizer->outputOneVariableProfile(vector, 100, 0, "error0.dat");
+	/*combinedOptimizer->outputOneVariableProfile(vector, 100, 0, "error0.dat");
 	combinedOptimizer->outputOneVariableProfile(vector, 100, 1, "error1.dat");
 	combinedOptimizer->outputOneVariableProfile(vector, 100, 2, "error2.dat");
 	combinedOptimizer->outputOneVariableProfile(vector, 100, 3, "error3.dat");
@@ -746,14 +747,15 @@ void fitTimeDependentCSS161010() {
 	combinedOptimizer->outputOneVariableProfile(vector, 100, 5, "error5.dat");
 	combinedOptimizer->outputOneVariableProfile(vector, 100, 6, "error6.dat");
 	combinedOptimizer->outputOneVariableProfile(vector, 100, 7, "error7.dat");
-	combinedOptimizer->outputOneVariableProfile(vector, 100, 8, "error8.dat");
+	combinedOptimizer->outputOneVariableProfile(vector, 100, 8, "error8.dat");*/
 
 	printf("optimization\n");
 	printLog("optimization\n");
 	//creating gradient descent optimizer and optimizing
 	RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	//gradientOptimizer->optimize(vector, optPar);
-	combinedOptimizer->optimize(vector, optPar);
+	//combinedOptimizer->optimize(vector, optPar);
+	sequentOptimizer->optimize(vector, optPar);
 	//reset parameters of source to the found values
 	source->resetParameters(vector, maxParameters);
 	//evaluating final error

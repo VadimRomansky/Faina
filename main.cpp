@@ -914,25 +914,26 @@ void fitTychoProfile() {
 }
 
 void evaluateSynchrotronInWideRange() {
-	double R = 2E17;
-	double B = 0.24;
-	double f = 0.4;
-	double electronConcentration = 200;
+	double R = 2.28784E17;
+	double B = 0.601848;
+	double f = 0.1;
+	double electronConcentration = 48.0628;
 	double distance = 150 * 1000000 * parsec;
 
-	double velocity = 0.7 * speed_of_light;
+	double velocity = 0.677527 * speed_of_light;
 	double downstreamV = 0.25 * velocity;
 	
 	MassiveParticleTabulatedIsotropicDistribution* electronDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 	
-	int Nrho = 1;
+	int Nrho = 500;
 	int Nz = 1000;
 	int Nphi = 1;
 
 
-	TabulatedDiskSourceWithSynchCutoff* source = new TabulatedDiskSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution, B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, velocity);
+	//TabulatedDiskSourceWithSynchCutoff* source = new TabulatedDiskSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution, B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, velocity);
+	TabulatedSLSourceWithSynchCutoff* source = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance, downstreamV, velocity);
 
-	int Ne = 1000;
+	int Ne = 5000;
 	double Emin = me_c2;
 	double Emax = me_c2 * 1E8;
 	SynchrotronEvaluator* evaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true, true);
@@ -947,7 +948,7 @@ void evaluateSynchrotronInWideRange() {
 	printf("MeV flux = %g, luminocity = %g\n", mevFlux, mevFlux * 4 * pi * distance * distance);
 	printLog("MeV flux = %g, luminocity = %g\n", mevFlux, mevFlux * 4 * pi * distance * distance);
 
-	evaluator->writeFluxFromSourceToFile("wideRangeSynch.dat", source, 1E8 * hplank, 100 * MeV, 1000);
+	evaluator->writeFluxFromSourceToFile("wideRangeSynch.dat", source, 1E8 * hplank, 20 * MeV, 2000);
 }
 
 
@@ -957,7 +958,7 @@ int main() {
 	//evaluateComptonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
-	fitTimeDependentCSS161010();
+	//fitTimeDependentCSS161010();
 	//evaluatePionDecay();
 	//evaluateBremsstrahlung();
 	//compareComptonSynchrotron();
@@ -976,7 +977,7 @@ int main() {
 	//evaluateComtonFromWind();
 	//evaluateTychoProfile();
 	//fitTychoProfile();
-	//evaluateSynchrotronInWideRange();
+	evaluateSynchrotronInWideRange();
 
 	return 0;
 }

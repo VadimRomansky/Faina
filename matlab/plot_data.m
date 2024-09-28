@@ -5,7 +5,7 @@ clear;
 %data = importdata('../anisotropicCompton.dat');
 %data = importdata('../differentialFlux.dat');
 %data = importdata('../bremsstrahlung.dat');
-data = importdata('../error3.dat');
+data = importdata('../error0.dat');
 %data7 = importdata('../output7.dat');
 
 N = size(data,1);

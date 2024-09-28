@@ -296,7 +296,8 @@ protected:
 	double my_downstreamVelocity;
 	double my_meanB;
 	double my_defaultCutoff;
-	MassiveParticlePowerLawCutoffDistribution* my_cutoffDistribution;
+	MassiveParticleTabulatedIsotropicDistribution* my_cutoffDistribution;
+	MassiveParticleTabulatedIsotropicDistribution* my_localDistribution;
 	double*** my_LB2;
 	void updateLB2();
 public:
