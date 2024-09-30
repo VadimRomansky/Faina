@@ -18,7 +18,7 @@ def plot_long_radiation():
         radiation[0,i] = float(s[0])
         if ((radiation[0, i] > 0.3*tokeV) and (radiation[0, i] < 10*tokeV) and (i > 0)):
             integral = integral + float(s[1]) * (radiation[0, i] - radiation[0, i - 1]*tokeV)
-        radiation[1,i] = float(s[1])*radiation[0,i]
+        radiation[1,i] = float(s[1])*radiation[0,i]/4
         radiation[0,i] = radiation[0,i]/tokeV
 
     print("0.3-10 keV flux = ", integral)
@@ -32,12 +32,12 @@ def plot_long_radiation():
     ax.set_ylabel(r'$E F(E)~erg~cm^{-2}~s^{-1}$', fontsize=40,fontweight='bold')
     ax.set_yscale("log")
     ax.set_xlim([1E-8, 0.5E4])
-    ax.set_ylim([1E-16, 1E-14])
+    ax.set_ylim([2E-16, 5E-15])
     ax.set_xscale("log")
     #extraticks=[1E-6,1E-2,100]
     #plt.xticks(list(plt.xticks()[0]+extraticks))
     ax.set_xticks([1E-8, 1E-6, 1E-4, 1E-2, 1, 100, 10000])
-    ax.set_yticks([1E-16, 2E-16, 4E-16, 6E-16, 8E-16, 1E-15])
+    ax.set_yticks([5E-16, 1E-15, 2E-15, 5E-15])
     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
     #ax1.get_xaxis().get_major_formatter().labelOnlyBase = False
     ax.tick_params(axis='x', size=10, width=4)

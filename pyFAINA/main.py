@@ -42,7 +42,7 @@ if __name__ == '__main__':
     #plot_radiation3()
     #plot_radiation10()
     #plot_compton_radiation()
-    #plot_long_radiation()
+    plot_long_radiation()
     #plot_radiation2()
     #plot_error_profile(1,2)
     #plot_mask()

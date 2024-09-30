@@ -926,7 +926,7 @@ void evaluateSynchrotronInWideRange() {
 	MassiveParticleTabulatedIsotropicDistribution* electronDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", electronConcentration, DistributionInputType::GAMMA_KIN_FGAMMA);
 	
 	int Nrho = 1;
-	int Nz = 1000;
+	int Nz = 5000;
 	int Nphi = 1;
 
 
