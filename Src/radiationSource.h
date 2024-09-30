@@ -112,9 +112,11 @@ public:
 
 class SimpleFlatSource2 : public SimpleFlatSource {
 	protected:
+		int my_maxThreads;
 		int my_Ndistributions;
 		double* my_velocities;
-		MassiveParticleIsotropicDistribution** my_distributions;
+		MassiveParticleDistribution** my_distributions;
+		MassiveParticleDistribution** my_outputDistributions;
 	public:
 		SimpleFlatSource2(int Ndistributions, double* velocities, MassiveParticleIsotropicDistribution** electronDistributions, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& z, const double& distance, const double& velocity = 0, const double& redShift = 0);
 		virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
@@ -266,8 +268,11 @@ public:
 class TabulatedSphericalLayerSource2 : public TabulatedSphericalLayerSource {
 protected:
 	int my_Ndistributions;
+	int my_maxThreads;
 	double* my_velocities;
-	MassiveParticleIsotropicDistribution** my_distributions;
+	MassiveParticleDistribution** my_distributions;
+	MassiveParticleDistribution** my_outputDistributions;
+
 public:
 	TabulatedSphericalLayerSource2(int Ndistributions, double* velocities, MassiveParticleIsotropicDistribution** distributions, int Nrho, int Nz, int Nphi, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity = 0, const double& redShift = 0);
 	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);

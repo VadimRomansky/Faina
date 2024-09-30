@@ -207,8 +207,13 @@ MassiveParticleDistribution* SimpleFlatSource::getParticleDistribution(int irho,
 
 SimpleFlatSource2::SimpleFlatSource2(int Ndistributions, double* velocities, MassiveParticleIsotropicDistribution** electronDistributions, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& z, const double& distance, const double& velocity, const double& redShift) : SimpleFlatSource(NULL, B, theta, phi, concentration, rho, z, distance, velocity, redShift){
 	my_Ndistributions = Ndistributions;
+	my_maxThreads = omp_get_max_threads();
 	my_velocities = new double[my_Ndistributions];
-	my_distributions = new MassiveParticleIsotropicDistribution * [my_Ndistributions];
+	my_outputDistributions = new MassiveParticleDistribution * [my_maxThreads];
+	for (int i = 0; i < my_maxThreads; ++i) {
+		my_outputDistributions[i] = NULL;
+	}
+	my_distributions = new MassiveParticleDistribution * [my_Ndistributions];
 	for (int i = 0; i < my_Ndistributions; ++i) {
 		my_velocities[i] = velocities[i];
 		my_distributions[i] = electronDistributions[i];
@@ -217,31 +222,51 @@ SimpleFlatSource2::SimpleFlatSource2(int Ndistributions, double* velocities, Mas
 
 MassiveParticleDistribution* SimpleFlatSource2::getParticleDistribution(int irho, int iz, int iphi)
 {
+	int num_threads = omp_get_num_threads();
 	//todo not thread safe!!!
-	if (my_distribution != NULL) {
-		return my_distribution;
+	if (my_outputDistributions[num_threads] != NULL) {
+		return my_outputDistributions[num_threads];
 	}
 
 	/*for (int i = 0; i < my_Ndistributions; ++i) {
 		my_distributions[i]->resetConcentration(getConcentration(irho, iz, iphi));
 	}*/
 	if (my_velocity <= my_velocities[0]) {
-		my_distribution = new CompoundWeightedMassiveParticleIsotropicDistribution(my_distributions[0], 0.5, my_distributions[0], 0.5);
+		MassiveParticleIsotropicDistribution* iso1 = dynamic_cast<MassiveParticleIsotropicDistribution*>(my_distributions[0]);
+		if (iso1 != NULL) {
+			my_outputDistributions[num_threads] = new CompoundWeightedMassiveParticleIsotropicDistribution(iso1, 0.5, iso1, 0.5);
+		}
+		else {
+			my_outputDistributions[num_threads] = new CompoundWeightedMassiveParticleDistribution(my_distributions[0], 0.5, my_distributions[0], 0.5);
+		}
 	}
 	else if (my_velocity >= my_velocities[my_Ndistributions - 1]) {
-		my_distribution = new CompoundWeightedMassiveParticleIsotropicDistribution(my_distributions[my_Ndistributions-1], 0.5, my_distributions[my_Ndistributions-1], 0.5);
+		MassiveParticleIsotropicDistribution* iso1 = dynamic_cast<MassiveParticleIsotropicDistribution*>(my_distributions[my_Ndistributions - 1]);
+		if (iso1 != NULL) {
+			my_outputDistributions[num_threads] = new CompoundWeightedMassiveParticleIsotropicDistribution(iso1, 0.5, iso1, 0.5);
+		}
+		else {
+			my_outputDistributions[num_threads] = new CompoundWeightedMassiveParticleDistribution(my_distributions[my_Ndistributions - 1], 0.5, my_distributions[my_Ndistributions - 1], 0.5);
+		}
 	}
 	else {
 		for (int i = 1; i < my_Ndistributions; ++i) {
 			if (my_velocities[i] > my_velocity) {
 				double left = (my_velocities[i] - my_velocity) / (my_velocities[i] - my_velocities[i - 1]);
 				double right = (my_velocity - my_velocities[i - 1]) / (my_velocities[i] - my_velocities[i - 1]);
-				my_distribution = new CompoundWeightedMassiveParticleIsotropicDistribution(my_distributions[i-1], left, my_distributions[i], right);
-				return my_distribution;
+				MassiveParticleIsotropicDistribution* iso1 = dynamic_cast<MassiveParticleIsotropicDistribution*>(my_distributions[i - 1]);
+				MassiveParticleIsotropicDistribution* iso2 = dynamic_cast<MassiveParticleIsotropicDistribution*>(my_distributions[i]);
+				if ((iso1 != NULL) && (iso2 != NULL)) {
+					my_outputDistributions[num_threads] = new CompoundWeightedMassiveParticleIsotropicDistribution(iso1, left, iso2, right);
+				}
+				else {
+					my_outputDistributions[num_threads] = new CompoundWeightedMassiveParticleDistribution(my_distributions[i - 1], left, my_distributions[i], right);
+				}
+				return my_outputDistributions[num_threads];
 			}
 		}
 	}
-	return my_distribution;
+	return my_outputDistributions[num_threads];
 }
 
 void SimpleFlatSource2::resetParameters(const double* parameters, const double* normalizationUnits)
@@ -249,6 +274,13 @@ void SimpleFlatSource2::resetParameters(const double* parameters, const double* 
 	if (my_distribution != NULL) {
 		delete my_distribution;
 		my_distribution = NULL;
+	}
+
+	for (int i = 0; i < my_maxThreads; ++i) {
+		if (my_outputDistributions[i] != NULL) {
+			delete my_outputDistributions[i];
+			my_outputDistributions[i] = NULL;
+		}
 	}
 
 	SimpleFlatSource::resetParameters(parameters, normalizationUnits);
@@ -1751,8 +1783,13 @@ MassiveParticleDistribution* TabulatedSphericalLayerSource::getParticleDistribut
 
 TabulatedSphericalLayerSource2::TabulatedSphericalLayerSource2(int Ndistributions, double* velocities, MassiveParticleIsotropicDistribution** distributions, int Nrho, int Nz, int Nphi, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& rhoin, const double& distance, const double& velocity, const double& redShift) : TabulatedSphericalLayerSource(Nrho, Nz, Nphi, NULL, B, theta, phi, concentration, rho, rhoin, distance, velocity, redShift) {
 	my_Ndistributions = Ndistributions;
+	my_maxThreads = omp_get_max_threads();
 	my_velocities = new double[my_Ndistributions];
-	my_distributions = new MassiveParticleIsotropicDistribution * [my_Ndistributions];
+	my_outputDistributions = new MassiveParticleDistribution * [my_maxThreads];
+	for (int i = 0; i < my_maxThreads; ++i) {
+		my_outputDistributions[i] = NULL;
+	}
+	my_distributions = new MassiveParticleDistribution * [my_Ndistributions];
 	for (int i = 0; i < my_Ndistributions; ++i) {
 		my_velocities[i] = velocities[i];
 		my_distributions[i] = distributions[i];
@@ -1761,31 +1798,51 @@ TabulatedSphericalLayerSource2::TabulatedSphericalLayerSource2(int Ndistribution
 
 MassiveParticleDistribution* TabulatedSphericalLayerSource2::getParticleDistribution(int irho, int iz, int iphi)
 {
+	int num_thread = omp_get_thread_num();
 	//todo not thread safe!!!
-	if (my_distribution != NULL) {
-		return my_distribution;
+	if (my_outputDistributions[num_thread] != NULL) {
+		return my_outputDistributions[num_thread];
 	}
 
 	/*for (int i = 0; i < my_Ndistributions; ++i) {
 		my_distributions[i]->resetConcentration(getConcentration(irho, iz, iphi));
 	}*/
 	if (my_velocity <= my_velocities[0]) {
-		my_distribution = new CompoundWeightedMassiveParticleIsotropicDistribution(my_distributions[0], 0.5, my_distributions[0], 0.5);
+		MassiveParticleIsotropicDistribution* iso1 = dynamic_cast<MassiveParticleIsotropicDistribution*>(my_distributions[0]);
+		if (iso1 != NULL) {
+			my_outputDistributions[num_thread] = new CompoundWeightedMassiveParticleIsotropicDistribution(iso1, 0.5, iso1, 0.5);
+		}
+		else {
+			my_outputDistributions[num_thread] = new CompoundWeightedMassiveParticleDistribution(my_distributions[0], 0.5, my_distributions[0], 0.5);
+		}
 	}
 	else if (my_velocity >= my_velocities[my_Ndistributions - 1]) {
-		my_distribution = new CompoundWeightedMassiveParticleIsotropicDistribution(my_distributions[my_Ndistributions - 1], 0.5, my_distributions[my_Ndistributions - 1], 0.5);
+		MassiveParticleIsotropicDistribution* iso1 = dynamic_cast<MassiveParticleIsotropicDistribution*>(my_distributions[my_Ndistributions - 1]);
+		if (iso1 != NULL) {
+			my_outputDistributions[num_thread] = new CompoundWeightedMassiveParticleIsotropicDistribution(iso1, 0.5, iso1, 0.5);
+		}
+		else {
+			my_outputDistributions[num_thread] = new CompoundWeightedMassiveParticleDistribution(my_distributions[my_Ndistributions - 1], 0.5, my_distributions[my_Ndistributions - 1], 0.5);
+		}
 	}
 	else {
 		for (int i = 1; i < my_Ndistributions; ++i) {
 			if (my_velocities[i] > my_velocity) {
 				double left = (my_velocities[i] - my_velocity) / (my_velocities[i] - my_velocities[i - 1]);
 				double right = (my_velocity - my_velocities[i - 1]) / (my_velocities[i] - my_velocities[i - 1]);
-				my_distribution = new CompoundWeightedMassiveParticleIsotropicDistribution(my_distributions[i - 1], left, my_distributions[i], right);
-				return my_distribution;
+				MassiveParticleIsotropicDistribution* iso1 = dynamic_cast<MassiveParticleIsotropicDistribution*>(my_distributions[i - 1]);
+				MassiveParticleIsotropicDistribution* iso2 = dynamic_cast<MassiveParticleIsotropicDistribution*>(my_distributions[i]);
+				if ((iso1 != NULL) && (iso2 != NULL)) {
+					my_outputDistributions[num_thread] = new CompoundWeightedMassiveParticleIsotropicDistribution(iso1, left, iso2, right);
+				}
+				else {
+					my_outputDistributions[num_thread] = new CompoundWeightedMassiveParticleDistribution(my_distributions[i - 1], left, my_distributions[i], right);
+				}
+				return my_outputDistributions[num_thread];
 			}
 		}
 	}
-	return my_distribution;
+	return my_outputDistributions[num_thread];
 }
 
 void TabulatedSphericalLayerSource2::resetParameters(const double* parameters, const double* normalizationUnits)
@@ -1793,6 +1850,12 @@ void TabulatedSphericalLayerSource2::resetParameters(const double* parameters, c
 	if (my_distribution != NULL) {
 		delete my_distribution;
 		my_distribution = NULL;
+	}
+	for (int i = 0; i < my_maxThreads; ++i) {
+		if (my_outputDistributions[i] != NULL) {
+			delete my_outputDistributions[i];
+			my_outputDistributions[i] = NULL;
+		}
 	}
 
 	TabulatedSphericalLayerSource::resetParameters(parameters, normalizationUnits);
