@@ -36,6 +36,30 @@ double RadiationOptimizer::evaluateOptimizationFunction(const double* vector) {
 }
 
 
+void RadiationOptimizer::outputOneVariableProfile(const double* vector, int Npoints, int Nparam1, const char* fileName)
+{
+	double* tempVector = new double[my_Nparams];
+	for (int i = 0; i < my_Nparams; ++i) {
+		tempVector[i] = vector[i];
+	}
+	FILE* file = fopen(fileName, "w");
+
+	double factor = pow(my_maxParameters[Nparam1] / my_minParameters[Nparam1], 1.0 / (Npoints - 1));
+
+	double value = my_minParameters[Nparam1] / my_maxParameters[Nparam1];
+
+	for (int i = 0; i < Npoints; ++i) {
+		printf("point number %d\n", i);
+		tempVector[Nparam1] = value;
+		double error = evaluateOptimizationFunction(tempVector);
+		fprintf(file, "%g %g\n", value, error);
+		value = value * factor;
+	}
+
+	fclose(file);
+	delete[] tempVector;
+}
+
 void RadiationOptimizer::outputProfileDiagrams(const double* vector, int Npoints)
 {
 	if (my_Nparams < 2) {
@@ -695,6 +719,10 @@ void GridEnumRadiationOptimizer::optimize(double* vector, bool* optPar)
 			}
 			printf("optimization function = %g\n", tempF);
 			printLog("optimization function = %g\n", tempF);
+			for (int j = 0; j < my_Nparams; ++j) {
+				printf("parameter[%d] = %g\n", j, vector[j] * my_maxParameters[j]);
+				printLog("parameter[%d] = %g\n", j, vector[j] * my_maxParameters[j]);
+			}
 		}
 	}
 
@@ -965,4 +993,54 @@ void CombinedRadiationOptimizer::optimize(double* vector, bool* optPar)
 {
 	my_EnumOptimizer->optimize(vector, optPar);
 	my_GradientOptimzer->optimize(vector, optPar);
+}
+
+SequentCoordinateEnumOptimizer::SequentCoordinateEnumOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Npoints, int Niterations, LossEvaluator* lossEvaluator):RadiationOptimizer(evaluator, minParameters, maxParameters, Nparams, lossEvaluator)
+{
+	my_Npoints = Npoints;
+	my_Niterations = Niterations;
+}
+
+SequentCoordinateEnumOptimizer::~SequentCoordinateEnumOptimizer()
+{
+}
+
+void SequentCoordinateEnumOptimizer::optimize(double* vector, bool* optPar)
+{
+	double* tempVector = new double[my_Nparams];
+
+	double currentF = evaluateOptimizationFunction(vector);
+
+	for (int i = 0; i < my_Niterations; ++i) {
+		for (int j = 0; j < my_Nparams; ++j) {
+			for (int k = 0; k < my_Nparams; ++k) {
+				tempVector[k] = vector[k];
+			}
+			if (optPar[j]) {
+				double factor = pow(my_maxParameters[j] / my_minParameters[j], 1.0 / (my_Npoints - 1));
+				double value = my_minParameters[j]/my_maxParameters[j];
+				
+				for (int k = 0; k < my_Npoints; ++k) {
+					tempVector[j] = value;
+					double delta = value * (factor - 1.0) * (uniformDistribution() - 0.5);
+					if ((value + delta > my_minParameters[j] / my_maxParameters[j]) && (value + delta < 1.0)) {
+						value = value + delta;
+					}
+					double tempF = evaluateOptimizationFunction(tempVector);
+
+					if (tempF < currentF) {
+						vector[j] = tempVector[j];
+						currentF = tempF;
+
+						printf("optimization function = %g\n", currentF);
+						printLog("optimization function = %g\n", currentF);
+					}
+
+					value = value * factor;
+				}
+			}
+		}
+	}
+
+	delete[] tempVector;
 }

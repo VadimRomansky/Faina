@@ -24,6 +24,7 @@ public:
 	virtual double evaluateOptimizationFunction(const double* vector);
 	virtual void optimize(double* vector, bool* optPar) = 0;
 	//void optimize(double* vector, bool* optPar, RadiationSource* source);
+	void outputOneVariableProfile(const double* vector, int Npoints, int Nparam1, const char* fileName);
 	void outputProfileDiagrams(const double* vector, int Npoints);
 	void outputOptimizedProfileDiagram(const double* vector, bool* optPar, int Npoints, int Nparam1, int Nparam2);
 };
@@ -66,6 +67,16 @@ protected:
 public:
     GridEnumRadiationOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, const int* Npoints, LossEvaluator* lossEvaluator);
     virtual ~GridEnumRadiationOptimizer();
+	virtual void optimize(double* vector, bool* optPar);
+};
+
+class SequentCoordinateEnumOptimizer : public RadiationOptimizer {
+protected:
+	int my_Npoints;
+	int my_Niterations;
+public:
+	SequentCoordinateEnumOptimizer(RadiationEvaluator* evaluator, const double* minParameters, const double* maxParameters, int Nparams, int Npoints, int Niterations, LossEvaluator* lossEvaluator);
+	virtual ~SequentCoordinateEnumOptimizer();
 	virtual void optimize(double* vector, bool* optPar);
 };
 
