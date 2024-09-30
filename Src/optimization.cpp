@@ -1022,6 +1022,10 @@ void SequentCoordinateEnumOptimizer::optimize(double* vector, bool* optPar)
 				
 				for (int k = 0; k < my_Npoints; ++k) {
 					tempVector[j] = value;
+					double delta = value * (factor - 1.0) * (uniformDistribution() - 0.5);
+					if ((value + delta > my_minParameters[j] / my_maxParameters[j]) && (value + delta < 1.0)) {
+						value = value + delta;
+					}
 					double tempF = evaluateOptimizationFunction(tempVector);
 
 					if (tempF < currentF) {

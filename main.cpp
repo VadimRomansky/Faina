@@ -1,6 +1,7 @@
 #include "stdio.h"
 #include "math.h"
 #include <omp.h>
+#include <time.h>
 
 #include "./Src/constants.h"
 #include "./Src/massiveParticleDistribution.h"
@@ -954,11 +955,12 @@ void evaluateSynchrotronInWideRange() {
 
 int main() {
 	resetLog();
+	srand(time(NULL));
 	//evaluateSimpleSynchrotron();
 	//evaluateComptonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
-	//fitTimeDependentCSS161010();
+	fitTimeDependentCSS161010();
 	//evaluatePionDecay();
 	//evaluateBremsstrahlung();
 	//compareComptonSynchrotron();
@@ -977,7 +979,7 @@ int main() {
 	//evaluateComtonFromWind();
 	//evaluateTychoProfile();
 	//fitTychoProfile();
-	evaluateSynchrotronInWideRange();
+	//evaluateSynchrotronInWideRange();
 
 	return 0;
 }

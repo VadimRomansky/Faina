@@ -551,8 +551,8 @@ void fitTimeDependentCSS161010() {
 	double* observedFlux2;
 	double* observedError2;
 	//int Nenergy2 = readRadiationFromFile(energy2, observedFlux2, observedError2, "./examples_data/css_data/coppejans99.txt");
-	//int Nenergy2 = readRadiationFromFile(energy2, observedFlux2, observedError2, "./examples_data/css_data/coppejans162.txt");
-	int Nenergy2 = readRadiationFromFile(energy2, observedFlux2, observedError2, "./examples_data/css_data/coppejans357.txt");
+	int Nenergy2 = readRadiationFromFile(energy2, observedFlux2, observedError2, "./examples_data/css_data/coppejans162.txt");
+	//int Nenergy2 = readRadiationFromFile(energy2, observedFlux2, observedError2, "./examples_data/css_data/coppejans357.txt");
 	for (int i = 0; i < Nenergy2; ++i) {
 		energy2[i] = energy2[i] * hplank * 1E9;
 		observedFlux2[i] = observedFlux2[i] / (hplank * 1E26);
@@ -575,10 +575,10 @@ void fitTimeDependentCSS161010() {
 
 	//initializing time moments
 	//const int Ntimes = 3;
-	const int Ntimes = 2;
+	const int Ntimes = 3;
 	const int Ntimes3 = 3;
-	//double times[Ntimes] = { 99 * 24 * 3600, 162 * 24 * 3600, 357 * 24 * 3600 };
-	double times[Ntimes] = {99 * 24 * 3600, 357 * 24 * 3600 };
+	double times[Ntimes] = { 99 * 24 * 3600, 162 * 24 * 3600, 357 * 24 * 3600 };
+	//double times[Ntimes] = {99 * 24 * 3600, 357 * 24 * 3600 };
 	double times3[Ntimes3] = { 99 * 24 * 3600, 162*24*3600, 357 * 24 * 3600 };
 
 
@@ -586,7 +586,7 @@ void fitTimeDependentCSS161010() {
 	int Nenergy[Ntimes];
 	Nenergy[0] = Nenergy1;
 	Nenergy[1] = Nenergy2;
-	//Nenergy[2] = Nenergy3;
+	Nenergy[2] = Nenergy3;
 
 	double** energy = new double* [Ntimes];
 	double** F = new double* [Ntimes];
@@ -631,7 +631,7 @@ void fitTimeDependentCSS161010() {
 	const int Nparams = 9;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 0.9*rmax, 0.000001, 1, 0.05, 0.5 * speed_of_light, 1.0, 1.0, 1.0, 1.0 };
-	double maxParameters[Nparams] = { times[0] * 0.9 * speed_of_light, 2, 50, 1.0, 0.8 * speed_of_light, 4.0, 4.0, 4.0, 4.0 };
+	double maxParameters[Nparams] = { times[0] * 0.9 * speed_of_light, 2, 50, 1.0, 0.8 * speed_of_light, 4.0, 4.0, 4.0, 3.0 };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v, 1.01, 2.0, 3.0, 1.0 };
 	for (int i = 0; i < Nparams; ++i) {
@@ -704,9 +704,9 @@ void fitTimeDependentCSS161010() {
 	//electronDistribution->rescaleDistribution(1.2);
 	//SimpleFlatSource* source1 = new SimpleFlatSource(electronDistribution, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance);
 	//SimpleFlatSource2* source1 = new SimpleFlatSource2(4, velocities, distributions, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance);
-	int Nrho = 20;
-	int Nz = 20;
-	int Nphi = 2;
+	int Nrho = 40;
+	int Nz = 40;
+	int Nphi = 1;
 	SphericalLayerSource* source1 = new TabulatedSphericalLayerSource2(4, velocities, distributions, Nrho, Nz, Nphi, B, pi / 2, 0, electronConcentration, rmax, (1.0 - widthFraction) * rmax, distance);
 	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, pi/2, 0, electronConcentration, rmax, 0.5 * rmax, distance, 0.3*speed_of_light);
 	//creating time dependent radiation source
@@ -725,7 +725,7 @@ void fitTimeDependentCSS161010() {
 	//creating time dependent synchrotron evaluator
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax, true, true);
 	CombinedRadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints, KPIevaluator);
-	SequentCoordinateEnumOptimizer* sequentOptimizer = new SequentCoordinateEnumOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 100, Niterations, KPIevaluator);
+	SequentCoordinateEnumOptimizer* sequentOptimizer = new SequentCoordinateEnumOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 200, Niterations, KPIevaluator);
 	//creating time depedent grid enumeration optimizer, which will chose the best starting poin for gradien descent
 	//RadiationOptimizer* gridEnumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
 	//gridEnumOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);

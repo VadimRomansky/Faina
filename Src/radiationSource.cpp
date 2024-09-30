@@ -1,5 +1,6 @@
 #include "stdio.h"
 #include "math.h"
+#include <memory>
 
 #include "constants.h"
 #include "util.h"
@@ -2250,6 +2251,7 @@ MassiveParticleDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistri
 	}
 	my_localDistribution->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_localDistribution;
+	//return std::unique_ptr<MassiveParticleDistribution>(new MassiveParticleMaxwellDistribution(massElectron, 1000, 1.0));
 }
 
 TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity, const double& redShift) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, phi, concentration, rho, z, distance, velocity, redShift)

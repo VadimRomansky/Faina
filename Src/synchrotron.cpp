@@ -128,6 +128,16 @@ void SynchrotronEvaluator::evaluateEmissivityAndAbsorption(const double& photonF
 {
 	double photonFinalFrequency = photonFinalEnergy / hplank;
 	double B = source->getB(irho, iz, iphi);
+	if (B != B) {
+		printf("B = NaN\n");
+		printLog("B = NaN\n");
+		exit(0);
+	}
+	if (B == 0) {
+		I = 0;
+		A = 0;
+		return;
+	}
 	double sinTheta = source->getSinTheta(irho, iz, iphi);
 	double concentration = source->getConcentration(irho, iz, iphi);
 
@@ -144,6 +154,11 @@ void SynchrotronEvaluator::evaluateEmissivityAndAbsorption(const double& photonF
 		double Bpar = B * (cos(Btheta) * cos(vtheta) + sin(Btheta) * sin(vtheta) * (cos(Bphi) * cos(vphi) + sin(Bphi) * sin(vphi)));
 		//from invarian B^2 - E^2
 		double Bprimed = sqrt(B*B / (gamma*gamma) + Bpar*Bpar*beta*beta);
+		if (Bprimed == 0) {
+			I = 0;
+			A = 0;
+			return;
+		}
 		double Bnorm = sqrt(Bprimed * Bprimed - Bpar * Bpar);
 		double concentrationPrimed = concentration / gamma;
 
@@ -156,13 +171,38 @@ void SynchrotronEvaluator::evaluateEmissivityAndAbsorption(const double& photonF
 		double photonFinalEnergyPrimed;
 		double thetaPrimed;
 		LorentzTransformationPhotonZ(gamma, photonFinalEnergy, thetar, photonFinalEnergyPrimed, thetaPrimed);
-		double BthetaPrimed = acos(Bpar / Bprimed);
+		double cosbtheta = Bpar / Bprimed;
+		double BthetaPrimed;
+		if (cosbtheta > 1.0){
+			if (cosbtheta < 1.000000001) {
+				BthetaPrimed = 0.0;
+			}
+			else {
+				printf("cos B theta primed %g > 1\n", cosbtheta);
+				printLog("cos B theta primed %g > 1\n", cosbtheta);
+				exit(0);
+			}
+		}
+		else if (cosbtheta < -1.0) {
+			if (cosbtheta > -1.000000001) {
+				BthetaPrimed = pi;
+			}
+			else {
+				printf("cos B theta primed %g < -1\n", cosbtheta);
+				printLog("cos B theta primed %g < -1\n", cosbtheta);
+				exit(0);
+			}
+		}
+		else {
+			BthetaPrimed = acos(cosbtheta);
+		}
 		if (thetaBr > pi / 2) {
 			BthetaPrimed = pi - acos(Bpar/Bprimed);
 		}
 		if (BthetaPrimed != BthetaPrimed) {
 			printf("BthetaPrimed = NaN\n");
 			printLog("BthetaPrimed = NaN\n");
+			printLog("B = %g, Btheta = %g, Bphi = %g, Bpar = %g, Bprimed = %g, gamma = %g, vtheta = %g, vphi = %g, thetaBr = %g, phiBr = %g\n", B, Btheta, Bphi, Bpar, Bprimed, gamma, vtheta, vphi, thetaBr, phiBr);
 			exit(0);
 		}
 
