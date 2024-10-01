@@ -631,14 +631,14 @@ void fitTimeDependentCSS161010() {
 	const int Nparams = 9;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 0.9*rmax, 0.000001, 1, 0.05, 0.5 * speed_of_light, 1.0, 1.0, 1.0, 1.0 };
-	double maxParameters[Nparams] = { times[0] * 0.9 * speed_of_light, 2, 50, 1.0, 0.8 * speed_of_light, 4.0, 4.0, 4.0, 3.0 };
+	double maxParameters[Nparams] = { times[0] * 0.9 * speed_of_light, 2, 50, 0.2, 0.8 * speed_of_light, 3.0, 4.0, 4.0, 3.0 };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v, 1.01, 2.0, 3.0, 1.0 };
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
 	}
 	//picking parameters to be optimized
-	bool optPar[Nparams] = { true, true, true, false, true, true, true, true, true };
+	bool optPar[Nparams] = { true, true, true, true, true, true, true, true, true };
 
 	int numberOfOptpar = 0;
 	for (int i = 0; i < Nparams; ++i) {
@@ -737,7 +737,7 @@ void fitTimeDependentCSS161010() {
 	vector[5] = 1.0 / maxParameters[5];
 	vector[6] = 2.52007 / maxParameters[6];
 	vector[7] = 2.52029 / maxParameters[7];
-	vector[8] = 4.0 / maxParameters[8];
+	vector[8] = 1.0 / maxParameters[8];
 
 	/*combinedOptimizer->outputOneVariableProfile(vector, 100, 0, "error0.dat");
 	combinedOptimizer->outputOneVariableProfile(vector, 100, 1, "error1.dat");
@@ -836,6 +836,39 @@ void fitTimeDependentCSS161010() {
 	printf("B = %g\n", B);
 	fprintf(paramFile, "B = %g\n", B);
 	fclose(paramFile);
+
+	printf("evaluating wide-range radiation\n");
+	printLog("evaluating wide-range radiation\n");
+
+	Nrho = 1000;
+	Nz = 2000;
+	Nphi = 1;
+
+	double R = vector[0] * maxParameters[0];
+	//B
+	electronConcentration = vector[2] * maxParameters[2];
+	double f = vector[3] * maxParameters[3];
+	double velocity = vector[4] * maxParameters[4];
+	double downstreamV = 0.25 * velocity;
+
+	TabulatedSLSourceWithSynchCutoff* source2 = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance, downstreamV, velocity);
+
+	int Ne = 5000;
+	Emin = me_c2;
+	Emax = me_c2 * 1E9;
+	SynchrotronEvaluator* evaluator2 = new SynchrotronEvaluator(Ne, Emin, Emax, true, true);
+
+	double kevFlux = evaluator2->evaluateTotalFluxInEnergyRange(0.3 * keV, 10 * keV, 100, source2);
+
+	double mevFlux = evaluator2->evaluateTotalFluxInEnergyRange(0.1 * MeV, 3 * MeV, 100, source2);
+
+	printf("keV flux = %g, luminosity = %g\n", kevFlux, kevFlux * 4 * pi * distance * distance);
+	printLog("keV flux = %g, luminosity = %g\n", kevFlux, kevFlux * 4 * pi * distance * distance);
+
+	printf("MeV flux = %g, luminocity = %g\n", mevFlux, mevFlux * 4 * pi * distance * distance);
+	printLog("MeV flux = %g, luminocity = %g\n", mevFlux, mevFlux * 4 * pi * distance * distance);
+
+	evaluator2->writeFluxFromSourceToFile("wideRangeSynch.dat", source2, 1E8 * hplank, 20 * MeV, 2000);
 
 	//deleting arrays
 	for (int i = 0; i < Ntimes; ++i) {
