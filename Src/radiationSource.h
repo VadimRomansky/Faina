@@ -169,11 +169,12 @@ public:
 
 class TabulatedDiskSourceWithSynchCutoff : public TabulatedDiskSource {
 protected:
+	int my_maxThreads;
 	double my_downstreamVelocity;
 	double my_meanB;
 	//MassiveParticlePowerLawCutoffDistribution* my_cutoffDistribution;
 	MassiveParticleTabulatedIsotropicDistribution* my_cutoffDistribution;
-	MassiveParticleTabulatedIsotropicDistribution* my_localDistribution;
+	MassiveParticleTabulatedIsotropicDistribution** my_localDistribution;
 public:
 	TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity = 0, const double& redShift = 0);
 	TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity = 0, const double& redShift = 0);
@@ -298,11 +299,12 @@ public:
 
 class TabulatedSLSourceWithSynchCutoff : public TabulatedSphericalLayerSource {
 protected:
+	int my_maxThreads;
 	double my_downstreamVelocity;
 	double my_meanB;
 	double my_defaultCutoff;
 	MassiveParticleTabulatedIsotropicDistribution* my_cutoffDistribution;
-	MassiveParticleTabulatedIsotropicDistribution* my_localDistribution;
+	MassiveParticleTabulatedIsotropicDistribution** my_localDistribution;
 	double*** my_LB2;
 	void updateLB2();
 public:

@@ -2163,7 +2163,11 @@ TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int
 		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
 		exit(0);
 	}
-	my_localDistribution = NULL;
+	my_maxThreads = omp_get_max_threads();
+	my_localDistribution = new MassiveParticleTabulatedIsotropicDistribution*[my_maxThreads];
+	for (int i = 0; i < my_maxThreads; ++i) {
+		my_localDistribution[i] = NULL;
+	}
 	my_downstreamVelocity = downstreamVelocity;
 	my_meanB = getAverageBsquared();
 
@@ -2180,7 +2184,11 @@ TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int
 		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
 		exit(0);
 	}
-	my_localDistribution = NULL;
+	my_maxThreads = omp_get_max_threads();
+	my_localDistribution = new MassiveParticleTabulatedIsotropicDistribution * [my_maxThreads];
+	for (int i = 0; i < my_maxThreads; ++i) {
+		my_localDistribution[i] = NULL;
+	}
 	my_downstreamVelocity = downstreamVelocity;
 	my_meanB = getAverageBsquared();
 
@@ -2197,7 +2205,11 @@ TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int
 		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
 		exit(0);
 	}
-	my_localDistribution = NULL;
+	my_maxThreads = omp_get_max_threads();
+	my_localDistribution = new MassiveParticleTabulatedIsotropicDistribution * [my_maxThreads];
+	for (int i = 0; i < my_maxThreads; ++i) {
+		my_localDistribution[i] = NULL;
+	}
 	my_downstreamVelocity = downstreamVelocity;
 	my_meanB = getAverageBsquared();
 
@@ -2214,7 +2226,11 @@ TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int
 		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
 		exit(0);
 	}
-	my_localDistribution = NULL;
+	my_maxThreads = omp_get_max_threads();
+	my_localDistribution = new MassiveParticleTabulatedIsotropicDistribution * [my_maxThreads];
+	for (int i = 0; i < my_maxThreads; ++i) {
+		my_localDistribution[i] = NULL;
+	}
 	my_downstreamVelocity = downstreamVelocity;
 	my_meanB = getAverageBsquared();
 
@@ -2225,6 +2241,12 @@ TabulatedSLSourceWithSynchCutoff::TabulatedSLSourceWithSynchCutoff(int Nrho, int
 
 TabulatedSLSourceWithSynchCutoff::~TabulatedSLSourceWithSynchCutoff()
 {
+	for (int i = 0; i < my_maxThreads; ++i) {
+		if (my_localDistribution[i] != NULL) {
+			delete my_localDistribution[i];
+		}
+	}
+	delete[] my_localDistribution;
 	delete3dArray(my_LB2, my_Nrho, my_Nz, my_Nphi);
 }
 
@@ -2281,15 +2303,22 @@ void TabulatedSLSourceWithSynchCutoff::resetParameters(const double* parameters,
 	my_velocity = parameters[4] * normalizationUnits[4];
 	my_meanB = getAverageBsquared();
 	updateLB2();
+	for (int i = 0; i < my_maxThreads; ++i) {
+		if (my_localDistribution[i] != NULL) {
+			delete my_localDistribution[i];
+			my_localDistribution[i] = NULL;
+		}
+	}
 }
 
 MassiveParticleDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistribution(int irho, int iz, int iphi)
 {
-	if (my_localDistribution != NULL) {
-		delete my_localDistribution;
-		my_localDistribution = NULL;
+	int numthreads = omp_get_thread_num();
+	if (my_localDistribution[numthreads] != NULL) {
+		delete my_localDistribution[numthreads];
+		my_localDistribution[numthreads] = NULL;
 	}
-	my_localDistribution = new MassiveParticleTabulatedIsotropicDistribution(*my_cutoffDistribution);
+	my_localDistribution[numthreads] = new MassiveParticleTabulatedIsotropicDistribution(*my_cutoffDistribution);
 	double LB2 = my_LB2[irho][iz][iphi];
 	if (LB2 <= 0) {
 		/*printf("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
@@ -2310,10 +2339,10 @@ MassiveParticleDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistri
 		//my_localDistribution->addExponentialCutoff(Ecut);
 		double lossRate = (4.0 / 9.0) * electron_charge * electron_charge * electron_charge * electron_charge * my_meanB * my_meanB / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
 		double time = (my_rho - getRho(irho)) / my_downstreamVelocity;
-		my_localDistribution->transformToLosses(lossRate, time);
+		my_localDistribution[numthreads]->transformToLosses(lossRate, time);
 	}
-	my_localDistribution->resetConcentration(getConcentration(irho, iz, iphi));
-	return my_localDistribution;
+	my_localDistribution[numthreads]->resetConcentration(getConcentration(irho, iz, iphi));
+	return my_localDistribution[numthreads];
 	//return std::unique_ptr<MassiveParticleDistribution>(new MassiveParticleMaxwellDistribution(massElectron, 1000, 1.0));
 }
 
@@ -2325,7 +2354,11 @@ TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho,
 		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
 		exit(0);
 	}
-	my_localDistribution = NULL;
+	my_maxThreads = omp_get_max_threads();
+	my_localDistribution = new MassiveParticleTabulatedIsotropicDistribution*[my_maxThreads];
+	for (int i = 0; i < my_maxThreads; ++i) {
+		my_localDistribution[i] = NULL;
+	}
 	my_downstreamVelocity = downstreamVelocity;
 	my_meanB = getAverageBsquared();
 }
@@ -2338,7 +2371,11 @@ TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho,
 		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
 		exit(0);
 	}
-	my_localDistribution = NULL;
+	my_maxThreads = omp_get_max_threads();
+	my_localDistribution = new MassiveParticleTabulatedIsotropicDistribution * [my_maxThreads];
+	for (int i = 0; i < my_maxThreads; ++i) {
+		my_localDistribution[i] = NULL;
+	}
 	my_downstreamVelocity = downstreamVelocity;
 	my_meanB = getAverageBsquared();
 }
@@ -2351,7 +2388,11 @@ TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho,
 		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
 		exit(0);
 	}
-	my_localDistribution = NULL;
+	my_maxThreads = omp_get_max_threads();
+	my_localDistribution = new MassiveParticleTabulatedIsotropicDistribution * [my_maxThreads];
+	for (int i = 0; i < my_maxThreads; ++i) {
+		my_localDistribution[i] = NULL;
+	}
 	my_downstreamVelocity = downstreamVelocity;
 	my_meanB = getAverageBsquared();
 }
@@ -2364,13 +2405,23 @@ TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho,
 		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
 		exit(0);
 	}
-	my_localDistribution = NULL;
+	my_maxThreads = omp_get_max_threads();
+	my_localDistribution = new MassiveParticleTabulatedIsotropicDistribution * [my_maxThreads];
+	for (int i = 0; i < my_maxThreads; ++i) {
+		my_localDistribution[i] = NULL;
+	}
 	my_downstreamVelocity = downstreamVelocity;
 	my_meanB = getAverageBsquared();
 }
 
 TabulatedDiskSourceWithSynchCutoff::~TabulatedDiskSourceWithSynchCutoff()
 {
+	for (int i = 0; i < my_maxThreads; ++i) {
+		if (my_localDistribution[i] != NULL) {
+			delete my_localDistribution[i];
+		}
+	}
+	delete[] my_localDistribution;
 }
 
 void TabulatedDiskSourceWithSynchCutoff::resetParameters(const double* parameters, const double* normalizationUnits)
@@ -2402,15 +2453,23 @@ void TabulatedDiskSourceWithSynchCutoff::resetParameters(const double* parameter
 	my_z = my_rho * parameters[3] * normalizationUnits[3];
 	my_velocity = parameters[4] * normalizationUnits[4];
 	my_meanB = getAverageBsquared();
+
+	for (int i = 0; i < my_maxThreads; ++i) {
+		if (my_localDistribution[i] != NULL) {
+			delete my_localDistribution[i];
+			my_localDistribution[i] = NULL;
+		}
+	}
 }
 
 MassiveParticleDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDistribution(int irho, int iz, int iphi)
 {
-	if (my_localDistribution != NULL) {
-		delete my_localDistribution;
-		my_localDistribution = NULL;
+	int numthread = omp_get_thread_num();
+	if (my_localDistribution[numthread] != NULL) {
+		delete my_localDistribution[numthread];
+		my_localDistribution[numthread] = NULL;
 	}
-	my_localDistribution = new MassiveParticleTabulatedIsotropicDistribution(*my_cutoffDistribution);
+	my_localDistribution[numthread] = new MassiveParticleTabulatedIsotropicDistribution(*my_cutoffDistribution);
 	//my_cutoffDistribution->resetEcut(my_defaultCutoff);
 	double rho = (irho + 0.5) * my_rho / my_Nrho;
 	double z = (iz + 0.5) * my_z / my_Nz;
@@ -2438,10 +2497,10 @@ MassiveParticleDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDist
 		//my_localDistribution->addExponentialCutoff(Ecut);
 		double lossRate = (4.0/9.0)*electron_charge * electron_charge * electron_charge * electron_charge * my_meanB * my_meanB / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
 		double time = l / my_downstreamVelocity;
-		my_localDistribution->transformToLosses(lossRate, time);
+		my_localDistribution[numthread]->transformToLosses(lossRate, time);
 	}
-	my_localDistribution->resetConcentration(getConcentration(irho, iz, iphi));
-	return my_localDistribution;
+	my_localDistribution[numthread]->resetConcentration(getConcentration(irho, iz, iphi));
+	return my_localDistribution[numthread];
 }
 
 SectoralSphericalLayerSource::SectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& minrho, const double& phi_sectoral, const double& distance, const double& velocity, const double& redShift) : RadiationSource(Nrho, Nz, Nphi, distance, redShift)
