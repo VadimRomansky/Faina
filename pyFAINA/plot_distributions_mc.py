@@ -90,8 +90,8 @@ def plot_distributions_mc():
     #plt.subplots_adjust(bottom=0.12)
     #ax.tick_params(axis='both', which='major', labelsize=10)
     #ax.tick_params(axis='both', which='minor', labelsize=8)
-    ax.set_xlabel('$p/m_p c$', fontsize=40,fontweight='bold')
-    ax.set_ylabel('$f(p/m_p c)  (p/m_p c)^4$', fontsize=40,fontweight='bold')
+    ax.set_xlabel('p/m$_p$ c', fontsize=40,fontweight='bold')
+    ax.set_ylabel('f(p/m$_p$ c)  (p/m$_p$ c)$^4$', fontsize=40,fontweight='bold')
     ax.set_yscale("log")
     ax.set_xscale("log")
     #extraticks=[1,100]
@@ -103,11 +103,13 @@ def plot_distributions_mc():
     plt.plot(P[0], F[0], linewidth=4)
     plt.plot(P[1], F[1], linewidth=4)
     plt.plot(P[2], F[2], linewidth=4)
-    ax.legend([r'$B_{up} = 0.0003 G$',
-               r'$B_{up} = 0.00003 G$',
-               r'$B_{up} = 0.000003 G$'], fontsize="25")
+    ax.legend([r'B$_{up}$ = 3$\cdot$10$^{-4}$ G',
+               r'B$_{up}$ = 3$\cdot$10$^{-5}$ G',
+               r'B$_{up}$ = 3$\cdot$10$^{-6}$ G'], fontsize="25")
     ax.set_xlim(xmin=0.01, xmax=1E10)
     ax.set_ylim(ymin=1E-3, ymax=2E0)
+    ax.tick_params(axis='x', size=10, width=4)
+    ax.tick_params(axis='y', size=10, width=4)
     #ax.set_xbound(lower=0.5, upper=2E3)
     #plt.show()
     plt.savefig('distribution_mc.png', bbox_inches='tight')

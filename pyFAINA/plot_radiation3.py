@@ -53,8 +53,8 @@ def plot_radiation3():
     plt.rcParams['axes.linewidth'] = 4
     f1 = plt.figure(figsize=[10, 10])
     ax = f1.add_subplot(111)
-    ax.set_xlabel(r'$\nu~GHz$', fontsize=40,fontweight='bold')
-    ax.set_ylabel(r'$F_{\nu}~mJy$', fontsize=40,fontweight='bold')
+    ax.set_xlabel(r'$\nu$, GHz', fontsize=40,fontweight='bold')
+    ax.set_ylabel(r'F$_{\nu}$, mJy', fontsize=40,fontweight='bold')
     ax.set_yscale("log")
     ax.set_xlim([0.1, 100])
     ax.set_ylim([0.02, 20])

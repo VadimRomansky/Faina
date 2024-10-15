@@ -260,9 +260,10 @@ void SynchrotronEvaluator::evaluateEmissivityAndAbsorption(const double& photonF
 
 	double factor = pow(Emax / Emin, 1.0 / (my_Ne - 1));
 
-	my_Ee[0] = Emin;
+	double* Ee = new double[my_Ne];
+	Ee[0] = Emin;
 	for (int i = 1; i < my_Ne; ++i) {
-		my_Ee[i] = my_Ee[i - 1] * factor;
+		Ee[i] = Ee[i - 1] * factor;
 	}
 	//Anu from ghiselini simple
 	I = 0;
@@ -285,16 +286,35 @@ void SynchrotronEvaluator::evaluateEmissivityAndAbsorption(const double& photonF
 	for (int j = 0; j < my_Ne; ++j) {
 		double delectronEnergy = 0;
 		if (j == 0) {
-			delectronEnergy = my_Ee[j + 1] - my_Ee[j];
+			delectronEnergy = Ee[j + 1] - Ee[j];
+			if (delectronEnergy < 0) {
+				printf("delectronEnergy %g < 0\n", delectronEnergy);
+				printLog("delectronEnergy %g < 0\n", delectronEnergy);
+				printf("j = %d, Ee[j+1] = %g, Ee[j] = %g\n", j, Ee[j+1], Ee[j]);
+				printLog("j = %d, Ee[j+1] = %g, Ee[j] = %g\n", j, Ee[j+1], Ee[j]);
+				exit(0);
+			}
 		}
 		else {
-			delectronEnergy = my_Ee[j] - my_Ee[j - 1];
+			delectronEnergy = Ee[j] - Ee[j - 1];
+			if (delectronEnergy < 0) {
+				printf("delectronEnergy %g < 0\n", delectronEnergy);
+				printLog("delectronEnergy %g < 0\n", delectronEnergy);
+				printf("j = %d, Ee[j] = %g, Ee[j-1] = %g\n", j, Ee[j], Ee[j - 1]);
+				printLog("j = %d, Ee[j] = %g, Ee[j-1] = %g\n", j, Ee[j], Ee[j - 1]);
+				exit(0);
+			}
 		}
-		double electronDist = concentration*electronDistribution->distributionNormalized(my_Ee[j]);
+		double electronDist = concentration*electronDistribution->distributionNormalized(Ee[j]);
+		if (electronDist < 0) {
+			printf("Fe = %g < 0\n", electronDist);
+			printLog("Fe = %g < 0\n", electronDist);
+			exit(0);
+		}
 		if (electronDist > 0) {
 			double dFe = electronDist * delectronEnergy;
-			double nuc = criticalNu(my_Ee[j], sinTheta, B, criticalNuCoef);
-			double gamma = my_Ee[j] / m_c2;
+			double nuc = criticalNu(Ee[j], sinTheta, B, criticalNuCoef);
+			double gamma = Ee[j] / m_c2;
 
 			double mcDonaldIntegral = evaluateMcDonaldIntegral(photonFinalFrequency / nuc);
 
@@ -363,6 +383,8 @@ void SynchrotronEvaluator::evaluateEmissivityAndAbsorption(const double& photonF
 			}
 		}
     }
+
+	delete[] Ee;
 
 	if (my_doppler) {
 		I = I / (D * D);
