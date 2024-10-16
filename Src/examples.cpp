@@ -574,8 +574,8 @@ void fitTimeDependentCSS161010() {
 
 
 	//initializing time moments
-	//const int Ntimes = 3;
 	const int Ntimes = 3;
+	//const int Ntimes = 2;
 	const int Ntimes3 = 3;
 	double times[Ntimes] = { 99 * 24 * 3600, 162 * 24 * 3600, 357 * 24 * 3600 };
 	//double times[Ntimes] = {99 * 24 * 3600, 357 * 24 * 3600 };
@@ -717,16 +717,16 @@ void fitTimeDependentCSS161010() {
 	//number of points per axis in gridEnumOptimizer
 	int Npoints[Nparams] = { 4,4,4,4,4, 4, 4, 4,4 };
 	//number of iterations in gradient descent optimizer
-	int Niterations = 2;
+	int Niterations = 4;
 	//energies of electrons wich will be used for evaluatig radiation
 	double Emin = me_c2;
 	double Emax = 10000 * me_c2;
 	//creating KPI evaluator
 	LossEvaluator* KPIevaluator = new TimeDependentSpectrumLossEvaluator(energy, F, Error, Nenergy, times, Ntimes, source);
 	//creating time dependent synchrotron evaluator
-	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax, true, true);
+	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax, true, false);
 	CombinedRadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints, KPIevaluator);
-	SequentCoordinateEnumOptimizer* sequentOptimizer = new SequentCoordinateEnumOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 200, Niterations, KPIevaluator);
+	SequentCoordinateEnumOptimizer* sequentOptimizer = new SequentCoordinateEnumOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 400, Niterations, KPIevaluator);
 	//creating time depedent grid enumeration optimizer, which will chose the best starting poin for gradien descent
 	//RadiationOptimizer* gridEnumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
 	//gridEnumOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
@@ -753,7 +753,7 @@ void fitTimeDependentCSS161010() {
 	printf("optimization\n");
 	printLog("optimization\n");
 	//creating gradient descent optimizer and optimizing
-	RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
+	//RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	//gradientOptimizer->optimize(vector, optPar);
 	//combinedOptimizer->optimize(vector, optPar);
 	sequentOptimizer->optimize(vector, optPar);
@@ -841,6 +841,7 @@ void fitTimeDependentCSS161010() {
 	printf("evaluating wide-range radiation\n");
 	printLog("evaluating wide-range radiation\n");
 
+
 	Nrho = 1000;
 	Nz = 2000;
 	Nphi = 1;
@@ -857,7 +858,7 @@ void fitTimeDependentCSS161010() {
 
 	int Ne = 2000;
 	Emin = me_c2;
-	Emax = me_c2 * 1E9;
+	Emax = me_c2 * 2E9;
 	SynchrotronEvaluator* evaluator2 = new SynchrotronEvaluator(Ne, Emin, Emax, true, true);
 
 	double kevFlux = evaluator2->evaluateTotalFluxInEnergyRange(0.3 * keV, 10 * keV, 100, source2);

@@ -1012,6 +1012,8 @@ void SequentCoordinateEnumOptimizer::optimize(double* vector, bool* optPar)
 	double currentF = evaluateOptimizationFunction(vector);
 
 	for (int i = 0; i < my_Niterations; ++i) {
+		printf("iteration %d\n", i);
+		printLog("iteration %d\n", i);
 		for (int j = 0; j < my_Nparams; ++j) {
 			for (int k = 0; k < my_Nparams; ++k) {
 				tempVector[k] = vector[k];
