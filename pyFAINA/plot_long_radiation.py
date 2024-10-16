@@ -28,8 +28,8 @@ def plot_long_radiation():
     plt.rcParams['axes.linewidth'] = 4
     f1 = plt.figure(figsize=[10, 10])
     ax = f1.add_subplot(111)
-    ax.set_xlabel(r'E,~keV', fontsize=40,fontweight='bold')
-    ax.set_ylabel(r'E F(E),~10$^{-15}$~erg~cm$^{-2}$~s$^{-1}$', fontsize=40,fontweight='bold')
+    ax.set_xlabel('$\\rm E,~keV$', fontsize=40,fontweight='bold')
+    ax.set_ylabel('$\\rm E F(E),~10^{-15}~erg~cm^{-2}~s^{-1}$', fontsize=40,fontweight='bold')
     ax.set_yscale("log")
     ax.set_xlim([1E-8, 0.5E4])
     ax.set_ylim([1E-16, 2E-14])
