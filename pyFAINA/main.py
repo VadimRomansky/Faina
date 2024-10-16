@@ -25,6 +25,8 @@ from plot_radiation3 import plot_radiation3
 from plot_radiation4 import plot_radiation4
 from plot_synchrotron import plot_synchrotron
 
+
+
 if __name__ == '__main__':
     #plt.rcParams['image.cmap'] = 'jet'
     plt.rcParams['image.cmap'] = 'hot'
@@ -32,6 +34,7 @@ if __name__ == '__main__':
     #plot_distributions()
     #plot_distributions9()
     #plot_distributions_protons()
+    plot_distributions2()
     plot_distributions_4()
     plot_distributions_mc()
     #plot_radiation()

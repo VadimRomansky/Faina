@@ -3,11 +3,11 @@ from pylab import *
 import numpy as np
 
 def plot_distributions2():
-    Efile0e = open('../examples_data/gamma0.2_combined_cutoff/Ee3.dat','r').readline().split()
-    Ffile0e= open('../examples_data/gamma0.2_combined_cutoff/Fs3.dat','r').readline().split()
+    Efile0e = open('../examples_data/gamma1.5_combined_cutoff/Ee3.dat','r').readline().split()
+    Ffile0e= open('../examples_data/gamma1.5_combined_cutoff/Fs3.dat','r').readline().split()
 
-    Efile0p = open('../examples_data/gamma0.2_combined_protons/Ee3.dat', 'r').readline().split()
-    Ffile0p = open('../examples_data/gamma0.2_combined_protons/Fs3.dat', 'r').readline().split()
+    Efile0p = open('../examples_data/gamma1.5_combined_protons/Ee3.dat', 'r').readline().split()
+    Ffile0p = open('../examples_data/gamma1.5_combined_protons/Fs3.dat', 'r').readline().split()
 
     me = 9.1E-28
     mp = 1.6E-24
@@ -70,7 +70,7 @@ def plot_distributions2():
             Fe[i] = Fe[i]/norme
             totalEenergy+= Fe[i]*Ee[i]*dEe[i]
             totalEkineticenergy += Fe[i] * (Ee[i] - me*c*c) * dEe[i]
-            #Fe[i] = (Fe[i]*Pe[i]*Pe[i]*Pe[i]*c2/Ee[i])/(mp*c)
+            Fe[i] = (Fe[i]*Pe[i]*Pe[i]*Pe[i]*c2/Ee[i])/(mp*c)
             Pe[i] = Pe[i]/(mp*c)
 
     for i in range(Np):
@@ -78,7 +78,7 @@ def plot_distributions2():
         Fp[i] = Fp[i]/ normp
         totalPenergy += Fp[i] * Ep[i] * dEp[i]
         totalPkineticenergy += Fp[i] * (Ep[i] - mp*c*c) * dEp[i]
-        #Fp[i] = (Fp[i]*Pp[i]*Pp[i]*Pp[i]*c2/Ep[i])/(mp*c)
+        Fp[i] = (Fp[i]*Pp[i]*Pp[i]*Pp[i]*c2/Ep[i])/(mp*c)
         Pp[i] = Pp[i]/(mp*c)
 
     for i in range(Ne):
@@ -110,10 +110,10 @@ def plot_distributions2():
     #plt.subplots_adjust(bottom=0.12)
     #ax.tick_params(axis='both', which='major', labelsize=10)
     #ax.tick_params(axis='both', which='minor', labelsize=8)
-    ax.set_xlabel('$E_{kin}/m_p c^2$', fontsize=40,fontweight='bold')
-    #ax.set_xlabel('$p/m_p c$', fontsize=40,fontweight='bold')
-    ax.set_ylabel('$f(E) E^2$', fontsize=40, fontweight='bold')
-    #ax.set_ylabel('$f(p/m_p c) (p/m_p c)^4$', fontsize=40,fontweight='bold')
+    #ax.set_xlabel('$\\rm E_{kin}/m_p c^2$', fontsize=40,fontweight='bold')
+    ax.set_xlabel('$\\rm p/m_p c$', fontsize=40,fontweight='bold')
+    #ax.set_ylabel('$\\rm f(E) E^2$', fontsize=40, fontweight='bold')
+    ax.set_ylabel('$\\rm f(p/m_p c) (p/m_p c)^4$', fontsize=40,fontweight='bold')
     ax.set_yscale("log")
     ax.set_xscale("log")
     #extraticks=[1,100]
@@ -140,8 +140,8 @@ def plot_distributions2():
     #ax.set_xticks([1E-2, 1, 1E2, 1E4, 1E6, 1E8])
     #ax.set_xbound(lower=0.5, upper=2E3)
     #plt.show()
-    plt.savefig('distributions2_energy.png', bbox_inches='tight')
-    #plt.savefig('distributions2_momentum.png', bbox_inches='tight')
+    #plt.savefig('distributions2_energy.png', bbox_inches='tight')
+    plt.savefig('distributions2_momentum.png', bbox_inches='tight')
 
     i1 = 0
     i2 = 0

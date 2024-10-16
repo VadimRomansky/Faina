@@ -631,7 +631,7 @@ void fitTimeDependentCSS161010() {
 	const int Nparams = 9;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 0.9*rmax, 0.000001, 1, 0.05, 0.5 * speed_of_light, 1.0, 1.0, 1.0, 1.0 };
-	double maxParameters[Nparams] = { times[0] * 0.9 * speed_of_light, 2, 50, 0.2, 0.8 * speed_of_light, 3.0, 4.0, 4.0, 3.0 };
+	double maxParameters[Nparams] = { times[0] * 0.9 * speed_of_light, 2, 200, 0.2, 0.8 * speed_of_light, 3.0, 4.0, 4.0, 3.0 };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v, 1.01, 2.0, 3.0, 1.0 };
 	for (int i = 0; i < Nparams; ++i) {
@@ -855,7 +855,7 @@ void fitTimeDependentCSS161010() {
 	//TabulatedSLSourceWithSynchCutoff* source2 = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance, downstreamV, velocity);
 	TabulatedDiskSourceWithSynchCutoff* source2 = new TabulatedDiskSourceWithSynchCutoff(1, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, velocity);
 
-	int Ne = 5000;
+	int Ne = 2000;
 	Emin = me_c2;
 	Emax = me_c2 * 1E9;
 	SynchrotronEvaluator* evaluator2 = new SynchrotronEvaluator(Ne, Emin, Emax, true, true);
