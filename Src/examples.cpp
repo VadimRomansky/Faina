@@ -624,7 +624,7 @@ void fitTimeDependentCSS161010() {
 	double rmax = times[0]*0.75*speed_of_light;
 	//rmax = 1.0;
 	double B = 0.6;
-	double widthFraction = 0.1;
+	double widthFraction = 0.25;
 	double v = 0.75 * speed_of_light;
 	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
 	//number of optimized parameters
@@ -697,6 +697,12 @@ void fitTimeDependentCSS161010() {
 	distributions[2] = electronDistribution3;
 	distributions[3] = electronDistribution4;
 
+	//electronDistribution1->writeDistribution("distribution1.dat", 1000, me_c2, 1E9*me_c2);
+	//electronDistribution2->writeDistribution("distribution2.dat", 1000, me_c2, 1E9 * me_c2);
+	//electronDistribution3->writeDistribution("distribution3.dat", 1000, me_c2, 1E9 * me_c2);
+	electronDistribution4->writeDistribution("distribution4.dat", 2000, me_c2, 2E9 * me_c2);
+
+
 	printf("creating sources\n");
 	printLog("creating sources\n");
 
@@ -756,7 +762,7 @@ void fitTimeDependentCSS161010() {
 	//RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	//gradientOptimizer->optimize(vector, optPar);
 	//combinedOptimizer->optimize(vector, optPar);
-	sequentOptimizer->optimize(vector, optPar);
+	//sequentOptimizer->optimize(vector, optPar);
 	//reset parameters of source to the found values
 	source->resetParameters(vector, maxParameters);
 	//evaluating final error
@@ -842,8 +848,8 @@ void fitTimeDependentCSS161010() {
 	printLog("evaluating wide-range radiation\n");
 
 
-	Nrho = 1000;
-	Nz = 2000;
+	Nrho = 100;
+	Nz = 200;
 	Nphi = 1;
 
 	double R = vector[0] * maxParameters[0];
@@ -853,13 +859,23 @@ void fitTimeDependentCSS161010() {
 	double velocity = vector[4] * maxParameters[4];
 	double downstreamV = 0.25 * velocity;
 
-	//TabulatedSLSourceWithSynchCutoff* source2 = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance, downstreamV, velocity);
-	TabulatedDiskSourceWithSynchCutoff* source2 = new TabulatedDiskSourceWithSynchCutoff(1, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, velocity);
+	TabulatedSLSourceWithSynchCutoff* source2 = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance, downstreamV, velocity);
+	//TabulatedDiskSourceWithSynchCutoff* source2 = new TabulatedDiskSourceWithSynchCutoff(1, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, velocity);
 
 	int Ne = 2000;
 	Emin = me_c2;
 	Emax = me_c2 * 2E9;
-	SynchrotronEvaluator* evaluator2 = new SynchrotronEvaluator(Ne, Emin, Emax, true, true);
+
+	MassiveParticleIsotropicDistribution* distribution1 = dynamic_cast<MassiveParticleIsotropicDistribution*>(source2->getParticleDistribution(0, 1000, 0));
+	distribution1->writeDistribution("distribution1.dat", Ne, Emin, Emax);
+	MassiveParticleIsotropicDistribution* distribution2 = dynamic_cast<MassiveParticleIsotropicDistribution*>(source2->getParticleDistribution(0, 1200, 0));
+	distribution2->writeDistribution("distribution2.dat", Ne, Emin, Emax);
+	MassiveParticleIsotropicDistribution* distribution3 = dynamic_cast<MassiveParticleIsotropicDistribution*>(source2->getParticleDistribution(0, 1500, 0));
+	distribution3->writeDistribution("distribution3.dat", Ne, Emin, Emax);
+	MassiveParticleIsotropicDistribution* distribution4 = dynamic_cast<MassiveParticleIsotropicDistribution*>(source2->getParticleDistribution(0, 1999, 0));
+	distribution4->writeDistribution("distribution4.dat", Ne, Emin, Emax);
+
+	SynchrotronEvaluator* evaluator2 = new SynchrotronEvaluator(Ne, Emin, Emax, true, false);
 
 	double kevFlux = evaluator2->evaluateTotalFluxInEnergyRange(0.3 * keV, 10 * keV, 100, source2);
 
@@ -871,7 +887,7 @@ void fitTimeDependentCSS161010() {
 	printf("MeV flux = %g, luminocity = %g\n", mevFlux, mevFlux * 4 * pi * distance * distance);
 	printLog("MeV flux = %g, luminocity = %g\n", mevFlux, mevFlux * 4 * pi * distance * distance);
 
-	evaluator2->writeFluxFromSourceToFile("wideRangeSynch.dat", source2, 1E8 * hplank, 20 * MeV, 2000);
+	evaluator2->writeFluxFromSourceToFile("wideRangeSynch.dat", source2, 1E8 * hplank, 20 * MeV, 500);
 
 	//deleting arrays
 	for (int i = 0; i < Ntimes; ++i) {
