@@ -56,7 +56,7 @@ def plot_radiation3():
     ax.set_xlabel(r'$\rm\nu,~GHz$', fontsize=40,fontweight='bold')
     ax.set_ylabel(r'$\rm F_{\nu},~mJy$', fontsize=40,fontweight='bold')
     ax.set_yscale("log")
-    ax.set_xlim([0.1, 100])
+    ax.set_xlim([0.1, 200])
     ax.set_ylim([0.02, 20])
     ax.set_xscale("log")
     ax.tick_params(axis='x', size=10, width=4)

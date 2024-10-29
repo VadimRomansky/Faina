@@ -2259,7 +2259,12 @@ void TabulatedSLSourceWithSynchCutoff::updateLB2() {
 				double rho = (irho + 0.5) * drho;
 				double z = (iz + 0.5) * dz - my_rho;
 				double theta = acos(z / sqrt(rho * rho + z * z));
-				my_LB2[irho][iz][iphi] = evaluateTotalLB2fromPoint(rho, z, iphi, theta);
+				//my_LB2[irho][iz][iphi] = evaluateTotalLB2fromPoint(rho, z, iphi, theta);
+				double l = my_rho - rho;
+				if (l < 0) {
+					l = 0;
+				}
+				my_LB2[irho][iz][iphi] = my_B[irho][iz][iphi] * my_B[irho][iz][iphi] * l;
 			}
 		}
 	}
@@ -2337,8 +2342,14 @@ MassiveParticleDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistri
 		//my_cutoffDistribution->resetEcut(Ecut);
 		//my_localDistribution->setToZeroAboveE(Ecut);
 		//my_localDistribution->addExponentialCutoff(Ecut);
+		double rho = getRho(irho);
+		double z = getZ(iz);
+		double l = my_rho - sqrt(rho * rho + z * z);
+		if (l < 0) {
+			l = 0;
+		}
 		double lossRate = (4.0 / 9.0) * electron_charge * electron_charge * electron_charge * electron_charge * my_meanB * my_meanB / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
-		double time = (my_rho - getRho(irho)) / my_downstreamVelocity;
+		double time = l / my_downstreamVelocity;
 		my_localDistribution[numthreads]->transformToLosses(lossRate, time);
 	}
 	my_localDistribution[numthreads]->resetConcentration(getConcentration(irho, iz, iphi));
@@ -2474,7 +2485,9 @@ MassiveParticleDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDist
 	double rho = (irho + 0.5) * my_rho / my_Nrho;
 	double z = (iz + 0.5) * my_z / my_Nz;
 	//double l1 = my_rho - rho;
+	//double l2 = my_rho - sqrt(rho*rho + z*z);
 	double l2 = my_z - z;
+	//printf("l2 = %g\n", l2);
 	//double l3 = z;
 	//double l = min3(l1, l2, l3);
 	double l = l2;
@@ -2492,6 +2505,8 @@ MassiveParticleDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDist
 			//todo
 			Ecut = mass * speed_of_light2 * 2.0;
 		}
+		double gammaCut = Ecut / (me_c2);
+		//printf("gammaCut = %g\n", gammaCut);
 		//my_cutoffDistribution->resetEcut(Ecut);
 		//my_localDistribution->setToZeroAboveE(Ecut);
 		//my_localDistribution->addExponentialCutoff(Ecut);

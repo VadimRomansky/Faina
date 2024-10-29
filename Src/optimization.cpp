@@ -1036,6 +1036,9 @@ void SequentCoordinateEnumOptimizer::optimize(double* vector, bool* optPar)
 
 						printf("optimization function = %g\n", currentF);
 						printLog("optimization function = %g\n", currentF);
+						/*for (int l = 0; l < my_Nparams; ++l) {
+							printf("parameter %d = %g\n", l, vector[l] * my_maxParameters[l]);
+						}*/
 					}
 
 					value = value * factor;
