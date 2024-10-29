@@ -2259,7 +2259,12 @@ void TabulatedSLSourceWithSynchCutoff::updateLB2() {
 				double rho = (irho + 0.5) * drho;
 				double z = (iz + 0.5) * dz - my_rho;
 				double theta = acos(z / sqrt(rho * rho + z * z));
-				my_LB2[irho][iz][iphi] = evaluateTotalLB2fromPoint(rho, z, iphi, theta);
+				//my_LB2[irho][iz][iphi] = evaluateTotalLB2fromPoint(rho, z, iphi, theta);
+				double l = my_rho - rho;
+				if (l < 0) {
+					l = 0;
+				}
+				my_LB2[irho][iz][iphi] = my_B[irho][iz][iphi] * my_B[irho][iz][iphi] * l;
 			}
 		}
 	}
