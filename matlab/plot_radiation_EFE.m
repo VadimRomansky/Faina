@@ -59,8 +59,8 @@ loglog(radiation(1:N,1),radiation(1:N,2),'red','LineWidth',2);
 %errorbar(cssx2,cssy2,cssError2,'green','LineWidth',2);
 %errorbar(cssx3,cssy3,cssError3,'blue','LineWidth',2);
 
-errorbar(radiationObserved(1:Nn,5), radiationObserved(1:Nn,7), radiationObserved(1:Nn,8),'blue','LineWidth',2);
-loglog(radiationObserved(1:Nn,5), radiationLinear(1:Nn),'green');
+%errorbar(radiationObserved(1:Nn,5), radiationObserved(1:Nn,7), radiationObserved(1:Nn,8),'blue','LineWidth',2);
+%loglog(radiationObserved(1:Nn,5), radiationLinear(1:Nn),'green');
 %loglog(radiation4(1:Nn,1),radiation4(1:Nn,2),'blue','LineWidth',2);
 %errorbar(cssx2,cssy2,cssError2,'green','LineWidth',2);
 %errorbar(cssx3,cssy3,cssError3,'blue','LineWidth',2);

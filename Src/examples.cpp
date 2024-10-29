@@ -638,7 +638,7 @@ void fitTimeDependentCSS161010() {
 		vector[i] = vector[i] / maxParameters[i];
 	}
 	//picking parameters to be optimized
-	bool optPar[Nparams] = { true, true, true, false, true, true, true, true, true };
+	bool optPar[Nparams] = { true, true, true, true, true, true, true, true, true };
 
 	int numberOfOptpar = 0;
 	for (int i = 0; i < Nparams; ++i) {
@@ -704,11 +704,11 @@ void fitTimeDependentCSS161010() {
 	//electronDistribution->rescaleDistribution(1.2);
 	//SimpleFlatSource* source1 = new SimpleFlatSource(electronDistribution, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance);
 	//SimpleFlatSource2* source1 = new SimpleFlatSource2(4, velocities, distributions, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance);
-	int Nrho = 40;
-	int Nz = 40;
+	int Nrho = 20;
+	int Nz = 20;
 	int Nphi = 1;
-	//SphericalLayerSource* source1 = new TabulatedSphericalLayerSource2(4, velocities, distributions, Nrho, Nz, Nphi, B, pi / 2, 0, electronConcentration, rmax, (1.0 - widthFraction) * rmax, distance);
-	SimpleFlatSource2* source1 = new SimpleFlatSource2(4, velocities, distributions, B, pi / 2, 0, electronConcentration, rmax, widthFraction * rmax, distance);
+	SphericalLayerSource* source1 = new TabulatedSphericalLayerSource2(4, velocities, distributions, Nrho, Nz, Nphi, B, pi / 2, 0, electronConcentration, rmax, (1.0 - widthFraction) * rmax, distance);
+	//SimpleFlatSource2* source1 = new SimpleFlatSource2(4, velocities, distributions, B, pi / 2, 0, electronConcentration, rmax, widthFraction * rmax, distance);
 	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, pi/2, 0, electronConcentration, rmax, 0.5 * rmax, distance, 0.3*speed_of_light);
 	//creating time dependent radiation source
 	//RadiationTimeDependentSource* source = new ExpandingRemnantSource(rmax, B, electronConcentration, 0.3 * speed_of_light, 0.5, angleDependentSource, times[0]);
@@ -726,24 +726,24 @@ void fitTimeDependentCSS161010() {
 	//creating time dependent synchrotron evaluator
 	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax, true, false);
 	CombinedRadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints, KPIevaluator);
-	SequentCoordinateEnumOptimizer* sequentOptimizer = new SequentCoordinateEnumOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 400, Niterations, KPIevaluator);
+	SequentCoordinateEnumOptimizer* sequentOptimizer = new SequentCoordinateEnumOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 100, 2, KPIevaluator);
 	//creating time depedent grid enumeration optimizer, which will chose the best starting poin for gradien descent
 	//RadiationOptimizer* gridEnumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
 	//gridEnumOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
-	/*vector[0] = 2.30489e+17 / maxParameters[0];
-	vector[1] = 0.225929 / maxParameters[1];
-	vector[2] = 50.2904 / maxParameters[2];
-	vector[3] = 0.0881553 / maxParameters[3];
-	vector[4] = 0.632759 *speed_of_light / maxParameters[4];
-	vector[5] = 1.177385 / maxParameters[5];
-	vector[6] = 2.04695 / maxParameters[6];
-	vector[7] = 2.53611 / maxParameters[7];
-	vector[8] = 1.0186384 / maxParameters[8];*/
+	vector[0] = 1.9e+17 / maxParameters[0];
+	vector[1] = 0.1 / maxParameters[1];
+	vector[2] = 50 / maxParameters[2];
+	vector[3] = 0.05 / maxParameters[3];
+	vector[4] = 0.74 *speed_of_light / maxParameters[4];
+	vector[5] = 1.3 / maxParameters[5];
+	vector[6] = 1.25 / maxParameters[6];
+	vector[7] = 3.0 / maxParameters[7];
+	vector[8] = 1.04 / maxParameters[8];
 
 	/*combinedOptimizer->outputOneVariableProfile(vector, 100, 0, "error0.dat");
-	combinedOptimizer->outputOneVariableProfile(vector, 100, 1, "error1.dat");
-	combinedOptimizer->outputOneVariableProfile(vector, 100, 2, "error2.dat");
-	combinedOptimizer->outputOneVariableProfile(vector, 100, 3, "error3.dat");
+	combinedOptimizer->outputOneVariableProfile(vector, 100, 1, "error1.dat");*/
+	//combinedOptimizer->outputOneVariableProfile(vector, 100, 2, "error2.dat");
+	/*combinedOptimizer->outputOneVariableProfile(vector, 100, 3, "error3.dat");
 	combinedOptimizer->outputOneVariableProfile(vector, 100, 4, "error4.dat");
 	combinedOptimizer->outputOneVariableProfile(vector, 100, 5, "error5.dat");
 	combinedOptimizer->outputOneVariableProfile(vector, 100, 6, "error6.dat");
@@ -853,10 +853,10 @@ void fitTimeDependentCSS161010() {
 	double velocity = vector[4] * maxParameters[4];
 	double downstreamV = 0.25 * velocity;
 
-	//TabulatedSLSourceWithSynchCutoff* source2 = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance, downstreamV, velocity);
-	TabulatedDiskSourceWithSynchCutoff* source2 = new TabulatedDiskSourceWithSynchCutoff(1, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, velocity);
+	TabulatedSLSourceWithSynchCutoff* source2 = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance, downstreamV, velocity);
+	//TabulatedDiskSourceWithSynchCutoff* source2 = new TabulatedDiskSourceWithSynchCutoff(1, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, velocity);
 
-	int Ne = 2000;
+	int Ne = 1000;
 	Emin = me_c2;
 	Emax = me_c2 * 2E9;
 	SynchrotronEvaluator* evaluator2 = new SynchrotronEvaluator(Ne, Emin, Emax, true, true);
@@ -871,7 +871,7 @@ void fitTimeDependentCSS161010() {
 	printf("MeV flux = %g, luminocity = %g\n", mevFlux, mevFlux * 4 * pi * distance * distance);
 	printLog("MeV flux = %g, luminocity = %g\n", mevFlux, mevFlux * 4 * pi * distance * distance);
 
-	evaluator2->writeFluxFromSourceToFile("wideRangeSynch.dat", source2, 1E8 * hplank, 20 * MeV, 2000);
+	evaluator2->writeFluxFromSourceToFile("wideRangeSynch.dat", source2, 1E8 * hplank, 20 * MeV, 500);
 
 	//deleting arrays
 	for (int i = 0; i < Ntimes; ++i) {
