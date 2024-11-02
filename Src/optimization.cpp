@@ -35,6 +35,70 @@ double RadiationOptimizer::evaluateOptimizationFunction(const double* vector) {
 	return my_lossEvaluator->evaluate(vector, my_maxParameters, my_evaluator);
 }
 
+/*double** RadiationOptimizer::secondDerivativeMatrix(double* vector, bool* optPar)
+{
+	double** result = new double*[my_Nparams];
+	for (int i = 0; i < my_Nparams; ++i) {
+		result[i] = new double[my_Nparams];
+		for (int j = 0; j < my_Nparams; ++j) {
+			result[i][j] = 0;
+		}
+	}
+
+	double* tempVectorLeft = new double[my_Nparams];
+	double* tempVectorRight = new double[my_Nparams];
+	double* tempVectorTop = new double[my_Nparams];
+	double* tempVectorBottom = new double[my_Nparams];
+	for (int i = 0; i < my_Nparams; ++i) {
+		tempVectorLeft[i] = vector[i];
+		tempVectorRight[i] = vector[i];
+		tempVectorTop[i] = vector[i];
+		tempVectorBottom[i] = vector[i];
+	}
+
+	double F = evaluateOptimizationFunction(vector);
+
+	for (int i = 0; i < my_Nparams; ++i) {
+		for (int j = 0; j < my_Nparams; ++j) {
+			if ((!optPar[i]) || (!optPar[j])) {
+				result[i][j] = 0;
+			}
+			else if (i == j) {
+				double dx = 0.001 * (my_minParameters[i] / my_maxParameters[i]);
+				tempVectorLeft[i] = vector[i] - dx;
+				double Fleft = evaluateOptimizationFunction(tempVectorLeft);
+				tempVectorRight[i] = vector[i] + dx;
+				double Fright = evaluateOptimizationFunction(tempVectorRight);
+				result[i][j] = (Fright + Fleft - 2 * F) / (dx * dx);
+				tempVectorLeft[i] = vector[i];
+				tempVectorRight[i] = vector[i];
+			}
+			else {
+				double dx = 0.001 * (my_minParameters[i] / my_maxParameters[i]);
+				double dy = 0.001 * (my_minParameters[j] / my_maxParameters[j]);
+				tempVectorLeft[i] = vector[i] - dx / 2;
+				tempVectorLeft[j] = vector[j] - dy / 2;
+
+				tempVectorRight[i] = vector[i] + dx / 2;
+				tempVectorRight[j] = vector[j] - dy / 2;
+
+				tempVectorTop[i] = vector[i] - dx / 2;
+				tempVectorTop[j] = vector[j] + dy / 2;
+
+				tempVectorBottom[i] = vector[i] + dx / 2;
+				tempVectorBottom[j] = vector[j] + dy / 2;
+			}
+		}
+	}
+
+	delete[] tempVectorLeft;
+	delete[] tempVectorRight;
+	delete[] tempVectorTop;
+	delete[] tempVectorBottom;
+
+	return re;
+}*/
+
 
 void RadiationOptimizer::outputOneVariableProfile(const double* vector, int Npoints, int Nparam1, const char* fileName)
 {

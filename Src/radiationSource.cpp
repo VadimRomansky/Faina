@@ -2325,14 +2325,21 @@ MassiveParticleDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistri
 	}
 	my_localDistribution[numthreads] = new MassiveParticleTabulatedIsotropicDistribution(*my_cutoffDistribution);
 	double LB2 = my_LB2[irho][iz][iphi];
-	if (LB2 <= 0) {
+	double rho = getRho(irho);
+	double z = getZ(iz);
+	double l = my_rho - sqrt(rho * rho + z * z);
+	//printf("spherical l = %g\n", l);
+	if (l <= 0) {
+		//todo???
+		l = my_rho;
+		//printf("aaa");
 		/*printf("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
 		printf("rho = %g z = %g r = %g R = %g\n", rho, z, r, my_rho);
 		printLog("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
 		printLog("rho = %g z = %g r = %g R = %g\n", rho, z, r, my_rho);*/
 		//exit(0);
 	}
-	if (LB2 > 0) {
+	if (l > 0) {
 		double mass = my_cutoffDistribution->getMass();
 		double Ecut = mass * mass * mass * mass * pow(speed_of_light, 7) * my_downstreamVelocity / (electron_charge * electron_charge * electron_charge * electron_charge * LB2);
 		if (Ecut < mass * speed_of_light2) {
@@ -2342,14 +2349,10 @@ MassiveParticleDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistri
 		//my_cutoffDistribution->resetEcut(Ecut);
 		//my_localDistribution->setToZeroAboveE(Ecut);
 		//my_localDistribution->addExponentialCutoff(Ecut);
-		double rho = getRho(irho);
-		double z = getZ(iz);
-		double l = my_rho - sqrt(rho * rho + z * z);
-		if (l < 0) {
-			l = 0;
-		}
 		double lossRate = (4.0 / 9.0) * electron_charge * electron_charge * electron_charge * electron_charge * my_meanB * my_meanB / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
 		double time = l / my_downstreamVelocity;
+		//printf("spherical lossRate = %g\n", lossRate);
+		//printf("spherical time = %g\n", time);
 		my_localDistribution[numthreads]->transformToLosses(lossRate, time);
 	}
 	my_localDistribution[numthreads]->resetConcentration(getConcentration(irho, iz, iphi));
@@ -2491,6 +2494,7 @@ MassiveParticleDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDist
 	//double l3 = z;
 	//double l = min3(l1, l2, l3);
 	double l = l2;
+	//printf("disk l = %g\n", l);
 	if (l <= 0) {
 		/*printf("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
 		printf("rho = %g z = %g r = %g R = %g\n", rho, z, r, my_rho);
@@ -2512,6 +2516,8 @@ MassiveParticleDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDist
 		//my_localDistribution->addExponentialCutoff(Ecut);
 		double lossRate = (4.0/9.0)*electron_charge * electron_charge * electron_charge * electron_charge * my_meanB * my_meanB / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
 		double time = l / my_downstreamVelocity;
+		//printf("disk lossRate = %g\n", lossRate);
+		//printf("disk time = %g\n", time);
 		my_localDistribution[numthread]->transformToLosses(lossRate, time);
 	}
 	my_localDistribution[numthread]->resetConcentration(getConcentration(irho, iz, iphi));
