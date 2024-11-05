@@ -33,4 +33,6 @@ double bessj(int n, double x);
 double chebev(double a, double b, double c[], int m, double x);
 void beschb(double x, double* gam1, double* gam2, double* gampl, double* gammi);
 void bessik(double x, double xnu, double* ri, double* rk, double* rip, double* rkp);
+
+double** inverseMatrix(double** matrix, int N);
 #endif

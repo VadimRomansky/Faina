@@ -651,3 +651,49 @@ convert the function beschb.*/
     *rk = rkmu;
     *rkp = xnu * xi * rkmu - rk1;
 }
+
+double** inverseMatrix(double** matrix, int N)
+{
+    double** temp = new double* [N];
+    double** rightPart = new double* [N];
+    for (int i = 0; i < N; ++i) {
+        temp[i] = new double[N];
+        rightPart[i] = new double[N];
+        for (int j = 0; j < N; ++j) {
+            temp[i][j] = matrix[i][j];
+            rightPart[i][j] = 0;
+            if (i == j) {
+                rightPart[i][j] = 1;
+            }
+        }
+    }
+
+    for (int i = 0; i < N; ++i) {
+        for (int k = i; k < N; ++k) {
+            double divisor = temp[k][i];
+            for (int j = 0; j < N; ++j) {
+                temp[k][j] /= divisor;
+                rightPart[k][j] /= divisor;
+            }
+        }
+
+        for (int k = 0; k < N; ++k) {
+            if (k != i) {
+                double mult = temp[k][i];
+                //temp[k][i] = 0;
+                //rightPart[k][i] -= rightPart[i][i] * mult;
+                for (int j = 0; j < N; ++j) {
+                    temp[k][j] -= temp[i][j] * mult;
+                    rightPart[k][j] -= rightPart[i][j] * mult;
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < N; ++i) {
+        delete[] temp[i];
+    }
+    delete[] temp;
+
+    return rightPart;
+}

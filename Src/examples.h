@@ -58,5 +58,7 @@ void testChevalier();
 
 void fitCSS161010_2();
 
+void testMatrixInverse();
+
 
 #endif
