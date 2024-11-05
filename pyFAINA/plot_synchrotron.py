@@ -4,7 +4,7 @@ from pylab import *
 import numpy as np
 
 def plot_synchrotron():
-    radiationFile = open('../outputSynch.dat','r')
+    radiationFile = open('../css161010.dat','r')
     lines = radiationFile.readlines()
     N = len(lines)
 
@@ -14,8 +14,8 @@ def plot_synchrotron():
         radiation[0,i] = float(s[0])
         radiation[1,i] = float(s[1])
 
-    #cssFile = open('../examples_data/css_data/coppejans99.txt', 'r')
-    cssFile = open('../examples_data/css_data/coppejans357.txt', 'r')
+    cssFile = open('../examples_data/css_data/coppejans99.txt', 'r')
+    #cssFile = open('../examples_data/css_data/coppejans357.txt', 'r')
     lines = cssFile.readlines()
     Ncss = len(lines)
 
@@ -42,8 +42,8 @@ def plot_synchrotron():
     ax.set_ylabel(r'$F_{\nu}~mJy$', fontsize=40,fontweight='bold')
     #ax.set_ylabel(r'$F_{\nu}~мЯн$', fontsize=40,fontweight='bold')
     ax.set_yscale("log")
-    ax.set_xlim([0.1, 20])
-    ax.set_ylim([0.005, 2])
+    ax.set_xlim([0.1, 200])
+    ax.set_ylim([0.02, 20])
     ax.set_xscale("log")
     ax.tick_params(axis='x', size=10, width=4)
     ax.tick_params(axis='y', size=10, width=4)

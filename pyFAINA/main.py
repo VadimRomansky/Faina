@@ -24,8 +24,7 @@ from plot_radiation2 import plot_radiation2
 from plot_radiation3 import plot_radiation3
 from plot_radiation4 import plot_radiation4
 from plot_synchrotron import plot_synchrotron
-
-
+from plot_synchrotron3 import plot_synchrotron3
 
 if __name__ == '__main__':
     #plt.rcParams['image.cmap'] = 'jet'
@@ -38,14 +37,15 @@ if __name__ == '__main__':
     #plot_distributions_4()
     #plot_distributions_mc()
     #plot_radiation()
-    #plot_synchrotron()
+    plot_synchrotron()
+    plot_synchrotron3()
     #plot_bremsstrahlung()
     #plot_pion()
     #plot_radiation4()
-    plot_radiation3()
+    #plot_radiation3()
     #plot_radiation10()
     #plot_compton_radiation()
-    plot_long_radiation()
+    #plot_long_radiation()
     #plot_radiation2()
     #plot_error_profile(1,2)
     #plot_mask()
