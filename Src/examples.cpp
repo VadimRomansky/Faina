@@ -2211,3 +2211,88 @@ void fitCSS161010_2() {
 	//delete gradientOptimizer;
 
 }
+
+void testMatrixInverse()
+{
+	int N = 2;
+
+	printf("2x2 matrix\n");
+
+	double** matrix1 = new double*[N];
+	for (int i = 0; i < N; ++i) {
+		matrix1[i] = new double[N];
+		for (int j = 0; j < N; ++j) {
+			matrix1[i][j] = 0;
+		}
+	}
+
+	matrix1[0][0] = 1;
+	matrix1[0][1] = 2;
+	matrix1[1][0] = 3;
+	matrix1[1][1] = 4;
+
+	for (int i = 0; i < N; ++i) {
+		for (int j = 0; j < N; ++j) {
+			printf("%g ", matrix1[i][j]);
+		}
+		printf("\n");
+	}
+
+	printf("\n");
+
+	double** matrix1_inverse = inverseMatrix(matrix1, N);
+
+	for (int i = 0; i < N; ++i) {
+		for (int j = 0; j < N; ++j) {
+			printf("%g ", matrix1_inverse[i][j]);
+		}
+		printf("\n");
+	}
+
+	printf("4x4 matrix\n");
+
+	N = 4;
+
+	double** matrix4 = new double* [N];
+	for (int i = 0; i < N; ++i) {
+		matrix4[i] = new double[N];
+		for (int j = 0; j < N; ++j) {
+			matrix4[i][j] = 0;
+		}
+	}
+
+	matrix4[0][0] = 1;
+	matrix4[0][1] = 2;
+	matrix4[0][2] = 3;
+	matrix4[0][3] = 4;
+	matrix4[1][0] = 2;
+	matrix4[1][1] = 1;
+	matrix4[1][2] = 0;
+	matrix4[1][3] = 1;
+	matrix4[2][0] = 1;
+	matrix4[2][1] = 0;
+	matrix4[2][2] = 3;
+	matrix4[2][3] = 2;
+	matrix4[3][0] = 5;
+	matrix4[3][1] = 1;
+	matrix4[3][2] = 1;
+	matrix4[3][3] = 1;
+
+	for (int i = 0; i < N; ++i) {
+		for (int j = 0; j < N; ++j) {
+			printf("%g ", matrix4[i][j]);
+		}
+		printf("\n");
+	}
+
+	printf("\n");
+
+	double** matrix4_inverse = inverseMatrix(matrix4, N);
+
+	for (int i = 0; i < N; ++i) {
+		for (int j = 0; j < N; ++j) {
+			printf("%g ", matrix4_inverse[i][j]);
+		}
+		printf("\n");
+	}
+}

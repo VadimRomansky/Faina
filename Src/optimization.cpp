@@ -35,7 +35,7 @@ double RadiationOptimizer::evaluateOptimizationFunction(const double* vector) {
 	return my_lossEvaluator->evaluate(vector, my_maxParameters, my_evaluator);
 }
 
-/*double** RadiationOptimizer::secondDerivativeMatrix(double* vector, bool* optPar)
+double** RadiationOptimizer::secondDerivativeMatrix(double* vector, bool* optPar)
 {
 	double** result = new double*[my_Nparams];
 	for (int i = 0; i < my_Nparams; ++i) {
@@ -45,15 +45,15 @@ double RadiationOptimizer::evaluateOptimizationFunction(const double* vector) {
 		}
 	}
 
-	double* tempVectorLeft = new double[my_Nparams];
-	double* tempVectorRight = new double[my_Nparams];
-	double* tempVectorTop = new double[my_Nparams];
-	double* tempVectorBottom = new double[my_Nparams];
+	double* tempVector11 = new double[my_Nparams];
+	double* tempVector22 = new double[my_Nparams];
+	double* tempVector12 = new double[my_Nparams];
+	double* tempVector21 = new double[my_Nparams];
 	for (int i = 0; i < my_Nparams; ++i) {
-		tempVectorLeft[i] = vector[i];
-		tempVectorRight[i] = vector[i];
-		tempVectorTop[i] = vector[i];
-		tempVectorBottom[i] = vector[i];
+		tempVector11[i] = vector[i];
+		tempVector22[i] = vector[i];
+		tempVector12[i] = vector[i];
+		tempVector21[i] = vector[i];
 	}
 
 	double F = evaluateOptimizationFunction(vector);
@@ -65,39 +65,55 @@ double RadiationOptimizer::evaluateOptimizationFunction(const double* vector) {
 			}
 			else if (i == j) {
 				double dx = 0.001 * (my_minParameters[i] / my_maxParameters[i]);
-				tempVectorLeft[i] = vector[i] - dx;
-				double Fleft = evaluateOptimizationFunction(tempVectorLeft);
-				tempVectorRight[i] = vector[i] + dx;
-				double Fright = evaluateOptimizationFunction(tempVectorRight);
-				result[i][j] = (Fright + Fleft - 2 * F) / (dx * dx);
-				tempVectorLeft[i] = vector[i];
-				tempVectorRight[i] = vector[i];
+				tempVector11[i] = vector[i] - dx;
+				double Fleft = evaluateOptimizationFunction(tempVector11);
+				tempVector22[i] = vector[i] + dx;
+				double Fright = evaluateOptimizationFunction(tempVector22);
+				result[i][j] = (Fright + Fleft - 2 * F) / (my_maxParameters[i]* my_maxParameters[i]*dx * dx);
+				tempVector11[i] = vector[i];
+				tempVector22[i] = vector[i];
 			}
 			else {
 				double dx = 0.001 * (my_minParameters[i] / my_maxParameters[i]);
 				double dy = 0.001 * (my_minParameters[j] / my_maxParameters[j]);
-				tempVectorLeft[i] = vector[i] - dx / 2;
-				tempVectorLeft[j] = vector[j] - dy / 2;
+				tempVector11[i] = vector[i] - dx / 2;
+				tempVector11[j] = vector[j] - dy / 2;
 
-				tempVectorRight[i] = vector[i] + dx / 2;
-				tempVectorRight[j] = vector[j] - dy / 2;
+				tempVector22[i] = vector[i] + dx / 2;
+				tempVector22[j] = vector[j] + dy / 2;
 
-				tempVectorTop[i] = vector[i] - dx / 2;
-				tempVectorTop[j] = vector[j] + dy / 2;
+				tempVector12[i] = vector[i] - dx / 2;
+				tempVector12[j] = vector[j] + dy / 2;
 
-				tempVectorBottom[i] = vector[i] + dx / 2;
-				tempVectorBottom[j] = vector[j] + dy / 2;
+				tempVector21[i] = vector[i] + dx / 2;
+				tempVector21[j] = vector[j] - dy / 2;
+
+				double F11 = evaluateOptimizationFunction(tempVector11);
+				double F22 = evaluateOptimizationFunction(tempVector22);
+				double F12 = evaluateOptimizationFunction(tempVector12);
+				double F21 = evaluateOptimizationFunction(tempVector21);
+
+				result[i][j] = (F22 + F11 - F21 - F12) / (my_maxParameters[i]*dx* my_maxParameters[j] * dy);
+
+				tempVector11[i] = vector[i];
+				tempVector11[j] = vector[j];
+
+				tempVector22[i] = vector[i];
+				tempVector22[j] = vector[j];
+
+				tempVector12[i] = vector[i];
+				tempVector12[j] = vector[j];
 			}
 		}
 	}
 
-	delete[] tempVectorLeft;
-	delete[] tempVectorRight;
-	delete[] tempVectorTop;
-	delete[] tempVectorBottom;
+	delete[] tempVector11;
+	delete[] tempVector22;
+	delete[] tempVector12;
+	delete[] tempVector21;
 
-	return re;
-}*/
+	return result;
+}
 
 
 void RadiationOptimizer::outputOneVariableProfile(const double* vector, int Npoints, int Nparam1, const char* fileName)
