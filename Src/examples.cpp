@@ -1897,7 +1897,7 @@ void fitCSS161010_2() {
 	double* observedFlux1;
 	double* observedError1;
 	//int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/css_data/coppejans69.txt");
-	int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/css_data/coppejans357.txt");
+	int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/css_data/coppejans99.txt");
 	for (int i = 0; i < Nenergy1; ++i) {
 		energy1[i] = energy1[i] * hplank * 1E9;
 		observedFlux1[i] = observedFlux1[i] / (hplank * 1E26);
@@ -1909,7 +1909,7 @@ void fitCSS161010_2() {
 
 
 
-	double timeMoment = 357 * 24 * 3600;
+	double timeMoment = 99 * 24 * 3600;
 
 
 	//distance to source
@@ -2049,12 +2049,14 @@ void fitCSS161010_2() {
 	//RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	//gradientOptimizer->optimize(vector, optPar);
 	//combinedOptimizer->optimize(vector, optPar);
-	sequentOptimizer->optimize(vector, optPar);
+	//sequentOptimizer->optimize(vector, optPar);
 	//reset parameters of source to the found values
 	source1->resetParameters(vector, maxParameters);
 	//evaluating final error
 	double error = sequentOptimizer->evaluateOptimizationFunction(vector);
 	//double error = 100000;
+
+	double* uncertainties = sequentOptimizer->evaluateUncertainties(vector, optPar);
 
 	//initializing arrays for evaluationg full spectrum of source with found values
 	printf("evaluationg radiation\n");
@@ -2107,27 +2109,36 @@ void fitCSS161010_2() {
 	fprintf(paramFile, "parameters at first time moment:\n");
 	printf("R = %g\n", vector[0] * maxParameters[0]);
 	fprintf(paramFile, "R = %g\n", vector[0] * maxParameters[0]);
+	printf("sigma R = %g\n", uncertainties[0]);
+	fprintf(paramFile,"sigma R = %g\n", uncertainties[0]);
 	printf("R/ct = %g\n", vector[0] * maxParameters[0] / (speed_of_light * timeMoment));
 	fprintf(paramFile, "R/ct = %g\n", vector[0] * maxParameters[0] / (speed_of_light * timeMoment));
+	printf("sigma R/ct = %g", uncertainties[0] / (speed_of_light * timeMoment));
+	fprintf(paramFile,"sigma R/ct = %g", uncertainties[0] / (speed_of_light * timeMoment));
+	sigma = vector[1] * maxParameters[1];
 	printf("sigma = %g\n", vector[1] * maxParameters[1]);
 	fprintf(paramFile, "sigma = %g\n", vector[1] * maxParameters[1]);
+	printf("sigma sigma = %g\n", uncertainties[1]);
+	fprintf(paramFile, "sigma sigma = %g\n", uncertainties[1]);
+	double n = vector[2] * maxParameters[2];
 	printf("n = %g\n", vector[2] * maxParameters[2]);
 	fprintf(paramFile, "n = %g\n", vector[2] * maxParameters[2]);
+	printf("sigma n = %g\n", uncertainties[2]);
+	fprintf(paramFile, "sigma n = %g\n", uncertainties[2]);
 	printf("width fraction = %g\n", vector[3] * maxParameters[3]);
 	fprintf(paramFile, "width fraction = %g\n", vector[3] * maxParameters[3]);
+	printf("sigma width fraction = %g\n", uncertainties[3]);
+	fprintf(paramFile, "sigma width fraction = %g\n", uncertainties[3]);
 	printf("v/c = %g\n", vector[4] * maxParameters[4] / speed_of_light);
 	fprintf(paramFile, "v/c = %g\n", vector[4] * maxParameters[4] / speed_of_light);
-	printf("r power = %g\n", vector[5] * maxParameters[5] - 1.0);
-	fprintf(paramFile, "r power = %g\n", vector[5] * maxParameters[5] - 1.0);
-	printf("concentration power = %g\n", vector[6] * maxParameters[6] - 1.0);
-	fprintf(paramFile, "concentration power = %g\n", vector[6] * maxParameters[6] - 1.0);
-	printf("B power = %g\n", vector[7] * maxParameters[7] - 1.0);
-	fprintf(paramFile, "B power = %g\n", vector[7] * maxParameters[7] - 1.0);
-	printf("width power = %g\n", vector[8] * maxParameters[8] - 1.0);
-	fprintf(paramFile, "width power = %g\n", vector[8] * maxParameters[8] - 1.0);
+	printf("sigma v/c = %g\n", uncertainties[5] / speed_of_light);
+	fprintf(paramFile, "sigma v/c = %g\n", uncertainties[5] / speed_of_light);
 	B = sqrt(vector[1] * maxParameters[1] * 4 * pi * massProton * vector[2] * maxParameters[2] * speed_of_light2);
+	double sigmaB = 0.5 * B * (uncertainties[1] / sigma + uncertainties[2] / n);
 	printf("B = %g\n", B);
 	fprintf(paramFile, "B = %g\n", B);
+	printf("sigma B = %g\n", sigmaB);
+	fprintf(paramFile, "sigma B = %g\n", sigmaB);
 	fclose(paramFile);
 
 	printf("evaluating wide-range radiation\n");

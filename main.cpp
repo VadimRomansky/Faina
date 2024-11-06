@@ -974,8 +974,8 @@ int main() {
 	//testVersin();
 	//testBessel();
 	//testChevalier();
-	//fitCSS161010_2();
-	testMatrixInverse();
+	fitCSS161010_2();
+	//testMatrixInverse();
 
 	//evaluateFluxSNRtoWind();
 	//evaluateComtonFromWind();

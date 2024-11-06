@@ -24,6 +24,8 @@ public:
 	virtual double evaluateOptimizationFunction(const double* vector);
 	virtual void optimize(double* vector, bool* optPar) = 0;
 	double** secondDerivativeMatrix(double* vector, bool* optPar);
+	double** fisherMatrix(double* vector, bool* optpar);
+	double* evaluateUncertainties(double* vector, bool* optpar);
 	//void optimize(double* vector, bool* optPar, RadiationSource* source);
 	void outputOneVariableProfile(const double* vector, int Npoints, int Nparam1, const char* fileName);
 	void outputProfileDiagrams(const double* vector, int Npoints);

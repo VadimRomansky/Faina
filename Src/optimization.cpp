@@ -61,7 +61,12 @@ double** RadiationOptimizer::secondDerivativeMatrix(double* vector, bool* optPar
 	for (int i = 0; i < my_Nparams; ++i) {
 		for (int j = 0; j < my_Nparams; ++j) {
 			if ((!optPar[i]) || (!optPar[j])) {
-				result[i][j] = 0;
+				if (i == j) {
+					result[i][j] = 1.0;
+				}
+				else {
+					result[i][j] = 0;
+				}
 			}
 			else if (i == j) {
 				double dx = 0.001 * (my_minParameters[i] / my_maxParameters[i]);
@@ -113,6 +118,46 @@ double** RadiationOptimizer::secondDerivativeMatrix(double* vector, bool* optPar
 	delete[] tempVector21;
 
 	return result;
+}
+
+double** RadiationOptimizer::fisherMatrix(double* vector, bool* optpar)
+{
+	double** matrix = secondDerivativeMatrix(vector, optpar);
+	double** covariationMatrix = inverseMatrix(matrix, my_Nparams);
+	for (int i = 0; i < my_Nparams; ++i) {
+		delete[] matrix[i];
+	}
+	delete[] matrix;
+	return covariationMatrix;
+}
+
+double* RadiationOptimizer::evaluateUncertainties(double* vector, bool* optpar)
+{
+	double* uncertainties = new double[my_Nparams];
+	double** covariationMatrix = fisherMatrix(vector, optpar);
+	for (int i = 0; i < my_Nparams; ++i) {
+		if (optpar[i]) {
+			double rho = covariationMatrix[i][i];
+			if (rho < 0) {
+				printf("dispersion < 0\n");
+				printLog("dispersion < 0\n");
+				uncertainties[i] = 0;
+			}
+			else {
+				uncertainties[i] = sqrt(rho);
+			}
+		}
+		else {
+			uncertainties[i] = 0;
+		}
+	}
+
+	for (int i = 0; i < my_Nparams; ++i) {
+		delete[] covariationMatrix[i];
+	}
+	delete[] covariationMatrix;
+
+	return uncertainties;
 }
 
 
