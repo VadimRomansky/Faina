@@ -75,6 +75,11 @@ double** RadiationOptimizer::secondDerivativeMatrix(double* vector, bool* optPar
 				tempVector22[i] = vector[i] + dx;
 				double Fright = evaluateOptimizationFunction(tempVector22);
 				result[i][j] = (Fright + Fleft - 2 * F) / (my_maxParameters[i]* my_maxParameters[i]*dx * dx);
+				if (result[i][j] != result[i][j]) {
+					printf("second derivative matrix[%d][%d] = NaN, F = %g, Fleft = %g, Fright = %g\n", i, j, F, Fleft, Fright);
+					printLog("second derivative matrix[%d][%d] = NaN, F = %g, Fleft = %g, Fright = %g\n", i, j, F, Fleft, Fright);
+					exit(0);
+				}
 				tempVector11[i] = vector[i];
 				tempVector22[i] = vector[i];
 			}
@@ -100,6 +105,12 @@ double** RadiationOptimizer::secondDerivativeMatrix(double* vector, bool* optPar
 
 				result[i][j] = (F22 + F11 - F21 - F12) / (my_maxParameters[i]*dx* my_maxParameters[j] * dy);
 
+				if (result[i][j] != result[i][j]) {
+					printf("second derivative matrix[%d][%d] = NaN, F = %g, F11 = %g, F12 = %g, F21 = %g, F22 = %g\n", i, j, F, F11, F12, F21, F22);
+					printLog("second derivative matrix[%d][%d] = NaN, F = %g, F11 = %g, F12 = %g, F21 = %g, F22 = %g\n", i, j, F, F11, F12, F21, F22);
+					exit(0);
+				}
+
 				tempVector11[i] = vector[i];
 				tempVector11[j] = vector[j];
 
@@ -108,6 +119,9 @@ double** RadiationOptimizer::secondDerivativeMatrix(double* vector, bool* optPar
 
 				tempVector12[i] = vector[i];
 				tempVector12[j] = vector[j];
+
+				tempVector21[i] = vector[i];
+				tempVector21[j] = vector[j];
 			}
 		}
 	}

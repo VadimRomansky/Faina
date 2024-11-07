@@ -2004,8 +2004,8 @@ void fitCSS161010_2() {
 	//electronDistribution->rescaleDistribution(1.2);
 	//SimpleFlatSource* source1 = new SimpleFlatSource(electronDistribution, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance);
 	//SimpleFlatSource2* source1 = new SimpleFlatSource2(4, velocities, distributions, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance);
-	int Nrho = 100;
-	int Nz = 200;
+	int Nrho = 20;
+	int Nz = 40;
 	int Nphi = 1;
 	SphericalLayerSource* source1 = new TabulatedSphericalLayerSource2(4, velocities, distributions, Nrho, Nz, Nphi, B, pi / 2, 0, electronConcentration, rmax, (1.0 - widthFraction) * rmax, distance);
 	//SimpleFlatSource2* source1 = new SimpleFlatSource2(4, velocities, distributions, B, pi / 2, 0, electronConcentration, rmax, widthFraction * rmax, distance);

@@ -669,11 +669,24 @@ double** inverseMatrix(double** matrix, int N)
     }
 
     for (int i = 0; i < N; ++i) {
-        for (int k = i; k < N; ++k) {
+        //for (int k = i; k < N; ++k) {
+        for(int k = i; k < i+1; ++k){
             double divisor = temp[k][i];
             for (int j = 0; j < N; ++j) {
                 temp[k][j] /= divisor;
                 rightPart[k][j] /= divisor;
+
+                if (checkNaNorInfinity(temp[k][j])) {
+                    printf("temp matrix[%d][%d] = NaN, divisor = %g\n", k, j, divisor);
+                    printLog("temp matrix[%d][%d] = NaN, divisor = %g\n", k, j, divisor);
+                    exit(0);
+                }
+
+                if (checkNaNorInfinity(rightPart[k][j])) {
+                    printf("right part[%d][%d] = NaN, divisor = %g\n", k, j, divisor);
+                    printLog("right part[%d][%d] = NaN, divisor = %g\n", k, j, divisor);
+                    exit(0);
+                }
             }
         }
 
@@ -685,6 +698,18 @@ double** inverseMatrix(double** matrix, int N)
                 for (int j = 0; j < N; ++j) {
                     temp[k][j] -= temp[i][j] * mult;
                     rightPart[k][j] -= rightPart[i][j] * mult;
+
+                    if (checkNaNorInfinity(temp[k][j])) {
+                        printf("temp matrix[%d][%d] = NaN, mult = %g\n", k, j, mult);
+                        printLog("temp matrix[%d][%d] = NaN, mult = %g\n", k, j, mult);
+                        exit(0);
+                    }
+
+                    if (checkNaNorInfinity(rightPart[k][j])) {
+                        printf("right part[%d][%d] = NaN, mult = %g\n", k, j, mult);
+                        printLog("right part[%d][%d] = NaN, mult = %g\n", k, j,mult);
+                        exit(0);
+                    }
                 }
             }
         }
