@@ -796,8 +796,8 @@ void fitTimeDependentCSS161010() {
 	for (int j = 0; j < Ntimes3; ++j) {
 		RadiationSource* source1 = source->getRadiationSource(times3[j], maxParameters);
 		for (int i = 0; i < Nout; ++i) {
-			//Fout[j][i] = synchrotronEvaluator->evaluateFluxFromSource(hplank * Nuout[i], source1);
-			Fout[j][i] = 0;
+			Fout[j][i] = synchrotronEvaluator->evaluateFluxFromSource(hplank * Nuout[i], source1);
+			//Fout[j][i] = 0;
 		}
 	}
 
@@ -1926,8 +1926,8 @@ void fitCSS161010_2() {
 	//number of optimized parameters
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 0.6 * rmax, 0.000001, 1, 0.1, 0.5 * speed_of_light};
-	double maxParameters[Nparams] = { timeMoment * 0.8 * speed_of_light, 0.04, 200, 0.2, 0.8 * speed_of_light};
+	double minParameters[Nparams] = { 0.6 * rmax, 0.000001, 1, 0.05, 0.5 * speed_of_light};
+	double maxParameters[Nparams] = { timeMoment * 0.8 * speed_of_light, 0.05, 200, 0.2, 0.8 * speed_of_light};
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v};
 	for (int i = 0; i < Nparams; ++i) {
@@ -2004,8 +2004,8 @@ void fitCSS161010_2() {
 	//electronDistribution->rescaleDistribution(1.2);
 	//SimpleFlatSource* source1 = new SimpleFlatSource(electronDistribution, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance);
 	//SimpleFlatSource2* source1 = new SimpleFlatSource2(4, velocities, distributions, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance);
-	int Nrho = 20;
-	int Nz = 40;
+	int Nrho = 200;
+	int Nz = 400;
 	int Nphi = 1;
 	SphericalLayerSource* source1 = new TabulatedSphericalLayerSource2(4, velocities, distributions, Nrho, Nz, Nphi, B, pi / 2, 0, electronConcentration, rmax, (1.0 - widthFraction) * rmax, distance);
 	//SimpleFlatSource2* source1 = new SimpleFlatSource2(4, velocities, distributions, B, pi / 2, 0, electronConcentration, rmax, widthFraction * rmax, distance);
@@ -2021,16 +2021,16 @@ void fitCSS161010_2() {
 	//creating KPI evaluator
 	LossEvaluator* KPIevaluator = new SpectrumLossEvaluator(energy1, observedFlux1, observedError1, Nenergy1, source1);
 	//creating time dependent synchrotron evaluator
-	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax, true, false);
+	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(50, Emin, Emax, true, false);
 	CombinedRadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints, KPIevaluator);
 	SequentCoordinateEnumOptimizer* sequentOptimizer = new SequentCoordinateEnumOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 200, 2, KPIevaluator);
 	//creating time depedent grid enumeration optimizer, which will chose the best starting poin for gradien descent
 	//RadiationOptimizer* gridEnumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
 	//gridEnumOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
-	vector[0] = 1.76253e+17 / maxParameters[0];
-	vector[1] = 0.1 / maxParameters[1];
-	vector[2] = 50 / maxParameters[2];
-	vector[3] = 0.100539 / maxParameters[3];
+	vector[0] = 2.02253e+17 / maxParameters[0];
+	vector[1] = 0.0436792 / maxParameters[1];
+	vector[2] = 65.199 / maxParameters[2];
+	vector[3] = 0.104334 / maxParameters[3];
 	vector[4] = 0.755575 * speed_of_light / maxParameters[4];
 
 	/*combinedOptimizer->outputOneVariableProfile(vector, 100, 0, "error0.dat");
@@ -2046,10 +2046,10 @@ void fitCSS161010_2() {
 	printf("optimization\n");
 	printLog("optimization\n");
 	//creating gradient descent optimizer and optimizing
-	//RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
-	//gradientOptimizer->optimize(vector, optPar);
+	RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
 	//combinedOptimizer->optimize(vector, optPar);
-	//sequentOptimizer->optimize(vector, optPar);
+	sequentOptimizer->optimize(vector, optPar);
+	gradientOptimizer->optimize(vector, optPar);
 	//reset parameters of source to the found values
 	source1->resetParameters(vector, maxParameters);
 	//evaluating final error
@@ -2156,11 +2156,11 @@ void fitCSS161010_2() {
 	double velocity = vector[4] * maxParameters[4];
 	double downstreamV = 0.25 * velocity;
 
-        double totalKineticEnergy = source1->getTotalVolume() * massProton * electronConcentration * 0.5 * speed_of_light2;
+    double totalKineticEnergy = source1->getTotalVolume() * massProton * electronConcentration * 0.5 * speed_of_light2;
 	printf("totalKineticEnergy = %g\n", totalKineticEnergy);
 	printLog("totalKineticEnergy = %g\n", totalKineticEnergy);
 
-        return;
+    return;
 
 
 	TabulatedSLSourceWithSynchCutoff* source2 = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance, downstreamV, velocity);

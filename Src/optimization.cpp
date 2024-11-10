@@ -430,7 +430,7 @@ void GradientDescentRadiationOptimizer::findMinParametersAtDirection(double* vec
 		}
 
 		if (f < currentF) {
-			maxLambda = 2 * step;
+			maxLambda = step;
 			//todo!
 			/*for (int i = 0; i < my_Nparams; ++i) {
 				vector[i] = tempVector1[i];
