@@ -202,6 +202,7 @@ public:
 	void addExponentialCutoff(const double& E);
 	void setToZeroAboveE(const double& E);
 	void transformToLosses(const double& lossRate, const double& time);
+	void transformToLosses2(const double& k, const double& l1, const double& l2);
 };
 
 class MassiveParticleTabulatedPolarDistribution : public MassiveParticleDistribution {

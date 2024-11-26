@@ -547,9 +547,9 @@ void evaluateFluxSNRtoWind() {
 
 void evaluateComtonFromWind() {
 	double theta = pi / 2;
-	//double rmax = 3E16;
+	double rmax = 2E15;
 	double rtotal = 1.4E17;
-	double rmax = 1.0 / sqrt(pi);
+	//double rmax = 1.0 / sqrt(pi);
 	double B = 0.01;
 
 	//SN2009bb
@@ -557,31 +557,32 @@ void evaluateComtonFromWind() {
 	//AT2018
 	//const double distance = 60*3.08*1.0E24;
 	//CSS161010
-	//const double distance = 150 * 1000000 * parsec;
-	const double distance = 1.0;
+	const double distance = 150 * 1000000 * parsec;
+	//const double distance = 1.0;
 
-	double Emin = 652.317 * me_c2 * 1;
-	//double Emin = 1 * me_c2;
-	double Emax = 1E8 * me_c2;
+	//double Emin = 652.317 * me_c2 * 1;
+	double Emin = 10 * me_c2;
+	double Emax = 1E6 * me_c2;
 	int Ne = 200;
 	int Nmu = 20;
 	int Nrho = 20;
 	int Nz = 20;
 	int Nphi = 4;
-	double index = 2.5;
+	double index = 3.5;
 	double KK = 24990.8;
-	double electronConcentration = KK / (pow(652.317, index - 1) * (index - 1));
-	//double electronConcentration = 5E6;
+	//double electronConcentration = KK / (pow(652.317, index - 1) * (index - 1));
+	double electronConcentration = 1.0E7;
 	double protonBulkConcentration = 1E4;
 
-	double Tstar = 50 * 1000;
+	double Tstar = 25 * 1000;
 	double Ephmin = 0.01 * Tstar * kBoltzman;
 	double Ephmax = 100 * Tstar * kBoltzman;
 	double luminosity = 510000 * 4 * 1E33;
 	double rsun = 7.5E10;
 	double rstar = rsun * sqrt(510000.0 / pow(Tstar / 5772, 4));
 	//PhotonIsotropicDistribution* photonDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rmax));
-	PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
+	//PhotonIsotropicDistribution* photonDistribution = PhotonPlankDistribution::getCMBradiation();
+	PhotonDistribution* photonDistribution = new PhotonPlankDirectedDistribution(Tstar, sqr(rstar / rmax), 11*pi/12, 0, pi / 4);
 
 	//initializing electrons distribution
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
@@ -615,9 +616,9 @@ void evaluateComtonFromWind() {
 	//creating radiation source
 	RadiationSource* source = new SimpleFlatSource(electrons, B, theta, 0, electronConcentration, rmax, 0.2*rmax, distance);
 	//RadiationSource* source = new TabulatedSphericalLayerSource(Nrho, Nz, Nphi, electrons, B, theta, electronConcentration, rmax, 0.8 * rmax, distance);
-	InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
+	//InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_JONES);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	InverseComptonEvaluator* comptonEvaluator2 = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+	//InverseComptonEvaluator* comptonEvaluator2 = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
 	InverseComptonEvaluator* comptonEvaluator3 = new InverseComptonEvaluator(100, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
 	//InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, ComptonSolverType::ISOTROPIC_THOMSON);
 
@@ -627,12 +628,14 @@ void evaluateComtonFromWind() {
 
 	double minEev = 0.3 * 1000 * 1.6E-12;
 	double maxEev = 10 * 1000 * 1.6E-12;
-	double kevFlux = comptonEvaluator1->evaluateTotalFluxInEnergyRange(minEev, maxEev, 20, source);
+	double kevFlux = comptonEvaluator3->evaluateTotalFluxInEnergyRange(minEev, maxEev, 20, source);
+	double MevFlux = comptonEvaluator3->evaluateTotalFluxInEnergyRange(0.1*1.6E-6, 1.6E-6, 20, source);
 	double totalLuminosity = kevFlux * 4 * pi * distance * distance;
 	FILE* outFile = fopen("SNRtoWindData.dat", "w");
 	printf("total luminosity = %g erg/s \n", totalLuminosity);
 	fprintf(outFile, "total luminosity = %g erg/s \n", totalLuminosity);
-	printf("total flux = %g erg/s cm^2 \n", kevFlux);
+	printf("total kev flux = %g erg/s cm^2 \n", kevFlux);
+	printf("total Mev flux = %g erg/s cm^2 \n", MevFlux);
 	printf("99 days F = 1.33+-0.76 10^-15 L = 3.4+-1.9 10^39\n");
 	fprintf(outFile, "99 days F = 1.33+-0.76 10^-15 L = 3.4+-1.9 10^39\n");
 	fclose(outFile);
@@ -642,8 +645,8 @@ void evaluateComtonFromWind() {
 	double* E = new double[Nnu];
 	double* F = new double[Nnu];
 
-	double EphFinalmin = 0.0001 * kBoltzman * Tstar;
-	double EphFinalmax = 10 * Emax + Emin;
+	double EphFinalmin = 0.1 * kBoltzman * Tstar;
+	double EphFinalmax = 1.6E-6 + Emin;
 	//photonDistribution->writeDistribution("output3.dat", 200, Ephmin, Ephmax);
 	double factor = pow(EphFinalmax / EphFinalmin, 1.0 / (Nnu - 1));
 	E[0] = EphFinalmin;
@@ -670,9 +673,9 @@ void evaluateComtonFromWind() {
 	for (int i = 0; i < Nnu; ++i) {
 		printf("%d\n", i);
 		double nu = E[i] / hplank;
-		fprintf(output_ev_EFE1, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator1->evaluateFluxFromSource(E[i], source));
-		fprintf(output_ev_EFE2, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator2->evaluateFluxFromSource(E[i], source));
-		fprintf(output_ev_EFE3, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator3->evaluateFluxFromSource(E[i], source));
+		//fprintf(output_ev_EFE1, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator1->evaluateFluxFromSource(E[i], source));
+		//fprintf(output_ev_EFE2, "%g %g\n", E[i] / (1.6E-9), comptonEvaluator2->evaluateFluxFromSource(E[i], source));
+		fprintf(output_ev_EFE3, "%g %g\n", E[i], comptonEvaluator3->evaluateFluxFromSource(E[i], source));
 		//fprintf(output_GHz_Jansky, "%g %g\n", nu / 1E9, 1E26 * hplank * F[i]);
 	}
 	fclose(output_ev_EFE1);
@@ -684,8 +687,8 @@ void evaluateComtonFromWind() {
 	delete[] F;
 	delete electrons;
 	delete source;
-	delete comptonEvaluator1;
-	delete comptonEvaluator2;
+	//delete comptonEvaluator1;
+	//delete comptonEvaluator2;
 	delete comptonEvaluator3;
 }
 
@@ -974,11 +977,11 @@ int main() {
 	//testVersin();
 	//testBessel();
 	//testChevalier();
-	fitCSS161010_2();
+	//fitCSS161010_2();
 	//testMatrixInverse();
 
 	//evaluateFluxSNRtoWind();
-	//evaluateComtonFromWind();
+	evaluateComtonFromWind();
 	//evaluateTychoProfile();
 	//fitTychoProfile();
 	//evaluateSynchrotronInWideRange();

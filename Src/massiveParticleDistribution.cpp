@@ -852,6 +852,51 @@ void MassiveParticleTabulatedIsotropicDistribution::transformToLosses(const doub
 	normalizeDistribution();
 }
 
+void MassiveParticleTabulatedIsotropicDistribution::transformToLosses2(const double& k, const double& l1, const double& l2)
+{
+	//l1 > l2!!!
+	double* tempDistribution = new double[my_Ne];
+	for (int i = 0; i < my_Ne; ++i) {
+		tempDistribution[i] = 0;
+	}
+	for (int i = 0; i < my_Ne; ++i) {
+		double E = my_energy[i];
+		if (k * l2 * E > 1.0) {
+			tempDistribution[i] = 0;
+		}
+		else {
+			if(l1 < 1.5*l2){
+				double tempE = E / (1 - k * l2 * E);
+				tempDistribution[i] = distribution(tempE) / sqr(1 - k * l2 * E);
+			}
+			else {
+				double Emin = E / (1 - k * l2 * E);
+				double Emax;
+				if (k * l1 * E > 1.0) {
+					Emax = my_energy[my_Ne - 1];
+				}
+				else {
+					Emax = E / (1 - k * l1 * E);
+				}
+				int N = 100;
+				double dE = (Emax - Emin) / N;
+				for (int j = 0; j < N; ++j) {
+					double tempE = Emin + j * dE;
+					tempDistribution[i] += distribution(tempE) * dE / ((l1 - l2)*k * tempE * tempE);
+				}
+			}
+			//double factor = (my_energy[i] - my_mass * speed_of_light2) * lossRate * time;
+			//my_energy[i] = my_mass * speed_of_light2 + (my_energy[i] - my_mass * speed_of_light2) / (1 + factor);
+			//my_distribution[i] = my_distribution[i] * sqr(1 + factor);
+		}
+	}
+	for (int i = 0; i < my_Ne; ++i) {
+		my_distribution[i] = tempDistribution[i];
+	}
+	delete[] tempDistribution;
+	normalizeDistribution();
+}
+
 void MassiveParticleTabulatedPolarDistribution::setDistributionAtPoint(int i, int j, const double& energy, const double& distribution)
 {
 	double m_c2 = my_mass * speed_of_light2;

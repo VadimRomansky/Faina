@@ -92,7 +92,7 @@ double DiskSource::getMaxZ() {
 	return my_z;
 }
 
-SimpleFlatSource::SimpleFlatSource(MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& concentration, const double& phi, const double& rho, const double& z, const double& distance, const double& velocity, const double& redShift) : DiskSource(1,1,1, rho, z,distance, redShift) {
+SimpleFlatSource::SimpleFlatSource(MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& z, const double& distance, const double& velocity, const double& redShift) : DiskSource(1,1,1, rho, z,distance, redShift) {
 	my_distribution = electronDistribution;
 	my_B = B;
 	my_theta = theta;
@@ -2325,8 +2325,22 @@ MassiveParticleDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistri
 	}
 	my_localDistribution[numthreads] = new MassiveParticleTabulatedIsotropicDistribution(*my_cutoffDistribution);
 	double LB2 = my_LB2[irho][iz][iphi];
-	double rho = getRho(irho);
-	double z = getZ(iz);
+	//double rho = getRho(irho);
+	double rho = irho * my_rho / my_Nrho;
+	//double z = getZ(iz);
+	double z = -my_rho + iz * 2 * my_rho / my_Nz;
+	if (z < 0) {
+		z = -my_rho + (iz + 1) * 2 * my_rho / my_Nz;
+	}
+	double rho_p = (irho + 1) * my_rho / my_Nrho;
+	double z_p = -my_rho + (iz + 1) * 2 * my_rho / my_Nz;
+	if (z_p < 0) {
+		z_p = -my_rho + iz * 2 * my_rho / my_Nz;
+	}
+	double l_p = my_rho - sqrt(rho_p * rho_p + z_p * z_p);
+	if (l_p < 0) {
+		l_p = 0;
+	}
 	double l = my_rho - sqrt(rho * rho + z * z);
 	//printf("spherical l = %g\n", l);
 	if (l <= 0) {
@@ -2340,7 +2354,11 @@ MassiveParticleDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistri
 		//exit(0);
 	}
 	if (l > 0) {
+		double lB2 = l * my_B[irho][iz][iphi]*my_B[irho][iz][iphi];
+		double lB2_p = l_p * my_B[irho][iz][iphi] * my_B[irho][iz][iphi];
 		double mass = my_cutoffDistribution->getMass();
+
+
 		double Ecut = mass * mass * mass * mass * pow(speed_of_light, 7) * my_downstreamVelocity / (electron_charge * electron_charge * electron_charge * electron_charge * LB2);
 		if (Ecut < mass * speed_of_light2) {
 			//todo
@@ -2351,9 +2369,12 @@ MassiveParticleDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistri
 		//my_localDistribution->addExponentialCutoff(Ecut);
 		double lossRate = (4.0 / 9.0) * electron_charge * electron_charge * electron_charge * electron_charge * my_meanB * my_meanB / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
 		double time = l / my_downstreamVelocity;
+
+		double k = (4.0 / 9.0) * electron_charge * electron_charge * electron_charge * electron_charge * my_meanB * my_meanB / (my_downstreamVelocity * mass * mass * mass * mass * pow(speed_of_light, 7.0));
 		//printf("spherical lossRate = %g\n", lossRate);
 		//printf("spherical time = %g\n", time);
-		my_localDistribution[numthreads]->transformToLosses(lossRate, time);
+		//my_localDistribution[numthreads]->transformToLosses(lossRate, time);
+		my_localDistribution[numthreads]->transformToLosses2(k, l, l_p);
 	}
 	my_localDistribution[numthreads]->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_localDistribution[numthreads];
