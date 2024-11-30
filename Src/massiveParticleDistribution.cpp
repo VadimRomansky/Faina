@@ -880,9 +880,11 @@ void MassiveParticleTabulatedIsotropicDistribution::transformToLosses2(const dou
 				}
 				int N = 100;
 				double dE = (Emax - Emin) / N;
+				double factor = pow(Emax / Emin, 1.0 / (N - 1));
+				double tempE = Emin;
 				for (int j = 0; j < N; ++j) {
-					double tempE = Emin + j * dE;
-					tempDistribution[i] += distribution(tempE) * dE / ((l1 - l2)*k * tempE * tempE);
+					tempDistribution[i] += distribution(tempE) * tempE*(factor-1) / ((l1 - l2)*k * tempE * tempE);
+					tempE = tempE * factor;
 				}
 			}
 			//double factor = (my_energy[i] - my_mass * speed_of_light2) * lossRate * time;

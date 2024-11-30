@@ -977,11 +977,11 @@ int main() {
 	//testVersin();
 	//testBessel();
 	//testChevalier();
-	//fitCSS161010_2();
+	fitCSS161010_2();
 	//testMatrixInverse();
 
 	//evaluateFluxSNRtoWind();
-	evaluateComtonFromWind();
+	//evaluateComtonFromWind();
 	//evaluateTychoProfile();
 	//fitTychoProfile();
 	//evaluateSynchrotronInWideRange();

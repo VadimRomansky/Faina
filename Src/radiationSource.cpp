@@ -2373,8 +2373,8 @@ MassiveParticleDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistri
 		double k = (4.0 / 9.0) * electron_charge * electron_charge * electron_charge * electron_charge * my_meanB * my_meanB / (my_downstreamVelocity * mass * mass * mass * mass * pow(speed_of_light, 7.0));
 		//printf("spherical lossRate = %g\n", lossRate);
 		//printf("spherical time = %g\n", time);
-		//my_localDistribution[numthreads]->transformToLosses(lossRate, time);
-		my_localDistribution[numthreads]->transformToLosses2(k, l, l_p);
+	    my_localDistribution[numthreads]->transformToLosses(lossRate, time);
+		//my_localDistribution[numthreads]->transformToLosses2(k, l, l_p);
 	}
 	my_localDistribution[numthreads]->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_localDistribution[numthreads];
@@ -2508,6 +2508,8 @@ MassiveParticleDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDist
 	//my_cutoffDistribution->resetEcut(my_defaultCutoff);
 	double rho = (irho + 0.5) * my_rho / my_Nrho;
 	double z = (iz + 0.5) * my_z / my_Nz;
+	double z1 = iz * my_z / my_Nz;
+	double z2 = (iz + 1) * my_z / my_Nz;
 	//double l1 = my_rho - rho;
 	//double l2 = my_rho - sqrt(rho*rho + z*z);
 	double l2 = my_z - z;
@@ -2537,9 +2539,11 @@ MassiveParticleDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDist
 		//my_localDistribution->addExponentialCutoff(Ecut);
 		double lossRate = (4.0/9.0)*electron_charge * electron_charge * electron_charge * electron_charge * my_meanB * my_meanB / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
 		double time = l / my_downstreamVelocity;
+		double k = lossRate / my_downstreamVelocity;
 		//printf("disk lossRate = %g\n", lossRate);
 		//printf("disk time = %g\n", time);
 		my_localDistribution[numthread]->transformToLosses(lossRate, time);
+		//my_localDistribution[numthread]->transformToLosses2(k, my_z - z1, my_z - z2);
 	}
 	my_localDistribution[numthread]->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_localDistribution[numthread];
