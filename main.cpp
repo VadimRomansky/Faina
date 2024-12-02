@@ -964,7 +964,7 @@ int main() {
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
-	//evaluatePionDecay();
+        evaluatePionDecay();
 	//evaluateBremsstrahlung();
 	//compareComptonSynchrotron();
 	//evaluateSynchrotronImage();
@@ -977,7 +977,7 @@ int main() {
 	//testVersin();
 	//testBessel();
 	//testChevalier();
-	fitCSS161010_2();
+	//fitCSS161010_2();
 	//testMatrixInverse();
 
 	//evaluateFluxSNRtoWind();
