@@ -959,31 +959,36 @@ void evaluatePionDecay() {
 	//protons->writeDistribution("outputProtons.dat", 200, Emin, Emax);
 	RadiationSource* source = new SimpleFlatSource(protons, B, theta, 0, protonConcentration, rmax, rmax, distance);
 	double protonAmbientConcentration = 12;
-	//PionDecayEvaluator* pionDecayEvaluator = new PionDecayEvaluator(200, Emin, Emax, protonAmbientConcentration);
-	PionDecayEvaluatorBase* pionDecayEvaluator = new PionDecayEvaluatorKelner(200, Emin, Emax, protonAmbientConcentration);
+	PionDecayEvaluator* pionDecayEvaluator = new PionDecayEvaluator(2000, Emin, Emax, protonAmbientConcentration);
+	PionDecayEvaluatorBase* pionDecayEvaluator2 = new PionDecayEvaluatorKelner(2000, Emin, Emax, protonAmbientConcentration);
 
 	int Nnu = 200;
 	double* E = new double[Nnu];
 	double* F = new double[Nnu];
+	double* F2 = new double[Nnu];
 
 	double Ephmin = 1E9 * 1.6E-12;
 	double Ephmax = 2E14 * 1.6E-12;
 	double factor = pow(Ephmax / Ephmin, 1.0 / (Nnu - 1));
 	E[0] = Ephmin;
 	F[0] = 0;
+	F2[0] = 0;
 	for (int i = 1; i < Nnu; ++i) {
 		E[i] = E[i - 1] * factor;
 		F[i] = 0;
+		F2[i] = 0;
 	}
 
 	for (int i = 0; i < Nnu; ++i) {
+		printf("%d\n", i);
 		F[i] = pionDecayEvaluator->evaluateFluxFromSource(E[i], source);
+		F2[i] = pionDecayEvaluator2->evaluateFluxFromSource(E[i], source);
 	}
 
 	FILE* output_ev_dNdE = fopen("outputPionE.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
 		double nu = E[i] / hplank;
-		fprintf(output_ev_dNdE, "%g %g\n", E[i] / (1E9*1.6E-12), E[i]*F[i]);
+		fprintf(output_ev_dNdE, "%g %g %g\n", E[i] / (1E9*1.6E-12), E[i]*F[i], E[i] * F2[i]);
 	}
 	fclose(output_ev_dNdE);
 	//fclose(output_GHz_Jansky);
@@ -991,6 +996,7 @@ void evaluatePionDecay() {
 
 	delete[] E;
 	delete[] F;
+	delete[] F2;
 
 	delete protons;
 	delete source;

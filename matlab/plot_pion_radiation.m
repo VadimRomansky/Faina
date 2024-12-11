@@ -29,15 +29,17 @@ figure(2);
 hold on;
 set(gca, 'YScale', 'log');
 set(gca, 'XScale', 'log');
-set(gca, 'xlim',[0.01,30000]);
-set(gca, 'ylim',[1E-14,1E-10]);
+%set(gca, 'xlim',[0.01,30000]);
+%set(gca, 'ylim',[1E-14,1E-10]);
 title ('F_{E}');
 xlabel ('E GeV');
 %ylabel ('cm^{-2} erg^{-1} s^{-1}');
 ylabel ('E^2 dN/dE TeV cm^{-2} s^{-1}');
 fe2(1:N) = 0;
+fe3(1:N) = 0;
 for i = 1:N,
     fe2(i) = radiation(i,1)*radiation(i,1)*radiation(i,2)*1.6E-12/1E24;
+    fe3(i) = radiation(i,1)*radiation(i,1)*radiation(i,3)*1.6E-12/1E24;
 end;
 
 startPower = 120;
@@ -61,5 +63,10 @@ for i = startPower-5:endPower+5,
     %Fpa(i) = exp(polyval(p, log(me*energy(i))));
 end;
 
+ratio1 = fe3(1)/fe2(1)
+ratio2 = fe3(N/2)/fe2(N/2)
+ratio3 = fe3(N)/fe2(N)
+
 plot(radiation(1:N,1)/1E9,fe2(1:N),'red','LineWidth',2);
+plot(radiation(1:N,1)/1E9,fe3(1:N),'green','LineWidth',2);
 plot(radiation(1:N,1)/1E9,Fpa(1:N),'blue','LineWidth',2);

@@ -586,7 +586,7 @@ double PionDecayEvaluatorKelner::evaluateEmissivity(const double& photonFinalEne
 		double sigma = (sigmaInelastic(protonKineticEnergy) / protonEnergy) * functionKelner(photonFinalEnergy / protonEnergy, protonEnergy);
 
 		//todo 4 pi?
-		result += photonFinalEnergy * (speed_of_light * protonBeta / 4 * pi) * sigma * distribution->distribution(protonEnergy) * my_ambientConcentration * dprotonEnergy;
+		result += photonFinalEnergy * (speed_of_light * protonBeta / (4 * pi)) * sigma * distribution->distribution(protonEnergy) * my_ambientConcentration * dprotonEnergy;
 
 		if (result != result) {
 			printf("result = NaN in pion decay\n");
