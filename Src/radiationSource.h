@@ -7,40 +7,34 @@
 
 class RadiationSource {
 protected:
-	int my_Nrho;
+	int my_Nx1;
+	int my_Nx2;
 	int my_Nz;
-	int my_Nphi;
+
 	double my_distance;
 	double my_redShift;
-
-	double evaluateAverageVelocity();
 public:
-	RadiationSource(int Nrho, int Nz, int Nphi, double distance, double redShift);
-    virtual ~RadiationSource(){
 
-    }
+	RadiationSource(int Nx1, int Nz, int Nx2, double distance, double redShift);
+	virtual ~RadiationSource() {
 
-	virtual double getMaxRho()=0;
-	virtual double getMinRho()=0;
-	virtual double getMinZ()=0;
-	virtual double getMaxZ()=0;
+	}
+
+	virtual double getMinZ() = 0;
+	virtual double getMaxZ() = 0;
 	virtual double getMaxB() = 0;
 	virtual double getMaxOuterB() = 0;
 	virtual double getAverageSigma() = 0;
 	virtual double getAverageConcentration() = 0;
-	int getNrho();
+
 	int getNz();
-	int getNphi();
-	virtual double getRho(int irho) = 0;
-	virtual double getZ(int iz) = 0;
-	virtual double getPhi(int iphi) = 0;
-	virtual int getRhoIndex(const double& rho) = 0;
-	double getDistance();
-	double getRedShift();
+	int getNx1();
+	int getNx2();
+
 	virtual bool isSource(int irho, int iphi) = 0;
-	virtual double getArea(int irho, int iz, int iphi)=0;
+	virtual double getArea(int irho, int iz, int iphi) = 0;
 	virtual double getVolume(int irho, int iz, int iphi);
-	virtual double getCrossSectionArea(int irhi, int iphi)=0;
+	virtual double getCrossSectionArea(int irhi, int iphi) = 0;
 	virtual void getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi) = 0;
 
 	virtual double getB(int irho, int iz, int iphi) = 0;
@@ -48,14 +42,63 @@ public:
 	virtual double getSinTheta(int irho, int iz, int iphi) = 0;
 	virtual double getBTheta(int irho, int iz, int iphi) = 0;
 	virtual double getBPhi(int irho, int iz, int iphi) = 0;
-	virtual double getTotalVolume()=0;
+	virtual double getTotalVolume() = 0;
 	virtual double getLength(int irho, int iz, int iphi) = 0;
 	//virtual void resetConcentration(const double& concentration) = 0;
-	virtual void resetParameters(const double* parameters, const double* normalizationUnits)=0;
-	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi)=0;
+	virtual void resetParameters(const double* parameters, const double* normalizationUnits) = 0;
+	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi) = 0;
+
+	double getDistance();
+	double getRedShift();
 };
 
-class DiskSource : public RadiationSource {
+class RadiationSourceInCartesian : public RadiationSource {
+protected:
+	int my_Nx;
+	int my_Ny;
+public:
+	RadiationSourceInCartesian(int Nx, int Ny, int Nz, double distance, double redShift);
+	virtual ~RadiationSourceInCartesian() {
+
+	}
+
+	virtual double getMaxX() = 0;
+	virtual double getMinX() = 0;
+	int getNx();
+	int getNy();
+	virtual double getX(int ix) = 0;
+	virtual double getZ(int iz) = 0;
+	virtual double getY(int iy) = 0;
+	virtual int gerXindex(double x) = 0;
+	virtual int getYindex(double y) = 0;
+};
+
+
+
+class RadiationSourceInCylindrical : public RadiationSource{
+protected:
+	int my_Nrho;
+	int my_Nphi;
+
+	double evaluateAverageVelocity();
+public:
+	RadiationSourceInCylindrical(int Nrho, int Nz, int Nphi, double distance, double redShift);
+    virtual ~RadiationSourceInCylindrical(){
+
+    }
+
+	virtual double getMaxRho()=0;
+	virtual double getMinRho()=0;
+	
+	int getNrho();
+	int getNphi();
+	virtual double getRho(int irho) = 0;
+	virtual double getZ(int iz) = 0;
+	virtual double getPhi(int iphi) = 0;
+	virtual int getRhoIndex(const double& rho) = 0;
+};
+
+class DiskSource : public RadiationSourceInCylindrical {
 protected:
 	double my_rho;
 	double my_z;
@@ -186,7 +229,7 @@ public:
 	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
 };
 
-class SphericalLayerSource : public RadiationSource {
+class SphericalLayerSource : public RadiationSourceInCylindrical {
 protected:
 	double my_rho;
 	double my_rhoin;
@@ -318,7 +361,7 @@ public:
 	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
 };
 
-class SectoralSphericalLayerSource : public RadiationSource {
+class SectoralSphericalLayerSource : public RadiationSourceInCylindrical {
 protected:
 	double my_rho;
 	double my_rhoin;
@@ -431,9 +474,9 @@ public:
 class RadiationTimeDependentSource {
 protected:
 	double my_t0;
-	RadiationSource* my_radiationSource;
+	RadiationSourceInCylindrical* my_radiationSource;
 public:
-	RadiationTimeDependentSource(RadiationSource* source, const double& t0) {
+	RadiationTimeDependentSource(RadiationSourceInCylindrical* source, const double& t0) {
 		my_radiationSource = source;
 		my_t0 = t0;
 	}
@@ -442,7 +485,7 @@ public:
     }
 	//note that number of parameters and they sence are on your responsibility
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits) = 0;
-	virtual RadiationSource* getRadiationSource(double& time, const double* normalizationUnits) = 0;
+	virtual RadiationSourceInCylindrical* getRadiationSource(double& time, const double* normalizationUnits) = 0;
 };
 
 class ExpandingRemnantSource : public RadiationTimeDependentSource {
@@ -458,9 +501,9 @@ protected:
 	double my_Bpower;
 	double my_widthPower;
 public:
-	ExpandingRemnantSource(const double& R0, const double& B0, const double& concentration0, const double& v, const double& widthFraction, RadiationSource* source, const double& t0, const double& velocityPower = 1.0, const double& Bpower = 1.0, const double& concentrationPower = 2.0, const double& widthPower = 1.0);
+	ExpandingRemnantSource(const double& R0, const double& B0, const double& concentration0, const double& v, const double& widthFraction, RadiationSourceInCylindrical* source, const double& t0, const double& velocityPower = 1.0, const double& Bpower = 1.0, const double& concentrationPower = 2.0, const double& widthPower = 1.0);
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
-	virtual RadiationSource* getRadiationSource(double& time, const double* normalizationUnits);
+	virtual RadiationSourceInCylindrical* getRadiationSource(double& time, const double* normalizationUnits);
 };
 
 

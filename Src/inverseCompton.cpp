@@ -1739,7 +1739,7 @@ double InverseComptonEvaluator::evaluateComptonEmissivityKleinNishinaAnisotropic
 	return result;
 }*/
 
-double InverseComptonEvaluator::evaluateFluxFromSourceAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, RadiationSource* source, ComptonSolverType solverType) {
+double InverseComptonEvaluator::evaluateFluxFromSourceAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, RadiationSourceInCylindrical* source, ComptonSolverType solverType) {
 	int Nrho = source->getNrho();
 	int Nz = source->getNz();
 	int Nphi = source->getNphi();
@@ -1777,7 +1777,7 @@ double InverseComptonEvaluator::evaluateFluxFromSourceAnisotropic(const double& 
 	return result/sqr(source->getDistance());
 }
 
-double InverseComptonEvaluator::evaluateTotalFluxInEnergyRangeAnisotropic(const double& Ephmin, const double& Ephmax, const double& photonFinalTheta, const double& photonFinalPhi, int Nph, PhotonDistribution* photonDistribution, RadiationSource* source, ComptonSolverType solverType ) {
+double InverseComptonEvaluator::evaluateTotalFluxInEnergyRangeAnisotropic(const double& Ephmin, const double& Ephmax, const double& photonFinalTheta, const double& photonFinalPhi, int Nph, PhotonDistribution* photonDistribution, RadiationSourceInCylindrical* source, ComptonSolverType solverType ) {
 	double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
 	double currentE = Ephmin;
 	double flux = 0;
@@ -1790,25 +1790,25 @@ double InverseComptonEvaluator::evaluateTotalFluxInEnergyRangeAnisotropic(const 
 	return flux;
 }
 
-double InverseComptonEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double InverseComptonEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source)
 {
 	if (my_solverType == ComptonSolverType::ISOTROPIC_THOMSON) {
-		return evaluateComptonEmissivityThomsonIsotropic(photonFinalEnergy, getPhotonDistribution(irho, iz, iphi), source->getParticleDistribution(irho, iz, iphi));
+		return evaluateComptonEmissivityThomsonIsotropic(photonFinalEnergy, getPhotonDistribution(ix1, iz, ix2), source->getParticleDistribution(ix1, iz, ix2));
 	}
 	else if (my_solverType == ComptonSolverType::ISOTROPIC_JONES) {
-		return evaluateComptonEmissivityJonesIsotropic(photonFinalEnergy, getPhotonDistribution(irho, iz, iphi), source->getParticleDistribution(irho, iz, iphi));
+		return evaluateComptonEmissivityJonesIsotropic(photonFinalEnergy, getPhotonDistribution(ix1, iz, ix2), source->getParticleDistribution(ix1, iz, ix2));
 	}
 	else if (my_solverType == ComptonSolverType::ISOTROPIC_KLEIN_NISHINA) {
-		return evaluateComptonEmissivityKleinNishinaIsotropic2(photonFinalEnergy, getPhotonDistribution(irho, iz, iphi), source->getParticleDistribution(irho, iz, iphi));
+		return evaluateComptonEmissivityKleinNishinaIsotropic2(photonFinalEnergy, getPhotonDistribution(ix1, iz, ix2), source->getParticleDistribution(ix1, iz, ix2));
 	}
 	//else if (my_solverType == ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA) {
-	//	return evaluateComptonEmissivityKleinNishinaAnisotropic(photonFinalEnergy, 0, 0, getPhotonDistribution(irho, iz, iphi), source->getParticleDistribution(irho, iz, iphi));
+	//	return evaluateComptonEmissivityKleinNishinaAnisotropic(photonFinalEnergy, 0, 0, getPhotonDistribution(ix1, iz, ix2), source->getParticleDistribution(ix1, iz, ix2));
 	//}
 	else if (my_solverType == ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA) {
-		return evaluateComptonEmissivityKleinNishinaAnisotropic2(photonFinalEnergy, 0, 0, getPhotonDistribution(irho, iz, iphi), source->getParticleDistribution(irho, iz, iphi));
+		return evaluateComptonEmissivityKleinNishinaAnisotropic2(photonFinalEnergy, 0, 0, getPhotonDistribution(ix1, iz, ix2), source->getParticleDistribution(ix1, iz, ix2));
 	}
 	//else if (my_solverType == ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA3) {
-	//	return evaluateComptonEmissivityKleinNishinaAnisotropic3(photonFinalEnergy, 0, 0, getPhotonDistribution(irho, iz, iphi), source->getParticleDistribution(irho, iz, iphi));
+	//	return evaluateComptonEmissivityKleinNishinaAnisotropic3(photonFinalEnergy, 0, 0, getPhotonDistribution(ix1, iz, ix2), source->getParticleDistribution(ix1, iz, ix2));
 	//}
 	else {
 		printf("unknown compton solver type\n");
@@ -1817,7 +1817,7 @@ double InverseComptonEvaluator::evaluateEmissivity(const double& photonFinalEner
 	}
 }
 
-double InverseComptonEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double InverseComptonEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source)
 {
 	return 0.0;
 }

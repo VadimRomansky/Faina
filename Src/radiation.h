@@ -31,23 +31,23 @@ public:
 
     virtual double evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source);
 
-    virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int rhoi, int phi);
+    virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int ii, int jj);
 
     double evaluateTotalFluxInEnergyRange(const double& Ephmin, const double& Ephmax, int Nph, RadiationSource* source);
 
-    virtual void evaluateEmissivityAndAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source, double& I, double& A);
+    virtual void evaluateEmissivityAndAbsorption(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source, double& I, double& A);
 
-    virtual double evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source) = 0;
+    virtual double evaluateEmissivity(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source) = 0;
 
-    virtual double evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source) = 0;
+    virtual double evaluateAbsorption(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source) = 0;
 
     void writeFluxFromSourceToFile(const char* fileName, RadiationSource* source, const double& Ephmin, const double& Ephmax, const int Nph);
 
     void writeImageFromSourceToFile(const char* fileName, RadiationSource* source, const double& Ephmin, const double& Ephmax, const int Nph);
 
-    void writeImageFromSourceAtEToFile(const double& photonFinalEnergy, const char* fileName, RadiationSource* source);
+    void writeImageFromSourceAtEToFile(const double& photonFinalEnergy, const char* fileName, RadiationSourceInCylindrical* source);
 
-    void writeImageFromSourceInRangeToFile(const double& photonEmin, const double& photonEmax, int N, const char* fileName, RadiationSource* source);
+    void writeImageFromSourceInRangeToFile(const double& photonEmin, const double& photonEmax, int N, const char* fileName, RadiationSourceInCylindrical* source);
 };
 
 class RadiationSumEvaluator : public RadiationEvaluator {
@@ -61,9 +61,9 @@ public:
 
     virtual void resetParameters(const double* parameters, const double* normalizationUnits);
     virtual double evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source);
-    virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int rhoi, int phi);
-    virtual double evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
-    virtual double evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source);
+    virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int ii, int jj);
+    virtual double evaluateEmissivity(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source);
+    virtual double evaluateAbsorption(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source);
 };
 
 #endif // RADIATION_H

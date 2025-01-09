@@ -8,15 +8,65 @@
 
 #include "radiationSource.h"
 
-RadiationSource::RadiationSource(int Nrho, int Nz, int Nphi, double distance, double redShift) {
-	my_Nrho = Nrho;
+RadiationSource::RadiationSource(int Nx1, int Nz, int Nx2, double distance, double redShift)
+{
+	my_Nx1 = Nx1;
+	my_Nx2 = Nx2;
 	my_Nz = Nz;
-	my_Nphi = Nphi;
+
 	my_distance = distance;
 	my_redShift = redShift;
 }
 
-double RadiationSource::evaluateAverageVelocity()
+int RadiationSource::getNz() {
+	return my_Nz;
+}
+
+int RadiationSource::getNx1()
+{
+	return my_Nx1;
+}
+
+int RadiationSource::getNx2()
+{
+	return my_Nx2;
+}
+
+double RadiationSource::getVolume(int irho, int iz, int iphi)
+{
+	return getArea(irho, iz, iphi) * getLength(irho, iz, iphi);
+}
+
+double RadiationSource::getDistance() {
+	return my_distance;
+}
+
+double RadiationSource::getRedShift()
+{
+	return my_redShift;
+}
+
+RadiationSourceInCartesian::RadiationSourceInCartesian(int Nx, int Ny, int Nz, double distance, double redShift) : RadiationSource(Nx, Nz, Ny, distance, redShift) {
+	my_Nx = Nx;
+	my_Ny = Ny;
+}
+
+int RadiationSourceInCartesian::getNx()
+{
+	return my_Nx;
+}
+
+int RadiationSourceInCartesian::getNy()
+{
+	return my_Ny;
+}
+
+RadiationSourceInCylindrical::RadiationSourceInCylindrical(int Nrho, int Nz, int Nphi, double distance, double redShift) : RadiationSource(Nrho, Nz, Nphi, distance, redShift) {
+	my_Nrho = Nrho;
+	my_Nphi = Nphi;
+}
+
+double RadiationSourceInCylindrical::evaluateAverageVelocity()
 {
 	double v = 0;
 	double m = 0;
@@ -33,30 +83,14 @@ double RadiationSource::evaluateAverageVelocity()
 	return v/m;
 }
 
-int RadiationSource::getNrho() {
+int RadiationSourceInCylindrical::getNrho() {
 	return my_Nrho;
 }
-int RadiationSource::getNz() {
-	return my_Nz;
-}
-int RadiationSource::getNphi() {
+int RadiationSourceInCylindrical::getNphi() {
 	return my_Nphi;
 }
-double RadiationSource::getDistance() {
-	return my_distance;
-}
 
-double RadiationSource::getRedShift()
-{
-	return my_redShift;
-}
-
-double RadiationSource::getVolume(int irho, int iz, int iphi)
-{
-	return getArea(irho, iz, iphi)*getLength(irho, iz, iphi);
-}
-
-DiskSource::DiskSource(int Nrho, int Nz, int Nphi, const double& rho, const double& z, const double& distance, const double& redShift) : RadiationSource(Nrho, Nz, Nphi, distance, redShift)
+DiskSource::DiskSource(int Nrho, int Nz, int Nphi, const double& rho, const double& z, const double& distance, const double& redShift) : RadiationSourceInCylindrical(Nrho, Nz, Nphi, distance, redShift)
 {
 	my_rho = rho;
 	my_z = z;
@@ -941,7 +975,7 @@ void SphericalLayerSource::evaluateLengthAndArea()
 	my_geometryCashed = true;
 }
 
-SphericalLayerSource::SphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& distance, const double& velocity, const double& redShift) : RadiationSource(Nrho, Nz, Nphi, distance, redShift) {
+SphericalLayerSource::SphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& distance, const double& velocity, const double& redShift) : RadiationSourceInCylindrical(Nrho, Nz, Nphi, distance, redShift) {
 	if (rhoin > rho) {
 		printf("rhoin > rho in spherical layer source\n");
 		printLog("rhoin > rho in spherical layer source\n");
@@ -1007,7 +1041,7 @@ SphericalLayerSource::SphericalLayerSource(int Nrho, int Nz, int Nphi, const dou
 
 }
 
-SphericalLayerSource::SphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift) : RadiationSource(Nrho, Nz, Nphi, distance, redShift)
+SphericalLayerSource::SphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift) : RadiationSourceInCylindrical(Nrho, Nz, Nphi, distance, redShift)
 {
 	if (rhoin > rho) {
 		printf("rhoin > rho in spherical layer source\n");
@@ -2098,7 +2132,7 @@ MassiveParticleDistribution* AngleDependentElectronsSphericalSource::getParticle
 
 }
 
-ExpandingRemnantSource::ExpandingRemnantSource(const double& R0, const double& B0, const double& concentration0, const double& v, const double& widthFraction, RadiationSource* source, const double& t0, const double& velocityPower, const double& Bpower, const double& concentrationPower, const double& widthPower) : RadiationTimeDependentSource(source, t0) {
+ExpandingRemnantSource::ExpandingRemnantSource(const double& R0, const double& B0, const double& concentration0, const double& v, const double& widthFraction, RadiationSourceInCylindrical* source, const double& t0, const double& velocityPower, const double& Bpower, const double& concentrationPower, const double& widthPower) : RadiationTimeDependentSource(source, t0) {
 	my_R0 = R0;
 	my_B0 = B0;
 	my_concentration0 = concentration0;
@@ -2124,7 +2158,7 @@ void ExpandingRemnantSource::resetParameters(const double* parameters, const dou
 }
 
 //just one possible example
-RadiationSource* ExpandingRemnantSource::getRadiationSource(double& time, const double* normalizationUnits) {
+RadiationSourceInCylindrical* ExpandingRemnantSource::getRadiationSource(double& time, const double* normalizationUnits) {
 	//double R = my_R0 + my_v * (time - my_t0);
 	double R;
 	if (my_velocityPower == 1.0) {
@@ -2549,7 +2583,7 @@ MassiveParticleDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDist
 	return my_localDistribution[numthread];
 }
 
-SectoralSphericalLayerSource::SectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& minrho, const double& phi_sectoral, const double& distance, const double& velocity, const double& redShift) : RadiationSource(Nrho, Nz, Nphi, distance, redShift)
+SectoralSphericalLayerSource::SectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& minrho, const double& phi_sectoral, const double& distance, const double& velocity, const double& redShift) : RadiationSourceInCylindrical(Nrho, Nz, Nphi, distance, redShift)
 {
 	my_rho = rho;
 	my_rhoin = rhoin;
@@ -2604,7 +2638,7 @@ SectoralSphericalLayerSource::SectoralSphericalLayerSource(int Nrho, int Nz, int
 	}
 }
 
-SectoralSphericalLayerSource::SectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& minrho, const double& phi_sectoral, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift) : RadiationSource(Nrho, Nz, Nphi, distance, redShift)
+SectoralSphericalLayerSource::SectoralSphericalLayerSource(int Nrho, int Nz, int Nphi, const double& rho, const double& rhoin, const double& minrho, const double& phi_sectoral, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift) : RadiationSourceInCylindrical(Nrho, Nz, Nphi, distance, redShift)
 {
 	my_rho = rho;
 	my_rhoin = rhoin;

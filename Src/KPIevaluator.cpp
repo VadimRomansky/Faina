@@ -8,7 +8,7 @@
 
 #include "KPIevaluator.h"
 
-SpectrumLossEvaluator::SpectrumLossEvaluator(double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* radiationSource) {
+SpectrumLossEvaluator::SpectrumLossEvaluator(double* energy, double* observedFlux, double* observedError, int Ne, RadiationSourceInCylindrical* radiationSource) {
 	my_Ne = Ne;
 	my_energy = new double[my_Ne];
 	my_observedFlux = new double[my_Ne];
@@ -54,7 +54,7 @@ double SpectrumLossEvaluator::evaluate(const double* vector, const double* maxPa
 	return err;
 }
 
-RadialProfileLossEvaluator::RadialProfileLossEvaluator(double energy, double* observedFlux, double* observedError, double* rhoPoints, int Nrho, RadiationSource* radiationSource)
+RadialProfileLossEvaluator::RadialProfileLossEvaluator(double energy, double* observedFlux, double* observedError, double* rhoPoints, int Nrho, RadiationSourceInCylindrical* radiationSource)
 {
 	my_energy = energy;
 	my_Nrho = Nrho;
@@ -157,7 +157,7 @@ double TimeDependentSpectrumLossEvaluator::evaluate(const double* vector, const 
 		//double* totalInu = new double[Ne[k]];
 
 		double totalInu = 0;
-		RadiationSource* source1 = my_radiationSource->getRadiationSource(my_times[k], maxParameters);
+		RadiationSourceInCylindrical* source1 = my_radiationSource->getRadiationSource(my_times[k], maxParameters);
 		for (int j = 0; j < my_Ne[k]; ++j) {
 			//1E26 from Jansky
 			totalInu = evaluator->evaluateFluxFromSource(my_energy[k][j], source1);

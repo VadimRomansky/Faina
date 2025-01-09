@@ -60,9 +60,9 @@ double BremsstrahlungThermalEvaluator::evaluateGauntFactor(double eta, double th
 	return gauntFactor;
 }
 
-double BremsstrahlungThermalEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double BremsstrahlungThermalEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source)
 {
-	MassiveParticleDistribution* electronDistribution = source->getParticleDistribution(irho, iz, iphi);
+	MassiveParticleDistribution* electronDistribution = source->getParticleDistribution(ix1, iz, ix2);
 	MassiveParticleMaxwellDistribution* maxwellDistribution = dynamic_cast<MassiveParticleMaxwellDistribution*>(electronDistribution);
 	MassiveParticleMaxwellJuttnerDistribution* maxwellJuttnerDistribution = dynamic_cast<MassiveParticleMaxwellJuttnerDistribution*>(electronDistribution);
 	double temperature;
@@ -77,7 +77,7 @@ double BremsstrahlungThermalEvaluator::evaluateEmissivity(const double& photonFi
 		printLog("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
 		exit(0);
 	}
-	double concentration = source->getConcentration(irho, iz, iphi);
+	double concentration = source->getConcentration(ix1, iz, ix2);
 	double m = electronDistribution->getMass();
 	double theta = photonFinalEnergy / (kBoltzman * temperature);
 	double ritberg = m * electron_charge * electron_charge * electron_charge * electron_charge * 2 * pi * pi / (hplank * hplank);
@@ -91,9 +91,9 @@ double BremsstrahlungThermalEvaluator::evaluateEmissivity(const double& photonFi
 	return result;
 }
 
-double BremsstrahlungThermalEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double BremsstrahlungThermalEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source)
 {
-	MassiveParticleDistribution* electronDistribution = source->getParticleDistribution(irho, iz, iphi);
+	MassiveParticleDistribution* electronDistribution = source->getParticleDistribution(ix1, iz, ix2);
 	MassiveParticleMaxwellDistribution* maxwellDistribution = dynamic_cast<MassiveParticleMaxwellDistribution*>(electronDistribution);
 	MassiveParticleMaxwellJuttnerDistribution* maxwellJuttnerDistribution = dynamic_cast<MassiveParticleMaxwellJuttnerDistribution*>(electronDistribution);
 	double temperature;
@@ -109,7 +109,7 @@ double BremsstrahlungThermalEvaluator::evaluateAbsorption(const double& photonFi
 		exit(0);
 	}
 
-	double concentration = source->getConcentration(irho, iz, iphi);
+	double concentration = source->getConcentration(ix1, iz, ix2);
 	double m = electronDistribution->getMass();
 	double theta = photonFinalEnergy / (kBoltzman * temperature);
 	double ritberg = m * electron_charge * electron_charge * electron_charge * electron_charge * 2 * pi * pi / (hplank * hplank);
@@ -351,10 +351,10 @@ void BremsstrahlungEvaluator::resetParameters(const double* parameters, const do
 {
 }
 
-void BremsstrahlungEvaluator::evaluateEmissivityAndAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source, double& I, double& A) {
-	I = evaluateEmissivity(photonFinalEnergy, irho, iz, iphi, source);
+void BremsstrahlungEvaluator::evaluateEmissivityAndAbsorption(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source, double& I, double& A) {
+	I = evaluateEmissivity(photonFinalEnergy, ix1, iz, ix2, source);
 
-	MassiveParticleDistribution* electronDistribution = source->getParticleDistribution(irho, iz, iphi);
+	MassiveParticleDistribution* electronDistribution = source->getParticleDistribution(ix1, iz, ix2);
 	MassiveParticleMaxwellDistribution* maxwellDistribution = dynamic_cast<MassiveParticleMaxwellDistribution*>(electronDistribution);
 	MassiveParticleMaxwellJuttnerDistribution* maxwellJuttnerDistribution = dynamic_cast<MassiveParticleMaxwellJuttnerDistribution*>(electronDistribution);
 	double temperature;
@@ -376,9 +376,9 @@ void BremsstrahlungEvaluator::evaluateEmissivityAndAbsorption(const double& phot
 	A = hplank * I / B;
 }
 
-double BremsstrahlungEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double BremsstrahlungEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source)
 {
-	MassiveParticleIsotropicDistribution* electronDistribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
+	MassiveParticleIsotropicDistribution* electronDistribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(ix1, iz, ix2));
 	if (electronDistribution == NULL) {
 		printf("Bremsstrahlung e-e evaluator works only with isotropic electrons distribution\n");
 		printLog("Bremsstrahlung e-e evaluator works only with isotropic electrons distribution\n");
@@ -416,11 +416,11 @@ double BremsstrahlungEvaluator::evaluateEmissivity(const double& photonFinalEner
 	return result;
 }
 
-double BremsstrahlungEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double BremsstrahlungEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source)
 {
-	double I = evaluateEmissivity(photonFinalEnergy, irho, iz, iphi, source);
+	double I = evaluateEmissivity(photonFinalEnergy, ix1, iz, ix2, source);
 
-	MassiveParticleDistribution* electronDistribution = source->getParticleDistribution(irho, iz, iphi);
+	MassiveParticleDistribution* electronDistribution = source->getParticleDistribution(ix1, iz, ix2);
 	MassiveParticleMaxwellDistribution* maxwellDistribution = dynamic_cast<MassiveParticleMaxwellDistribution*>(electronDistribution);
 	MassiveParticleMaxwellJuttnerDistribution* maxwellJuttnerDistribution = dynamic_cast<MassiveParticleMaxwellJuttnerDistribution*>(electronDistribution);
 	double temperature;

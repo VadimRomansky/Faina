@@ -11,13 +11,13 @@ public:
 
 class SpectrumLossEvaluator : public LossEvaluator {
 protected:
-	RadiationSource* my_radiationSource;
+	RadiationSourceInCylindrical* my_radiationSource;
 	int my_Ne;
 	double* my_energy;
 	double* my_observedFlux;
 	double* my_observedError;
 public:
-	SpectrumLossEvaluator(double* energy, double* observedFlux, double* observedError, int Ne, RadiationSource* radiatiornSource);
+	SpectrumLossEvaluator(double* energy, double* observedFlux, double* observedError, int Ne, RadiationSourceInCylindrical* radiatiornSource);
 	~SpectrumLossEvaluator();
 
 	virtual double evaluate(const double* vector, const double* maxParameters, RadiationEvaluator* evaluator);
@@ -41,14 +41,14 @@ public:
 
 class RadialProfileLossEvaluator : public LossEvaluator {
 protected:
-	RadiationSource* my_radiationSource;
+	RadiationSourceInCylindrical* my_radiationSource;
 	int my_Nrho;
 	double my_energy;
 	double* my_observedFlux;
 	double* my_observedError;
 	double* my_rhoPoints;
 public:
-	RadialProfileLossEvaluator(double energy, double* observedFlux, double* observedError, double* rhoPoints, int Nrho, RadiationSource* radiaionSource);
+	RadialProfileLossEvaluator(double energy, double* observedFlux, double* observedError, double* rhoPoints, int Nrho, RadiationSourceInCylindrical* radiaionSource);
 	~RadialProfileLossEvaluator();
 
 	virtual double evaluate(const double* vector, const double* maxParameters, RadiationEvaluator* evaluator);

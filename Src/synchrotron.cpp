@@ -124,10 +124,10 @@ void SynchrotronEvaluator::resetParameters(const double *parameters, const doubl
     //do nothing?
 }
 
-void SynchrotronEvaluator::evaluateEmissivityAndAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source, double& I, double& A)
+void SynchrotronEvaluator::evaluateEmissivityAndAbsorption(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source, double& I, double& A)
 {
 	double photonFinalFrequency = photonFinalEnergy / hplank;
-	double B = source->getB(irho, iz, iphi);
+	double B = source->getB(ix1, iz, ix2);
 	if (B != B) {
 		printf("B = NaN\n");
 		printLog("B = NaN\n");
@@ -138,19 +138,19 @@ void SynchrotronEvaluator::evaluateEmissivityAndAbsorption(const double& photonF
 		A = 0;
 		return;
 	}
-	double sinTheta = source->getSinTheta(irho, iz, iphi);
-	double concentration = source->getConcentration(irho, iz, iphi);
+	double sinTheta = source->getSinTheta(ix1, iz, ix2);
+	double concentration = source->getConcentration(ix1, iz, ix2);
 
 	double v, vtheta, vphi;
-	source->getVelocity(irho, iz, iphi, v, vtheta, vphi);
+	source->getVelocity(ix1, iz, ix2, v, vtheta, vphi);
 	double beta = v / speed_of_light;
 	double gamma = 1.0 / sqrt(1.0 - beta * beta);
 	double mu = cos(vtheta);
 	double D = gamma * (1 - mu * beta);
 
 	if (my_doppler) {
-		double Btheta = source->getBTheta(irho, iz, iphi);
-		double Bphi = source->getBPhi(irho, iz, iphi);
+		double Btheta = source->getBTheta(ix1, iz, ix2);
+		double Bphi = source->getBPhi(ix1, iz, ix2);
 		double Bpar = B * (cos(Btheta) * cos(vtheta) + sin(Btheta) * sin(vtheta) * (cos(Bphi) * cos(vphi) + sin(Bphi) * sin(vphi)));
 		//from invarian B^2 - E^2
 		double Bprimed = sqrt(B*B / (gamma*gamma) + Bpar*Bpar*beta*beta);
@@ -224,7 +224,7 @@ void SynchrotronEvaluator::evaluateEmissivityAndAbsorption(const double& photonF
 		}
 		concentration = concentrationPrimed;
 	}
-	MassiveParticleDistribution* distribution = source->getParticleDistribution(irho, iz, iphi);
+	MassiveParticleDistribution* distribution = source->getParticleDistribution(ix1, iz, ix2);
 	MassiveParticleIsotropicDistribution* electronDistribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(distribution);
 	if (electronDistribution == NULL) {
 		printf("Synchrotron evaluator works only with isotropic distributions\n");
@@ -392,13 +392,13 @@ void SynchrotronEvaluator::evaluateEmissivityAndAbsorption(const double& photonF
 	}
 }
 
-double SynchrotronEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double SynchrotronEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source)
 {
 	double photonFinalFrequency = photonFinalEnergy / hplank;
-	double B = source->getB(irho, iz, iphi);
-	double sinTheta = source->getSinTheta(irho, iz, iphi);
-	double concentration = source->getConcentration(irho, iz, iphi);
-	MassiveParticleIsotropicDistribution* electronDistribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
+	double B = source->getB(ix1, iz, ix2);
+	double sinTheta = source->getSinTheta(ix1, iz, ix2);
+	double concentration = source->getConcentration(ix1, iz, ix2);
+	MassiveParticleIsotropicDistribution* electronDistribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(ix1, iz, ix2));
 	if (electronDistribution == NULL) {
 		printf("Synchrotron evaluator works only with isotropic distributions\n");
 		printLog("Synchrotron evaluator works only with isotropic distributions\n");
@@ -501,14 +501,14 @@ double SynchrotronEvaluator::evaluateEmissivity(const double& photonFinalEnergy,
 	return I;
 }
 
-double SynchrotronEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double SynchrotronEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source)
 {
 	double photonFinalFrequency = photonFinalEnergy / hplank;
 
-	double B = source->getB(irho, iz, iphi);
-	double sinTheta = source->getSinTheta(irho, iz, iphi);
-	double concentration = source->getConcentration(irho, iz, iphi);
-	MassiveParticleIsotropicDistribution* electronDistribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
+	double B = source->getB(ix1, iz, ix2);
+	double sinTheta = source->getSinTheta(ix1, iz, ix2);
+	double concentration = source->getConcentration(ix1, iz, ix2);
+	MassiveParticleIsotropicDistribution* electronDistribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(ix1, iz, ix2));
 	if (electronDistribution == NULL) {
 		printf("Synchrotron evaluator works only with isotropic distributions\n");
 		printLog("Synchrotron evaluator works only with isotropic distributions\n");

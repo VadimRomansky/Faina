@@ -28,9 +28,9 @@ RadiationEvaluator::~RadiationEvaluator() {
 }
 
 double RadiationEvaluator::evaluateFluxFromSource(const double& photonFinalEnergy, RadiationSource* source) {
-    int Nrho = source->getNrho();
+    int Nx1 = source->getNx1();
     int Nz = source->getNz();
-    int Nphi = source->getNphi();
+    int Nx2 = source->getNx2();
 
     double result = 0;
     int irho = 0;
@@ -41,10 +41,10 @@ double RadiationEvaluator::evaluateFluxFromSource(const double& photonFinalEnerg
 
     omp_init_lock(&my_lock);
 
-#pragma omp parallel for private(irho) shared(photonFinalEnergy1, source, Nrho, Nz, Nphi) reduction(+:result)
+#pragma omp parallel for private(irho) shared(photonFinalEnergy1, source, Nx1, Nz, Nx2) reduction(+:result)
 
-    for (irho = 0; irho < Nrho; ++irho) {
-        for (int iphi = 0; iphi < Nphi; ++iphi) {
+    for (irho = 0; irho < Nx1; ++irho) {
+        for (int iphi = 0; iphi < Nx2; ++iphi) {
             /*for (int iz = 0; iz < Nz; ++iz) {
                 result += evaluateFluxFromIsotropicFunction(photonFinalEnergy1, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
             }*/
@@ -59,14 +59,14 @@ double RadiationEvaluator::evaluateFluxFromSource(const double& photonFinalEnerg
     return result*(1+redShift)*(1+redShift);
 }
 
-double RadiationEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi) {
-    int Nrho = source->getNrho();
+double RadiationEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int ii, int jj) {
+    int Nx1 = source->getNx1();
     int Nz = source->getNz();
-    int Nphi = source->getNphi();
+    int Nx2 = source->getNx2();
     double localI = 0;
     double prevArea = 0;
     for (int iz = 0; iz < Nz; ++iz) {
-        double area = source->getArea(irho, iz, iphi);
+        double area = source->getArea(ii, iz, jj);
         double A = 0;
         double I = 0;
         double v;
@@ -83,7 +83,7 @@ double RadiationEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFin
         double D = gamma * (1.0 - beta * mu);
         double photonFinalEnergyPrimed = photonFinalEnergy * D;*/
 
-        evaluateEmissivityAndAbsorption(photonFinalEnergy, irho, iz, iphi, source, I, A);
+        evaluateEmissivityAndAbsorption(photonFinalEnergy, ii, iz, jj, source, I, A);
         /*evaluateEmissivityAndAbsorption(photonFinalEnergyPrimed, irho, iz, iphi, source, I, A);
 
         if (my_doppler) {
@@ -91,7 +91,7 @@ double RadiationEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFin
             A = A * D;
         }*/
 
-        double length = source->getLength(irho, iz, iphi);
+        double length = source->getLength(ii, iz, jj);
         if (length > 0) {
             /*if (my_absorption) {
                 double I0 = localI * D * D;
@@ -167,10 +167,10 @@ double RadiationEvaluator::evaluateTotalFluxInEnergyRange(const double& Ephmin, 
     return flux;
 }
 
-void RadiationEvaluator::evaluateEmissivityAndAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source, double& I, double& A) {
-    I = evaluateEmissivity(photonFinalEnergy, irho, iz, iphi, source);
+void RadiationEvaluator::evaluateEmissivityAndAbsorption(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source, double& I, double& A) {
+    I = evaluateEmissivity(photonFinalEnergy, ix1, iz, ix2, source);
     if (my_absorption) {
-        A = evaluateAbsorption(photonFinalEnergy, irho, iz, iphi, source);
+        A = evaluateAbsorption(photonFinalEnergy, ix1, iz, ix2, source);
     }
     else {
         A = 0;
@@ -191,14 +191,14 @@ void RadiationEvaluator::writeFluxFromSourceToFile(const char* fileName, Radiati
 }
 
 void RadiationEvaluator::writeImageFromSourceToFile(const char* fileName, RadiationSource* source, const double& Ephmin, const double& Ephmax, const int Nph) {
-    int Nrho = source->getNrho();
+    int Nx1 = source->getNx1();
     int Nz = source->getNz();
-    int Nphi = source->getNphi();
+    int Nx2 = source->getNx2();
 
-    double** image = new double*[Nrho];
-    for (int irho = 0; irho < Nrho; ++irho) {
-        image[irho] = new double[Nphi];
-        for (int iphi = 0; iphi < Nphi; ++iphi) {
+    double** image = new double*[Nx1];
+    for (int irho = 0; irho < Nx1; ++irho) {
+        image[irho] = new double[Nx2];
+        for (int iphi = 0; iphi < Nx2; ++iphi) {
             image[irho][iphi] = 0;
         }
     }
@@ -207,9 +207,9 @@ void RadiationEvaluator::writeImageFromSourceToFile(const char* fileName, Radiat
 
     int irho;
 #pragma omp parallel for private(irho) shared(Ephmin, Ephmax, source, Nrho, Nz, Nphi, image)
-    for (irho = 0; irho < Nrho; ++irho) {
+    for (irho = 0; irho < Nx1; ++irho) {
         printf("evaluating image irho = %d\n", irho);
-        for (int iphi = 0; iphi < Nphi; ++iphi) {
+        for (int iphi = 0; iphi < Nx2; ++iphi) {
             double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
             double currentE = Ephmin;
             double localFlux = 0;
@@ -227,21 +227,21 @@ void RadiationEvaluator::writeImageFromSourceToFile(const char* fileName, Radiat
     omp_destroy_lock(&my_lock);
 
     FILE* outFile = fopen(fileName, "w");
-    for (int irho = 0; irho < Nrho; ++irho) {
-        for (int iphi = 0; iphi < Nphi; ++iphi) {
+    for (int irho = 0; irho < Nx1; ++irho) {
+        for (int iphi = 0; iphi < Nx2; ++iphi) {
             fprintf(outFile, "%g ", image[irho][iphi]);
         }
         fprintf(outFile, "\n");
     }
     fclose(outFile);
 
-    for (int irho = 0; irho < Nrho; ++irho) {
+    for (int irho = 0; irho < Nx1; ++irho) {
         delete[] image[irho];
     }
     delete[] image;
 }
 
-void RadiationEvaluator::writeImageFromSourceAtEToFile(const double& photonFinalEnergy, const char* fileName, RadiationSource* source) {
+void RadiationEvaluator::writeImageFromSourceAtEToFile(const double& photonFinalEnergy, const char* fileName, RadiationSourceInCylindrical* source) {
     int Nrho = source->getNrho();
     int Nz = source->getNz();
     int Nphi = source->getNphi();
@@ -286,7 +286,7 @@ void RadiationEvaluator::writeImageFromSourceAtEToFile(const double& photonFinal
     delete[] image;
 }
 
-void RadiationEvaluator::writeImageFromSourceInRangeToFile(const double& photonEmin, const double& photonEmax, int N, const char* fileName, RadiationSource* source) {
+void RadiationEvaluator::writeImageFromSourceInRangeToFile(const double& photonEmin, const double& photonEmax, int N, const char* fileName, RadiationSourceInCylindrical* source) {
     int Nrho = source->getNrho();
     int Nz = source->getNz();
     int Nphi = source->getNphi();
@@ -371,29 +371,29 @@ double RadiationSumEvaluator::evaluateFluxFromSource(const double& photonFinalEn
     return result;
 }
 
-double RadiationSumEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int rhoi, int phi)
+double RadiationSumEvaluator::evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int ii, int jj)
 {
     double result = 0;
     for (int i = 0; i < my_Nevaluators; ++i) {
-        result = result + my_Evaluators[i]->evaluateFluxFromSourceAtPoint(photonFinalEnergy, source, rhoi, phi);
+        result = result + my_Evaluators[i]->evaluateFluxFromSourceAtPoint(photonFinalEnergy, source, ii, jj);
     }
     return result;
 }
 
-double RadiationSumEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double RadiationSumEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source)
 {
     double result = 0;
     for (int i = 0; i < my_Nevaluators; ++i) {
-        result += my_Evaluators[i]->evaluateEmissivity(photonFinalEnergy, irho, iz, iphi, source);
+        result += my_Evaluators[i]->evaluateEmissivity(photonFinalEnergy, ix1, iz, ix2, source);
     }
     return result;
 }
 
-double RadiationSumEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double RadiationSumEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source)
 {
     double result = 0;
     for (int i = 0; i < my_Nevaluators; ++i) {
-        result += my_Evaluators[i]->evaluateAbsorption(photonFinalEnergy, irho, iz, iphi, source);
+        result += my_Evaluators[i]->evaluateAbsorption(photonFinalEnergy, ix1, iz, ix2, source);
     }
     return result;
 }

@@ -382,9 +382,9 @@ double PionDecayEvaluator::evaluateFluxFromIsotropicFunction(const double& photo
 	return result;
 }
 
-double PionDecayEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double PionDecayEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source)
 {
-	MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
+	MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(ix1, iz, ix2));
 	if (distribution == NULL) {
 		printf("Pion decay evaluator works only woth isotropic protons distribution\n");
 		printLog("Pion decay evaluator works only woth isotropic protons distribution\n");
@@ -446,7 +446,7 @@ double PionDecayEvaluator::evaluateEmissivity(const double& photonFinalEnergy, i
 	return result;
 }
 
-double PionDecayEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double PionDecayEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source)
 {
 	return 0.0;
 }
@@ -534,9 +534,9 @@ double PionDecayEvaluatorKelner::evaluateFluxFromIsotropicFunction(const double&
 	return result;
 }
 
-double PionDecayEvaluatorKelner::evaluateEmissivity(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double PionDecayEvaluatorKelner::evaluateEmissivity(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source)
 {
-	MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(irho, iz, iphi));
+	MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(ix1, iz, ix2));
 	if (distribution == NULL) {
 		printf("Pion decay Kelner evaluator works only woth isotropic protons distribution\n");
 		printLog("Pion decay Kelner evaluator works only woth isotropic protons distribution\n");
@@ -598,7 +598,7 @@ double PionDecayEvaluatorKelner::evaluateEmissivity(const double& photonFinalEne
 	return result;
 }
 
-double PionDecayEvaluatorKelner::evaluateAbsorption(const double& photonFinalEnergy, int irho, int iz, int iphi, RadiationSource* source)
+double PionDecayEvaluatorKelner::evaluateAbsorption(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source)
 {
 	return 0.0;
 }
