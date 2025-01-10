@@ -1021,9 +1021,9 @@ void evaluateBremsstrahlung() {
 	int Ne = 500;
 
 	//MassiveParticleMaxwellJuttnerDistribution* electrons = new MassiveParticleMaxwellJuttnerDistribution(massElectron, temperature, electronConcentration);
-	MassiveParticleMaxwellDistribution* electrons = new MassiveParticleMaxwellDistribution(massElectron, temperature, electronConcentration);
 	//MassiveParticleMaxwellDistribution* electrons = new MassiveParticleMaxwellDistribution(massElectron, temperature, electronConcentration);
-	RadiationSourceInCylindrical* source = new SimpleFlatSource(electrons, 0, 0, 0, electronConcentration, rmax, rmax, distance);
+	//MassiveParticleMaxwellDistribution* electrons = new MassiveParticleMaxwellDistribution(massElectron, temperature, electronConcentration);
+	RadiationSource* source = new ThermalRectangularSource(1, 1, 1, massElectron, B, pi/2, 0, electronConcentration, temperature, -rmax, rmax, -rmax, rmax, -rmax, rmax, distance);
 	BremsstrahlungThermalEvaluator* bremsstrahlungEvaluator1 = new BremsstrahlungThermalEvaluator(true, false);
 	BremsstrahlungEvaluator* bremsstrahlungEvaluator2 = new BremsstrahlungEvaluator(Ne, Emin, Emax, 1.0, true, false);
 
@@ -1042,13 +1042,14 @@ void evaluateBremsstrahlung() {
 
 	int N = 5;
 
-	double vector[5];
-	double normalizationUnits[5] = { 1,1,1,1,1 };
-	vector[0] = rmax;
-	vector[1] = B * B / (4 * pi * electronConcentration * massProton * speed_of_light2);
-	vector[2] = electronConcentration;
-	vector[3] = 1.0;
-	vector[4] = 0;
+	double vector[6];
+	double normalizationUnits[6] = { 1,1,1,1,1,1 };
+	vector[0] = 2*rmax;
+	vector[1] = 2 * rmax;
+	vector[2] = 2 * rmax;
+	vector[3] = B * B / (4 * pi * electronConcentration * massProton * speed_of_light2);
+	vector[4] = electronConcentration;
+	vector[5] = 0;
 
 	FILE* output_ev_EFE = fopen("outputBremE.dat", "w");
 	FILE* output_GHz_Jansky = fopen("outputBremNu.dat", "w");
@@ -1059,7 +1060,7 @@ void evaluateBremsstrahlung() {
 		fprintf(output_ev_EFE, "%g", E[i] / (1.6E-12));
 		fprintf(output_GHz_Jansky, "%g", nu / 1E9);
 		for(int j = 0; j < N; ++j){
-			vector[2] = electronConcentration;
+			vector[4] = electronConcentration;
 			source->resetParameters(vector, normalizationUnits);
 			electronConcentration *= 20;
 			double F1 = bremsstrahlungEvaluator1->evaluateFluxFromSource(E[i], source);
@@ -1083,7 +1084,6 @@ void evaluateBremsstrahlung() {
 	printf("total flux = %g erg /s cm^2\n", totalFlux);
 
 	delete[] E;
-	delete electrons;
 	delete source;
 	delete bremsstrahlungEvaluator1;
 	delete bremsstrahlungEvaluator2;

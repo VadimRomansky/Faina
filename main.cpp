@@ -964,8 +964,8 @@ int main() {
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
-        evaluatePionDecay();
-	//evaluateBremsstrahlung();
+    //evaluatePionDecay();
+	evaluateBremsstrahlung();
 	//compareComptonSynchrotron();
 	//evaluateSynchrotronImage();
 	//testRotation();
