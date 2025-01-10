@@ -46,9 +46,46 @@ double RadiationSource::getRedShift()
 	return my_redShift;
 }
 
-RadiationSourceInCartesian::RadiationSourceInCartesian(int Nx, int Ny, int Nz, double distance, double redShift) : RadiationSource(Nx, Nz, Ny, distance, redShift) {
+RadiationSourceInCartesian::RadiationSourceInCartesian(int Nx, int Ny, int Nz, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, double distance, double redShift) : RadiationSource(Nx, Nz, Ny, distance, redShift) {
 	my_Nx = Nx;
 	my_Ny = Ny;
+
+	my_minX = minX;
+	my_maxX = maxX;
+	my_minY = minY;
+	my_maxY = maxY;
+	my_minZ = minZ;
+	my_maxZ = maxZ;
+}
+
+double RadiationSourceInCartesian::getMinX()
+{
+	return my_minX;
+}
+
+double RadiationSourceInCartesian::getMaxX()
+{
+	return my_maxX;
+}
+
+double RadiationSourceInCartesian::getMinY()
+{
+	return my_minY;
+}
+
+double RadiationSourceInCartesian::getMaxY()
+{
+	return my_maxY;
+}
+
+double RadiationSourceInCartesian::getMinZ()
+{
+	return my_minZ;
+}
+
+double RadiationSourceInCartesian::getMaxZ()
+{
+	return my_maxZ;
 }
 
 int RadiationSourceInCartesian::getNx()
@@ -59,6 +96,287 @@ int RadiationSourceInCartesian::getNx()
 int RadiationSourceInCartesian::getNy()
 {
 	return my_Ny;
+}
+
+RectangularSource::RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity, const double& redShift) : RadiationSourceInCartesian(Nx, Ny, Nz, minX, maxX, minY, maxY, minZ, maxZ, distance, redShift)
+{
+	my_distribution = electronDistribution;
+
+	my_velocity = velocity;
+
+	my_B = new double** [my_Nx];
+	my_theta = new double** [my_Nx];
+	my_phi = new double** [my_Nx];
+	my_concentration = new double** [my_Nx];
+	my_v = new double** [my_Nx];
+	my_vtheta = new double** [my_Nx];
+	my_vphi = new double** [my_Nx];
+	for (int irho = 0; irho < my_Nx; ++irho) {
+		my_B[irho] = new double* [my_Nz];
+		my_theta[irho] = new double* [my_Nz];
+		my_phi[irho] = new double* [my_Nz];
+		my_concentration[irho] = new double* [my_Nz];
+		my_v[irho] = new double* [my_Nz];
+		my_vtheta[irho] = new double* [my_Nz];
+		my_vphi[irho] = new double* [my_Nz];
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			my_B[irho][iz] = new double[my_Ny];
+			my_theta[irho][iz] = new double[my_Ny];
+			my_phi[irho][iz] = new double[my_Ny];
+			my_concentration[irho][iz] = new double[my_Ny];
+			my_v[irho][iz] = new double[my_Ny];
+			my_vtheta[irho][iz] = new double[my_Ny];
+			my_vphi[irho][iz] = new double[my_Ny];
+			for (int iphi = 0; iphi < my_Ny; ++iphi) {
+				my_B[irho][iz][iphi] = B[irho][iz][iphi];
+				my_theta[irho][iz][iphi] = theta[irho][iz][iphi];
+				my_phi[irho][iz][iphi] = phi[irho][iz][iphi];
+				my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi];
+				my_v[irho][iz][iphi] = my_velocity;
+				my_vtheta[irho][iz][iphi] = 0;
+				my_vphi[irho][iz][iphi] = 0;
+			}
+		}
+	}
+
+	my_isSource = new bool* [my_Nx];
+	for (int i = 0; i < my_Nx; ++i) {
+		my_isSource[i] = new bool[my_Ny];
+		for (int j = 0; j < my_Ny; ++j) {
+			my_isSource[i][j] = true;
+		}
+	}
+}
+
+double RectangularSource::getX(int ix)
+{
+	double dx = (my_maxX - my_minX) / my_Nx;
+	return my_minX + dx*(ix + 0.5);
+}
+
+double RectangularSource::getZ(int iz)
+{
+	double dz = (my_maxZ - my_minZ) / my_Nz;
+	return my_minZ + dz * (iz + 0.5);
+}
+
+double RectangularSource::getY(int iy)
+{
+	double dy = (my_maxY - my_minY) / my_Ny;
+	return my_minY + dy * (iy + 0.5);
+}
+
+int RectangularSource::gerXindex(double x)
+{
+	if (x < my_minX) {
+		printf("rho < 0 in get rhoIndex\n");
+		printLog("rho < 0 in get rhoIndex\n");
+		exit(0);
+	}
+	if (x > my_maxX) {
+		printf("rho = %g > my_rho = %g in getRhoIndex\n", x, my_maxX);
+		printLog("rho = %g > my_rho = %g in getRhoIndex\n", x, my_maxX);
+		exit(0);
+	}
+	if (x == my_maxX) {
+		return my_Nx - 1;
+	}
+	double dx = (my_maxX - my_minX) / my_Nx;
+	return floor((x - my_minX) / dx);
+}
+
+int RectangularSource::getYindex(double y)
+{
+	if (y < my_minY) {
+		printf("rho < 0 in get rhoIndex\n");
+		printLog("rho < 0 in get rhoIndex\n");
+		exit(0);
+	}
+	if (y > my_maxY) {
+		printf("rho = %g > my_rho = %g in getRhoIndex\n", y, my_maxY);
+		printLog("rho = %g > my_rho = %g in getRhoIndex\n", y, my_maxY);
+		exit(0);
+	}
+	if (y == my_maxY) {
+		return my_Ny - 1;
+	}
+	double dy = (my_maxY - my_minY) / my_Ny;
+	return floor((y - my_minY) / dy);
+}
+
+int RectangularSource::getZindex(double z)
+{
+	if (z < my_minZ) {
+		printf("rho < 0 in get rhoIndex\n");
+		printLog("rho < 0 in get rhoIndex\n");
+		exit(0);
+	}
+	if (z > my_maxZ) {
+		printf("rho = %g > my_rho = %g in getRhoIndex\n", z, my_maxZ);
+		printLog("rho = %g > my_rho = %g in getRhoIndex\n", z, my_maxZ);
+		exit(0);
+	}
+	if (z == my_maxZ) {
+		return my_Nz - 1;
+	}
+	double dz = (my_maxZ - my_minZ) / my_Nz;
+	return floor((z - my_minZ) / dz);
+}
+
+bool RectangularSource::isSource(int irho, int iphi)
+{
+	return my_isSource[irho][iphi];
+}
+
+double RectangularSource::getArea(int irho, int iz, int iphi)
+{
+	double dx = (my_maxX - my_minX) / my_Nx;
+	double dy = (my_maxY - my_minY) / my_Ny;
+	return dx*dy;
+}
+
+double RectangularSource::getCrossSectionArea(int irhi, int iphi)
+{
+	double dx = (my_maxX - my_minX) / my_Nx;
+	double dy = (my_maxY - my_minY) / my_Ny;
+	return dx * dy;
+}
+
+void RectangularSource::getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi)
+{
+	velocity = my_v[irho][iz][iphi];
+	if (velocity > speed_of_light) {
+		printf("v > c in get velocity %g, irho = %d, iz = %d, iphi = %d\n", velocity / speed_of_light, irho, iz, iphi);
+		printLog("v > c in get velocity %g, irho = %d, iz = %d, iphi = %d\n", velocity / speed_of_light, irho, iz, iphi);
+		exit(0);
+	}
+	theta = my_vtheta[irho][iz][iphi];
+	phi = my_vphi[irho][iz][iphi];
+}
+
+double RectangularSource::getB(int irho, int iz, int iphi)
+{
+	return my_B[irho][iz][iphi];
+}
+
+double RectangularSource::getConcentration(int irho, int iz, int iphi)
+{
+	return my_concentration[irho][iz][iphi];
+}
+
+double RectangularSource::getSinTheta(int irho, int iz, int iphi)
+{
+	return sin(my_theta[irho][iz][iphi]);
+}
+
+double RectangularSource::getBTheta(int irho, int iz, int iphi)
+{
+	return my_theta[irho][iz][iphi];
+}
+
+double RectangularSource::getBPhi(int irho, int iz, int iphi)
+{
+	return my_phi[irho][iz][iphi];
+}
+
+double RectangularSource::getTotalVolume()
+{
+	return (my_maxX - my_minX)*(my_maxY - my_minY)*(my_maxZ - my_minZ);
+}
+
+double RectangularSource::getLength(int irho, int iz, int iphi)
+{
+	double dz = (my_maxZ - my_minZ) / my_Nz;
+	return dz;
+}
+
+void RectangularSource::resetParameters(const double* parameters, const double* normalizationUnits)
+{
+	/*parameters must be
+* x = parameters[0]
+* y = parameters[1]
+* z = parameters[2]
+* sigma[i][j][k] ~ parameters[3]
+* n[i][j][k] ~ parameters[4]
+* where B[Nrho-1][0][0] = parameters[1]
+*/
+	double xsize = my_maxX - my_minX;
+	my_minX = parameters[0] * normalizationUnits[0]*my_minX/xsize;
+	my_maxX = parameters[0] * normalizationUnits[0] * my_maxX / xsize;
+	double ysize = my_maxY - my_minY;
+	my_minY = parameters[1] * normalizationUnits[1] * my_minY / ysize;
+	my_maxY = parameters[1] * normalizationUnits[1] * my_maxY / ysize;
+	double zsize = my_maxZ - my_minZ;
+	my_minZ = parameters[2] * normalizationUnits[2] * my_minZ / zsize;
+	my_maxZ = parameters[2] * normalizationUnits[2] * my_maxZ / zsize;
+	double sigma = parameters[3] * normalizationUnits[3];
+	//double B0 = my_B[my_Nrho - 1][0][0];
+	//double n0 = my_concentration[my_Nrho - 1][0][0];
+	double n0 = getAverageConcentration();
+	//double sigma0 = sqr(my_B[my_Nrho - 1][0][0]) / (4 * pi * massProton * my_concentration[my_Nrho - 1][0][0] * speed_of_light2);
+	double sigma0 = getAverageSigma();
+
+	double old_velocity = my_velocity;
+	my_velocity = parameters[5] * normalizationUnits[5];
+
+	for (int irho = 0; irho < my_Nx; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Ny; ++iphi) {
+				double sigma = sqr(my_B[irho][iz][iphi]) / (4 * pi * massProton * my_concentration[irho][iz][iphi] * speed_of_light2);
+				sigma *= parameters[3] * normalizationUnits[3] / sigma0;
+				my_concentration[irho][iz][iphi] *= parameters[4] * normalizationUnits[4] / n0;
+				my_B[irho][iz][iphi] = sqrt(sigma * 4 * pi * massProton * my_concentration[irho][iz][iphi] * speed_of_light2);
+				if (old_velocity > 0) {
+					my_v[irho][iz][iphi] *= my_velocity / old_velocity;
+				}
+				else {
+					my_v[irho][iz][iphi] = my_velocity;
+				}
+			}
+		}
+	}
+}
+
+MassiveParticleDistribution* RectangularSource::getParticleDistribution(int irho, int iz, int iphi)
+{
+	return my_distribution;
+}
+
+ThermalRectangularSource::ThermalRectangularSource(int Nx, int Ny, int Nz, double mass, double*** B, double*** theta, double*** phi, double*** concentration, double*** temperature, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity, const double& redShift) : RectangularSource(Nx, Ny, Nz, NULL, B, theta, phi, concentration, minX, maxX, minY, maxY, minZ, maxZ, distance, redShift)
+{
+	my_mass = mass;
+
+	my_temperature = new double** [my_Nx];
+	for (int irho = 0; irho < my_Nx; ++irho) {
+		my_temperature[irho] = new double* [my_Nz];
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			my_temperature[irho][iz] = new double[my_Ny];
+			for (int iphi = 0; iphi < my_Ny; ++iphi) {
+				my_temperature[irho][iz][iphi] = temperature[irho][iz][iphi];
+			}
+		}
+	}
+}
+
+double ThermalRectangularSource::getTemperature(int ix, int iz, int iy)
+{
+	return my_temperature[ix][iz][iy];
+}
+
+MassiveParticleDistribution* ThermalRectangularSource::getParticleDistribution(int irho, int iz, int iphi)
+{
+	int numthread = omp_get_thread_num();
+	if (my_localDistribution[numthread] != NULL) {
+		delete my_localDistribution[numthread];
+		my_localDistribution[numthread] = NULL;
+	}
+	if (my_temperature[irho][iz][iphi] < 0.1 * my_mass * speed_of_light2) {
+		my_localDistribution[numthread] = new MassiveParticleMaxwellDistribution(my_mass, my_temperature[irho][iz][iphi], my_concentration[irho][iz][iphi]);
+	}
+	else {
+		my_localDistribution[numthread] = new MassiveParticleMaxwellJuttnerDistribution(my_mass, my_temperature[irho][iz][iphi], my_concentration[irho][iz][iphi]);
+	}
+	return my_localDistribution[numthread];
 }
 
 RadiationSourceInCylindrical::RadiationSourceInCylindrical(int Nrho, int Nz, int Nphi, double distance, double redShift) : RadiationSource(Nrho, Nz, Nphi, distance, redShift) {
@@ -339,7 +657,7 @@ TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassivePart
 		my_concentration[irho] = new double* [my_Nz];
 		my_v[irho] = new double* [my_Nz];
 		my_vtheta[irho] = new double* [my_Nz];
-		my_vphi[irho] = new double* [my_Nphi];
+		my_vphi[irho] = new double* [my_Nz];
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			my_B[irho][iz] = new double[my_Nphi];
 			my_theta[irho][iz] = new double[my_Nphi];
@@ -435,7 +753,7 @@ TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassivePart
 		my_concentration[irho] = new double* [my_Nz];
 		my_v[irho] = new double* [my_Nz];
 		my_vtheta[irho] = new double* [my_Nz];
-		my_vphi[irho] = new double* [my_Nphi];
+		my_vphi[irho] = new double* [my_Nz];
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			my_B[irho][iz] = new double[my_Nphi];
 			my_theta[irho][iz] = new double[my_Nphi];
@@ -484,7 +802,7 @@ TabulatedDiskSource::TabulatedDiskSource(int Nrho, int Nz, int Nphi, MassivePart
 		my_concentration[irho] = new double* [my_Nz];
 		my_v[irho] = new double* [my_Nz];
 		my_vtheta[irho] = new double* [my_Nz];
-		my_vphi[irho] = new double* [my_Nphi];
+		my_vphi[irho] = new double* [my_Nz];
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			my_B[irho][iz] = new double[my_Nphi];
 			my_theta[irho][iz] = new double[my_Nphi];

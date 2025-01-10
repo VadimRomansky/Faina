@@ -54,16 +54,27 @@ public:
 
 class RadiationSourceInCartesian : public RadiationSource {
 protected:
+	double my_minX;
+	double my_maxX;
+	double my_minY;
+	double my_maxY;
+	double my_minZ;
+	double my_maxZ;
+
 	int my_Nx;
 	int my_Ny;
 public:
-	RadiationSourceInCartesian(int Nx, int Ny, int Nz, double distance, double redShift);
+	RadiationSourceInCartesian(int Nx, int Ny, int Nz, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, double distance, double redShift);
 	virtual ~RadiationSourceInCartesian() {
 
 	}
 
-	virtual double getMaxX() = 0;
-	virtual double getMinX() = 0;
+	virtual double getMinX();
+	virtual double getMaxX();
+	virtual double getMinY();
+	virtual double getMaxY();
+	virtual double getMinZ();
+	virtual double getMaxZ();
 	int getNx();
 	int getNy();
 	virtual double getX(int ix) = 0;
@@ -71,6 +82,59 @@ public:
 	virtual double getY(int iy) = 0;
 	virtual int gerXindex(double x) = 0;
 	virtual int getYindex(double y) = 0;
+	virtual int getZindex(double z) = 0;
+};
+
+class RectangularSource : public RadiationSourceInCartesian {
+protected:
+	double*** my_B;
+	double*** my_theta;
+	double*** my_phi;
+	double*** my_concentration;
+	double my_velocity;
+
+	double*** my_v;
+	double*** my_vtheta;
+	double*** my_vphi;
+
+	bool** my_isSource;
+	MassiveParticleDistribution* my_distribution;
+public:
+	RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity = 0, const double& redShift = 0);
+	virtual double getX(int ix);
+	virtual double getZ(int iz);
+	virtual double getY(int iy);
+	virtual int gerXindex(double x);
+	virtual int getYindex(double y);
+	virtual int getZindex(double z);
+
+	virtual bool isSource(int irho, int iphi);
+	virtual double getArea(int irho, int iz, int iphi) ;
+	virtual double getCrossSectionArea(int irhi, int iphi);
+	virtual void getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi);
+
+	virtual double getB(int irho, int iz, int iphi);
+	virtual double getConcentration(int irho, int iz, int iphi);
+	virtual double getSinTheta(int irho, int iz, int iphi);
+	virtual double getBTheta(int irho, int iz, int iphi);
+	virtual double getBPhi(int irho, int iz, int iphi);
+	virtual double getTotalVolume();
+	virtual double getLength(int irho, int iz, int iphi);
+	//virtual void resetConcentration(const double& concentration) = 0;
+	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
+	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
+};
+
+class ThermalRectangularSource : public RectangularSource {
+protected:
+	double my_mass;
+	double*** my_temperature;
+	MassiveParticleDistribution** my_localDistribution;
+public:
+	ThermalRectangularSource(int Nx, int Ny, int Nz, double mass, double*** B, double*** theta, double*** phi, double*** concentration, double*** temperature, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity = 0, const double& redShift = 0);
+
+	virtual double getTemperature(int ix, int iz, int iy);
+	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
 };
 
 
