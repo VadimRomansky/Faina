@@ -1073,7 +1073,7 @@ void evaluateBremsstrahlung() {
 		}
 		double photonFinalFrequency = E[i] / hplank;
 		double B = (1/hplank)*(2 * hplank * cube(photonFinalFrequency) / (speed_of_light2)) / (exp(E[i] / (kBoltzman * temperature)) - 1.0);
-		double F3 = B * pi * rmax * rmax / (distance * distance);
+		double F3 = B * 4 * rmax * rmax / (distance * distance);
 		fprintf(output_ev_EFE, " %g\n", E[i]*F3);
 		fprintf(output_GHz_Jansky, " %g\n", 1E26*hplank*F3);
 	}
@@ -1454,7 +1454,7 @@ void testReadingSource() {
 
 	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin, electronConcentration);
 
-	RadiationSourceInCylindrical* source = RadiationSourceFactory::readSourceFromFile(electrons, rmax, -f*rmax/2, f * rmax/2, 300, 600, 300, distance, SourceInputGeometry::CYLINDRICAL, BFileName, concentrationFileName, pi/2, 0, pi/2);
+	RadiationSourceInCylindrical* source = RadiationSourceFactory::readDiskSourceFromFile(electrons, rmax, -f*rmax/2, f * rmax/2, 300, 600, 300, distance, SourceInputGeometry::CYLINDRICAL, BFileName, concentrationFileName, pi/2, 0, pi/2);
 	printf("finish creating source\n");
 	SynchrotronEvaluator* evaluator = new SynchrotronEvaluator(Ne, Emin, Emax);
 

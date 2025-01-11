@@ -955,6 +955,39 @@ void evaluateSynchrotronInWideRange() {
 	evaluator->writeFluxFromSourceToFile("wideRangeSynch.dat", source, 1E8 * hplank, 20 * MeV, 2000);
 }
 
+void evaluateW50() {
+	double distance = (18000/3.26) * parsec;
+
+	const char* concentrationFileName = "../PLUTO/Tools/pyPLUTO/density.dat";
+	const char* BFileName = "../PLUTO/Tools/pyPLUTO/B.dat";
+	const char* temperatureFileName = "../PLUTO/Tools/pyPLUTO/T.dat";
+
+	FILE* concentrationFile = fopen(concentrationFileName, "r");
+	int Nx, Ny, Nz;
+	fscanf(concentrationFile, "%d %d %d", &Nz, &Nx, &Ny);
+	Ny = Nz;
+	double minX, maxX, minY, maxY, minZ, maxZ;
+	fscanf(concentrationFile, "%lf %lf %lf", &minZ, &minX, &minY);
+	fscanf(concentrationFile, "%lf %lf %lf", &maxZ, &maxX, &maxY);
+
+	minZ = -maxZ;
+	minY = minZ;
+	maxY = maxZ;
+
+	Nx = 500;
+	Nz = 250;
+	Ny = 250;
+
+
+	ThermalRectangularSource* source = RadiationSourceFactory::readThermalRectangularSourceFromFile(minX, maxX, minZ, maxZ, minY, maxY, Nx, Nz, Ny, distance, SourceInputGeometry::CYLINDRICAL, BFileName, concentrationFileName, temperatureFileName, pi / 2, 0, 0);
+
+	BremsstrahlungThermalEvaluator* evaluator = new BremsstrahlungThermalEvaluator(true, false);
+
+	printf("start evaluating spectrum\n");
+	evaluator->writeFluxFromSourceToFile("W50bremsstrahlung.dat", source, 1.6E-12, 1.6E-5, 1000);
+	printf("start writing image\n");
+	evaluator->writeImageFromSourceToFile("W50bremsstrahlungImage.dat", source, 1.6E-12, 1.6E-5, 1000);
+}
 
 int main() {
 	resetLog();
@@ -965,7 +998,7 @@ int main() {
 	//fitCSS161010withTabulatedDistributions();
 	//fitTimeDependentCSS161010();
     //evaluatePionDecay();
-	evaluateBremsstrahlung();
+	//evaluateBremsstrahlung();
 	//compareComptonSynchrotron();
 	//evaluateSynchrotronImage();
 	//testRotation();
@@ -985,6 +1018,7 @@ int main() {
 	//evaluateTychoProfile();
 	//fitTychoProfile();
 	//evaluateSynchrotronInWideRange();
+	evaluateW50();
 
 	return 0;
 }
