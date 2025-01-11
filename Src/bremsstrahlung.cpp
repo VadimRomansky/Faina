@@ -100,24 +100,31 @@ double BremsstrahlungThermalEvaluator::evaluateEmissivity(const double& photonFi
 
 double BremsstrahlungThermalEvaluator::evaluateAbsorption(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source)
 {
-	MassiveParticleDistribution* electronDistribution = source->getParticleDistribution(ix1, iz, ix2);
-	MassiveParticleMaxwellDistribution* maxwellDistribution = dynamic_cast<MassiveParticleMaxwellDistribution*>(electronDistribution);
-	MassiveParticleMaxwellJuttnerDistribution* maxwellJuttnerDistribution = dynamic_cast<MassiveParticleMaxwellJuttnerDistribution*>(electronDistribution);
+	ThermalRectangularSource* thermalSource = dynamic_cast<ThermalRectangularSource*>(source);
+	//MassiveParticleDistribution* electronDistribution = source->getParticleDistribution(ix1, iz, ix2);
+	//MassiveParticleMaxwellDistribution* maxwellDistribution = dynamic_cast<MassiveParticleMaxwellDistribution*>(electronDistribution);
+	//MassiveParticleMaxwellJuttnerDistribution* maxwellJuttnerDistribution = dynamic_cast<MassiveParticleMaxwellJuttnerDistribution*>(electronDistribution);
 	double temperature;
-	if (maxwellDistribution != NULL) {
-		temperature = maxwellDistribution->getTemperature();
-	}
-	else if (maxwellJuttnerDistribution != NULL) {
-		temperature = maxwellJuttnerDistribution->getTemperature();
-	}
-	else {
-		printf("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
-		printLog("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
+	//if (maxwellDistribution != NULL) {
+	//	temperature = maxwellDistribution->getTemperature();
+	//}
+	//else if (maxwellJuttnerDistribution != NULL) {
+	//	temperature = maxwellJuttnerDistribution->getTemperature();
+	//}
+	//else {
+	//	printf("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
+	//	printLog("primitive bremsstrahlung evaluator works only with maxwellian distribution\n");
+	//	exit(0);
+	//}
+	if (thermalSource == NULL) {
+		printf("primitive bremsstrahlung evaluator works only with thermal sources\n");
+		printLog("primitive bremsstrahlung evaluator works only with thermal sources\n");
 		exit(0);
 	}
 
+	temperature = thermalSource->getTemperature(ix1, iz, ix2);
 	double concentration = source->getConcentration(ix1, iz, ix2);
-	double m = electronDistribution->getMass();
+	double m = thermalSource->getParticleMass();
 	double theta = photonFinalEnergy / (kBoltzman * temperature);
 	double ritberg = m * electron_charge * electron_charge * electron_charge * electron_charge * 2 * pi * pi / (hplank * hplank);
 	double eta = kBoltzman * temperature / ritberg;
