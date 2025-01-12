@@ -190,6 +190,20 @@ void RadiationEvaluator::writeFluxFromSourceToFile(const char* fileName, Radiati
     fclose(outFile);
 }
 
+void RadiationEvaluator::writeEFEFromSourceToFile(const char* fileName, RadiationSource* source, const double& Ephmin, const double& Ephmax, const int Nph)
+{
+    double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+    double currentE = Ephmin;
+    FILE* outFile = fopen(fileName, "w");
+    for (int i = 0; i < Nph; ++i) {
+        printf("%d\n", i);
+        double flux = evaluateFluxFromSource(currentE, source);
+        fprintf(outFile, "%g %g\n", currentE/1.6E-12, currentE*flux);
+        currentE = currentE * factor;
+    }
+    fclose(outFile);
+}
+
 void RadiationEvaluator::writeImageFromSourceToFile(const char* fileName, RadiationSource* source, const double& Ephmin, const double& Ephmax, const int Nph) {
     int Nx1 = source->getNx1();
     int Nz = source->getNz();
@@ -206,7 +220,7 @@ void RadiationEvaluator::writeImageFromSourceToFile(const char* fileName, Radiat
     omp_init_lock(&my_lock);
 
     int irho;
-#pragma omp parallel for private(irho) shared(Ephmin, Ephmax, source, Nrho, Nz, Nphi, image)
+#pragma omp parallel for private(irho) shared(Ephmin, Ephmax, source, Nx1, Nz, Nx2, image)
     for (irho = 0; irho < Nx1; ++irho) {
         printf("evaluating image irho = %d\n", irho);
         for (int iphi = 0; iphi < Nx2; ++iphi) {

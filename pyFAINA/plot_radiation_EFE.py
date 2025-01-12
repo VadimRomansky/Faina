@@ -3,7 +3,7 @@ from matplotlib import animation
 from pylab import *
 import numpy as np
 
-def plot_radiation(filename):
+def plot_radiation_EFE(filename):
     radiationFile = open(filename,'r')
     lines = radiationFile.readlines()
     N = len(lines)
@@ -30,11 +30,11 @@ def plot_radiation(filename):
     ax.set_xlabel(r'$E~eV$', fontsize=40,fontweight='bold')
     #ax.set_xlabel(r'$\nu~Ггц$', fontsize=40,fontweight='bold')
     #ax.set_ylabel(r'$F_{\nu}~mJy$', fontsize=40,fontweight='bold')
-    ax.set_ylabel(r'$F(E)~cm^{-2} s^{-1}$', fontsize=40,fontweight='bold')
+    ax.set_ylabel(r'$EF(E)~erg~cm^{-2} s^{-1}$', fontsize=40,fontweight='bold')
     #ax.set_ylabel(r'$F_{\nu}~мЯн$', fontsize=40,fontweight='bold')
     ax.set_yscale("log")
-    ax.set_xlim([1E3, 1E8])
-    ax.set_ylim([1E-28, 1E-24])
+    #ax.set_xlim([1E3, 1E8])
+    #ax.set_ylim([1E-28, 1E-24])
     ax.set_xscale("log")
     ax.tick_params(axis='x', size=10, width=4)
     ax.tick_params(axis='y', size=10, width=4)

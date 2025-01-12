@@ -1167,7 +1167,7 @@ void RadiationSourceFactory::transformScalarArrayToCartesian(double*** inputArra
 				double y2 = y1 * cos(phir) + (x1 * cos(thetar) + z1 * sin(thetar)) * sin(phir);
 
 				if (geometry == SourceInputGeometry::CARTESIAN) {
-					if ((x2 < xmin1) || (x2 > xmax1)) {
+					if ((N1 > 1) && ((x2 < xmin1) || (x2 > xmax1))) {
 						outputArray[i][j][k] = 0;
 						//printf("warning: transformed array out of boundaries\n");
 						//printLog("warning: transformed array out of boundaries\n");
@@ -1187,8 +1187,17 @@ void RadiationSourceFactory::transformScalarArrayToCartesian(double*** inputArra
 					}
 
 					int i1 = floor((x2 - xmin1) / dx1);
+					if (N1 == 1) {
+						i1 = 0;
+					}
 					int i2 = floor((y2 - xmin2) / dx2);
+					if (N2 == 1) {
+						i2 = 0;
+					}
 					int i3 = floor((z2 - xmin3) / dx3);
+					if (N3 == 1) {
+						i3 = 0;
+					}
 
 					if ((i2 < 0) || (i2 >= N2)) {
 						i2 = 0;
