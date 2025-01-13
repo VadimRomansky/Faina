@@ -980,12 +980,12 @@ void evaluateW50() {
 	Ny = 125;
 
 
-	ThermalRectangularSource* source = RadiationSourceFactory::readThermalRectangularSourceFromFile(minX, maxX, minZ, maxZ, minY, maxY, Nx, Nz, Ny, distance, SourceInputGeometry::CYLINDRICAL, BFileName, concentrationFileName, temperatureFileName, 0.6*pi/2, 0, 0);
+	ThermalRectangularSource* source = RadiationSourceFactory::readThermalRectangularSourceFromFile(minX, maxX, minZ, maxZ, minY, maxY, Nx, Nz, Ny, distance, SourceInputGeometry::CYLINDRICAL, BFileName, concentrationFileName, temperatureFileName, pi/2, 0, 0);
 
 	BremsstrahlungThermalEvaluator* evaluator = new BremsstrahlungThermalEvaluator(true, false);
 
 	printf("start evaluating spectrum\n");
-	//evaluator->writeEFEFromSourceToFile("W50bremsstrahlung.dat", source, 1.6E-12, 1.6E-6, 50);
+	evaluator->writeEFEFromSourceToFile("W50bremsstrahlung.dat", source, 1.6E-12, 1.6E-6, 50);
 	printf("start writing image\n");
 	evaluator->writeImageFromSourceToFile("W50bremsstrahlungImageeV.dat", source, 1.6E-11, 1.6E-10, 20);
 	evaluator->writeImageFromSourceToFile("W50bremsstrahlungImageKeV.dat", source, 1.6E-9, 1.6E-8, 20);

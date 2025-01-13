@@ -905,6 +905,141 @@ TabulatedDiskSource* RadiationSourceFactory::readDiskSourceFromFile(MassiveParti
 	return source;
 }
 
+RectangularSource* RadiationSourceFactory::readRectangularSourceFromFile(MassiveParticleDistribution* electronDistribution, const double& minX, const double& maxX, const double& minZ, const double& maxZ, const double& minY, const double& maxY, const int Nx, const int Nz, const int Ny, const double& distance, SourceInputGeometry geometry, const char* BFileName, const char* concentrationFileName, const double& thetar, const double& phir, const double& psir)
+{
+	FILE* Bfile = fopen(BFileName, "r");
+	FILE* concentrationFile = fopen(concentrationFileName, "r");
+	int Nxb, Nyb, Nzb;
+	int Nxc, Nyc, Nzc;
+
+	fscanf(Bfile, "%d %d %d", &Nxb, &Nyb, &Nzb);
+	fscanf(concentrationFile, "%d %d %d", &Nxc, &Nyc, &Nzc);
+
+	double x1, y1, z1;
+	double x2, y2, z2;
+
+	fscanf(Bfile, "%lf %lf %lf", &x1, &y1, &z1);
+	fscanf(concentrationFile, "%lf %lf %lf", &x1, &y1, &z1);
+
+	fscanf(Bfile, "%lf %lf %lf", &x2, &y2, &z2);
+	fscanf(concentrationFile, "%lf %lf %lf", &x2, &y2, &z2);
+
+	if ((Nxb != Nxc) || (Nyb != Nyc) || (Nzb != Nzc)) {
+		printf("Dimensions are different in B and concentrationFile\n");
+		printLog("Dimensions are different in B and concentrationFile\n");
+		exit(0);
+	}
+
+	double*** concentration2 = new double** [Nx];
+	double*** B = new double** [Nx];
+	double*** Btheta = new double** [Nx];
+	double*** Bphi = new double** [Nx];
+
+	for (int i = 0; i < Nx; ++i) {
+		concentration2[i] = new double* [Nz];
+		B[i] = new double* [Nz];
+		Btheta[i] = new double* [Nz];
+		Bphi[i] = new double* [Nz];
+		for (int j = 0; j < Nz; ++j) {
+			concentration2[i][j] = new double[Ny];
+			B[i][j] = new double[Ny];
+			Btheta[i][j] = new double[Ny];
+			Bphi[i][j] = new double[Ny];
+		}
+	}
+
+	double*** concentration = new double** [Nxb];
+
+	double*** B1 = new double** [Nxb];
+	double*** B2 = new double** [Nxb];
+	double*** B3 = new double** [Nxb];
+	for (int i = 0; i < Nxb; ++i) {
+		concentration[i] = new double* [Nyb];
+		B1[i] = new double* [Nyb];
+		B2[i] = new double* [Nyb];
+		B3[i] = new double* [Nyb];
+		for (int j = 0; j < Nyb; ++j) {
+			concentration[i][j] = new double[Nzb];
+			B1[i][j] = new double[Nzb];
+			B2[i][j] = new double[Nzb];
+			B3[i][j] = new double[Nzb];
+			for (int k = 0; k < Nzb; ++k) {
+				fscanf(concentrationFile, "%lf", &concentration[i][j][k]);
+				fscanf(Bfile, "%lf %lf %lf", &B1[i][j][k], &B2[i][j][k], &B3[i][j][k]);
+				if (checkNaNorInfinity(concentration[i][j][k])) {
+					printf("concentration is Nan or Infinity %lf\n", concentration[i][j][k]);
+					printLog("concentration is Nan or Infinity %lf\n", concentration[i][j][k]);
+					exit(0);
+				}
+				if (checkNaNorInfinity(B1[i][j][k])) {
+					printf("B1 is Nan or Infinity %lf\n", B1[i][j][k]);
+					printLog("B1 is Nan or Infinity %lf\n", B1[i][j][k]);
+					exit(0);
+				}
+
+				if (checkNaNorInfinity(B2[i][j][k])) {
+					printf("B2 is Nan or Infinity %lf\n", B2[i][j][k]);
+					printLog("B2 is Nan or Infinity %lf\n", B2[i][j][k]);
+					exit(0);
+				}
+
+				if (checkNaNorInfinity(B3[i][j][k])) {
+					printf("B3 is Nan or Infinity %lf\n", B3[i][j][k]);
+					printLog("B3 is Nan or Infinity %lf\n", B3[i][j][k]);
+					exit(0);
+				}
+			}
+		}
+	}
+
+	//correctSourceConcentration(concentration, Nxb, Nyb, Nzb, Nxb - 1, Nyb - 1, Nzb - 1, 0.002);
+	//correctSourceConcentration(concentration, Nxb, Nyb, Nzb, Nxb / 2, Nyb / 2, Nzb - 1, 0.002);
+
+	transformScalarArrayToCartesian(concentration, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, concentration2, Nx, Nz, Ny, minX, maxX, minZ, maxZ, minY, maxY, thetar, phir, psir);
+	transformVectorArraysToCartesian(B1, B2, B3, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, B, Btheta, Bphi, Nx, Nz, Ny, minX, maxX, minZ, maxZ, minY, maxY, thetar, phir, psir);
+
+
+	RectangularSource* source = new RectangularSource(Nx, Ny, Nz, electronDistribution, B, Btheta, Bphi, concentration2, minX, maxX, minY, maxY, minZ, maxZ, distance);
+
+	fclose(Bfile);
+	fclose(concentrationFile);
+	for (int i = 0; i < Nxb; ++i) {
+		for (int j = 0; j < Nyb; ++j) {
+			delete[] concentration[i][j];
+			delete[] B1[i][j];
+			delete[] B2[i][j];
+			delete[] B3[i][j];
+		}
+		delete[] concentration[i];
+		delete[] B1[i];
+		delete[] B2[i];
+		delete[] B3[i];
+	}
+	delete[] concentration;
+	delete[] B1;
+	delete[] B2;
+	delete[] B3;
+
+	for (int i = 0; i < Nx; ++i) {
+		for (int j = 0; j < Nz; ++j) {
+			delete[] concentration2[i][j];
+			delete[] B[i][j];
+			delete[] Btheta[i][j];
+			delete[] Bphi[i][j];
+		}
+		delete[] concentration2[i];
+		delete[] B[i];
+		delete[] Btheta[i];
+		delete[] Bphi[i];
+	}
+	delete[] concentration2;
+	delete[] B;
+	delete[] Btheta;
+	delete[] Bphi;
+
+	return source;
+}
+
 ThermalRectangularSource* RadiationSourceFactory::readThermalRectangularSourceFromFile(const double& minX, const double& maxX, const double& minZ, const double& maxZ, const double& minY, const double& maxY, const int Nx, const int Nz, const int Ny, const double& distance, SourceInputGeometry geometry, const char* BFileName, const char* concentrationFileName, const char* temperatureFileName, const double& thetar, const double& phir, const double& psir)
 {
 	FILE* Bfile = fopen(BFileName, "r");

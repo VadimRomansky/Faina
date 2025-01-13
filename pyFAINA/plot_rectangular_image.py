@@ -54,7 +54,7 @@ def plot_rectangular_image(filename, name):
     y = np.linspace(minY, maxY, Ny)
 
     #im2 = plt.pcolormesh(x, y, radiation.T, norm = colors.LogNorm(vmin = minradiation, vmax = amax(radiation)), shading='auto')
-    im2 = plt.imshow(radiation.T, origin = 'lower', norm = colors.Normalize(vmin = 0, vmax = amax(radiation)), aspect = 'equal', extent = [minX, maxX, minY, maxY])
+    im2 = plt.imshow(radiation.T, origin = 'lower', norm = colors.LogNorm(vmin = minradiation, vmax = amax(radiation)), aspect = 'equal', extent = [minX, maxX, minY, maxY])
     #cax2 = f1.add_axes([0.125, 0.92, 0.775, 0.03])
     #plt.colorbar(im2, cax=cax2, orientation='horizontal', label = '$cm^{-2}s^{-1}$')
     #plt.colorbar(im2, orientation='horizontal', label = '$erg~cm^{-2}s^{-1}sr^{-1}$')
