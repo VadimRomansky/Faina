@@ -3102,7 +3102,6 @@ MassiveParticleDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDist
 		my_localDistribution[numthread]->transformToLosses(lossRate, time);
 		//my_localDistribution[numthread]->transformToLosses2(k, my_z - z1, my_z - z2);
 	}
-
 	return my_localDistribution[numthread];
 }
 
@@ -4054,7 +4053,6 @@ void TabulatedSectoralSphericalLayerSource::resetParameters(const double* parame
 	my_velocity = parameters[4] * normalizationUnits[4];
 }
 MassiveParticleDistribution* TabulatedSectoralSphericalLayerSource::getParticleDistribution(int irho, int iz, int iphi) {
-
 	return my_distribution;
 }
 
