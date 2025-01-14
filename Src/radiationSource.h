@@ -31,6 +31,10 @@ public:
 	int getNx1();
 	int getNx2();
 
+	virtual double getX1(int ix1) = 0;
+	virtual double getZ(int iz) = 0;
+	virtual double getX2(int ix2) = 0;
+
 	virtual bool isSource(int irho, int iphi) = 0;
 	virtual double getArea(int irho, int iz, int iphi) = 0;
 	virtual double getVolume(int irho, int iz, int iphi);
@@ -80,6 +84,8 @@ public:
 	virtual double getX(int ix) = 0;
 	virtual double getZ(int iz) = 0;
 	virtual double getY(int iy) = 0;
+	virtual double getX1(int ix1);
+	virtual double getX2(int ix2);
 	virtual int gerXindex(double x) = 0;
 	virtual int getYindex(double y) = 0;
 	virtual int getZindex(double z) = 0;
@@ -100,6 +106,7 @@ protected:
 	bool** my_isSource;
 	MassiveParticleDistribution* my_distribution;
 public:
+	RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double B, double theta, double phi, double concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity = 0, const double& redShift = 0);
 	RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity = 0, const double& redShift = 0);
 	virtual double getX(int ix);
 	virtual double getZ(int iz);
@@ -107,6 +114,11 @@ public:
 	virtual int gerXindex(double x);
 	virtual int getYindex(double y);
 	virtual int getZindex(double z);
+
+	virtual double getMaxB();
+	virtual double getMaxOuterB();
+	virtual double getAverageSigma();
+	virtual double getAverageConcentration();
 
 	virtual bool isSource(int irho, int iphi);
 	virtual double getArea(int irho, int iz, int iphi) ;
@@ -130,9 +142,12 @@ protected:
 	double my_mass;
 	double*** my_temperature;
 	MassiveParticleDistribution** my_localDistribution;
+	int my_maxThreads;
 public:
+	ThermalRectangularSource(int Nx, int Ny, int Nz, double mass, double B, double theta, double phi, double concentration, double temperature, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity = 0, const double& redShift = 0);
 	ThermalRectangularSource(int Nx, int Ny, int Nz, double mass, double*** B, double*** theta, double*** phi, double*** concentration, double*** temperature, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity = 0, const double& redShift = 0);
 
+	virtual double getParticleMass();
 	virtual double getTemperature(int ix, int iz, int iy);
 	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
 };
@@ -159,6 +174,8 @@ public:
 	virtual double getRho(int irho) = 0;
 	virtual double getZ(int iz) = 0;
 	virtual double getPhi(int iphi) = 0;
+	virtual double getX1(int ix1);
+	virtual double getX2(int ix2);
 	virtual int getRhoIndex(const double& rho) = 0;
 };
 

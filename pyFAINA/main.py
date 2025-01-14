@@ -23,12 +23,14 @@ from plot_radiation10 import plot_radiation10
 from plot_radiation2 import plot_radiation2
 from plot_radiation3 import plot_radiation3
 from plot_radiation4 import plot_radiation4
+from plot_radiation_EFE import plot_radiation_EFE
+from plot_rectangular_image import plot_rectangular_image
 from plot_synchrotron import plot_synchrotron
 from plot_synchrotron3 import plot_synchrotron3
 
 if __name__ == '__main__':
-    #plt.rcParams['image.cmap'] = 'jet'
-    plt.rcParams['image.cmap'] = 'hot'
+    plt.rcParams['image.cmap'] = 'jet'
+    #plt.rcParams['image.cmap'] = 'hot'
     #plot_dummy()
     #plot_distributions()
     #plot_distributions9()
@@ -36,7 +38,8 @@ if __name__ == '__main__':
     #plot_distributions2()
     #plot_distributions_4()
     #plot_distributions_mc()
-    #plot_radiation()
+    #plot_radiation("../W50bremsstrahlung.dat")
+    plot_radiation_EFE("../W50bremsstrahlung.dat")
     #plot_synchrotron()
     #plot_synchrotron3()
     #plot_bremsstrahlung()
@@ -45,12 +48,15 @@ if __name__ == '__main__':
     #plot_radiation3()
     #plot_radiation10()
     #plot_compton_radiation()
-    plot_long_radiation()
+    #plot_long_radiation()
     #plot_radiation2()
     #plot_error_profile(1,2)
     #plot_mask()
     #plot_image("../image.dat", "image")
     #plot_image("../image1.dat", "image1")
+    plot_rectangular_image("../W50bremsstrahlungImageeV.dat","W50eV")
+    plot_rectangular_image("../W50bremsstrahlungImageKeV.dat", "W50KeV")
+    plot_rectangular_image("../W50bremsstrahlungImageMeV.dat", "W50MeV")
     #plot_image_array_animated("../image_array.dat","image_array")
     #plot_array3d()
     #plot_array3d_animated("../area.dat","area")

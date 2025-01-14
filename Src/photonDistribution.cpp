@@ -23,13 +23,13 @@ void PhotonIsotropicDistribution::writeDistribution(const char* fileName, int Ne
 	}
 	FILE* outFile = fopen(fileName, "w");
 	for (int i = 0; i < Ne; ++i) {
-		fprintf(outFile, "%g %g\n", energy[i], distribution(energy[i]));
+		fprintf(outFile, "%g %g\n", energy[i], distributionNormalized(energy[i]));
 	}
 	fclose(outFile);
 	delete[] energy;
 }
 
-PhotonPowerLawDistribution::PhotonPowerLawDistribution(const double& index, const double& E0, const double& concentration)
+PhotonPowerLawDistribution::PhotonPowerLawDistribution(const double& index, const double& E0)
 {
 	if (index <= 1.0) {
 		printf("photon spectrum index <= 1.0, contains infinit energy\n");
@@ -38,12 +38,6 @@ PhotonPowerLawDistribution::PhotonPowerLawDistribution(const double& index, cons
 	}
 	my_index = index;
 	my_E0 = E0;
-	if (concentration <= 0) {
-		printf("photons concentration <= 0\n");
-		printLog("photons concentration <= 0\n");
-		exit(0);
-	}
-	my_concentration = concentration;
 
 	my_A = (my_index - 1) / (my_E0 * 4 * pi);
 }
@@ -104,6 +98,11 @@ double PhotonPlankDistribution::getMeanEnergy()
 	double intPlank2 = 2 * dzeta3;
 	double intPlank3 = pi*pi*pi*pi/15;
 	return kBoltzman*my_temperature*intPlank3/intPlank2;
+}
+
+double PhotonPlankDistribution::getConcentration()
+{
+	return my_concentration;
 }
 
 double PhotonPlankDistribution::getTemperature() {
@@ -167,6 +166,11 @@ double PhotonMultiPlankDistribution::getMeanEnergy()
 	return result/getConcentration();
 }
 
+double PhotonMultiPlankDistribution::getConcentration()
+{
+	return my_concentration;
+}
+
 PhotonMultiPlankDistribution* PhotonMultiPlankDistribution::getGalacticField()
 {
 	if (!my_GalacticField) {
@@ -178,61 +182,68 @@ PhotonMultiPlankDistribution* PhotonMultiPlankDistribution::getGalacticField()
 	return my_GalacticField;
 }
 
-CompoundPhotonDistribution::CompoundPhotonDistribution(int N, PhotonDistribution** distributions)
+CompoundWeightedPhotonDistribution::CompoundWeightedPhotonDistribution(int N, const double* weights, PhotonDistribution** distributions)
 {
 	my_Ndistr = N;
 
 	my_distributions = new PhotonDistribution * [my_Ndistr];
-	my_concentration = 0;
+	my_weights = new double[my_Ndistr];
 	for (int i = 0; i < my_Ndistr; ++i) {
 		my_distributions[i] = distributions[i];
-		my_concentration += my_distributions[i]->getConcentration();
+		my_weights[i] = weights[i];
+
 	}
 }
 
-CompoundPhotonDistribution::CompoundPhotonDistribution(PhotonDistribution* dist1, PhotonDistribution* dist2)
+CompoundWeightedPhotonDistribution::CompoundWeightedPhotonDistribution(PhotonDistribution* dist1, const double& w1, PhotonDistribution* dist2, const double& w2)
 {
 	my_Ndistr = 2;
 	my_distributions = new PhotonDistribution * [my_Ndistr];
-	my_concentration = dist1->getConcentration() + dist2->getConcentration();
+	my_weights = new double[my_Ndistr];
 	my_distributions[0] = dist1;
 	my_distributions[1] = dist2;
+	my_weights[0] = w1;
+	my_weights[1] = w2;
 }
 
-CompoundPhotonDistribution::CompoundPhotonDistribution(PhotonDistribution* dist1, PhotonDistribution* dist2, PhotonDistribution* dist3)
+CompoundWeightedPhotonDistribution::CompoundWeightedPhotonDistribution(PhotonDistribution* dist1, const double& w1, PhotonDistribution* dist2, const double& w2, PhotonDistribution* dist3, const double& w3)
 {
 	my_Ndistr = 3;
 	my_distributions = new PhotonDistribution * [my_Ndistr];
-	my_concentration = dist1->getConcentration() + dist2->getConcentration() + dist3->getConcentration();
+	my_weights = new double[my_Ndistr];
 	my_distributions[0] = dist1;
 	my_distributions[1] = dist2;
 	my_distributions[2] = dist3;
+	my_weights[0] = w1;
+	my_weights[1] = w2;
+	my_weights[2] = w3;
 }
 
-CompoundPhotonDistribution::~CompoundPhotonDistribution()
+CompoundWeightedPhotonDistribution::~CompoundWeightedPhotonDistribution()
 {
 	delete[] my_distributions;
+	delete[] my_weights;
 }
 
-double CompoundPhotonDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
+double CompoundWeightedPhotonDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
 {
 	double result = 0;
 	for (int i = 0; i < my_Ndistr; ++i) {
-		result += my_distributions[i]->distribution(energy, mu, phi);
+		result += my_weights[i]*my_distributions[i]->distributionNormalized(energy, mu, phi);
 	}
-	return result/my_concentration;
+	return result;
 }
 
-double CompoundPhotonDistribution::getMeanEnergy()
+double CompoundWeightedPhotonDistribution::getMeanEnergy()
 {
 	double result = 0;
 	for (int i = 0; i < my_Ndistr; ++i) {
-		result += my_distributions[i]->getConcentration() * my_distributions[i]->getMeanEnergy();
+		result += my_weights[i] * my_distributions[i]->getMeanEnergy();
 	}
-	return result / my_concentration;
+	return result;
 }
 
-PhotonPlankDirectedDistribution::PhotonPlankDirectedDistribution(const double& temperature, const double& amplitude, const double& theta0, const double& phi0, const double& deltaTheta)
+PhotonPlankDirectedDistribution::PhotonPlankDirectedDistribution(const double& temperature, const double& theta0, const double& phi0, const double& deltaTheta, const double& amplitude)
 {
 	my_temperature = temperature;
 
@@ -282,6 +293,11 @@ double PhotonPlankDirectedDistribution::getMeanEnergy()
 	return kBoltzman*my_temperature*intPlank3/intPlank2;
 }
 
+double PhotonPlankDirectedDistribution::getConcentration()
+{
+	return my_concentration;
+}
+
 double PhotonPlankDirectedDistribution::getTemperature()
 {
 	return my_temperature;
@@ -291,7 +307,7 @@ PhotonPlankDirectedDistribution::~PhotonPlankDirectedDistribution() {
 
 }
 
-PhotonMonoenergeticDistribution::PhotonMonoenergeticDistribution(const double& Energy, const double& halfWidth, const double& concentration)
+PhotonMonoenergeticDistribution::PhotonMonoenergeticDistribution(const double& Energy, const double& halfWidth)
 {
 	my_E0 = Energy;
 	my_dE = halfWidth;
@@ -300,7 +316,6 @@ PhotonMonoenergeticDistribution::PhotonMonoenergeticDistribution(const double& E
 		printLog("dE > E0 in monoenergetic distribution\n");
 		exit(0);
 	}
-	my_concentration = concentration;
 }
 
 double PhotonMonoenergeticDistribution::distributionNormalized(const double& energy)
@@ -314,9 +329,4 @@ double PhotonMonoenergeticDistribution::distributionNormalized(const double& ene
 double PhotonMonoenergeticDistribution::getMeanEnergy()
 {
 	return my_E0;
-}
-
-void PhotonMonoenergeticDistribution::resetConcentration(const double& concentration)
-{
-	my_concentration = concentration;
 }

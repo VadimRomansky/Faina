@@ -20,7 +20,7 @@ void MassiveParticleIsotropicDistribution::writeDistribution(const char* fileNam
 	}
 	FILE* outFile = fopen(fileName, "w");
 	for (int i = 0; i < Ne; ++i) {
-		fprintf(outFile, "%g %g\n", energy[i], distribution(energy[i]));
+		fprintf(outFile, "%g %g\n", energy[i], distributionNormalized(energy[i]));
 	}
 	fclose(outFile);
 	delete[] energy;
@@ -35,7 +35,7 @@ double MassiveParticleIsotropicDistribution::distributionNormalizedWithLosses(co
 	return distributionNormalized(energy / (1 - factor)) / sqr(1 - factor);
 }
 
-MassiveParticlePowerLawDistribution::MassiveParticlePowerLawDistribution(const double& mass, const double& index, const double& E0, const double& concentration) {
+MassiveParticlePowerLawDistribution::MassiveParticlePowerLawDistribution(const double& mass, const double& index, const double& E0) {
 	my_mass = mass;
 	if (index <= 1.0) {
 		printf("electron spectrum index <= 1.0, contains infinit energy\n");
@@ -49,12 +49,6 @@ MassiveParticlePowerLawDistribution::MassiveParticlePowerLawDistribution(const d
 		exit(0);
 	}
 	my_E0 = E0;
-	if (concentration <= 0) {
-		printf("electrons concentration <= 0\n");
-		printLog("electrons concentration <= 0\n");
-		exit(0);
-	}
-	my_concentration = concentration;
 
 	my_A = (my_index - 1) / (my_E0*4*pi);
 }
@@ -97,11 +91,6 @@ double MassiveParticlePowerLawDistribution::maxEnergy()
 	return -1.0;
 }
 
-void MassiveParticlePowerLawDistribution::resetConcentration(const double& concentration)
-{
-	my_concentration = concentration;
-}
-
 double MassiveParticlePowerLawDistribution::getIndex()
 {
 	return my_index;
@@ -112,7 +101,7 @@ double MassiveParticlePowerLawDistribution::getE0()
 	return my_E0;
 }
 
-MassiveParticlePowerLawCutoffDistribution::MassiveParticlePowerLawCutoffDistribution(const double& mass, const double& index, const double& E0, const double& beta, const double& Ecut, const double& concentration) {
+MassiveParticlePowerLawCutoffDistribution::MassiveParticlePowerLawCutoffDistribution(const double& mass, const double& index, const double& E0, const double& beta, const double& Ecut) {
 	my_mass = mass;
 	if (index <= 1.0) {
 		printf("electron spectrum index <= 1.0, contains infinit energy\n");
@@ -126,11 +115,6 @@ MassiveParticlePowerLawCutoffDistribution::MassiveParticlePowerLawCutoffDistribu
 		exit(0);
 	}
 	my_E0 = E0;
-	if (concentration <= 0) {
-		printf("electrons concentration <= 0\n");
-		printLog("electrons concentration <= 0\n");
-		exit(0);
-	}
 	my_beta = beta;
 	my_Ecut = Ecut;
 	if (my_Ecut < my_E0) {
@@ -138,7 +122,6 @@ MassiveParticlePowerLawCutoffDistribution::MassiveParticlePowerLawCutoffDistribu
 		printLog("Ecutoff < E0\n");
 		exit(0);
 	}
-	my_concentration = concentration;
 
 	my_A = (my_index - 1) / (my_E0 * 4 * pi);
 
@@ -205,11 +188,6 @@ double MassiveParticlePowerLawCutoffDistribution::maxEnergy()
 	return -1.0;
 }
 
-void MassiveParticlePowerLawCutoffDistribution::resetConcentration(const double& concentration)
-{
-	my_concentration = concentration;
-}
-
 void MassiveParticlePowerLawCutoffDistribution::resetEcut(const double& Ecut)
 {
 	//todo need to renorm?
@@ -241,7 +219,7 @@ double MassiveParticlePowerLawCutoffDistribution::getEcutoff()
 	return my_Ecut;
 }
 
-MassiveParticleBrokenPowerLawDistribution::MassiveParticleBrokenPowerLawDistribution(const double& mass, const double& index1, const double& index2, const double& E0, const double& Etran, const double& concentration) {
+MassiveParticleBrokenPowerLawDistribution::MassiveParticleBrokenPowerLawDistribution(const double& mass, const double& index1, const double& index2, const double& E0, const double& Etran) {
 	my_mass = mass;
 	if (index2 <= 1.0) {
 		printf("electron spectrum index2 <= 1.0, contains infinit energy\n");
@@ -262,12 +240,6 @@ MassiveParticleBrokenPowerLawDistribution::MassiveParticleBrokenPowerLawDistribu
 	}
 	my_E0 = E0;
 	my_Etran = Etran;
-	if (concentration <= 0) {
-		printf("electrons concentration <= 0\n");
-		printLog("electrons concentration <= 0\n");
-		exit(0);
-	}
-	my_concentration = concentration;
 
 	double normCoef;
 	if (my_index1 == 1.0) {
@@ -330,11 +302,6 @@ double MassiveParticleBrokenPowerLawDistribution::maxEnergy()
 	return -1.0;
 }
 
-void MassiveParticleBrokenPowerLawDistribution::resetConcentration(const double& concentration)
-{
-	my_concentration = concentration;
-}
-
 double MassiveParticleBrokenPowerLawDistribution::getIndex1()
 {
 	return my_index1;
@@ -355,7 +322,7 @@ double MassiveParticleBrokenPowerLawDistribution::getEtran()
 	return my_Etran;
 }
 
-MassiveParticleMaxwellDistribution::MassiveParticleMaxwellDistribution(const double& mass, const double& temperature, const double& concentration)
+MassiveParticleMaxwellDistribution::MassiveParticleMaxwellDistribution(const double& mass, const double& temperature)
 {
 	my_mass = mass;
 	if (temperature <= 0) {
@@ -364,13 +331,6 @@ MassiveParticleMaxwellDistribution::MassiveParticleMaxwellDistribution(const dou
 		exit(0);
 	}
 	my_temperature = temperature;
-
-	if (concentration <= 0) {
-		printf("electrons concentration <= 0\n");
-		printLog("electrons concentration <= 0\n");
-		exit(0);
-	}
-	my_concentration = concentration;
 
 	my_A = 1.0 / (2 * sqrt(cube(pi * kBoltzman * my_temperature)));
 }
@@ -395,17 +355,12 @@ double MassiveParticleMaxwellDistribution::maxEnergy()
 	return -1.0;
 }
 
-void MassiveParticleMaxwellDistribution::resetConcentration(const double& concentration)
-{
-	my_concentration = concentration;
-}
-
 double MassiveParticleMaxwellDistribution::getTemperature()
 {
 	return my_temperature;
 }
 
-MassiveParticleMaxwellJuttnerDistribution::MassiveParticleMaxwellJuttnerDistribution(const double& mass, const double& temperature, const double& concentration)
+MassiveParticleMaxwellJuttnerDistribution::MassiveParticleMaxwellJuttnerDistribution(const double& mass, const double& temperature)
 {
 	my_mass = mass;
 	if (temperature <= 0) {
@@ -414,13 +369,6 @@ MassiveParticleMaxwellJuttnerDistribution::MassiveParticleMaxwellJuttnerDistribu
 		exit(0);
 	}
 	my_temperature = temperature;
-
-	if (concentration <= 0) {
-		printf("electrons concentration <= 0\n");
-		printLog("electrons concentration <= 0\n");
-		exit(0);
-	}
-	my_concentration = concentration;
 
 	double m_c2 = my_mass * speed_of_light2;
 
@@ -465,11 +413,6 @@ double MassiveParticleMaxwellJuttnerDistribution::minEnergy()
 double MassiveParticleMaxwellJuttnerDistribution::maxEnergy()
 {
 	return -1.0;
-}
-
-void MassiveParticleMaxwellJuttnerDistribution::resetConcentration(const double& concentration)
-{
-	my_concentration = concentration;
 }
 
 double MassiveParticleMaxwellJuttnerDistribution::getTemperature()
@@ -522,8 +465,6 @@ MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropic
 	my_mass = distribution.my_mass;
 	my_Ne = distribution.my_Ne;
 
-	my_concentration = distribution.my_concentration;
-
 	my_energy = new double[my_Ne];
 	my_distribution = new double[my_Ne];
 	my_inputType = distribution.my_inputType;
@@ -536,7 +477,7 @@ MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropic
 	normalizeDistribution();
 }
 
-MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* fileName, const double& concentration, DistributionInputType inputType) {
+MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* fileName, DistributionInputType inputType) {
 	my_mass = mass;
 
 
@@ -550,13 +491,6 @@ MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropic
 	}
 	fclose(file);
 	my_Ne = n - 1;
-
-	if (concentration <= 0) {
-		printf("electrons concentration <= 0\n");
-		printLog("electrons concentration <= 0\n");
-		exit(0);
-	}
-	my_concentration = concentration;
 
 	my_inputType = inputType;
 
@@ -582,7 +516,7 @@ MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropic
 	fclose(file);
 }
 
-MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* energyFileName, const char* distributionFileName, const double& concentration, DistributionInputType inputType) {
+MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* energyFileName, const char* distributionFileName, DistributionInputType inputType) {
 	my_mass = mass;
 
 	int n = 0;
@@ -594,13 +528,6 @@ MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropic
 	}
 	fclose(energyFile);
 	my_Ne = n-1;
-
-	if (concentration <= 0) {
-		printf("electrons concentration <= 0\n");
-		printLog("electrons concentration <= 0\n");
-		exit(0);
-	}
-	my_concentration = concentration;
 
 	my_inputType = inputType;
 
@@ -629,7 +556,7 @@ MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropic
 	fclose(distributionFile);
 }
 
-MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropicDistribution(const double& mass, const double* energy, const double* distribution, const int N, const double& concentration, DistributionInputType inputType) {
+MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropicDistribution(const double& mass, const double* energy, const double* distribution, const int N, DistributionInputType inputType) {
 	my_mass = mass;
 	if (N <= 0) {
 		printf("grid number <= 0 in tabulated spherical distribution\n");
@@ -637,13 +564,6 @@ MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropic
 		exit(0);
 	}
 	my_Ne = N;
-
-	if (concentration <= 0) {
-		printf("electrons concentration <= 0\n");
-		printLog("electrons concentration <= 0\n");
-		exit(0);
-	}
-	my_concentration = concentration;
 
 	my_inputType = inputType;
 
@@ -743,12 +663,6 @@ double MassiveParticleTabulatedIsotropicDistribution::minEnergy()
 double MassiveParticleTabulatedIsotropicDistribution::maxEnergy()
 {
 	return my_energy[my_Ne-1];
-}
-
-void MassiveParticleTabulatedIsotropicDistribution::resetConcentration(const double& concentration)
-{
-	my_concentration = concentration;
-	//normalizeDistribution();
 }
 
 int MassiveParticleTabulatedIsotropicDistribution::getN() {
@@ -852,6 +766,7 @@ void MassiveParticleTabulatedIsotropicDistribution::transformToLosses(const doub
 	normalizeDistribution();
 }
 
+//todo what to do with concentration?
 void MassiveParticleTabulatedIsotropicDistribution::transformToLosses2(const double& k, const double& l1, const double& l2)
 {
 	//l1 > l2!!!
@@ -867,7 +782,7 @@ void MassiveParticleTabulatedIsotropicDistribution::transformToLosses2(const dou
 		else {
 			if(l1 < 1.5*l2){
 				double tempE = E / (1 - k * l2 * E);
-				tempDistribution[i] = distribution(tempE) / sqr(1 - k * l2 * E);
+				tempDistribution[i] = distributionNormalized(tempE) / sqr(1 - k * l2 * E);
 			}
 			else {
 				double Emin = E / (1 - k * l2 * E);
@@ -883,7 +798,7 @@ void MassiveParticleTabulatedIsotropicDistribution::transformToLosses2(const dou
 				double factor = pow(Emax / Emin, 1.0 / (N - 1));
 				double tempE = Emin;
 				for (int j = 0; j < N; ++j) {
-					tempDistribution[i] += distribution(tempE) * tempE*(factor-1) / ((l1 - l2)*k * tempE * tempE);
+					tempDistribution[i] += distributionNormalized(tempE) * tempE*(factor-1) / ((l1 - l2)*k * tempE * tempE);
 					tempE = tempE * factor;
 				}
 			}
@@ -956,7 +871,7 @@ void MassiveParticleTabulatedPolarDistribution::normalizeDistribution()
 	}
 }
 
-MassiveParticleTabulatedPolarDistribution::MassiveParticleTabulatedPolarDistribution(const double& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const double& concentration, DistributionInputType inputType)
+MassiveParticleTabulatedPolarDistribution::MassiveParticleTabulatedPolarDistribution(const double& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, DistributionInputType inputType)
 {
 	my_mass = mass;
 	if (Ne <= 0) {
@@ -972,13 +887,6 @@ MassiveParticleTabulatedPolarDistribution::MassiveParticleTabulatedPolarDistribu
 		exit(0);
 	}
 	my_Nmu = Nmu;
-
-	if (concentration <= 0) {
-		printf("electrons concentration <= 0\n");
-		printLog("electrons concentration <= 0\n");
-		exit(0);
-	}
-	my_concentration = concentration;
 
 	my_inputType = inputType;
 
@@ -1018,7 +926,7 @@ MassiveParticleTabulatedPolarDistribution::MassiveParticleTabulatedPolarDistribu
 	fclose(distributionFile);
 }
 
-MassiveParticleTabulatedPolarDistribution::MassiveParticleTabulatedPolarDistribution(const double& mass, const double* energy, const double* mu, const double** distribution, const int Ne, const int Nmu, const double& concentration, DistributionInputType inputType)
+MassiveParticleTabulatedPolarDistribution::MassiveParticleTabulatedPolarDistribution(const double& mass, const double* energy, const double* mu, const double** distribution, const int Ne, const int Nmu, DistributionInputType inputType)
 {
 	my_mass = mass;
 	if (Ne <= 0) {
@@ -1034,13 +942,6 @@ MassiveParticleTabulatedPolarDistribution::MassiveParticleTabulatedPolarDistribu
 		exit(0);
 	}
 	my_Nmu = Nmu;
-
-	if (concentration <= 0) {
-		printf("electrons concentration <= 0\n");
-		printLog("electrons concentration <= 0\n");
-		exit(0);
-	}
-	my_concentration = concentration;
 
 	my_inputType = inputType;
 
@@ -1224,12 +1125,6 @@ double MassiveParticleTabulatedPolarDistribution::distributionNormalized(const d
 	}
 }
 
-void MassiveParticleTabulatedPolarDistribution::resetConcentration(const double& concentration)
-{
-	my_concentration = concentration;
-	//normalizeDistribution();
-}
-
 int MassiveParticleTabulatedPolarDistribution::getNe()
 {
 	return my_Ne;
@@ -1310,7 +1205,7 @@ void MassiveParticleTabulatedAnisotropicDistribution::normalizeDistribution()
 	}
 }
 
-MassiveParticleTabulatedAnisotropicDistribution::MassiveParticleTabulatedAnisotropicDistribution(const double& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const int Nphi, const double& concentration, DistributionInputType inputType)
+MassiveParticleTabulatedAnisotropicDistribution::MassiveParticleTabulatedAnisotropicDistribution(const double& mass, const char* energyFileName, const char* muFileName, const char* distributionFileName, const int Ne, const int Nmu, const int Nphi, DistributionInputType inputType)
 {
 	if (Ne <= 0) {
 		printf("energy grid number <= 0 in tabulated azimutal distribution\n");
@@ -1332,13 +1227,6 @@ MassiveParticleTabulatedAnisotropicDistribution::MassiveParticleTabulatedAnisotr
 		exit(0);
 	}
 	my_Nphi = Nphi;
-
-	if (concentration <= 0) {
-		printf("electrons concentration <= 0\n");
-		printLog("electrons concentration <= 0\n");
-		exit(0);
-	}
-	my_concentration = concentration;
 
 	my_inputType = inputType;
 
@@ -1387,7 +1275,7 @@ MassiveParticleTabulatedAnisotropicDistribution::MassiveParticleTabulatedAnisotr
 	fclose(distributionFile);
 }
 
-MassiveParticleTabulatedAnisotropicDistribution::MassiveParticleTabulatedAnisotropicDistribution(const double& mass, const double* energy, const double* mu, const double*** distribution, const int Ne, const int Nmu, const int Nphi, const double& concentration, DistributionInputType inputType)
+MassiveParticleTabulatedAnisotropicDistribution::MassiveParticleTabulatedAnisotropicDistribution(const double& mass, const double* energy, const double* mu, const double*** distribution, const int Ne, const int Nmu, const int Nphi, DistributionInputType inputType)
 {
 	my_mass = mass;
 	if (Ne <= 0) {
@@ -1410,13 +1298,6 @@ MassiveParticleTabulatedAnisotropicDistribution::MassiveParticleTabulatedAnisotr
 		exit(0);
 	}
 	my_Nphi = Nphi;
-
-	if (concentration <= 0) {
-		printf("electrons concentration <= 0\n");
-		printLog("electrons concentration <= 0\n");
-		exit(0);
-	}
-	my_concentration = concentration;
 
 	my_inputType = inputType;
 
@@ -1669,12 +1550,6 @@ double MassiveParticleTabulatedAnisotropicDistribution::maxEnergy()
 	return my_energy[my_Ne-1];
 }
 
-void MassiveParticleTabulatedAnisotropicDistribution::resetConcentration(const double& concentration)
-{
-	my_concentration = concentration;
-	//normalizeDistribution();
-}
-
 int MassiveParticleTabulatedAnisotropicDistribution::getNe()
 {
 	return my_Ne;
@@ -1699,121 +1574,6 @@ void MassiveParticleTabulatedAnisotropicDistribution::rescaleDistribution(const 
 	normalizeDistribution();
 }
 
-CompoundMassiveParticleDistribution::CompoundMassiveParticleDistribution(int N, MassiveParticleDistribution** distributions)
-{
-	my_mass = distributions[0]->getMass();
-	my_Ndistr = N;
-
-	my_distributions = new MassiveParticleDistribution * [my_Ndistr];
-	my_concentration = 0;
-	for (int i = 0; i < my_Ndistr; ++i) {
-		if (distributions[0]->getMass() != my_mass) {
-			printf("masses in compound distribution are not equal\n");
-			printLog("masses in compound distribution are not equal\n");
-			exit(0);
-		}
-		my_distributions[i] = distributions[i];
-		my_concentration += my_distributions[i]->getConcentration();
-	}
-}
-
-CompoundMassiveParticleDistribution::CompoundMassiveParticleDistribution(MassiveParticleDistribution* dist1, MassiveParticleDistribution* dist2)
-{
-	my_mass = dist1->getMass();
-	if (my_mass != dist2->getMass()) {
-		printf("masses in compound distribution are not equal\n");
-		printLog("masses in compound distribution are not equal\n");
-		exit(0);
-	}
-	my_Ndistr = 2;
-	my_distributions = new MassiveParticleDistribution * [my_Ndistr];
-	my_concentration = dist1->getConcentration() + dist2->getConcentration();
-	my_distributions[0] = dist1;
-	my_distributions[1] = dist2;
-}
-
-CompoundMassiveParticleDistribution::CompoundMassiveParticleDistribution(MassiveParticleDistribution* dist1, MassiveParticleDistribution* dist2, MassiveParticleDistribution* dist3)
-{
-	my_mass = dist1->getMass();
-	if (my_mass != dist2->getMass()) {
-		printf("masses in compound distribution are not equal\n");
-		printLog("masses in compound distribution are not equal\n");
-		exit(0);
-	}
-	if (my_mass != dist3->getMass()) {
-		printf("masses in compound distribution are not equal\n");
-		printLog("masses in compound distribution are not equal\n");
-		exit(0);
-	}
-	my_Ndistr = 3;
-	my_distributions = new MassiveParticleDistribution * [my_Ndistr];
-	my_concentration = dist1->getConcentration() + dist2->getConcentration() + dist3->getConcentration();
-	my_distributions[0] = dist1;
-	my_distributions[1] = dist2;
-	my_distributions[2] = dist3;
-}
-
-CompoundMassiveParticleDistribution::~CompoundMassiveParticleDistribution()
-{
-	delete[] my_distributions;
-}
-
-
-
-double CompoundMassiveParticleDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
-{
-	double result = 0;
-	for (int i = 0; i < my_Ndistr; ++i) {
-		result += my_distributions[i]->distribution(energy, mu, phi);
-	}
-	return result/my_concentration;
-}
-
-double CompoundMassiveParticleDistribution::getMeanEnergy()
-{
-	double Emean = 0;
-	for (int i = 0; i < my_Ndistr; ++i) {
-		Emean += my_distributions[i]->getConcentration()*my_distributions[i]->getMeanEnergy();
-	}
-	return Emean / my_concentration;
-}
-
-double CompoundMassiveParticleDistribution::minEnergy()
-{
-	double tempEmin = my_distributions[0]->minEnergy();
-	for (int i = 0; i < my_Ndistr; ++i) {
-		double emin = my_distributions[i]->minEnergy();
-		if (tempEmin > emin) {
-			tempEmin = emin;
-		}
-	}
-	return tempEmin;
-}
-
-double CompoundMassiveParticleDistribution::maxEnergy()
-{
-	double tempEmax = my_distributions[0]->maxEnergy();
-	for (int i = 0; i < my_Ndistr; ++i) {
-		double emax = my_distributions[i]->maxEnergy();
-		if (emax < 0) {
-			return -1.0;
-		}
-		if (tempEmax < emax) {
-			tempEmax = emax;
-		}
-	}
-	return tempEmax;
-}
-
-void CompoundMassiveParticleDistribution::resetConcentration(const double& concentration)
-{
-	double ratio = concentration / my_concentration;
-	for (int i = 0; i < my_Ndistr; ++i) {
-		my_distributions[i]->resetConcentration(my_distributions[i]->getConcentration() * ratio);
-	}
-	my_concentration = concentration;
-}
-
 CompoundWeightedMassiveParticleDistribution::CompoundWeightedMassiveParticleDistribution(int N, const double* weights, MassiveParticleDistribution** distributions)
 {
 	my_mass = distributions[0]->getMass();
@@ -1821,7 +1581,6 @@ CompoundWeightedMassiveParticleDistribution::CompoundWeightedMassiveParticleDist
 
 	my_weights = new double[my_Ndistr];
 	my_distributions = new MassiveParticleDistribution * [my_Ndistr];
-	my_concentration = 0;
 	for (int i = 0; i < my_Ndistr; ++i) {
 		if (distributions[0]->getMass() != my_mass) {
 			printf("masses in compound weighted distribution are not equal\n");
@@ -1830,7 +1589,6 @@ CompoundWeightedMassiveParticleDistribution::CompoundWeightedMassiveParticleDist
 		}
 		my_weights[i] = weights[i];
 		my_distributions[i] = distributions[i];
-		my_concentration += my_weights[i]*my_distributions[i]->getConcentration();
 	}
 }
 
@@ -1845,7 +1603,6 @@ CompoundWeightedMassiveParticleDistribution::CompoundWeightedMassiveParticleDist
 	my_Ndistr = 2;
 	my_weights = new double[my_Ndistr];
 	my_distributions = new MassiveParticleDistribution * [my_Ndistr];
-	my_concentration = w1*dist1->getConcentration() + w2*dist2->getConcentration();
 	my_distributions[0] = dist1;
 	my_distributions[1] = dist2;
 	my_weights[0] = w1;
@@ -1868,7 +1625,6 @@ CompoundWeightedMassiveParticleDistribution::CompoundWeightedMassiveParticleDist
 	my_Ndistr = 3;
 	my_weights = new double[my_Ndistr];
 	my_distributions = new MassiveParticleDistribution * [my_Ndistr];
-	my_concentration = dist1->getConcentration() + dist2->getConcentration() + dist3->getConcentration();
 	my_distributions[0] = dist1;
 	my_distributions[1] = dist2;
 	my_distributions[2] = dist3;
@@ -1929,15 +1685,6 @@ double CompoundWeightedMassiveParticleDistribution::maxEnergy()
 	return tempEmax;
 }
 
-void CompoundWeightedMassiveParticleDistribution::resetConcentration(const double& concentration)
-{
-	//double ratio = concentration / my_concentration;
-	for (int i = 0; i < my_Ndistr; ++i) {
-		my_distributions[i]->resetConcentration(concentration);
-	}
-	my_concentration = concentration;
-}
-
 CompoundWeightedMassiveParticleIsotropicDistribution::CompoundWeightedMassiveParticleIsotropicDistribution(int N, const double* weights, MassiveParticleIsotropicDistribution** distributions)
 {
 	my_mass = distributions[0]->getMass();
@@ -1945,7 +1692,6 @@ CompoundWeightedMassiveParticleIsotropicDistribution::CompoundWeightedMassivePar
 
 	my_weights = new double[my_Ndistr];
 	my_distributions = new MassiveParticleIsotropicDistribution * [my_Ndistr];
-	my_concentration = 0;
 	for (int i = 0; i < my_Ndistr; ++i) {
 		if (distributions[0]->getMass() != my_mass) {
 			printf("masses in compound weighted distribution are not equal\n");
@@ -1954,7 +1700,6 @@ CompoundWeightedMassiveParticleIsotropicDistribution::CompoundWeightedMassivePar
 		}
 		my_weights[i] = weights[i];
 		my_distributions[i] = distributions[i];
-		my_concentration += my_weights[i] * my_distributions[i]->getConcentration();
 	}
 }
 
@@ -1969,7 +1714,6 @@ CompoundWeightedMassiveParticleIsotropicDistribution::CompoundWeightedMassivePar
 	my_Ndistr = 2;
 	my_weights = new double[my_Ndistr];
 	my_distributions = new MassiveParticleIsotropicDistribution * [my_Ndistr];
-	my_concentration = w1 * dist1->getConcentration() + w2 * dist2->getConcentration();
 	my_distributions[0] = dist1;
 	my_distributions[1] = dist2;
 	my_weights[0] = w1;
@@ -1992,7 +1736,6 @@ CompoundWeightedMassiveParticleIsotropicDistribution::CompoundWeightedMassivePar
 	my_Ndistr = 3;
 	my_weights = new double[my_Ndistr];
 	my_distributions = new MassiveParticleIsotropicDistribution * [my_Ndistr];
-	my_concentration = dist1->getConcentration() + dist2->getConcentration() + dist3->getConcentration();
 	my_distributions[0] = dist1;
 	my_distributions[1] = dist2;
 	my_distributions[2] = dist3;
@@ -2052,16 +1795,7 @@ double CompoundWeightedMassiveParticleIsotropicDistribution::maxEnergy()
 	return tempEmax;
 }
 
-void CompoundWeightedMassiveParticleIsotropicDistribution::resetConcentration(const double& concentration)
-{
-	//double ratio = concentration / my_concentration;
-	for (int i = 0; i < my_Ndistr; ++i) {
-		my_distributions[i]->resetConcentration(concentration);
-	}
-	my_concentration = concentration;
-}
-
-MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(const double& mass, const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, const double& electronConcentration, int Ne)
+MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(const double& mass, const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne)
 {
 	MassiveParticleDistribution** distributions = new MassiveParticleDistribution * [Nfiles];
 	for (int i = 0; i < Nfiles; ++i) {
@@ -2072,38 +1806,38 @@ MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedI
 		std::string b = fileNameF + fileNumber + fileExtension;
 		const char* energyFileName = a.c_str();
 		const char* distributionFileName = b.c_str();
-		distributions[i] = new MassiveParticleTabulatedIsotropicDistribution(mass, energyFileName, distributionFileName, electronConcentration, inputType);
+		distributions[i] = new MassiveParticleTabulatedIsotropicDistribution(mass, energyFileName, distributionFileName, inputType);
 	}
 	return distributions;
 }
 
-MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(const double& mass, const char* fileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, const double& electronConcentration, int Ne)
+MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(const double& mass, const char* fileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne)
 {
 	MassiveParticleDistribution** distributions = new MassiveParticleDistribution * [Nfiles];
 	for (int i = 0; i < Nfiles; ++i) {
 		std::string fileNumber = convertIntToString(i);
 		const std::string fileName = fileName;
 		std::string a = fileName + fileNumber + fileExtension;
-		distributions[i] = new MassiveParticleTabulatedIsotropicDistribution(mass, a.c_str(), electronConcentration, inputType);
+		distributions[i] = new MassiveParticleTabulatedIsotropicDistribution(mass, a.c_str(), inputType);
 	}
 	return distributions;
 }
 
-MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(const double& mass, const char* fileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, const double& electronConcentration, int Ne, const double& Epower, const double& index)
+MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(const double& mass, const char* fileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne, const double& Epower, const double& index)
 {
 	MassiveParticleDistribution** distributions = new MassiveParticleDistribution * [Nfiles];
 	for (int i = 0; i < Nfiles; ++i) {
 		std::string fileNumber = convertIntToString(i);
 		const std::string fileName = fileName;
 		std::string a = fileName + fileNumber + fileExtension;
-		MassiveParticleTabulatedIsotropicDistribution* distributionTabulated = new MassiveParticleTabulatedIsotropicDistribution(mass, a.c_str(), electronConcentration, inputType);
+		MassiveParticleTabulatedIsotropicDistribution* distributionTabulated = new MassiveParticleTabulatedIsotropicDistribution(mass, a.c_str(), inputType);
 		distributionTabulated->addPowerLaw(Epower, index);
 		distributions[i] = distributionTabulated;
 	}
 	return distributions;
 }
 
-MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(const double& mass, const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, const double& electronConcentration, int Ne, const double& Epower, const double& index)
+MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(const double& mass, const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne, const double& Epower, const double& index)
 {
 	MassiveParticleDistribution** distributions = new MassiveParticleDistribution * [Nfiles];
 	for (int i = 0; i < Nfiles; ++i) {
@@ -2114,14 +1848,14 @@ MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedI
 		std::string b = fileNameF + fileNumber + fileExtension;
 		const char* energyFileName = a.c_str();
 		const char* distributionFileName = b.c_str();
-		MassiveParticleTabulatedIsotropicDistribution* distributionTabulated = new MassiveParticleTabulatedIsotropicDistribution(mass, energyFileName, distributionFileName, electronConcentration, inputType);
+		MassiveParticleTabulatedIsotropicDistribution* distributionTabulated = new MassiveParticleTabulatedIsotropicDistribution(mass, energyFileName, distributionFileName, inputType);
 		distributionTabulated->addPowerLaw(Epower, index);
 		distributions[i] = distributionTabulated;
 	}
 	return distributions;
 }
 
-MassiveParticleMonoenergeticDistribution::MassiveParticleMonoenergeticDistribution(const double& mass, const double& Energy, const double& halfWidth, const double& concentration)
+MassiveParticleMonoenergeticDistribution::MassiveParticleMonoenergeticDistribution(const double& mass, const double& Energy, const double& halfWidth)
 {
 	my_mass = mass;
 	my_E0 = Energy;
@@ -2131,7 +1865,6 @@ MassiveParticleMonoenergeticDistribution::MassiveParticleMonoenergeticDistributi
 		printLog("dE > E0 in monoenergetic distribution\n");
 		exit(0);
 	}
-	my_concentration = concentration;
 }
 
 double MassiveParticleMonoenergeticDistribution::distributionNormalized(const double& energy)
@@ -2158,15 +1891,9 @@ double MassiveParticleMonoenergeticDistribution::maxEnergy()
 	return my_E0 + my_dE;
 }
 
-void MassiveParticleMonoenergeticDistribution::resetConcentration(const double& concentration)
-{
-	my_concentration = concentration;
-}
-
-MassiveParticleMonoenergeticDirectedDistribution::MassiveParticleMonoenergeticDirectedDistribution(const double& mass, const double& Energy, const double& halfWidth, const double& concentration, const double& theta0, const double& phi0, const double& deltaTheta)
+MassiveParticleMonoenergeticDirectedDistribution::MassiveParticleMonoenergeticDirectedDistribution(const double& mass, const double& Energy, const double& halfWidth, const double& theta0, const double& phi0, const double& deltaTheta)
 {
 	my_mass = mass;
-	my_concentration = concentration;
 
 	my_E0 = Energy;
 	my_dE = halfWidth;
@@ -2210,11 +1937,7 @@ double MassiveParticleMonoenergeticDirectedDistribution::maxEnergy()
 	return my_E0 + my_dE;
 }
 
-void MassiveParticleMonoenergeticDirectedDistribution::resetConcentration(const double& concentration)
-{
-	my_concentration = concentration;
-}
-
+//todo what to do with concentration?
 MassiveParticleMovingDistribution::MassiveParticleMovingDistribution(MassiveParticleDistribution* distribution, const double& velocity)
 {
 	my_distribution = distribution;
@@ -2226,7 +1949,6 @@ MassiveParticleMovingDistribution::MassiveParticleMovingDistribution(MassivePart
 	}
 	my_velocity = velocity;
 	my_gamma = 1.0 / sqrt(1.0 - my_velocity * my_velocity / speed_of_light2);
-	my_concentration = distribution->getConcentration() * my_gamma;
 }
 
 double MassiveParticleMovingDistribution::getMeanEnergy()
@@ -2292,10 +2014,4 @@ double MassiveParticleMovingDistribution::distributionNormalized(const double& e
 	double jacobian = (p/p1)*(beta*beta + 1)/(my_gamma*my_gamma);//todo
 
 	return my_distribution->distributionNormalized(energy1, mu1, phi)*jacobian;
-}
-
-void MassiveParticleMovingDistribution::resetConcentration(const double& concentration)
-{
-	my_concentration = concentration;
-	my_distribution->resetConcentration(concentration / my_gamma);
 }

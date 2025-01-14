@@ -20,9 +20,7 @@ public:
 
     };
 	double distributionNormalized(const double& energy, const double& mu, const double& phi);
-	virtual double distribution(const double& energy) {
-		return my_concentration * distributionNormalized(energy);
-	};
+
 	virtual double distributionNormalized(const double& energy) = 0;
 	void writeDistribution(const char* fileName, int Ne, const double& Emin, const double& Emax);
 };
@@ -33,7 +31,7 @@ private:
 	double my_E0;
 	double my_A;
 public:
-	PhotonPowerLawDistribution(const double& index, const double& E0, const double& concentration);
+	PhotonPowerLawDistribution(const double& index, const double& E0);
     virtual ~PhotonPowerLawDistribution(){
 
     };
@@ -48,6 +46,7 @@ class PhotonPlankDistribution : public PhotonIsotropicDistribution {
 private:
 	double my_temperature;
 	double my_A;
+	double my_concentration;
 
 	static PhotonPlankDistribution* my_CMBradiation;
 public:
@@ -59,6 +58,8 @@ public:
 	virtual double distributionNormalized(const double& energy);
 	virtual double getMeanEnergy();
 
+	double getConcentration();
+
 	double getTemperature();
 
 	static PhotonPlankDistribution* getCMBradiation();
@@ -68,8 +69,9 @@ class PhotonMultiPlankDistribution : public PhotonIsotropicDistribution {
 private:
 	int my_Nplank;
 	double* my_temperatures;
-	double* my_concentrations;
 	double* my_A;
+	double* my_concentrations;
+	double my_concentration;
 
 	static PhotonMultiPlankDistribution* my_GalacticField;
 public:
@@ -77,20 +79,22 @@ public:
     virtual ~PhotonMultiPlankDistribution();
 	virtual double distributionNormalized(const double& energy);
 	virtual double getMeanEnergy();
+	virtual double getConcentration();
 
 	//Mathis 1983?
 	static PhotonMultiPlankDistribution* getGalacticField();
 };
 
-class CompoundPhotonDistribution : public PhotonDistribution {
+class CompoundWeightedPhotonDistribution : public PhotonDistribution {
 private:
 	int my_Ndistr;
+	double* my_weights;
 	PhotonDistribution** my_distributions;
 public:
-	CompoundPhotonDistribution(int N, PhotonDistribution** distributions);
-	CompoundPhotonDistribution(PhotonDistribution* dist1, PhotonDistribution* dist2);
-	CompoundPhotonDistribution(PhotonDistribution* dist1, PhotonDistribution* dist2, PhotonDistribution* dist3);
-    virtual ~CompoundPhotonDistribution();
+	CompoundWeightedPhotonDistribution(int N, const double* weights, PhotonDistribution** distributions);
+	CompoundWeightedPhotonDistribution(PhotonDistribution* dist1, const double& w1, PhotonDistribution* dist2, const double& w2);
+	CompoundWeightedPhotonDistribution(PhotonDistribution* dist1, const double& w1, PhotonDistribution* dist2, const double& w2, PhotonDistribution* dist3,const double& w3);
+    virtual ~CompoundWeightedPhotonDistribution();
 
 	virtual double distributionNormalized(const double& energy, const double& mu, const double& phi);
 	virtual double getMeanEnergy();
@@ -104,27 +108,28 @@ public:
 	virtual ~PhotonMonoenergeticDistribution() {
 
 	}
-	PhotonMonoenergeticDistribution(const double& Energy, const double& halfWidth, const double& concentration);
+	PhotonMonoenergeticDistribution(const double& Energy, const double& halfWidth);
 	virtual double distributionNormalized(const double& energy);
 	virtual double getMeanEnergy();
-	virtual void resetConcentration(const double& concentration);
 };
 
 class PhotonPlankDirectedDistribution : public PhotonDistribution {
 private:
 	double my_temperature;
 	double my_A;
+	double my_concentration;
 
 	double my_theta0;
 	double my_phi0;
 	double my_deltaTheta;
 public:
 
-	PhotonPlankDirectedDistribution(const double& temperature, const double& amplitude, const double& theta0, const double& phi0, const double& deltaTheta);
+	PhotonPlankDirectedDistribution(const double& temperature, const double& theta0, const double& phi0, const double& deltaTheta, const double& amplitude);
 	virtual ~PhotonPlankDirectedDistribution();
 	double distributionNormalized(const double& energy, const double& mu, const double& phi);
 	virtual double getMeanEnergy();
 
+	double getConcentration();
 	double getTemperature();
 };
 

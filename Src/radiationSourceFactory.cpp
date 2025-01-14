@@ -771,7 +771,7 @@ AngleDependentElectronsSphericalSource* RadiationSourceFactory::createSourceWith
 	return new AngleDependentElectronsSphericalSource(Nrho, Nz, Nphi, Ntheta, electronDistributions, B, theta, phi, concentration, rho, rhoin, distance);
 }
 
-TabulatedDiskSource* RadiationSourceFactory::readSourceFromFile(MassiveParticleDistribution* electronDistribution, const double& rho, const double& zmin, const double zmax, const int Nrho, const int Nz, const int Nphi, const double& distance, SourceInputGeometry geometry, const char* BFileName, const char* concentrationFileName, const double& thetar, const double& phir, const double& psir)
+TabulatedDiskSource* RadiationSourceFactory::readDiskSourceFromFile(MassiveParticleDistribution* electronDistribution, const double& rho, const double& zmin, const double zmax, const int Nrho, const int Nz, const int Nphi, const double& distance, SourceInputGeometry geometry, const char* BFileName, const char* concentrationFileName, const double& thetar, const double& phir, const double& psir)
 {
 	FILE* Bfile = fopen(BFileName, "r");
 	FILE* concentrationFile = fopen(concentrationFileName, "r");
@@ -861,8 +861,8 @@ TabulatedDiskSource* RadiationSourceFactory::readSourceFromFile(MassiveParticleD
 	correctSourceConcentration(concentration, Nxb, Nyb, Nzb, Nxb-1, Nyb-1, Nzb-1, 0.002);
 	correctSourceConcentration(concentration, Nxb, Nyb, Nzb, Nxb/2, Nyb/2, Nzb - 1, 0.002);
 
-	transformScalarArray(concentration, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, concentration2, Nrho, Nz, Nphi, 0, rho, zmin, zmax, 0, 2 * pi, thetar, phir, psir);
-	transformVectorArrays(B1, B2, B3, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, B, Btheta, Bphi, Nrho, Nz, Nphi, 0, rho, zmin, zmax, 0, 2 * pi, thetar, phir, psir);
+	transformScalarArrayToCylindrical(concentration, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, concentration2, Nrho, Nz, Nphi, 0, rho, zmin, zmax, 0, 2 * pi, thetar, phir, psir);
+	transformVectorArraysToCylindrical(B1, B2, B3, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, B, Btheta, Bphi, Nrho, Nz, Nphi, 0, rho, zmin, zmax, 0, 2 * pi, thetar, phir, psir);
 
 	TabulatedDiskSource* source = new TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, Btheta, Bphi, concentration2, rho, zmax - zmin, distance);
 
@@ -905,6 +905,302 @@ TabulatedDiskSource* RadiationSourceFactory::readSourceFromFile(MassiveParticleD
 	return source;
 }
 
+RectangularSource* RadiationSourceFactory::readRectangularSourceFromFile(MassiveParticleDistribution* electronDistribution, const double& minX, const double& maxX, const double& minZ, const double& maxZ, const double& minY, const double& maxY, const int Nx, const int Nz, const int Ny, const double& distance, SourceInputGeometry geometry, const char* BFileName, const char* concentrationFileName, const double& thetar, const double& phir, const double& psir)
+{
+	FILE* Bfile = fopen(BFileName, "r");
+	FILE* concentrationFile = fopen(concentrationFileName, "r");
+	int Nxb, Nyb, Nzb;
+	int Nxc, Nyc, Nzc;
+
+	fscanf(Bfile, "%d %d %d", &Nxb, &Nyb, &Nzb);
+	fscanf(concentrationFile, "%d %d %d", &Nxc, &Nyc, &Nzc);
+
+	double x1, y1, z1;
+	double x2, y2, z2;
+
+	fscanf(Bfile, "%lf %lf %lf", &x1, &y1, &z1);
+	fscanf(concentrationFile, "%lf %lf %lf", &x1, &y1, &z1);
+
+	fscanf(Bfile, "%lf %lf %lf", &x2, &y2, &z2);
+	fscanf(concentrationFile, "%lf %lf %lf", &x2, &y2, &z2);
+
+	if ((Nxb != Nxc) || (Nyb != Nyc) || (Nzb != Nzc)) {
+		printf("Dimensions are different in B and concentrationFile\n");
+		printLog("Dimensions are different in B and concentrationFile\n");
+		exit(0);
+	}
+
+	double*** concentration2 = new double** [Nx];
+	double*** B = new double** [Nx];
+	double*** Btheta = new double** [Nx];
+	double*** Bphi = new double** [Nx];
+
+	for (int i = 0; i < Nx; ++i) {
+		concentration2[i] = new double* [Nz];
+		B[i] = new double* [Nz];
+		Btheta[i] = new double* [Nz];
+		Bphi[i] = new double* [Nz];
+		for (int j = 0; j < Nz; ++j) {
+			concentration2[i][j] = new double[Ny];
+			B[i][j] = new double[Ny];
+			Btheta[i][j] = new double[Ny];
+			Bphi[i][j] = new double[Ny];
+		}
+	}
+
+	double*** concentration = new double** [Nxb];
+
+	double*** B1 = new double** [Nxb];
+	double*** B2 = new double** [Nxb];
+	double*** B3 = new double** [Nxb];
+	for (int i = 0; i < Nxb; ++i) {
+		concentration[i] = new double* [Nyb];
+		B1[i] = new double* [Nyb];
+		B2[i] = new double* [Nyb];
+		B3[i] = new double* [Nyb];
+		for (int j = 0; j < Nyb; ++j) {
+			concentration[i][j] = new double[Nzb];
+			B1[i][j] = new double[Nzb];
+			B2[i][j] = new double[Nzb];
+			B3[i][j] = new double[Nzb];
+			for (int k = 0; k < Nzb; ++k) {
+				fscanf(concentrationFile, "%lf", &concentration[i][j][k]);
+				fscanf(Bfile, "%lf %lf %lf", &B1[i][j][k], &B2[i][j][k], &B3[i][j][k]);
+				if (checkNaNorInfinity(concentration[i][j][k])) {
+					printf("concentration is Nan or Infinity %lf\n", concentration[i][j][k]);
+					printLog("concentration is Nan or Infinity %lf\n", concentration[i][j][k]);
+					exit(0);
+				}
+				if (checkNaNorInfinity(B1[i][j][k])) {
+					printf("B1 is Nan or Infinity %lf\n", B1[i][j][k]);
+					printLog("B1 is Nan or Infinity %lf\n", B1[i][j][k]);
+					exit(0);
+				}
+
+				if (checkNaNorInfinity(B2[i][j][k])) {
+					printf("B2 is Nan or Infinity %lf\n", B2[i][j][k]);
+					printLog("B2 is Nan or Infinity %lf\n", B2[i][j][k]);
+					exit(0);
+				}
+
+				if (checkNaNorInfinity(B3[i][j][k])) {
+					printf("B3 is Nan or Infinity %lf\n", B3[i][j][k]);
+					printLog("B3 is Nan or Infinity %lf\n", B3[i][j][k]);
+					exit(0);
+				}
+			}
+		}
+	}
+
+	//correctSourceConcentration(concentration, Nxb, Nyb, Nzb, Nxb - 1, Nyb - 1, Nzb - 1, 0.002);
+	//correctSourceConcentration(concentration, Nxb, Nyb, Nzb, Nxb / 2, Nyb / 2, Nzb - 1, 0.002);
+
+	transformScalarArrayToCartesian(concentration, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, concentration2, Nx, Nz, Ny, minX, maxX, minZ, maxZ, minY, maxY, thetar, phir, psir);
+	transformVectorArraysToCartesian(B1, B2, B3, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, B, Btheta, Bphi, Nx, Nz, Ny, minX, maxX, minZ, maxZ, minY, maxY, thetar, phir, psir);
+
+
+	RectangularSource* source = new RectangularSource(Nx, Ny, Nz, electronDistribution, B, Btheta, Bphi, concentration2, minX, maxX, minY, maxY, minZ, maxZ, distance);
+
+	fclose(Bfile);
+	fclose(concentrationFile);
+	for (int i = 0; i < Nxb; ++i) {
+		for (int j = 0; j < Nyb; ++j) {
+			delete[] concentration[i][j];
+			delete[] B1[i][j];
+			delete[] B2[i][j];
+			delete[] B3[i][j];
+		}
+		delete[] concentration[i];
+		delete[] B1[i];
+		delete[] B2[i];
+		delete[] B3[i];
+	}
+	delete[] concentration;
+	delete[] B1;
+	delete[] B2;
+	delete[] B3;
+
+	for (int i = 0; i < Nx; ++i) {
+		for (int j = 0; j < Nz; ++j) {
+			delete[] concentration2[i][j];
+			delete[] B[i][j];
+			delete[] Btheta[i][j];
+			delete[] Bphi[i][j];
+		}
+		delete[] concentration2[i];
+		delete[] B[i];
+		delete[] Btheta[i];
+		delete[] Bphi[i];
+	}
+	delete[] concentration2;
+	delete[] B;
+	delete[] Btheta;
+	delete[] Bphi;
+
+	return source;
+}
+
+ThermalRectangularSource* RadiationSourceFactory::readThermalRectangularSourceFromFile(const double& minX, const double& maxX, const double& minZ, const double& maxZ, const double& minY, const double& maxY, const int Nx, const int Nz, const int Ny, const double& distance, SourceInputGeometry geometry, const char* BFileName, const char* concentrationFileName, const char* temperatureFileName, const double& thetar, const double& phir, const double& psir)
+{
+	FILE* Bfile = fopen(BFileName, "r");
+	FILE* concentrationFile = fopen(concentrationFileName, "r");
+	FILE* temperatureFile = fopen(temperatureFileName, "r");
+	int Nxb, Nyb, Nzb;
+	int Nxc, Nyc, Nzc;
+	int Nxt, Nyt, Nzt;
+
+	fscanf(Bfile, "%d %d %d", &Nxb, &Nyb, &Nzb);
+	fscanf(concentrationFile, "%d %d %d", &Nxc, &Nyc, &Nzc);
+	fscanf(temperatureFile, "%d %d %d", &Nxt, &Nyt, &Nzt);
+
+	double x1, y1, z1;
+	double x2, y2, z2;
+
+	fscanf(Bfile, "%lf %lf %lf", &x1, &y1, &z1);
+	fscanf(concentrationFile, "%lf %lf %lf", &x1, &y1, &z1);
+	fscanf(temperatureFile, "%lf %lf %lf", &x1, &y1, &z1);
+
+	fscanf(Bfile, "%lf %lf %lf", &x2, &y2, &z2);
+	fscanf(concentrationFile, "%lf %lf %lf", &x2, &y2, &z2);
+	fscanf(temperatureFile, "%lf %lf %lf", &x2, &y2, &z2);
+
+	if ((Nxb != Nxc) || (Nyb != Nyc) || (Nzb != Nzc) || (Nxb != Nxt) || (Nyb != Nyt) || (Nzb != Nzt)) {
+		printf("Dimensions are different in B and concentrationFile\n");
+		printLog("Dimensions are different in B and concentrationFile\n");
+		exit(0);
+	}
+
+	double*** concentration2 = new double** [Nx];
+	double*** B = new double** [Nx];
+	double*** Btheta = new double** [Nx];
+	double*** Bphi = new double** [Nx];
+	double*** temperature2 = new double** [Nx];
+
+	for (int i = 0; i < Nx; ++i) {
+		concentration2[i] = new double* [Nz];
+		B[i] = new double* [Nz];
+		Btheta[i] = new double* [Nz];
+		Bphi[i] = new double* [Nz];
+		temperature2[i] = new double* [Nz];
+		for (int j = 0; j < Nz; ++j) {
+			concentration2[i][j] = new double[Ny];
+			B[i][j] = new double[Ny];
+			Btheta[i][j] = new double[Ny];
+			Bphi[i][j] = new double[Ny];
+			temperature2[i][j] = new double[Ny];
+		}
+	}
+
+	double*** concentration = new double** [Nxb];
+
+	double*** B1 = new double** [Nxb];
+	double*** B2 = new double** [Nxb];
+	double*** B3 = new double** [Nxb];
+	double*** temperature = new double** [Nxb];
+	for (int i = 0; i < Nxb; ++i) {
+		concentration[i] = new double* [Nyb];
+		B1[i] = new double* [Nyb];
+		B2[i] = new double* [Nyb];
+		B3[i] = new double* [Nyb];
+		temperature[i] = new double* [Nyb];
+		for (int j = 0; j < Nyb; ++j) {
+			concentration[i][j] = new double[Nzb];
+			B1[i][j] = new double[Nzb];
+			B2[i][j] = new double[Nzb];
+			B3[i][j] = new double[Nzb];
+			temperature[i][j] = new double[Nzb];
+			for (int k = 0; k < Nzb; ++k) {
+				fscanf(concentrationFile, "%lf", &concentration[i][j][k]);
+				fscanf(Bfile, "%lf %lf %lf", &B1[i][j][k], &B2[i][j][k], &B3[i][j][k]);
+				fscanf(temperatureFile, "%lf", &temperature[i][j][k]);
+				if (checkNaNorInfinity(concentration[i][j][k])) {
+					printf("concentration is Nan or Infinity %lf\n", concentration[i][j][k]);
+					printLog("concentration is Nan or Infinity %lf\n", concentration[i][j][k]);
+					exit(0);
+				}
+				if (checkNaNorInfinity(B1[i][j][k])) {
+					printf("B1 is Nan or Infinity %lf\n", B1[i][j][k]);
+					printLog("B1 is Nan or Infinity %lf\n", B1[i][j][k]);
+					exit(0);
+				}
+
+				if (checkNaNorInfinity(B2[i][j][k])) {
+					printf("B2 is Nan or Infinity %lf\n", B2[i][j][k]);
+					printLog("B2 is Nan or Infinity %lf\n", B2[i][j][k]);
+					exit(0);
+				}
+
+				if (checkNaNorInfinity(B3[i][j][k])) {
+					printf("B3 is Nan or Infinity %lf\n", B3[i][j][k]);
+					printLog("B3 is Nan or Infinity %lf\n", B3[i][j][k]);
+					exit(0);
+				}
+				if (checkNaNorInfinity(temperature[i][j][k])) {
+					printf("temperature is Nan or Infinity %lf\n", temperature[i][j][k]);
+					printLog("temperature is Nan or Infinity %lf\n", temperature[i][j][k]);
+					exit(0);
+				}
+			}
+		}
+	}
+
+	//correctSourceConcentration(concentration, Nxb, Nyb, Nzb, Nxb - 1, Nyb - 1, Nzb - 1, 0.002);
+	//correctSourceConcentration(concentration, Nxb, Nyb, Nzb, Nxb / 2, Nyb / 2, Nzb - 1, 0.002);
+
+	transformScalarArrayToCartesian(concentration, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, concentration2, Nx, Nz, Ny, minX, maxX, minZ, maxZ, minY, maxY, thetar, phir, psir);
+	transformVectorArraysToCartesian(B1, B2, B3, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, B, Btheta, Bphi, Nx, Nz, Ny, minX, maxX, minZ, maxZ, minY, maxY, thetar, phir, psir);
+	transformScalarArrayToCartesian(temperature, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, temperature2, Nx, Nz, Ny, minX, maxX, minZ, maxZ, minY, maxY, thetar, phir, psir);
+
+	correctSourceTemperature(temperature2, Nx, Ny, Nz, 1.0);
+
+	ThermalRectangularSource* source = new ThermalRectangularSource(Nx, Ny, Nz, massElectron, B, Btheta, Bphi, concentration2, temperature2, minX, maxX, minY, maxY, minZ, maxZ, distance);
+
+	fclose(Bfile);
+	fclose(concentrationFile);
+	fclose(temperatureFile);
+	for (int i = 0; i < Nxb; ++i) {
+		for (int j = 0; j < Nyb; ++j) {
+			delete[] concentration[i][j];
+			delete[] B1[i][j];
+			delete[] B2[i][j];
+			delete[] B3[i][j];
+			delete[] temperature[i][j];
+		}
+		delete[] concentration[i];
+		delete[] B1[i];
+		delete[] B2[i];
+		delete[] B3[i];
+		delete[] temperature[i];
+	}
+	delete[] concentration;
+	delete[] B1;
+	delete[] B2;
+	delete[] B3;
+	delete[] temperature;
+
+	for (int i = 0; i < Nx; ++i) {
+		for (int j = 0; j < Nz; ++j) {
+			delete[] concentration2[i][j];
+			delete[] B[i][j];
+			delete[] Btheta[i][j];
+			delete[] Bphi[i][j];
+			delete[] temperature2[i][j];
+		}
+		delete[] concentration2[i];
+		delete[] B[i];
+		delete[] Btheta[i];
+		delete[] Bphi[i];
+		delete[] temperature2[i];
+	}
+	delete[] concentration2;
+	delete[] B;
+	delete[] Btheta;
+	delete[] Bphi;
+	delete[] temperature2;
+
+	return source;
+}
+
 void RadiationSourceFactory::correctSourceConcentration(double*** concentration, const int Nx, const int Ny, const int Nz, const int start1, const int start2, const int start3, const double& threshold)
 {
 	bool*** sourceMark = breadthFirstSearchOfRegion(concentration, Nx, Ny, Nz, start1, start2, start3, threshold);
@@ -935,8 +1231,467 @@ void RadiationSourceFactory::correctSourceConcentration(double*** concentration,
 	delete[] sourceMark;
 }
 
+void RadiationSourceFactory::correctSourceTemperature(double*** temperature, const int Nx, const int Ny, const int Nz, const double& value)
+{
+	for (int i = 0; i < Nx; ++i) {
+		for (int j = 0; j < Nz; ++j) {
+			for (int k = 0; k < Ny; ++k) {
+				if (temperature[i][j][k] <= 0.0) {
+					temperature[i][j][k] = value;
+				}
+			}
+		}
+	}
+}
+
+//transforms array from arbitrary pluto coordinates to rotated cartesian coordinates
+void RadiationSourceFactory::transformScalarArrayToCartesian(double*** inputArray, int N1, int N2, int N3, const double& xmin1, const double& xmax1, const double& xmin2, const double& xmax2, const double& xmin3, const double& xmax3, SourceInputGeometry geometry, double*** outputArray, int Nx, int Nz, int Ny, const double& minX, const double& maxX, const double& minZ, const double& maxZ, const double& minY, const double& maxY, const double& thetar, const double& phir, const double& psir)
+{
+	if (maxX <= minX) {
+		printf("rhomax = %g <= rhomin = %g in transformScalarArray\n", maxX, minX);
+		printLog("rhomax = %g <= rhomin = %g in transformScalarArray\n", maxX, minX);
+		exit(0);
+	}
+	if (maxZ <= minZ) {
+		printf("zmax = %g <= zmin = %g in transformScalarArray\n", maxZ, minZ);
+		printLog("zmax = %g <= zmin = %g in transformScalarArray\n", maxZ, minZ);
+		exit(0);
+	}
+	if (maxY <= minY) {
+		printf("phimax = %g <= phimin = %g in transformScalarArray\n", maxY, minY);
+		printLog("phimax = %g <= phimin = %g in transformScalarArray\n", maxY, minY);
+		exit(0);
+	}
+	if (xmax1 <= xmin1) {
+		printf("xmax1 = %g <= xmin1 = %g in transformScalarArray\n", xmax1, xmin1);
+		printLog("xmax1 = %g <= xmin1 = %g in transformScalarArray\n", xmax1, xmin1);
+		exit(0);
+	}
+	if (xmax2 <= xmin2) {
+		printf("xmax2 = %g <= xmin2 = %g in transformScalarArray\n", xmax2, xmin2);
+		printLog("xmax2 = %g <= xmin2 = %g in transformScalarArray\n", xmax2, xmin2);
+		exit(0);
+	}
+	if (xmax3 <= xmin3) {
+		printf("xmax3 = %g <= xmin3 = %g in transformScalarArray\n", xmax3, xmin3);
+		printLog("xmax3 = %g <= xmin3 = %g in transformScalarArray\n", xmax3, xmin3);
+		exit(0);
+	}
+
+	double dx = (maxX - minX) / Nx;
+	double dz = (maxZ - minZ) / Nz;
+	double dy = (maxY - minY) / Ny;
+
+	double dx1 = (xmax1 - xmin1) / N1;
+	double dx2 = (xmax2 - xmin2) / N2;
+	double dx3 = (xmax3 - xmin3) / N3;
+
+	for (int i = 0; i < Nx; ++i) {
+		double x = minX + dx * (i + 0.5);
+		for (int j = 0; j < Nz; ++j) {
+			double z = minZ + dz * (j + 0.5);
+			for (int k = 0; k < Ny; ++k) {
+				double y = minY + dy * (k + 0.5);
+
+				double z1 = z;
+				double x1 = x * cos(psir) - y*sin(psir);
+				double y1 = y * cos(psir) + x*sin(psir);
+
+				double z2 = z1 * cos(thetar) - x1 * sin(thetar);
+				double x2 = (x1 * cos(thetar) + z1 * sin(thetar)) * cos(phir) - y1 * sin(phir);
+				double y2 = y1 * cos(phir) + (x1 * cos(thetar) + z1 * sin(thetar)) * sin(phir);
+
+				if (geometry == SourceInputGeometry::CARTESIAN) {
+					if ((N1 > 1) && ((x2 < xmin1) || (x2 > xmax1))) {
+						outputArray[i][j][k] = 0;
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
+						continue;
+					}
+					if ((N2 > 1) && ((y2 < xmin2) || (y2 > xmax2))) {
+						outputArray[i][j][k] = 0;
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
+						continue;
+					}
+					if ((N3 > 1) && ((z2 < xmin3) || (z2 > xmax3))) {
+						outputArray[i][j][k] = 0;
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
+						continue;
+					}
+
+					int i1 = floor((x2 - xmin1) / dx1);
+					if (N1 == 1) {
+						i1 = 0;
+					}
+					int i2 = floor((y2 - xmin2) / dx2);
+					if (N2 == 1) {
+						i2 = 0;
+					}
+					int i3 = floor((z2 - xmin3) / dx3);
+					if (N3 == 1) {
+						i3 = 0;
+					}
+
+					if ((i2 < 0) || (i2 >= N2)) {
+						i2 = 0;
+					}
+					if ((i3 < 0) || (i3 >= N3)) {
+						i3 = 0;
+					}
+
+					outputArray[i][j][k] = inputArray[i1][i2][i3];
+				}
+				else if (geometry == SourceInputGeometry::CYLINDRICAL) {
+					double rho2 = sqrt(x2 * x2 + y2 * y2);
+					double phi2 = atan2(y2, x2);
+					if (phi2 < 0) {
+						phi2 += 2 * pi;
+					}
+
+					if ((rho2 < xmin1) || (rho2 > xmax1)) {
+						outputArray[i][j][k] = 0;
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
+						continue;
+					}
+					if ((N2 > 1) && ((z2 < xmin2) || (z2 > xmax2))) {
+						outputArray[i][j][k] = 0;
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
+						continue;
+					}
+					if ((N3 > 1) && ((phi2 < xmin3) || (phi2 > xmax3))) {
+						outputArray[i][j][k] = 0;
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
+						continue;
+					}
+
+					int i1 = floor((rho2 - xmin1) / dx1);
+					int i2 = floor((z2 - xmin2) / dx2);
+					int i3 = floor((phi2 - xmin3) / dx3);
+
+					if ((i2 < 0) || (i2 >= N2)) {
+						i2 = 0;
+					}
+					if ((i3 < 0) || (i3 >= N3)) {
+						i3 = 0;
+					}
+
+					outputArray[i][j][k] = inputArray[i1][i2][i3];
+				}
+				else if (geometry == SourceInputGeometry::SPHERICAL) {
+					double r2 = sqrt(x2 * x2 + y2 * y2 + z2 * z2);
+					double theta2 = acos(z2 / r2);
+					if (r2 == 0) {
+						theta2 = 0;
+					}
+					double phi2 = atan2(y2, x2);
+					if (phi2 < 0) {
+						phi2 += 2 * pi;
+					}
+
+					if ((r2 < xmin1) || (r2 > xmax1)) {
+						outputArray[i][j][k] = 0;
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
+						continue;
+					}
+					if ((N2 > 1) && ((theta2 < xmin2) || (theta2 > xmax2))) {
+						outputArray[i][j][k] = 0;
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
+						continue;
+					}
+					if ((N3 > 1) && ((phi2 < xmin3) || (phi2 > xmax3))) {
+						outputArray[i][j][k] = 0;
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
+						continue;
+					}
+
+					int i1 = floor((r2 - xmin1) / dx1);
+					int i2 = floor((theta2 - xmin2) / dx2);
+					int i3 = floor((phi2 - xmin3) / dx3);
+
+					if ((i2 < 0) || (i2 >= N2)) {
+						i2 = 0;
+					}
+					if ((i3 < 0) || (i3 >= N3)) {
+						i3 = 0;
+					}
+
+					outputArray[i][j][k] = inputArray[i1][i2][i3];
+				}
+
+				if (checkNaNorInfinity(outputArray[i][j][k])) {
+					printf("outputArray is Nan or Infinity %lf\n", outputArray[i][j][k]);
+					printLog("outputArray is Nan or Infinity %lf\n", outputArray[i][j][k]);
+					exit(0);
+				}
+			}
+		}
+	}
+}
+
+void RadiationSourceFactory::transformVectorArraysToCartesian(double*** inputArray1, double*** inputArray2, double*** inputArray3, int N1, int N2, int N3, const double& xmin1, const double& xmax1, const double& xmin2, const double& xmax2, const double& xmin3, const double& xmax3, SourceInputGeometry geometry, double*** outputArray, double*** outputArrayTheta, double*** outputArrayPhi, int Nx, int Nz, int Ny, const double& minX, const double& maxX, const double& minZ, const double& maxZ, const double& minY, const double& maxY, const double& thetar, const double& phir, const double& psir)
+{
+	if (maxX <= minX) {
+		printf("rhomax = %g <= rhomin = %g in transformScalarArray\n", maxX, minX);
+		printLog("rhomax = %g <= rhomin = %g in transformScalarArray\n", maxX, minX);
+		exit(0);
+	}
+	if (maxZ <= minZ) {
+		printf("zmax = %g <= zmin = %g in transformScalarArray\n", maxZ, minZ);
+		printLog("zmax = %g <= zmin = %g in transformScalarArray\n", maxZ, minZ);
+		exit(0);
+	}
+	if (maxY <= minY) {
+		printf("phimax = %g <= phimin = %g in transformScalarArray\n", maxY, minY);
+		printLog("phimax = %g <= phimin = %g in transformScalarArray\n", maxY, minY);
+		exit(0);
+	}
+	if (xmax1 <= xmin1) {
+		printf("xmax1 = %g <= xmin1 = %g in transformScalarArray\n", xmax1, xmin1);
+		printLog("xmax1 = %g <= xmin1 = %g in transformScalarArray\n", xmax1, xmin1);
+		exit(0);
+	}
+	if (xmax2 <= xmin2) {
+		printf("xmax2 = %g <= xmin2 = %g in transformScalarArray\n", xmax2, xmin2);
+		printLog("xmax2 = %g <= xmin2 = %g in transformScalarArray\n", xmax2, xmin2);
+		exit(0);
+	}
+	if (xmax3 <= xmin3) {
+		printf("xmax3 = %g <= xmin3 = %g in transformScalarArray\n", xmax3, xmin3);
+		printLog("xmax3 = %g <= xmin3 = %g in transformScalarArray\n", xmax3, xmin3);
+		exit(0);
+	}
+
+	double dx = (maxX - minX) / Nx;
+	double dz = (maxZ - minZ) / Nz;
+	double dy = (maxY - minY) / Ny;
+
+	double dx1 = (xmax1 - xmin1) / N1;
+	double dx2 = (xmax2 - xmin2) / N2;
+	double dx3 = (xmax3 - xmin3) / N3;
+
+	double sinthetar = sin(thetar);
+	double costhetar = cos(thetar);
+	double sinphir = sin(phir);
+	double cosphir = cos(phir);
+	double sinpsir = sin(psir);
+	double cospsir = cos(psir);
+
+	for (int i = 0; i < Nx; ++i) {
+		double x = minX + dx * (i + 0.5);
+		for (int j = 0; j < Nz; ++j) {
+			double z = minZ + dz * (j + 0.5);
+			for (int k = 0; k < Ny; ++k) {
+				double y = minY + dy * (k + 0.5);
+
+				double z1 = z;
+				double x1 = x * cospsir - y*sinpsir;
+				double y1 = y*cospsir + x*sinpsir;
+
+				double z2 = z1 * cos(thetar) - x1 * sin(thetar);
+				double x2 = (x1 * cos(thetar) + z1 * sin(thetar)) * cos(phir) - y1 * sin(phir);
+				double y2 = y1 * cos(phir) + (x1 * cos(thetar) + z1 * sin(thetar)) * sin(phir);
+
+				double ax, ay, az;
+
+				if (geometry == SourceInputGeometry::CARTESIAN) {
+					if ((x2 < xmin1) || (x2 > xmax1)) {
+						outputArray[i][j][k] = 0;
+						outputArrayTheta[i][j][k] = pi / 2;
+						outputArrayTheta[i][j][k] = 0;
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
+						continue;
+					}
+					if ((N2 > 1) && ((y2 < xmin2) || (y2 > xmax2))) {
+						outputArray[i][j][k] = 0;
+						outputArrayTheta[i][j][k] = pi / 2;
+						outputArrayTheta[i][j][k] = 0;
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
+						continue;
+					}
+					if ((N3 > 1) && ((z2 < xmin3) || (z2 > xmax3))) {
+						outputArray[i][j][k] = 0;
+						outputArrayTheta[i][j][k] = pi / 2;
+						outputArrayTheta[i][j][k] = 0;
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
+						continue;
+					}
+
+					int i1 = floor((x2 - xmin1) / dx1);
+					int i2 = floor((y2 - xmin2) / dx2);
+					int i3 = floor((z2 - xmin3) / dx3);
+
+					if ((i2 < 0) || (i2 >= N2)) {
+						i2 = 0;
+					}
+					if ((i3 < 0) || (i3 >= N3)) {
+						i3 = 0;
+					}
+
+					ax = inputArray1[i1][i2][i3];
+					ay = inputArray2[i1][i2][i3];
+					az = inputArray3[i1][i2][i3];
+
+					outputArray[i][j][k] = sqrt(ax * ax + ay * ay + az * az);
+					if (checkNaNorInfinity(outputArray[i][j][k])) {
+						printf("outputArray is Nan or Infinity %lf\n", outputArray[i][j][k]);
+						printLog("outputArray is Nan or Infinity %lf\n", outputArray[i][j][k]);
+						exit(0);
+					}
+				}
+				else if (geometry == SourceInputGeometry::CYLINDRICAL) {
+					double rho2 = sqrt(x2 * x2 + y2 * y2);
+					double phi2 = atan2(y2, x2);
+					if (phi2 < 0) {
+						phi2 += 2 * pi;
+					}
+
+					if ((rho2 < xmin1) || (rho2 > xmax1)) {
+						outputArray[i][j][k] = 0;
+						outputArrayTheta[i][j][k] = pi / 2;
+						outputArrayTheta[i][j][k] = 0;
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
+						continue;
+					}
+					if ((N2 > 1) && ((z2 < xmin2) || (z2 > xmax2))) {
+						outputArray[i][j][k] = 0;
+						outputArrayTheta[i][j][k] = pi / 2;
+						outputArrayTheta[i][j][k] = 0;
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
+						continue;
+					}
+					if ((N3 > 1) && ((phi2 < xmin3) || (phi2 > xmax3))) {
+						outputArray[i][j][k] = 0;
+						outputArrayTheta[i][j][k] = pi / 2;
+						outputArrayTheta[i][j][k] = 0;
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
+						continue;
+					}
+
+					int i1 = floor((rho2 - xmin1) / dx1);
+					int i2 = floor((z2 - xmin2) / dx2);
+					int i3 = floor((phi2 - xmin3) / dx3);
+
+					if ((i2 < 0) || (i2 >= N2)) {
+						i2 = 0;
+					}
+					if ((i3 < 0) || (i3 >= N3)) {
+						i3 = 0;
+					}
+
+					double arho = inputArray1[i1][i2][i3];
+					az = inputArray2[i1][i2][i3];
+					double aphi = inputArray3[i1][i2][i3];
+
+					ax = arho * cos(phi2) - aphi * sin(phi2);
+					ay = aphi * cos(phi2) + arho * sin(phi2);
+
+					outputArray[i][j][k] = sqrt(arho * arho + az * az + aphi * aphi);
+					if (checkNaNorInfinity(outputArray[i][j][k])) {
+						printf("outputArray is Nan or Infinity %lf\n", outputArray[i][j][k]);
+						printLog("outputArray is Nan or Infinity %lf\n", outputArray[i][j][k]);
+						exit(0);
+					}
+				}
+				else if (geometry == SourceInputGeometry::SPHERICAL) {
+					double r2 = sqrt(x2 * x2 + y2 * y2 + z2 * z2);
+					double theta2 = acos(z2 / r2);
+					if (r2 == 0) {
+						theta2 = 0;
+					}
+					double phi2 = atan2(y2, x2);
+					if (phi2 < 0) {
+						phi2 += 2 * pi;
+					}
+
+					if ((r2 < xmin1) || (r2 > xmax1)) {
+						outputArray[i][j][k] = 0;
+						outputArrayTheta[i][j][k] = pi / 2;
+						outputArrayTheta[i][j][k] = 0;
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
+						continue;
+					}
+					if ((N2 > 1) && ((theta2 < xmin2) || (theta2 > xmax2))) {
+						outputArray[i][j][k] = 0;
+						outputArrayTheta[i][j][k] = pi / 2;
+						outputArrayTheta[i][j][k] = 0;
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
+						continue;
+					}
+					if ((N3 > 1) && ((phi2 < xmin3) || (phi2 > xmax3))) {
+						outputArray[i][j][k] = 0;
+						outputArrayTheta[i][j][k] = pi / 2;
+						outputArrayTheta[i][j][k] = 0;
+						//printf("warning: transformed array out of boundaries\n");
+						//printLog("warning: transformed array out of boundaries\n");
+						continue;
+					}
+
+					int i1 = floor((r2 - xmin1) / dx1);
+					int i2 = floor((theta2 - xmin2) / dx2);
+					int i3 = floor((phi2 - xmin3) / dx3);
+
+					if ((i2 < 0) || (i2 >= N2)) {
+						i2 = 0;
+					}
+					if ((i3 < 0) || (i3 >= N3)) {
+						i3 = 0;
+					}
+
+					double ar = inputArray1[i1][i2][i3];
+					double atheta = inputArray2[i1][i2][i3];
+					double aphi = inputArray3[i1][i2][i3];
+
+					az = ar * cos(theta2) + atheta * sin(theta2);
+					ax = ar * sin(theta2) * cos(phi2) - atheta * cos(theta2) * cos(phi2) - aphi * sin(phi2);
+					ay = ar * sin(theta2) * sin(phi2) - atheta * cos(theta2) * sin(phi2) + aphi * cos(phi2);
+
+					outputArray[i][j][k] = sqrt(ar * ar + atheta * atheta + aphi * aphi);
+					if (checkNaNorInfinity(outputArray[i][j][k])) {
+						printf("outputArray is Nan or Infinity %lf\n", outputArray[i][j][k]);
+						printLog("outputArray is Nan or Infinity %lf\n", outputArray[i][j][k]);
+						exit(0);
+					}
+				}
+
+
+				if (outputArray[i][j][k] == 0) {
+					outputArrayTheta[i][j][k] = pi / 2;
+					outputArrayPhi[i][j][k] = 0;
+					continue;
+				}
+
+				double amultz = (ax * sinthetar * cosphir + ay * sinthetar * sinphir + az * costhetar);
+				double amultx = (ax * (costhetar * cosphir * cospsir - sinpsir * sinphir) + ay * (sinpsir * cosphir + costhetar * cospsir * sinphir) - az * sinthetar * cospsir);
+				double amulty = (ax * (-sinpsir * costhetar * cosphir - cospsir * sinphir) + ay * (cospsir * cosphir - sinpsir * costhetar * sinphir) + az * sinthetar * sinpsir);
+
+				outputArrayTheta[i][j][k] = acos(amultz / outputArray[i][j][k]);
+				outputArrayPhi[i][j][k] = atan2(amulty, amultx);
+				if (outputArrayPhi[i][j][k] < 0) {
+					outputArrayPhi[i][j][k] += 2 * pi;
+				}
+			}
+		}
+	}
+}
+
 //transforms array from arbitrary pluto coordinates to rotated cylindrical coordinates
-void RadiationSourceFactory::transformScalarArray(double*** inputArray, int N1, int N2, int N3, const double& xmin1, const double& xmax1, const double& xmin2, const double& xmax2, const double& xmin3, const double& xmax3, SourceInputGeometry geometry, double*** outputArray, int Nrho, int Nz, int Nphi, const double& rhomin, const double& rhomax, const double& zmin, const double& zmax, const double& phimin, const double& phimax, const double& thetar, const double& phir, const double& psir) {
+void RadiationSourceFactory::transformScalarArrayToCylindrical(double*** inputArray, int N1, int N2, int N3, const double& xmin1, const double& xmax1, const double& xmin2, const double& xmax2, const double& xmin3, const double& xmax3, SourceInputGeometry geometry, double*** outputArray, int Nrho, int Nz, int Nphi, const double& rhomin, const double& rhomax, const double& zmin, const double& zmax, const double& phimin, const double& phimax, const double& thetar, const double& phir, const double& psir) {
 	if (rhomax <= rhomin) {
 		printf("rhomax = %g <= rhomin = %g in transformScalarArray\n", rhomax, rhomin);
 		printLog("rhomax = %g <= rhomin = %g in transformScalarArray\n", rhomax, rhomin);
@@ -1117,7 +1872,7 @@ void RadiationSourceFactory::transformScalarArray(double*** inputArray, int N1, 
 	}
 }
 
-void RadiationSourceFactory::transformVectorArrays(double*** inputArray1, double*** inputArray2, double*** inputArray3, int N1, int N2, int N3, const double& xmin1, const double& xmax1, const double& xmin2, const double& xmax2, const double& xmin3, const double& xmax3, SourceInputGeometry geometry, double*** outputArray, double*** outputArrayTheta, double*** outputArrayPhi, int Nrho, int Nz, int Nphi, const double& rhomin, const double& rhomax, const double& zmin, const double& zmax, const double& phimin, const double& phimax, const double& thetar, const double& phir, const double& psir){
+void RadiationSourceFactory::transformVectorArraysToCylindrical(double*** inputArray1, double*** inputArray2, double*** inputArray3, int N1, int N2, int N3, const double& xmin1, const double& xmax1, const double& xmin2, const double& xmax2, const double& xmin3, const double& xmax3, SourceInputGeometry geometry, double*** outputArray, double*** outputArrayTheta, double*** outputArrayPhi, int Nrho, int Nz, int Nphi, const double& rhomin, const double& rhomax, const double& zmin, const double& zmax, const double& phimin, const double& phimax, const double& thetar, const double& phir, const double& psir){
 	if (rhomax <= rhomin) {
 		printf("rhomax = %g <= rhomin = %g in transformScalarArray\n", rhomax, rhomin);
 		printLog("rhomax = %g <= rhomin = %g in transformScalarArray\n", rhomax, rhomin);

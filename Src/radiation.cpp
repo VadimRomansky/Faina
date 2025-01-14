@@ -190,6 +190,20 @@ void RadiationEvaluator::writeFluxFromSourceToFile(const char* fileName, Radiati
     fclose(outFile);
 }
 
+void RadiationEvaluator::writeEFEFromSourceToFile(const char* fileName, RadiationSource* source, const double& Ephmin, const double& Ephmax, const int Nph)
+{
+    double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+    double currentE = Ephmin;
+    FILE* outFile = fopen(fileName, "w");
+    for (int i = 0; i < Nph; ++i) {
+        printf("%d\n", i);
+        double flux = evaluateFluxFromSource(currentE, source);
+        fprintf(outFile, "%g %g\n", currentE/1.6E-12, currentE*flux);
+        currentE = currentE * factor;
+    }
+    fclose(outFile);
+}
+
 void RadiationEvaluator::writeImageFromSourceToFile(const char* fileName, RadiationSource* source, const double& Ephmin, const double& Ephmax, const int Nph) {
     int Nx1 = source->getNx1();
     int Nz = source->getNz();
@@ -206,7 +220,7 @@ void RadiationEvaluator::writeImageFromSourceToFile(const char* fileName, Radiat
     omp_init_lock(&my_lock);
 
     int irho;
-#pragma omp parallel for private(irho) shared(Ephmin, Ephmax, source, Nrho, Nz, Nphi, image)
+#pragma omp parallel for private(irho) shared(Ephmin, Ephmax, source, Nx1, Nz, Nx2, image)
     for (irho = 0; irho < Nx1; ++irho) {
         printf("evaluating image irho = %d\n", irho);
         for (int iphi = 0; iphi < Nx2; ++iphi) {
@@ -241,15 +255,15 @@ void RadiationEvaluator::writeImageFromSourceToFile(const char* fileName, Radiat
     delete[] image;
 }
 
-void RadiationEvaluator::writeImageFromSourceAtEToFile(const double& photonFinalEnergy, const char* fileName, RadiationSourceInCylindrical* source) {
-    int Nrho = source->getNrho();
+void RadiationEvaluator::writeImageFromSourceAtEToFile(const double& photonFinalEnergy, const char* fileName, RadiationSource* source) {
+    int Nx1 = source->getNx1();
     int Nz = source->getNz();
-    int Nphi = source->getNphi();
+    int Nx2 = source->getNx2();
 
-    double** image = new double* [Nrho];
-    for (int irho = 0; irho < Nrho; ++irho) {
-        image[irho] = new double[Nphi];
-        for (int iphi = 0; iphi < Nphi; ++iphi) {
+    double** image = new double* [Nx1];
+    for (int irho = 0; irho < Nx1; ++irho) {
+        image[irho] = new double[Nx2];
+        for (int iphi = 0; iphi < Nx2; ++iphi) {
             image[irho][iphi] = 0;
         }
     }
@@ -257,10 +271,10 @@ void RadiationEvaluator::writeImageFromSourceAtEToFile(const double& photonFinal
     omp_init_lock(&my_lock);
 
     int irho;
-#pragma omp parallel for private(irho) shared(photonFinalEnergy, source, Nrho, Nz, Nphi, image)
-    for (irho = 0; irho < Nrho; ++irho) {
+#pragma omp parallel for private(irho) shared(photonFinalEnergy, source, Nx1, Nz, Nx2, image)
+    for (irho = 0; irho < Nx1; ++irho) {
         //printf("i = %d\n", irho);
-        for (int iphi = 0; iphi < Nphi; ++iphi) {
+        for (int iphi = 0; iphi < Nx2; ++iphi) {
             double s = source->getCrossSectionArea(irho, iphi);
             //todo? surface emissivity?
             double d = source->getDistance();
@@ -272,29 +286,29 @@ void RadiationEvaluator::writeImageFromSourceAtEToFile(const double& photonFinal
     omp_destroy_lock(&my_lock);
 
     FILE* outFile = fopen(fileName, "w");
-    for (int irho = 0; irho < Nrho; ++irho) {
-        for (int iphi = 0; iphi < Nphi; ++iphi) {
+    for (int irho = 0; irho < Nx1; ++irho) {
+        for (int iphi = 0; iphi < Nx2; ++iphi) {
             fprintf(outFile, "%g ", image[irho][iphi]);
         }
         fprintf(outFile, "\n");
     }
     fclose(outFile);
 
-    for (int irho = 0; irho < Nrho; ++irho) {
+    for (int irho = 0; irho < Nx1; ++irho) {
         delete[] image[irho];
     }
     delete[] image;
 }
 
-void RadiationEvaluator::writeImageFromSourceInRangeToFile(const double& photonEmin, const double& photonEmax, int N, const char* fileName, RadiationSourceInCylindrical* source) {
-    int Nrho = source->getNrho();
+void RadiationEvaluator::writeImageFromSourceInRangeToFile(const double& photonEmin, const double& photonEmax, int N, const char* fileName, RadiationSource* source) {
+    int Nx1 = source->getNx1();
     int Nz = source->getNz();
-    int Nphi = source->getNphi();
+    int Nx2 = source->getNx2();
 
-    double** image = new double* [Nrho];
-    for (int irho = 0; irho < Nrho; ++irho) {
-        image[irho] = new double[Nphi];
-        for (int iphi = 0; iphi < Nphi; ++iphi) {
+    double** image = new double* [Nx1];
+    for (int irho = 0; irho < Nx1; ++irho) {
+        image[irho] = new double[Nx2];
+        for (int iphi = 0; iphi < Nx2; ++iphi) {
             image[irho][iphi] = 0;
         }
     }
@@ -306,30 +320,31 @@ void RadiationEvaluator::writeImageFromSourceInRangeToFile(const double& photonE
     for (int k = 0; k < N; ++k) {
         omp_init_lock(&my_lock);
         int irho;
-#pragma omp parallel for private(irho) shared(k, currentE, source, Nrho, Nz, Nphi, image)
-        for (irho = 0; irho < Nrho; ++irho) {
+        double dE = currentE * (factor - 1);
+#pragma omp parallel for private(irho) shared(k, currentE, source, Nx1, Nz, Nx2, image)
+        for (irho = 0; irho < Nx1; ++irho) {
             //printf("i = %d\n", irho);
-            for (int iphi = 0; iphi < Nphi; ++iphi) {
+            for (int iphi = 0; iphi < Nx2; ++iphi) {
                 double s = source->getCrossSectionArea(irho, iphi);
                 double d = source->getDistance();
                 double localFlux = evaluateFluxFromSourceAtPoint(currentE, source, irho, iphi)*d*d / s;
                 image[irho][iphi] = localFlux;
             }
         }
-        currentE = currentE * factor;
-
-        omp_destroy_lock(&my_lock);
-
-        for (int irho = 0; irho < Nrho; ++irho) {
-            for (int iphi = 0; iphi < Nphi; ++iphi) {
+        for (int irho = 0; irho < Nx1; ++irho) {
+            for (int iphi = 0; iphi < Nx2; ++iphi) {
                 fprintf(outFile, "%g ", image[irho][iphi]);
             }
             fprintf(outFile, "\n");
         }
+        currentE = currentE * factor;
+
+        omp_destroy_lock(&my_lock);
+
     }
     fclose(outFile);
 
-    for(int irho = 0; irho < Nrho; ++irho) {
+    for(int irho = 0; irho < Nx1; ++irho) {
         delete[] image[irho];
     }
     delete[] image;

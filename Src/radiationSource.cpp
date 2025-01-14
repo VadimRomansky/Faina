@@ -98,6 +98,56 @@ int RadiationSourceInCartesian::getNy()
 	return my_Ny;
 }
 
+RectangularSource::RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double B, double theta, double phi, double concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity, const double& redShift) : RadiationSourceInCartesian(Nx, Ny, Nz, minX, maxX, minY, maxY, minZ, maxZ, distance, redShift)
+{
+	my_distribution = electronDistribution;
+
+	my_velocity = velocity;
+
+	my_B = new double** [my_Nx];
+	my_theta = new double** [my_Nx];
+	my_phi = new double** [my_Nx];
+	my_concentration = new double** [my_Nx];
+	my_v = new double** [my_Nx];
+	my_vtheta = new double** [my_Nx];
+	my_vphi = new double** [my_Nx];
+	for (int irho = 0; irho < my_Nx; ++irho) {
+		my_B[irho] = new double* [my_Nz];
+		my_theta[irho] = new double* [my_Nz];
+		my_phi[irho] = new double* [my_Nz];
+		my_concentration[irho] = new double* [my_Nz];
+		my_v[irho] = new double* [my_Nz];
+		my_vtheta[irho] = new double* [my_Nz];
+		my_vphi[irho] = new double* [my_Nz];
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			my_B[irho][iz] = new double[my_Ny];
+			my_theta[irho][iz] = new double[my_Ny];
+			my_phi[irho][iz] = new double[my_Ny];
+			my_concentration[irho][iz] = new double[my_Ny];
+			my_v[irho][iz] = new double[my_Ny];
+			my_vtheta[irho][iz] = new double[my_Ny];
+			my_vphi[irho][iz] = new double[my_Ny];
+			for (int iphi = 0; iphi < my_Ny; ++iphi) {
+				my_B[irho][iz][iphi] = B;
+				my_theta[irho][iz][iphi] = theta;
+				my_phi[irho][iz][iphi] = phi;
+				my_concentration[irho][iz][iphi] = concentration;
+				my_v[irho][iz][iphi] = my_velocity;
+				my_vtheta[irho][iz][iphi] = 0;
+				my_vphi[irho][iz][iphi] = 0;
+			}
+		}
+	}
+
+	my_isSource = new bool* [my_Nx];
+	for (int i = 0; i < my_Nx; ++i) {
+		my_isSource[i] = new bool[my_Ny];
+		for (int j = 0; j < my_Ny; ++j) {
+			my_isSource[i][j] = true;
+		}
+	}
+}
+
 RectangularSource::RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity, const double& redShift) : RadiationSourceInCartesian(Nx, Ny, Nz, minX, maxX, minY, maxY, minZ, maxZ, distance, redShift)
 {
 	my_distribution = electronDistribution;
@@ -223,6 +273,121 @@ int RectangularSource::getZindex(double z)
 	return floor((z - my_minZ) / dz);
 }
 
+double RectangularSource::getMaxB()
+{
+	double Bmax = 0;
+	for (int irho = 0; irho < my_Nx; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Ny; ++iphi) {
+				if (my_B[irho][iz][iphi] > Bmax) {
+					Bmax = my_B[irho][iz][iphi];
+				}
+			}
+		}
+	}
+	return Bmax;
+}
+
+double RectangularSource::getMaxOuterB()
+{
+	double Bmax = 0;
+	int irho = my_Nx - 1;
+	int iz = 0;
+	int iphi = 0;
+	for (iz = 0; iz < my_Nz; ++iz) {
+		for (iphi = 0; iphi < my_Ny; ++iphi) {
+			if (my_B[irho][iz][iphi] > Bmax) {
+				Bmax = my_B[irho][iz][iphi];
+			}
+		}
+	}
+
+	irho = 0;
+	for (iz = 0; iz < my_Nz; ++iz) {
+		for (iphi = 0; iphi < my_Ny; ++iphi) {
+			if (my_B[irho][iz][iphi] > Bmax) {
+				Bmax = my_B[irho][iz][iphi];
+			}
+		}
+	}
+
+	iphi = my_Ny - 1;
+	iz = 0;
+	for (iz = 0; iz < my_Nz; ++iz) {
+		for (irho = 0; irho < my_Nx; ++irho) {
+			if (my_B[irho][iz][iphi] > Bmax) {
+				Bmax = my_B[irho][iz][iphi];
+			}
+		}
+	}
+
+	iphi = 0;
+	for (iz = 0; iz < my_Nz; ++iz) {
+		for (irho = 0; irho < my_Nx; ++irho) {
+			if (my_B[irho][iz][iphi] > Bmax) {
+				Bmax = my_B[irho][iz][iphi];
+			}
+		}
+	}
+
+	for (irho = 0; irho < my_Nx; ++irho) {
+		for (iphi = 0; iphi < my_Ny; ++iphi) {
+			iz = 0;
+			if (my_B[irho][iz][iphi] > Bmax) {
+				Bmax = my_B[irho][iz][iphi];
+			}
+
+			iz = my_Nz - 1;
+			if (my_B[irho][iz][iphi] > Bmax) {
+				Bmax = my_B[irho][iz][iphi];
+			}
+		}
+	}
+
+	return Bmax;
+}
+
+double RectangularSource::getAverageSigma()
+{
+	double magneticEnergy = 0;
+	double restEnergy = 0;
+
+
+	for (int irho = 0; irho < my_Nx; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Ny; ++iphi) {
+				magneticEnergy += my_B[irho][iz][iphi] * my_B[irho][iz][iphi] * getVolume(irho, iz, iphi) / (4 * pi);
+				restEnergy += my_concentration[irho][iz][iphi] * massProton * speed_of_light2 * getVolume(irho, iz, iphi);
+			}
+		}
+	}
+
+	return magneticEnergy / restEnergy;
+}
+
+double RectangularSource::getAverageConcentration()
+{
+	double concentration = 0;
+	double volume = 0;
+
+	for (int irho = 0; irho < my_Nx; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Ny; ++iphi) {
+				concentration += my_concentration[irho][iz][iphi] * getVolume(irho, iz, iphi);
+				volume += getVolume(irho, iz, iphi);
+			}
+		}
+	}
+
+	double result = concentration / volume;
+	if (result != result) {
+		printf("averageConcentration = NaN\n");
+		printLog("averageConcentration = NaN\n");
+		exit(0);
+	}
+	return result;
+}
+
 bool RectangularSource::isSource(int irho, int iphi)
 {
 	return my_isSource[irho][iphi];
@@ -298,6 +463,7 @@ void RectangularSource::resetParameters(const double* parameters, const double* 
 * z = parameters[2]
 * sigma[i][j][k] ~ parameters[3]
 * n[i][j][k] ~ parameters[4]
+* v = parameters[5]
 * where B[Nrho-1][0][0] = parameters[1]
 */
 	double xsize = my_maxX - my_minX;
@@ -342,6 +508,28 @@ MassiveParticleDistribution* RectangularSource::getParticleDistribution(int irho
 	return my_distribution;
 }
 
+ThermalRectangularSource::ThermalRectangularSource(int Nx, int Ny, int Nz, double mass, double B, double theta, double phi, double concentration, double temperature, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity, const double& redShift) : RectangularSource(Nx, Ny, Nz, NULL, B, theta, phi, concentration, minX, maxX, minY, maxY, minZ, maxZ, distance, velocity, redShift)
+{
+	my_mass = mass;
+
+	my_temperature = new double** [my_Nx];
+	for (int irho = 0; irho < my_Nx; ++irho) {
+		my_temperature[irho] = new double* [my_Nz];
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			my_temperature[irho][iz] = new double[my_Ny];
+			for (int iphi = 0; iphi < my_Ny; ++iphi) {
+				my_temperature[irho][iz][iphi] = temperature;
+			}
+		}
+	}
+
+	my_maxThreads = omp_get_max_threads();
+	my_localDistribution = new MassiveParticleDistribution * [my_maxThreads];
+	for (int i = 0; i < my_maxThreads; ++i) {
+		my_localDistribution[i] = NULL;
+	}
+}
+
 ThermalRectangularSource::ThermalRectangularSource(int Nx, int Ny, int Nz, double mass, double*** B, double*** theta, double*** phi, double*** concentration, double*** temperature, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity, const double& redShift) : RectangularSource(Nx, Ny, Nz, NULL, B, theta, phi, concentration, minX, maxX, minY, maxY, minZ, maxZ, distance, redShift)
 {
 	my_mass = mass;
@@ -356,6 +544,17 @@ ThermalRectangularSource::ThermalRectangularSource(int Nx, int Ny, int Nz, doubl
 			}
 		}
 	}
+
+	my_maxThreads = omp_get_max_threads();
+	my_localDistribution = new MassiveParticleDistribution * [my_maxThreads];
+	for (int i = 0; i < my_maxThreads; ++i) {
+		my_localDistribution[i] = NULL;
+	}
+}
+
+double ThermalRectangularSource::getParticleMass()
+{
+	return my_mass;
 }
 
 double ThermalRectangularSource::getTemperature(int ix, int iz, int iy)
@@ -370,11 +569,11 @@ MassiveParticleDistribution* ThermalRectangularSource::getParticleDistribution(i
 		delete my_localDistribution[numthread];
 		my_localDistribution[numthread] = NULL;
 	}
-	if (my_temperature[irho][iz][iphi] < 0.1 * my_mass * speed_of_light2) {
-		my_localDistribution[numthread] = new MassiveParticleMaxwellDistribution(my_mass, my_temperature[irho][iz][iphi], my_concentration[irho][iz][iphi]);
+	if (my_temperature[irho][iz][iphi] < 0.1 * my_mass * speed_of_light2/kBoltzman) {
+		my_localDistribution[numthread] = new MassiveParticleMaxwellDistribution(my_mass, my_temperature[irho][iz][iphi]);
 	}
 	else {
-		my_localDistribution[numthread] = new MassiveParticleMaxwellJuttnerDistribution(my_mass, my_temperature[irho][iz][iphi], my_concentration[irho][iz][iphi]);
+		my_localDistribution[numthread] = new MassiveParticleMaxwellJuttnerDistribution(my_mass, my_temperature[irho][iz][iphi]);
 	}
 	return my_localDistribution[numthread];
 }
@@ -406,6 +605,16 @@ int RadiationSourceInCylindrical::getNrho() {
 }
 int RadiationSourceInCylindrical::getNphi() {
 	return my_Nphi;
+}
+
+double RadiationSourceInCylindrical::getX1(int ix1)
+{
+	return getRho(ix1);
+}
+
+double RadiationSourceInCylindrical::getX2(int ix2)
+{
+	return getPhi(ix2);
 }
 
 DiskSource::DiskSource(int Nrho, int Nz, int Nphi, const double& rho, const double& z, const double& distance, const double& redShift) : RadiationSourceInCylindrical(Nrho, Nz, Nphi, distance, redShift)
@@ -553,7 +762,6 @@ double SimpleFlatSource::getLength(int irho, int iz, int iphi) {
 	return my_z;
 }
 MassiveParticleDistribution* SimpleFlatSource::getParticleDistribution(int irho, int iz, int iphi) {
-	my_distribution->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_distribution;
 }
 
@@ -1081,7 +1289,6 @@ double TabulatedDiskSource::getAverageConcentration()
 	return result;
 }
 MassiveParticleDistribution* TabulatedDiskSource::getParticleDistribution(int irho, int iz, int iphi) {
-	my_distribution->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_distribution;
 }
 
@@ -2129,7 +2336,6 @@ void TabulatedSphericalLayerSource::resetParameters(const double* parameters, co
 	}
 }
 MassiveParticleDistribution* TabulatedSphericalLayerSource::getParticleDistribution(int irho, int iz, int iphi) {
-	my_distribution->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_distribution;
 }
 
@@ -2445,7 +2651,6 @@ MassiveParticleDistribution* AngleDependentElectronsSphericalSource::getParticle
 	//for debug
 	//angleIndex = 3;
 
-	my_distributions[angleIndex]->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_distributions[angleIndex];
 
 }
@@ -2728,7 +2933,7 @@ MassiveParticleDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistri
 	    my_localDistribution[numthreads]->transformToLosses(lossRate, time);
 		//my_localDistribution[numthreads]->transformToLosses2(k, l, l_p);
 	}
-	my_localDistribution[numthreads]->resetConcentration(getConcentration(irho, iz, iphi));
+
 	return my_localDistribution[numthreads];
 	//return std::unique_ptr<MassiveParticleDistribution>(new MassiveParticleMaxwellDistribution(massElectron, 1000, 1.0));
 }
@@ -2897,7 +3102,7 @@ MassiveParticleDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDist
 		my_localDistribution[numthread]->transformToLosses(lossRate, time);
 		//my_localDistribution[numthread]->transformToLosses2(k, my_z - z1, my_z - z2);
 	}
-	my_localDistribution[numthread]->resetConcentration(getConcentration(irho, iz, iphi));
+
 	return my_localDistribution[numthread];
 }
 
@@ -3849,7 +4054,7 @@ void TabulatedSectoralSphericalLayerSource::resetParameters(const double* parame
 	my_velocity = parameters[4] * normalizationUnits[4];
 }
 MassiveParticleDistribution* TabulatedSectoralSphericalLayerSource::getParticleDistribution(int irho, int iz, int iphi) {
-	my_distribution->resetConcentration(getConcentration(irho, iz, iphi));
+
 	return my_distribution;
 }
 
@@ -4044,6 +4249,16 @@ MassiveParticleDistribution* TabulatedSectoralSLSourceWithSynchCutoff::getPartic
 		}
 		my_cutoffDistribution->resetEcut(Ecut);
 	}
-	my_cutoffDistribution->resetConcentration(getConcentration(irho, iz, iphi));
+
 	return my_cutoffDistribution;
+}
+
+double RadiationSourceInCartesian::getX1(int ix1)
+{
+	return getX(ix1);
+}
+
+double RadiationSourceInCartesian::getX2(int ix2)
+{
+	return getY(ix2);
 }

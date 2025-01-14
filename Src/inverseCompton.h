@@ -25,27 +25,29 @@ protected:
 	double* my_dcosTheta;
 
     PhotonDistribution* my_photonDistribution;
+	double my_photonConcentration;
 
-	double evaluateComptonEmissivityThomsonIsotropic(const double& photonFinalEnergy, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution);
-	double evaluateComptonEmissivityJonesIsotropic(const double& photonFinalEnergy, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution);
-	double evaluateComptonFluxKleinNishinaIsotropic(const double& photonFinalEnergyi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution);
-	double evaluateComptonEmissivityKleinNishinaIsotropic2(const double& photonFinalEnergyi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution);
-	double evaluateComptonEmissivityKleinNishinaAnisotropic(const double& photonFinalEnergy, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution);
+	double evaluateComptonEmissivityThomsonIsotropic(const double& photonFinalEnergy, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& photonConcentration, const double& electronConcentration);
+	double evaluateComptonEmissivityJonesIsotropic(const double& photonFinalEnergy, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& photonConcentration, const double& electronConcentration);
+	double evaluateComptonFluxKleinNishinaIsotropic(const double& photonFinalEnergyi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& photonConcentration, const double& electronConcentration);
+	double evaluateComptonEmissivityKleinNishinaIsotropic2(const double& photonFinalEnergyi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& photonConcentration, const double& electronConcentration);
+	double evaluateComptonEmissivityKleinNishinaAnisotropic(const double& photonFinalEnergy, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& photonConcentration, const double& electronConcentration);
 
 
 	virtual PhotonDistribution* getPhotonDistribution(const double& rho, const double& z, const double& phi);
+	virtual double getPhotonConcentration(const double& rho, const double& z, const double& phi);
 
-	double evaluateComptonEmissivityKleinNishinaAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution);
-	double evaluateComptonEmissivityKleinNishinaAnisotropic2(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution);
-	double evaluateComptonEmissivityKleinNishinaAnisotropic3(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution);
+	double evaluateComptonEmissivityKleinNishinaAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& photonConcentration, const double& electronConcentration);
+	double evaluateComptonEmissivityKleinNishinaAnisotropic2(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& photonConcentration, const double& electronConcentration);
+	double evaluateComptonEmissivityKleinNishinaAnisotropic3(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& photonConcentration, const double& electronConcentration);
 public:
-    InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonDistribution* photonDistribution, ComptonSolverType solverType, bool absorption = false, bool doppler = false);
+    InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonDistribution* photonDistribution, const double& photonConcentration, ComptonSolverType solverType, bool absorption = false, bool doppler = false);
 	virtual ~InverseComptonEvaluator();
     void resetParameters(const double *parameters, const double *normalizationUnits);
 
 	//double evaluateComptonFlux(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& volume, const double& distance);
-	double evaluateFluxFromSourceAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, RadiationSourceInCylindrical* source, ComptonSolverType solverType);
-	double evaluateTotalFluxInEnergyRangeAnisotropic(const double& Ephmin, const double& Ephmax, const double& photonFinalTheta, const double& photonFinalPhi, int Nph, PhotonDistribution* photonDistribution, RadiationSourceInCylindrical* source, ComptonSolverType solverType);
+	double evaluateFluxFromSourceAnisotropic(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, const double& photonConcentration, RadiationSourceInCylindrical* source, ComptonSolverType solverType);
+	double evaluateTotalFluxInEnergyRangeAnisotropic(const double& Ephmin, const double& Ephmax, const double& photonFinalTheta, const double& photonFinalPhi, int Nph, PhotonDistribution* photonDistribution, const double& photonConcentration, RadiationSourceInCylindrical* source, ComptonSolverType solverType);
 
 	virtual double evaluateEmissivity(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source);
 
@@ -61,8 +63,9 @@ protected:
 	double my_sourcePhi;
 	double my_defaultPhotonConcentration;
 	virtual PhotonDistribution* getPhotonDistribution(const double& rho, const double& z, const double& phi);
+	virtual double getPhotonConcentration(const double& rho, const double& z, const double& phi);
 public:
-	InverseComptonEvaluatorWithSource(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonDistribution* photonDistribution, ComptonSolverType solverType, const double& sourceR, const double& sourceZ, const double& sourcePhi, bool absorption = false, bool doppler = false);
+	InverseComptonEvaluatorWithSource(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonDistribution* photonDistribution, const double& photonConcentration, ComptonSolverType solverType, const double& sourceR, const double& sourceZ, const double& sourcePhi, bool absorption = false, bool doppler = false);
 	virtual ~InverseComptonEvaluatorWithSource();
 };
 

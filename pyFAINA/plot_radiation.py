@@ -3,8 +3,8 @@ from matplotlib import animation
 from pylab import *
 import numpy as np
 
-def plot_radiation():
-    radiationFile = open('../outputBremE.dat','r')
+def plot_radiation(filename):
+    radiationFile = open(filename,'r')
     lines = radiationFile.readlines()
     N = len(lines)
 
@@ -13,7 +13,7 @@ def plot_radiation():
         s = lines[i].split()
         radiation[0,i] = float(s[0])
         radiation[1,i] = float(s[1])
-        radiation[2,i] = float(s[2])
+        #radiation[2,i] = float(s[2])
 
     cssx1 = [1.5, 3.0, 6.1, 9.87]
     cssy1 = [1.5, 4.3, 6.1, 4.2]
@@ -30,7 +30,7 @@ def plot_radiation():
     ax.set_xlabel(r'$E~eV$', fontsize=40,fontweight='bold')
     #ax.set_xlabel(r'$\nu~Ггц$', fontsize=40,fontweight='bold')
     #ax.set_ylabel(r'$F_{\nu}~mJy$', fontsize=40,fontweight='bold')
-    ax.set_ylabel(r'$EF(E)~erg~cm^{-2} s^{-1}$', fontsize=40,fontweight='bold')
+    ax.set_ylabel(r'$F(E)~cm^{-2} s^{-1}$', fontsize=40,fontweight='bold')
     #ax.set_ylabel(r'$F_{\nu}~мЯн$', fontsize=40,fontweight='bold')
     ax.set_yscale("log")
     ax.set_xlim([1E3, 1E8])
@@ -41,8 +41,8 @@ def plot_radiation():
     ax.minorticks_on()
     # plt.axis([0.0,1.0,0.0,1.0])
     plt.plot(radiation[0], radiation[1], 'r', linewidth=4)
-    plt.plot(radiation[0], radiation[2], 'b', linewidth=4)
+    #plt.plot(radiation[0], radiation[2], 'b', linewidth=4)
     #plt.errorbar(cssx1, cssy1, cssError1, ecolor = 'b', elinewidth = 4, linewidth=0, capsize = 5, capthick = 4)
-    ax.legend([r'BremsstrahlungThermalEvaluator', r'BremsstrahlungEbaluator'], fontsize="20")
+    #ax.legend([r'BremsstrahlungThermalEvaluator', r'BremsstrahlungEbaluator'], fontsize="20")
     #plt.show()
     plt.savefig('bremsstrahlung.png', bbox_inches='tight')

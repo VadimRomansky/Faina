@@ -43,11 +43,13 @@ public:
 
     void writeFluxFromSourceToFile(const char* fileName, RadiationSource* source, const double& Ephmin, const double& Ephmax, const int Nph);
 
+    void writeEFEFromSourceToFile(const char* fileName, RadiationSource* source, const double& Ephmin, const double& Ephmax, const int Nph);
+
     void writeImageFromSourceToFile(const char* fileName, RadiationSource* source, const double& Ephmin, const double& Ephmax, const int Nph);
 
-    void writeImageFromSourceAtEToFile(const double& photonFinalEnergy, const char* fileName, RadiationSourceInCylindrical* source);
+    void writeImageFromSourceAtEToFile(const double& photonFinalEnergy, const char* fileName, RadiationSource* source);
 
-    void writeImageFromSourceInRangeToFile(const double& photonEmin, const double& photonEmax, int N, const char* fileName, RadiationSourceInCylindrical* source);
+    void writeImageFromSourceInRangeToFile(const double& photonEmin, const double& photonEmax, int N, const char* fileName, RadiationSource* source);
 };
 
 class RadiationSumEvaluator : public RadiationEvaluator {
