@@ -31,6 +31,10 @@ public:
 	int getNx1();
 	int getNx2();
 
+	virtual double getX1(int ix1) = 0;
+	virtual double getZ(int iz) = 0;
+	virtual double getX2(int ix2) = 0;
+
 	virtual bool isSource(int irho, int iphi) = 0;
 	virtual double getArea(int irho, int iz, int iphi) = 0;
 	virtual double getVolume(int irho, int iz, int iphi);
@@ -80,6 +84,8 @@ public:
 	virtual double getX(int ix) = 0;
 	virtual double getZ(int iz) = 0;
 	virtual double getY(int iy) = 0;
+	virtual double getX1(int ix1);
+	virtual double getX2(int ix2);
 	virtual int gerXindex(double x) = 0;
 	virtual int getYindex(double y) = 0;
 	virtual int getZindex(double z) = 0;
@@ -168,6 +174,8 @@ public:
 	virtual double getRho(int irho) = 0;
 	virtual double getZ(int iz) = 0;
 	virtual double getPhi(int iphi) = 0;
+	virtual double getX1(int ix1);
+	virtual double getX2(int ix2);
 	virtual int getRhoIndex(const double& rho) = 0;
 };
 

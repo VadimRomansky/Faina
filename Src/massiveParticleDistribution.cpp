@@ -20,7 +20,7 @@ void MassiveParticleIsotropicDistribution::writeDistribution(const char* fileNam
 	}
 	FILE* outFile = fopen(fileName, "w");
 	for (int i = 0; i < Ne; ++i) {
-		fprintf(outFile, "%g %g\n", energy[i], distribution(energy[i]));
+		fprintf(outFile, "%g %g\n", energy[i], distributionNormalized(energy[i]));
 	}
 	fclose(outFile);
 	delete[] energy;
@@ -35,7 +35,7 @@ double MassiveParticleIsotropicDistribution::distributionNormalizedWithLosses(co
 	return distributionNormalized(energy / (1 - factor)) / sqr(1 - factor);
 }
 
-MassiveParticlePowerLawDistribution::MassiveParticlePowerLawDistribution(const double& mass, const double& index, const double& E0, const double& concentration) {
+MassiveParticlePowerLawDistribution::MassiveParticlePowerLawDistribution(const double& mass, const double& index, const double& E0) {
 	my_mass = mass;
 	if (index <= 1.0) {
 		printf("electron spectrum index <= 1.0, contains infinit energy\n");
@@ -49,12 +49,6 @@ MassiveParticlePowerLawDistribution::MassiveParticlePowerLawDistribution(const d
 		exit(0);
 	}
 	my_E0 = E0;
-	if (concentration <= 0) {
-		printf("electrons concentration <= 0\n");
-		printLog("electrons concentration <= 0\n");
-		exit(0);
-	}
-	my_concentration = concentration;
 
 	my_A = (my_index - 1) / (my_E0*4*pi);
 }
@@ -97,11 +91,6 @@ double MassiveParticlePowerLawDistribution::maxEnergy()
 	return -1.0;
 }
 
-void MassiveParticlePowerLawDistribution::resetConcentration(const double& concentration)
-{
-	my_concentration = concentration;
-}
-
 double MassiveParticlePowerLawDistribution::getIndex()
 {
 	return my_index;
@@ -112,7 +101,7 @@ double MassiveParticlePowerLawDistribution::getE0()
 	return my_E0;
 }
 
-MassiveParticlePowerLawCutoffDistribution::MassiveParticlePowerLawCutoffDistribution(const double& mass, const double& index, const double& E0, const double& beta, const double& Ecut, const double& concentration) {
+MassiveParticlePowerLawCutoffDistribution::MassiveParticlePowerLawCutoffDistribution(const double& mass, const double& index, const double& E0, const double& beta, const double& Ecut) {
 	my_mass = mass;
 	if (index <= 1.0) {
 		printf("electron spectrum index <= 1.0, contains infinit energy\n");

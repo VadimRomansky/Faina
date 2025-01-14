@@ -607,6 +607,16 @@ int RadiationSourceInCylindrical::getNphi() {
 	return my_Nphi;
 }
 
+double RadiationSourceInCylindrical::getX1(int ix1)
+{
+	return getRho(ix1);
+}
+
+double RadiationSourceInCylindrical::getX2(int ix2)
+{
+	return getPhi(ix2);
+}
+
 DiskSource::DiskSource(int Nrho, int Nz, int Nphi, const double& rho, const double& z, const double& distance, const double& redShift) : RadiationSourceInCylindrical(Nrho, Nz, Nphi, distance, redShift)
 {
 	my_rho = rho;
@@ -4245,4 +4255,14 @@ MassiveParticleDistribution* TabulatedSectoralSLSourceWithSynchCutoff::getPartic
 	}
 	my_cutoffDistribution->resetConcentration(getConcentration(irho, iz, iphi));
 	return my_cutoffDistribution;
+}
+
+double RadiationSourceInCartesian::getX1(int ix1)
+{
+	return getX(ix1);
+}
+
+double RadiationSourceInCartesian::getX2(int ix2)
+{
+	return getY(ix2);
 }

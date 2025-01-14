@@ -325,7 +325,7 @@ void PionDecayEvaluator::resetParameters(const double *parameters, const double 
     //todo change ambient density?
 }
 
-double PionDecayEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& volume, const double& distance)
+double PionDecayEvaluator::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& concentration, const double& volume, const double& distance)
 {
 	double result = 0;
 
@@ -370,7 +370,7 @@ double PionDecayEvaluator::evaluateFluxFromIsotropicFunction(const double& photo
 		double sigma = sigmaGamma(photonFinalEnergy, protonKineticEnergy);
 
 		//todo 4 pi?
-        result += photonFinalEnergy*(speed_of_light * protonBeta/(4*pi)) * sigma * protonDistribution->distribution(protonEnergy) * my_ambientConcentration * volume * dprotonEnergy / sqr(distance);
+        result += photonFinalEnergy*(speed_of_light * protonBeta/(4*pi)) * sigma * concentration * protonDistribution->distributionNormalized(protonEnergy) * my_ambientConcentration * volume * dprotonEnergy / sqr(distance);
 
 		if (result != result) {
 			printf("result = NaN in pion decay\n");
@@ -385,11 +385,14 @@ double PionDecayEvaluator::evaluateFluxFromIsotropicFunction(const double& photo
 double PionDecayEvaluator::evaluateEmissivity(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source)
 {
 	MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(ix1, iz, ix2));
+
 	if (distribution == NULL) {
 		printf("Pion decay evaluator works only woth isotropic protons distribution\n");
 		printLog("Pion decay evaluator works only woth isotropic protons distribution\n");
 		exit(0);
 	}
+
+	double concentration = source->getConcentration(ix1, iz, ix2);
 
 	double result = 0;
 
@@ -434,7 +437,7 @@ double PionDecayEvaluator::evaluateEmissivity(const double& photonFinalEnergy, i
 		double sigma = sigmaGamma(photonFinalEnergy, protonKineticEnergy);
 
 		//todo 4 pi?
-		result += photonFinalEnergy * (speed_of_light * protonBeta / (4 * pi)) * sigma * distribution->distribution(protonEnergy) * my_ambientConcentration * dprotonEnergy;
+		result += photonFinalEnergy * (speed_of_light * protonBeta / (4 * pi)) * sigma * distribution->distributionNormalized(protonEnergy) * my_ambientConcentration * dprotonEnergy;
 
 		if (result != result) {
 			printf("result = NaN in pion decay\n");
@@ -477,7 +480,7 @@ double PionDecayEvaluatorKelner::functionKelner(const double& x, const double& p
     return F;
 }
 
-double PionDecayEvaluatorKelner::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& volume, const double& distance)
+double PionDecayEvaluatorKelner::evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& concentration, const double& volume, const double& distance)
 {
 	double result = 0;
 
@@ -522,7 +525,7 @@ double PionDecayEvaluatorKelner::evaluateFluxFromIsotropicFunction(const double&
 		double sigma = (sigmaInelastic(protonKineticEnergy)/protonEnergy)*functionKelner(photonFinalEnergy/protonEnergy, protonEnergy);
 
 		//todo 4 pi?
-        result += photonFinalEnergy*(speed_of_light * protonBeta / 4 * pi) * sigma * protonDistribution->distribution(protonEnergy) * my_ambientConcentration * volume * dprotonEnergy / sqr(distance);
+        result += photonFinalEnergy*(speed_of_light * protonBeta / 4 * pi) * sigma * concentration * protonDistribution->distributionNormalized(protonEnergy) * my_ambientConcentration * volume * dprotonEnergy / sqr(distance);
 
 		if (result != result) {
 			printf("result = NaN in pion decay\n");
@@ -542,6 +545,7 @@ double PionDecayEvaluatorKelner::evaluateEmissivity(const double& photonFinalEne
 		printLog("Pion decay Kelner evaluator works only woth isotropic protons distribution\n");
 		exit(0);
 	}
+	double concentration = source->getConcentration(ix1, iz, ix2);
 
 	double result = 0;
 
@@ -586,7 +590,7 @@ double PionDecayEvaluatorKelner::evaluateEmissivity(const double& photonFinalEne
 		double sigma = (sigmaInelastic(protonKineticEnergy) / protonEnergy) * functionKelner(photonFinalEnergy / protonEnergy, protonEnergy);
 
 		//todo 4 pi?
-		result += photonFinalEnergy * (speed_of_light * protonBeta / (4 * pi)) * sigma * distribution->distribution(protonEnergy) * my_ambientConcentration * dprotonEnergy;
+		result += photonFinalEnergy * (speed_of_light * protonBeta / (4 * pi)) * sigma * concentration * distribution->distributionNormalized(protonEnergy) * my_ambientConcentration * dprotonEnergy;
 
 		if (result != result) {
 			printf("result = NaN in pion decay\n");

@@ -25,7 +25,7 @@ public:
     ~PionDecayEvaluator();
     double sigmaGamma(const double& photonEnergy, const double& protonEnergy);
     void resetParameters(const double *parameters, const double *normalizationUnits);
-    double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& volume, const double& distance);
+    double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& concentration, const double& volume, const double& distance);
     virtual double evaluateEmissivity(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source);
     virtual double evaluateAbsorption(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source);
     //virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);
@@ -38,7 +38,7 @@ public:
     PionDecayEvaluatorKelner(int Ne, double Emin, double Emax, const double& ambientConcentration, bool absorption = false, bool doppler = false);
     ~PionDecayEvaluatorKelner();
     void resetParameters(const double *parameters, const double *normalizationUnits);
-    double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& volume, const double& distance);
+    double evaluateFluxFromIsotropicFunction(const double& photonFinalEnergy, MassiveParticleIsotropicDistribution* protonDistribution, const double& concentration, const double& volume, const double& distance);
     virtual double evaluateEmissivity(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source);
     virtual double evaluateAbsorption(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source);
     //virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int irho, int iphi);

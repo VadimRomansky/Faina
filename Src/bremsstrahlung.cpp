@@ -414,11 +414,11 @@ double BremsstrahlungEvaluator::evaluateEmissivity(const double& photonFinalEner
 		double electronBeta = sqrt(1.0 - 1.0 / (electronGamma * electronGamma));
 		double electronKineticEnergy = massElectron * speed_of_light2 * (electronGamma - 1.0);
 		double epsilonG = photonFinalEnergy / (massElectron * speed_of_light2);
-		double concentration = electronDistribution->getConcentration();
+		double concentration = source->getConcentration(ix1, iz, ix2);
 
 		double sigma = evaluateSigma(electronGamma, epsilonG);
 
-		result += photonFinalEnergy * (speed_of_light * electronBeta) * sigma * concentration * (4 * pi * electronDistribution->distribution(electronEnergy)) * delectronEnergy / (4 * pi);
+		result += photonFinalEnergy * (speed_of_light * electronBeta) * sigma * concentration * concentration * (4 * pi * electronDistribution->distributionNormalized(electronEnergy)) * delectronEnergy / (4 * pi);
 
 		if (result != result) {
 			printf("result = NaN in bremsstrahlung\n");
