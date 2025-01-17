@@ -286,6 +286,7 @@ public:
 
 class MassiveParticleDistributionFactory {
 public:
+	static void readTabulatedIsotropicDistributionAndConcentration(const double& mass, const char* fileName, DistributionInputType inputType, MassiveParticleIsotropicDistribution*& outputDistribution, double& outputConcentration);
 	static MassiveParticleDistribution** readTabulatedIsotropicDistributions(const double& mass, const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne);
 	static MassiveParticleDistribution** readTabulatedIsotropicDistributions(const double& mass, const char* fileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne);
 	static MassiveParticleDistribution** readTabulatedIsotropicDistributionsAddPowerLawTail(const double& mass, const char* fileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne, const double& Epower, const double& index);

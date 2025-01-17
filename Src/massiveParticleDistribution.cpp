@@ -1795,6 +1795,80 @@ double CompoundWeightedMassiveParticleIsotropicDistribution::maxEnergy()
 	return tempEmax;
 }
 
+void MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionAndConcentration(const double& mass, const char* fileName, DistributionInputType inputType, MassiveParticleIsotropicDistribution*& outputDistribution, double& outputConcentration)
+{
+	int n = 0;
+	FILE* file = fopen(fileName, "r");
+	while (!feof(file)) {
+		double a;
+		double b;
+		fscanf(file, "%lf %lf", &a, &b);
+		n = n + 1;
+	}
+	fclose(file);
+	n = n - 1;
+
+
+	double* energy = new double[n];
+	double* distribution = new double[n];
+
+	file = fopen(fileName, "r");
+	for (int i = 0; i < n; ++i) {
+		double x;
+		double y;
+		fscanf(file, "%lf", &x);
+		fscanf(file, "%lf", &y);
+		if (y < 0) {
+			printf("input distribution < 0\n");
+			printLog("input distribution < 0\n");
+			exit(0);
+		}
+		double m_c2 = mass * speed_of_light2;
+		if (inputType == DistributionInputType::ENERGY_FE) {
+			energy[i] = x;
+			distribution[i] = y;
+		}
+		else if (inputType == DistributionInputType::ENERGY_KIN_FE) {
+			energy[i] = x + m_c2;
+			distribution[i] = y;
+		}
+		else if (inputType == DistributionInputType::GAMMA_FGAMMA) {
+			energy[i] = x * m_c2;
+			distribution[i] = y / m_c2;
+		}
+		else if (inputType == DistributionInputType::GAMMA_KIN_FGAMMA) {
+			energy[i] = (x + 1) * m_c2;
+			distribution[i] = y / m_c2;
+		}
+		else if (inputType == DistributionInputType::MOMENTUM_FP) {
+			//energy[i] = sqrt(x * x * speed_of_light2 + m_c2 * m_c2);
+			double p = x * massProton * speed_of_light;
+			energy[i] = sqrt(p * p * speed_of_light2 + m_c2 * m_c2);
+			//distribution[i] = y * x * energy[i] / speed_of_light2;
+			distribution[i] = (y * x * energy[i] / speed_of_light2)/(x*x*x*x*cube(massProton*speed_of_light));
+		}
+		else {
+			printf("unknown electron input type\n");
+			printLog("unknown electron input type\n");
+			exit(0);
+		}
+	}
+	fclose(file);
+
+	double norm = distribution[0] * (energy[1] - energy[0]);
+	for (int i = 1; i < n; ++i) {
+		norm += distribution[i] * (energy[i] - energy[i - 1]);
+	}
+	norm *= 4 * pi;
+	for (int i = 0; i < n; ++i) {
+		distribution[i] *= 1.0 / norm;
+	}
+
+	outputConcentration = norm;
+
+	outputDistribution = new MassiveParticleTabulatedIsotropicDistribution(mass, energy, distribution, n, DistributionInputType::ENERGY_FE);
+}
+
 MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(const double& mass, const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne)
 {
 	MassiveParticleDistribution** distributions = new MassiveParticleDistribution * [Nfiles];

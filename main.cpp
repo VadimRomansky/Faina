@@ -973,16 +973,16 @@ void evaluateW50() {
 	fscanf(concentrationFile, "%lf %lf %lf", &maxZ, &maxX, &maxY);
 
 	minZ = -maxZ;
-	minY = minZ;
 	minY = 0;
+	minY = -maxZ;
 	maxY = maxZ;
 
-	Nx = 500;
-	Nz = 250;
-	Ny = 125;
+	Nx = 200;
+	Nz = 200;
+	Ny = 200;
 
 
-	ThermalRectangularSource* source = RadiationSourceFactory::readThermalRectangularSourceFromFile(minX, maxX, minZ, maxZ, minY, maxY, Nx, Nz, Ny, distance, SourceInputGeometry::CYLINDRICAL, BFileName, concentrationFileName, temperatureFileName, pi/2, 0, 0);
+	ThermalRectangularSource* source = RadiationSourceFactory::readThermalRectangularSourceFromFile(minX, maxX, minZ, maxZ, minY, maxY, Nx, Nz, Ny, distance, SourceInputGeometry::CYLINDRICAL, BFileName, concentrationFileName, temperatureFileName, 0.8*pi/2, 0, 0);
 
 	BremsstrahlungThermalEvaluator* evaluator = new BremsstrahlungThermalEvaluator(true, false);
 
@@ -992,6 +992,26 @@ void evaluateW50() {
 	evaluator->writeImageFromSourceToFile("W50bremsstrahlungImageeV.dat", source, 1.6E-11, 1.6E-10, 20);
 	evaluator->writeImageFromSourceToFile("W50bremsstrahlungImageKeV.dat", source, 1.6E-9, 1.6E-8, 20);
 	evaluator->writeImageFromSourceToFile("W50bremsstrahlungImageMeV.dat", source, 1.6E-7, 1.6E-6, 20);
+}
+
+void evaluateW50synchrotron() {
+	double distance = (18000 / 3.26) * parsec;
+	const char* fileName = "./examples_data/W50/electrons.dat";
+
+	MassiveParticleIsotropicDistribution* electrons;
+	double concentration;
+	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionAndConcentration(massElectron, fileName, DistributionInputType::MOMENTUM_FP, electrons, concentration);
+
+	double size = 1E19;
+	double B = 6E-5;
+
+	RadiationSourceInCylindrical* source = new SimpleFlatSource(electrons, B, pi / 2, 0, concentration, size, size, distance);
+	RadiationEvaluator* evaluator = new SynchrotronEvaluator(100000, me_c2, 1E10 * me_c2, false);
+	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
+	//evaluator->writeFluxFromSourceToFile("outputSynch.dat", source, 10 * hplank * cyclotronOmega, 100000 * hplank * cyclotronOmega, 1000);
+	evaluator->writeFluxFromSourceToFile("outputSynch.dat", source, 1.6E-12, 1.6E-6, 1000);
+
+
 }
 
 int main() {
@@ -1023,7 +1043,8 @@ int main() {
 	//evaluateTychoProfile();
 	//fitTychoProfile();
 	//evaluateSynchrotronInWideRange();
-	evaluateW50();
+	//evaluateW50();
+	evaluateW50synchrotron();
 
 	return 0;
 }
