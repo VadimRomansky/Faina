@@ -16,7 +16,10 @@ N = size(data,1);
 %    approx(i) = 0.5*data(1,2)*(1 + (cos(data(i,1))^2));
 %end;
 
-
+radiation(1:N)=0;
+for i = 1:N,
+    radiation(i) = data(i,1)*data(i,2)*data(i,2);
+end
 
 set(0,'DefaultAxesFontSize',14,'DefaultAxesFontName','Times New Roman');
 set(0,'DefaultTextFontSize',20,'DefaultTextFontName','Times New Roman'); 
@@ -54,7 +57,8 @@ hplank = 6.626E-27;
 
 %ratio = data(1,2)/data(1,3);
 
-loglog(data(1:N,1)/1.6E-12,data(1:N,2),'red','LineWidth',2,'Marker','+');
+%loglog(data(1:N,1)/1.6E-12,data(1:N,2),'red','LineWidth',2,'Marker','+');
+loglog(data(1:N,1)/1.6E-12, radiation(1:N),'red','LineWidth',2,'Marker','+');
 %loglog(data(1:N,1),data(1:N,3),'blue','LineWidth',2,'Marker','+');
 %loglog(data7(1:N7,1)/(1.6*10^-9), data7(1:N7,2),'blue','LineWidth',2,'Marker','+');
 %loglog(data(1:N,1)/(1.6*10^-9),Fpa(1:N),'green','LineWidth',2);

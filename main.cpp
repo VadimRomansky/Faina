@@ -998,9 +998,9 @@ void evaluateW50synchrotron() {
 	double distance = (18000 / 3.26) * parsec;
 	const char* fileName = "./examples_data/W50/electrons.dat";
 
-	MassiveParticleIsotropicDistribution* electrons;
+	MassiveParticleTabulatedIsotropicDistribution* electrons;
 	double concentration;
-	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionAndConcentration(massElectron, fileName, DistributionInputType::MOMENTUM_FP, electrons, concentration);
+	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massElectron, fileName, electrons, concentration);
 
 	double size = 1E19;
 	double B = 6E-5;
@@ -1009,9 +1009,102 @@ void evaluateW50synchrotron() {
 	RadiationEvaluator* evaluator = new SynchrotronEvaluator(100000, me_c2, 1E10 * me_c2, false);
 	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
 	//evaluator->writeFluxFromSourceToFile("outputSynch.dat", source, 10 * hplank * cyclotronOmega, 100000 * hplank * cyclotronOmega, 1000);
-	evaluator->writeFluxFromSourceToFile("outputSynch.dat", source, 1.6E-12, 1.6E-6, 1000);
+	evaluator->writeEFEFromSourceToFile("outputSynch.dat", source, 1.6E-12, 1.6E-5, 2000);
 
 
+}
+
+void sourceCoordinates(const double& time, double& x, double& y, double& z) {
+	x = 1E19;
+	y = 0;
+	z = 0;
+}
+
+double sourcePower(const double& time) {
+	return 1.0;
+}
+
+double* getDiffusionCoefficient(double* energy, const int Ne) {
+	//todo
+	double* D = new double[Ne];
+	double E0 = 1.6E-12 * 1E10;
+
+	for (int i = 0; i < Ne; ++i) {
+		D[i] = 5E28 * pow(energy[i] / E0, 1.0 / 3.0);
+	}
+
+	return D;
+}
+
+void evaluateW50pion() {
+	double distance = (18000 / 3.26) * parsec;
+
+	const char* concentrationFileName = "../PLUTO/Tools/pyPLUTO/density.dat";
+	const char* BFileName = "../PLUTO/Tools/pyPLUTO/B.dat";
+
+	FILE* concentrationFile = fopen(concentrationFileName, "r");
+	int Nx, Ny, Nz;
+	fscanf(concentrationFile, "%d %d %d", &Nz, &Nx, &Ny);
+	Ny = Nz;
+	double minX, maxX, minY, maxY, minZ, maxZ;
+	fscanf(concentrationFile, "%lf %lf %lf", &minZ, &minX, &minY);
+	fscanf(concentrationFile, "%lf %lf %lf", &maxZ, &maxX, &maxY);
+
+	minZ = -maxZ;
+	minY = 0;
+	minY = -maxZ;
+	maxY = maxZ;
+
+	Nx = 200;
+	Nz = 50;
+	Ny = 25;
+
+	double time = 30000 * pi * 1E7;
+	int Nt = 100;
+
+	double*** B;
+	double*** Btheta;
+	double*** Bphi;
+	double*** ambientConcentration;
+
+	RadiationSourceFactory::readRectangularSourceArraysFromFile(B, Btheta, Bphi, ambientConcentration, minX, maxX, minZ, maxZ, minY, maxY, Nx, Nz, Ny, SourceInputGeometry::CYLINDRICAL, BFileName, concentrationFileName, pi / 2, 0.0, 0.0);
+
+	const char* protonsFileName = "./examples_data/W50/protons.dat";
+
+	MassiveParticleTabulatedIsotropicDistribution* protons;
+	double sourceConcentration;
+	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massProton, protonsFileName, protons, sourceConcentration);
+
+	int Ne = protons->getN();
+	double* energy = protons->getEnergyArray();
+	double* sourceDistribution = protons->getDistributionArray();
+
+	MassiveParticleDistribution**** distributions;
+	double*** concentration;
+
+	double* D = getDiffusionCoefficient(energy, Ne);
+
+	RadiationSourceFactory::createRectangularSourceArraysFromDiffusion(massProton, energy, sourceDistribution, Ne, D, Nx, Ny, Nz, minX, maxX, minY, maxY, minZ, maxZ, time, Nt, sourceCoordinates, sourcePower, distributions, concentration);
+
+	//hack - ambient and cr concentrations participate as multiplication so we use namb = 1 ncr = ncr*namb
+	for (int i = 0; i < Nx; ++i) {
+		for (int j = 0; j < Nz; ++j) {
+			for (int k = 0; k < Ny; ++k) {
+				concentration[i][j][k] = concentration[i][j][k] * ambientConcentration[i][j][k];
+			}
+		}
+	}
+
+	RectangularSourceInhomogenousDistribution* source = new RectangularSourceInhomogenousDistribution(Nx, Ny, Nz, distributions, B, Btheta, Bphi, concentration, minX, maxX, minY, maxY, minZ, maxZ, distance);
+
+	PionDecayEvaluatorKelner* evaluator = new PionDecayEvaluatorKelner(1000, massProton * speed_of_light2, 1E8 * massProton * speed_of_light2, 1.0);
+
+	evaluator->writeEFEFromSourceToFile("W50pion.dat", source, 1.6E-10, 1.6E1, 1000);
+
+	printf("start writing image\n");
+	evaluator->writeImageFromSourceToFile("W50pionImageMeV.dat", source, 1.6E-6, 1.6E-5, 20);
+	evaluator->writeImageFromSourceToFile("W50pionImageGeV.dat", source, 1.6E-3, 1.6E-2, 20);
+	evaluator->writeImageFromSourceToFile("W50pionImagePeV.dat", source, 1.6E0, 1.6E1, 20);
 }
 
 int main() {
@@ -1044,7 +1137,8 @@ int main() {
 	//fitTychoProfile();
 	//evaluateSynchrotronInWideRange();
 	//evaluateW50();
-	evaluateW50synchrotron();
+	//evaluateW50synchrotron();
+	evaluateW50pion();
 
 	return 0;
 }

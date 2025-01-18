@@ -905,7 +905,7 @@ TabulatedDiskSource* RadiationSourceFactory::readDiskSourceFromFile(MassiveParti
 	return source;
 }
 
-RectangularSource* RadiationSourceFactory::readRectangularSourceFromFile(MassiveParticleDistribution* electronDistribution, const double& minX, const double& maxX, const double& minZ, const double& maxZ, const double& minY, const double& maxY, const int Nx, const int Nz, const int Ny, const double& distance, SourceInputGeometry geometry, const char* BFileName, const char* concentrationFileName, const double& thetar, const double& phir, const double& psir)
+void RadiationSourceFactory::readRectangularSourceArraysFromFile(double***& B, double***& Btheta, double***& Bphi, double***& concentration, const double& minX, const double& maxX, const double& minZ, const double& maxZ, const double& minY, const double& maxY, const int Nx, const int Nz, const int Ny, SourceInputGeometry geometry, const char* BFileName, const char* concentrationFileName, const double& thetar, const double& phir, const double& psir)
 {
 	FILE* Bfile = fopen(BFileName, "r");
 	FILE* concentrationFile = fopen(concentrationFileName, "r");
@@ -930,45 +930,45 @@ RectangularSource* RadiationSourceFactory::readRectangularSourceFromFile(Massive
 		exit(0);
 	}
 
-	double*** concentration2 = new double** [Nx];
-	double*** B = new double** [Nx];
-	double*** Btheta = new double** [Nx];
-	double*** Bphi = new double** [Nx];
+	concentration = new double** [Nx];
+	B = new double** [Nx];
+	Btheta = new double** [Nx];
+	Bphi = new double** [Nx];
 
 	for (int i = 0; i < Nx; ++i) {
-		concentration2[i] = new double* [Nz];
+		concentration[i] = new double* [Nz];
 		B[i] = new double* [Nz];
 		Btheta[i] = new double* [Nz];
 		Bphi[i] = new double* [Nz];
 		for (int j = 0; j < Nz; ++j) {
-			concentration2[i][j] = new double[Ny];
+			concentration[i][j] = new double[Ny];
 			B[i][j] = new double[Ny];
 			Btheta[i][j] = new double[Ny];
 			Bphi[i][j] = new double[Ny];
 		}
 	}
 
-	double*** concentration = new double** [Nxb];
+	double*** concentration1 = new double** [Nxb];
 
 	double*** B1 = new double** [Nxb];
 	double*** B2 = new double** [Nxb];
 	double*** B3 = new double** [Nxb];
 	for (int i = 0; i < Nxb; ++i) {
-		concentration[i] = new double* [Nyb];
+		concentration1[i] = new double* [Nyb];
 		B1[i] = new double* [Nyb];
 		B2[i] = new double* [Nyb];
 		B3[i] = new double* [Nyb];
 		for (int j = 0; j < Nyb; ++j) {
-			concentration[i][j] = new double[Nzb];
+			concentration1[i][j] = new double[Nzb];
 			B1[i][j] = new double[Nzb];
 			B2[i][j] = new double[Nzb];
 			B3[i][j] = new double[Nzb];
 			for (int k = 0; k < Nzb; ++k) {
-				fscanf(concentrationFile, "%lf", &concentration[i][j][k]);
+				fscanf(concentrationFile, "%lf", &concentration1[i][j][k]);
 				fscanf(Bfile, "%lf %lf %lf", &B1[i][j][k], &B2[i][j][k], &B3[i][j][k]);
-				if (checkNaNorInfinity(concentration[i][j][k])) {
-					printf("concentration is Nan or Infinity %lf\n", concentration[i][j][k]);
-					printLog("concentration is Nan or Infinity %lf\n", concentration[i][j][k]);
+				if (checkNaNorInfinity(concentration1[i][j][k])) {
+					printf("concentration is Nan or Infinity %lf\n", concentration1[i][j][k]);
+					printLog("concentration is Nan or Infinity %lf\n", concentration1[i][j][k]);
 					exit(0);
 				}
 				if (checkNaNorInfinity(B1[i][j][k])) {
@@ -995,44 +995,55 @@ RectangularSource* RadiationSourceFactory::readRectangularSourceFromFile(Massive
 	//correctSourceConcentration(concentration, Nxb, Nyb, Nzb, Nxb - 1, Nyb - 1, Nzb - 1, 0.002);
 	//correctSourceConcentration(concentration, Nxb, Nyb, Nzb, Nxb / 2, Nyb / 2, Nzb - 1, 0.002);
 
-	transformScalarArrayToCartesian(concentration, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, concentration2, Nx, Nz, Ny, minX, maxX, minZ, maxZ, minY, maxY, thetar, phir, psir);
+	transformScalarArrayToCartesian(concentration1, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, concentration, Nx, Nz, Ny, minX, maxX, minZ, maxZ, minY, maxY, thetar, phir, psir);
 	transformVectorArraysToCartesian(B1, B2, B3, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, B, Btheta, Bphi, Nx, Nz, Ny, minX, maxX, minZ, maxZ, minY, maxY, thetar, phir, psir);
-
-
-	RectangularSource* source = new RectangularSource(Nx, Ny, Nz, electronDistribution, B, Btheta, Bphi, concentration2, minX, maxX, minY, maxY, minZ, maxZ, distance);
 
 	fclose(Bfile);
 	fclose(concentrationFile);
 	for (int i = 0; i < Nxb; ++i) {
 		for (int j = 0; j < Nyb; ++j) {
-			delete[] concentration[i][j];
+			delete[] concentration1[i][j];
 			delete[] B1[i][j];
 			delete[] B2[i][j];
 			delete[] B3[i][j];
 		}
-		delete[] concentration[i];
+		delete[] concentration1[i];
 		delete[] B1[i];
 		delete[] B2[i];
 		delete[] B3[i];
 	}
-	delete[] concentration;
+	delete[] concentration1;
 	delete[] B1;
 	delete[] B2;
 	delete[] B3;
+}
+
+RectangularSource* RadiationSourceFactory::readRectangularSourceFromFile(MassiveParticleDistribution* electronDistribution, const double& minX, const double& maxX, const double& minZ, const double& maxZ, const double& minY, const double& maxY, const int Nx, const int Nz, const int Ny, const double& distance, SourceInputGeometry geometry, const char* BFileName, const char* concentrationFileName, const double& thetar, const double& phir, const double& psir)
+{
+
+	double*** concentration;
+	double*** B;
+	double*** Btheta;
+	double*** Bphi;
+
+	RadiationSourceFactory::readRectangularSourceArraysFromFile(B, Btheta, Bphi, concentration, minX, maxX, minZ, maxZ, minY, maxY, Nx, Nz, Ny, geometry, BFileName, concentrationFileName, thetar, phir, psir);
+
+	RectangularSource* source = new RectangularSource(Nx, Ny, Nz, electronDistribution, B, Btheta, Bphi, concentration, minX, maxX, minY, maxY, minZ, maxZ, distance);
+
 
 	for (int i = 0; i < Nx; ++i) {
 		for (int j = 0; j < Nz; ++j) {
-			delete[] concentration2[i][j];
+			delete[] concentration[i][j];
 			delete[] B[i][j];
 			delete[] Btheta[i][j];
 			delete[] Bphi[i][j];
 		}
-		delete[] concentration2[i];
+		delete[] concentration[i];
 		delete[] B[i];
 		delete[] Btheta[i];
 		delete[] Bphi[i];
 	}
-	delete[] concentration2;
+	delete[] concentration;
 	delete[] B;
 	delete[] Btheta;
 	delete[] Bphi;
@@ -2199,4 +2210,91 @@ bool*** RadiationSourceFactory::breadthFirstSearchOfRegion(double*** inputArray,
 	}
 
 	return result;
+}
+
+void RadiationSourceFactory::evaluateDistributionAfterDiffusion(double* energy, double* distribution, const int Ne, double* D, const double& x, const double& y, const double& z, const double& time, const int Nt, double* sourceDistribution, void(*sourceCoordinates)(const double& time, double& x1, double& x2, double& x3), double (*sourcePower)(const double& time))
+{
+	double dt = time / Nt;
+
+	for (int j = 0; j < Ne; ++j) {
+		distribution[j] = 0;
+	}
+
+	for (int i = 0; i < Nt; ++i) {
+		double currentTime = i * dt;
+		double power = (*sourcePower)(currentTime);
+		double sourceX, sourceY, sourceZ;
+		(*sourceCoordinates)(currentTime, sourceX, sourceY, sourceZ);
+		double deltaT = time - currentTime;
+		double d2 = sqr(x - sourceX) + sqr(y - sourceY) + sqr(z - sourceZ);
+
+		for (int j = 0; j < Ne; ++j) {
+			distribution[j] += power * sourceDistribution[j] * exp(-d2 / (D[j] * deltaT)) / sqrt(4 * pi * D[j] * d2 * deltaT);
+		}
+	}
+}
+
+RectangularSourceInhomogenousDistribution* RadiationSourceFactory::createRectangularSourceFromDiffusion(const double& mass, double* energy, double* sourceDistribution, const int Ne, double* D, const int Nx, const int Ny, const int Nz, const double& minX, const double& maxX, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& time, const int Nt, void (*sourceCoordinates)(const double& time, double& x1, double& x2, double& x3), double (*sourcePower)(const double& time), const double& B, const double& theta, const double& phi, const double& distance, const double& velocity, const double& redShift)
+{
+
+	MassiveParticleDistribution**** distributions1;
+	double*** concentration;
+
+	RadiationSourceFactory::createRectangularSourceArraysFromDiffusion(mass, energy, sourceDistribution, Ne, D, Nx, Ny, Nz, minX, maxX, minY, maxY, minZ, maxZ, time, Nt, sourceCoordinates, sourcePower, distributions1, concentration);
+
+	RectangularSourceInhomogenousDistribution* source = new RectangularSourceInhomogenousDistribution(Nx, Ny, Nz, distributions1, B, theta, phi, concentration, minX, maxX, minY, maxY, minZ, maxZ, distance, velocity, redShift);
+
+	for (int i = 0; i < Nx; ++i) {
+		for (int j = 0; j < Nz; ++j) {
+			delete[] distributions1[i][j];
+			delete[] concentration[i][j];
+		}
+		delete[] distributions1[i];
+		delete[] concentration[i];
+	}
+	delete[] distributions1;
+	delete[] concentration;
+
+	return source;
+}
+
+void RadiationSourceFactory::createRectangularSourceArraysFromDiffusion(const double& mass, double* energy, double* sourceDistribution, const int Ne, double* D, const int Nx, const int Ny, const int Nz, const double& minX, const double& maxX, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& time, const int Nt, void(*sourceCoordinates)(const double& time, double& x1, double& x2, double& x3), double(*sourcePower)(const double& time), MassiveParticleDistribution****& distributions1, double***& concentration)
+{
+	double dx = (maxX - minX) / Nx;
+	double dy = (maxY - minY) / Ny;
+	double dz = (maxZ - minZ) / Nz;
+	double**** distributions = new double*** [Nx];
+	distributions1 = new MassiveParticleDistribution ***[Nx];
+	concentration = new double** [Nx];
+	for (int i = 0; i < Nx; ++i) {
+		printf("evaluzting diffusion for i = %d\n", i);
+		distributions[i] = new double** [Nz];
+		distributions1[i] = new MassiveParticleDistribution **[Nz];
+		concentration[i] = new double* [Nz];
+		double x = minX + (i + 0.5) * dx;
+		for (int j = 0; j < Nz; ++j) {
+			distributions[i][j] = new double* [Ny];
+			distributions1[i][j] = new MassiveParticleDistribution * [Ny];
+			concentration[i][j] = new double[Ny];
+			double z = minZ + (j + 0.5) * dz;
+			for (int k = 0; k < Ny; ++k) {
+				distributions[i][j][k] = new double[Ne];
+				double y = minY + (k + 0.5) * dy;
+				evaluateDistributionAfterDiffusion(energy, distributions[i][j][k], Ne, D, x, y, z, time, Nt, sourceDistribution, sourceCoordinates, sourcePower);
+				concentration[i][j][k] = MassiveParticleDistributionFactory::evaluateNorm(energy, distributions[i][j][k], Ne);
+				distributions1[i][j][k] = new MassiveParticleTabulatedIsotropicDistribution(mass, energy, distributions[i][j][k], Ne, DistributionInputType::ENERGY_FE);
+			}
+		}
+	}
+
+	for (int i = 0; i < Nx; ++i) {
+		for (int j = 0; j < Nz; ++j) {
+			for (int k = 0; k < Ny; ++k) {
+				delete[] distributions[i][j][k];
+			}
+			delete[] distributions[i][j];
+		}
+		delete[] distributions[i];
+	}
+	delete[] distributions;
 }

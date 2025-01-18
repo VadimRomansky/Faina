@@ -814,6 +814,26 @@ void MassiveParticleTabulatedIsotropicDistribution::transformToLosses2(const dou
 	normalizeDistribution();
 }
 
+double* MassiveParticleTabulatedIsotropicDistribution::getEnergyArray()
+{
+	double* energy = new double[my_Ne];
+	for (int i = 0; i < my_Ne; ++i) {
+		energy[i] = my_energy[i];
+	}
+
+	return energy;
+}
+
+double* MassiveParticleTabulatedIsotropicDistribution::getDistributionArray()
+{
+	double* distribution = new double[my_Ne];
+	for (int i = 0; i < my_Ne; ++i) {
+		distribution[i] = my_distribution[i];
+	}
+
+	return distribution;
+}
+
 void MassiveParticleTabulatedPolarDistribution::setDistributionAtPoint(int i, int j, const double& energy, const double& distribution)
 {
 	double m_c2 = my_mass * speed_of_light2;
@@ -1795,7 +1815,16 @@ double CompoundWeightedMassiveParticleIsotropicDistribution::maxEnergy()
 	return tempEmax;
 }
 
-void MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionAndConcentration(const double& mass, const char* fileName, DistributionInputType inputType, MassiveParticleIsotropicDistribution*& outputDistribution, double& outputConcentration)
+double MassiveParticleDistributionFactory::evaluateNorm(double* energy, double* distribution, int Ne)
+{
+	double norm = distribution[0] * (energy[1] - energy[0]);
+	for (int i = 1; i < Ne; ++i) {
+		norm += distribution[i] * (energy[i] - energy[i - 1]);
+	}
+	return norm;
+}
+
+void MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(const double& mass, const char* fileName, MassiveParticleTabulatedIsotropicDistribution*& outputDistribution, double& outputConcentration)
 {
 	int n = 0;
 	FILE* file = fopen(fileName, "r");
@@ -1824,34 +1853,14 @@ void MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionAndCo
 			exit(0);
 		}
 		double m_c2 = mass * speed_of_light2;
-		if (inputType == DistributionInputType::ENERGY_FE) {
-			energy[i] = x;
-			distribution[i] = y;
-		}
-		else if (inputType == DistributionInputType::ENERGY_KIN_FE) {
-			energy[i] = x + m_c2;
-			distribution[i] = y;
-		}
-		else if (inputType == DistributionInputType::GAMMA_FGAMMA) {
-			energy[i] = x * m_c2;
-			distribution[i] = y / m_c2;
-		}
-		else if (inputType == DistributionInputType::GAMMA_KIN_FGAMMA) {
-			energy[i] = (x + 1) * m_c2;
-			distribution[i] = y / m_c2;
-		}
-		else if (inputType == DistributionInputType::MOMENTUM_FP) {
+
+
 			//energy[i] = sqrt(x * x * speed_of_light2 + m_c2 * m_c2);
 			double p = x * massProton * speed_of_light;
 			energy[i] = sqrt(p * p * speed_of_light2 + m_c2 * m_c2);
 			//distribution[i] = y * x * energy[i] / speed_of_light2;
-			distribution[i] = (y * x * energy[i] / speed_of_light2)/(x*x*x*x*cube(massProton*speed_of_light));
-		}
-		else {
-			printf("unknown electron input type\n");
-			printLog("unknown electron input type\n");
-			exit(0);
-		}
+			distribution[i] = (y * p * energy[i] / speed_of_light2)/(x*x*x*x*cube(massProton*speed_of_light));
+
 	}
 	fclose(file);
 

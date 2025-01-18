@@ -192,6 +192,9 @@ public:
 	void setToZeroAboveE(const double& E);
 	void transformToLosses(const double& lossRate, const double& time);
 	void transformToLosses2(const double& k, const double& l1, const double& l2);
+
+	double* getEnergyArray();
+	double* getDistributionArray();
 };
 
 class MassiveParticleTabulatedPolarDistribution : public MassiveParticleDistribution {
@@ -286,7 +289,8 @@ public:
 
 class MassiveParticleDistributionFactory {
 public:
-	static void readTabulatedIsotropicDistributionAndConcentration(const double& mass, const char* fileName, DistributionInputType inputType, MassiveParticleIsotropicDistribution*& outputDistribution, double& outputConcentration);
+	static double evaluateNorm(double* energy, double* distribution, int Ne);
+	static void readTabulatedIsotropicDistributionFromMonteCarlo(const double& mass, const char* fileName, MassiveParticleTabulatedIsotropicDistribution*& outputDistribution, double& outputConcentration);
 	static MassiveParticleDistribution** readTabulatedIsotropicDistributions(const double& mass, const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne);
 	static MassiveParticleDistribution** readTabulatedIsotropicDistributions(const double& mass, const char* fileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne);
 	static MassiveParticleDistribution** readTabulatedIsotropicDistributionsAddPowerLawTail(const double& mass, const char* fileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne, const double& Epower, const double& index);
