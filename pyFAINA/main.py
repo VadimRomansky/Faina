@@ -24,6 +24,7 @@ from plot_radiation2 import plot_radiation2
 from plot_radiation3 import plot_radiation3
 from plot_radiation4 import plot_radiation4
 from plot_radiation_EFE import plot_radiation_EFE
+from plot_rectangular_array3d import plot_rectangular_array3d
 from plot_rectangular_image import plot_rectangular_image
 from plot_synchrotron import plot_synchrotron
 from plot_synchrotron3 import plot_synchrotron3
@@ -39,7 +40,8 @@ if __name__ == '__main__':
     #plot_distributions_4()
     #plot_distributions_mc()
     #plot_radiation("../W50bremsstrahlung.dat")
-    plot_radiation_EFE("../W50bremsstrahlung.dat")
+    #plot_radiation_EFE("../W50bremsstrahlung.dat", "W50bremsstrahlung")
+    plot_radiation_EFE("../W50pion.dat", "W50pion")
     #plot_synchrotron()
     #plot_synchrotron3()
     #plot_bremsstrahlung()
@@ -54,11 +56,16 @@ if __name__ == '__main__':
     #plot_mask()
     #plot_image("../image.dat", "image")
     #plot_image("../image1.dat", "image1")
-    plot_rectangular_image("../W50bremsstrahlungImageeV.dat","W50eV")
-    plot_rectangular_image("../W50bremsstrahlungImageKeV.dat", "W50KeV")
-    plot_rectangular_image("../W50bremsstrahlungImageMeV.dat", "W50MeV")
+    #plot_rectangular_image("../W50bremsstrahlungImageeV.dat","W50bremsstrahlungeV")
+    #plot_rectangular_image("../W50bremsstrahlungImageKeV.dat", "W50bremsstrahlungKeV")
+    #plot_rectangular_image("../W50bremsstrahlungImageMeV.dat", "W50bremsstrahlungMeV")
+    plot_rectangular_image("../W50pionImageGeV.dat", "W50pionGeV")
+    plot_rectangular_image("../W50pionImageTeV.dat", "W50pionTeV")
+    plot_rectangular_image("../W50pionImagePeV.dat", "W50pionPeV")
     #plot_image_array_animated("../image_array.dat","image_array")
     #plot_array3d()
+    plot_rectangular_array3d("../concentration.dat", "concentration")
+    plot_rectangular_array3d("../distribution.dat", "distribution")
     #plot_array3d_animated("../area.dat","area")
     #plot_array3d_animated("../length.dat","length")
     #plot_array3d_animated("../volume.dat","volume")

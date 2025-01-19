@@ -3,7 +3,7 @@ from matplotlib import animation
 from pylab import *
 import numpy as np
 
-def plot_radiation_EFE(filename):
+def plot_radiation_EFE(filename, name):
     radiationFile = open(filename,'r')
     lines = radiationFile.readlines()
     N = len(lines)
@@ -45,4 +45,4 @@ def plot_radiation_EFE(filename):
     #plt.errorbar(cssx1, cssy1, cssError1, ecolor = 'b', elinewidth = 4, linewidth=0, capsize = 5, capthick = 4)
     #ax.legend([r'BremsstrahlungThermalEvaluator', r'BremsstrahlungEbaluator'], fontsize="20")
     #plt.show()
-    plt.savefig('bremsstrahlung.png', bbox_inches='tight')
+    plt.savefig(name + '.png', bbox_inches='tight')

@@ -592,6 +592,14 @@ double PionDecayEvaluatorKelner::evaluateEmissivity(const double& photonFinalEne
 		//todo 4 pi?
 		result += photonFinalEnergy * (speed_of_light * protonBeta / (4 * pi)) * sigma * concentration * distribution->distributionNormalized(protonEnergy) * my_ambientConcentration * dprotonEnergy;
 
+		if ((result != result) || (0 * result != 0 * result)) {
+			printf("result = NaN or infinity in Kelner evaluate emissivity ix1 = %d iz = %d ix2 = %d\n", ix1, iz, ix2);
+			printf("photon final energy = %g proton beta = %g sigma = %g concentration = %g ambient concentration = %g proton energy = %g distribution = %g\n", photonFinalEnergy, protonBeta, sigma, concentration, my_ambientConcentration, protonEnergy, distribution->distributionNormalized(protonEnergy));
+			printLog("result = NaN or infinity in Kelner evaluate emissivity ix1 = %d iz = %d ix2 = %d\n", ix1, iz, ix2);
+			printLog("photon final energy = %g proton beta = %g sigma = %g concentration = %g ambient concentration = %g proton energy = %g distribution = %g\n", photonFinalEnergy, protonBeta, sigma, concentration, my_ambientConcentration, protonEnergy, distribution->distributionNormalized(protonEnergy));
+			exit(0);
+		}
+
 		if (result != result) {
 			printf("result = NaN in pion decay\n");
 			printLog("result = NaN in pion decay\n");

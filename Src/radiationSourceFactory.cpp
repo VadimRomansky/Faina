@@ -2229,7 +2229,7 @@ void RadiationSourceFactory::evaluateDistributionAfterDiffusion(double* energy, 
 		double d2 = sqr(x - sourceX) + sqr(y - sourceY) + sqr(z - sourceZ);
 
 		for (int j = 0; j < Ne; ++j) {
-			distribution[j] += power * sourceDistribution[j] * exp(-d2 / (D[j] * deltaT)) / sqrt(4 * pi * D[j] * d2 * deltaT);
+			distribution[j] += dt*power * sourceDistribution[j] * exp(-d2 / (D[j] * deltaT)) / sqrt(4 * pi * D[j] * d2 * deltaT);
 		}
 	}
 }

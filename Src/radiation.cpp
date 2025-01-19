@@ -5,6 +5,7 @@
 #include "constants.h"
 #include "massiveParticleDistribution.h"
 #include "photonDistribution.h"
+#include "util.h"
 #include "radiationSource.h"
 #include "radiation.h"
 
@@ -50,6 +51,11 @@ double RadiationEvaluator::evaluateFluxFromSource(const double& photonFinalEnerg
             }*/
             if (source->isSource(irho, iphi)) {
                 result += evaluateFluxFromSourceAtPoint(photonFinalEnergy1, source, irho, iphi);
+                if ((result != result) || (0 * result != 0 * result)) {
+                    printf("flux from source = NaN or Infinity at irho = %d iphi = %d\n", irho, iphi);
+                    printLog("flux from source = NaN or Infinity at irho = %d iphi = %d\n", irho, iphi);
+                    exit(0);
+                }
             }
         }
     }

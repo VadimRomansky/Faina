@@ -1015,13 +1015,22 @@ void evaluateW50synchrotron() {
 }
 
 void sourceCoordinates(const double& time, double& x, double& y, double& z) {
-	x = 1E19;
+	x = 1.5E19;
+	y = 0;
+	z = 0;
+}
+
+void sourceCoordinates2(const double& time, double& x, double& y, double& z) {
+	x = -1.5E19;
 	y = 0;
 	z = 0;
 }
 
 double sourcePower(const double& time) {
-	return 1.0;
+	double u = 0.25 * 0.1 * speed_of_light;
+	double r = 1E19;
+	double concentration = 5E-4;
+	return pi*r*r*concentration;
 }
 
 double* getDiffusionCoefficient(double* energy, const int Ne) {
@@ -1052,7 +1061,7 @@ void evaluateW50pion() {
 
 	minZ = -maxZ;
 	minY = 0;
-	minY = -maxZ;
+	//minY = -maxZ;
 	maxY = maxZ;
 
 	Nx = 200;
@@ -1082,14 +1091,55 @@ void evaluateW50pion() {
 	MassiveParticleDistribution**** distributions;
 	double*** concentration;
 
+	MassiveParticleDistribution**** distributions2;
+	double*** concentration2;
+
 	double* D = getDiffusionCoefficient(energy, Ne);
 
 	RadiationSourceFactory::createRectangularSourceArraysFromDiffusion(massProton, energy, sourceDistribution, Ne, D, Nx, Ny, Nz, minX, maxX, minY, maxY, minZ, maxZ, time, Nt, sourceCoordinates, sourcePower, distributions, concentration);
+	RadiationSourceFactory::createRectangularSourceArraysFromDiffusion(massProton, energy, sourceDistribution, Ne, D, Nx, Ny, Nz, minX, maxX, minY, maxY, minZ, maxZ, time, Nt, sourceCoordinates2, sourcePower, distributions2, concentration2);
+
+	FILE* concentrationFile2 = fopen("concentration.dat", "w");
+	for (int i = 0; i < Nx; ++i) {
+		for (int j = 0; j < Nz; ++j) {
+			for (int k = 0; k < Ny; ++k) {
+				fprintf(concentrationFile2, "%g\n", concentration[i][j][k]);
+			}
+		}
+	}
+	fclose(concentrationFile2);
+
+	FILE* distributionFile2 = fopen("distribution.dat", "w");
+	for (int i = 0; i < Nx; ++i) {
+		for (int j = 0; j < Nz; ++j) {
+			for (int k = 0; k < Ny; ++k) {
+				double* d1 = (dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(distributions[i][j][k]))->getDistributionArray();
+				fprintf(distributionFile2, "%g\n", concentration[i][j][k]*d1[100]);
+				delete[] d1;
+			}
+		}
+	}
+	fclose(distributionFile2);
 
 	//hack - ambient and cr concentrations participate as multiplication so we use namb = 1 ncr = ncr*namb
 	for (int i = 0; i < Nx; ++i) {
 		for (int j = 0; j < Nz; ++j) {
 			for (int k = 0; k < Ny; ++k) {
+				double* d1 = (dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(distributions[i][j][k]))->getDistributionArray();
+				double* d2 = (dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(distributions2[i][j][k]))->getDistributionArray();
+				for (int l = 0; l < Ne; ++l) {
+					d1[l] = concentration[i][j][k]*d1[l] + concentration2[i][j][k]*d2[l];
+				}
+
+				delete distributions[i][j][k];
+				delete distributions2[i][j][k];
+
+				distributions[i][j][k] = new MassiveParticleTabulatedIsotropicDistribution(massProton, energy, d1, Ne, DistributionInputType::ENERGY_FE);
+
+				delete[] d1;
+				delete[] d2;
+
+				concentration[i][j][k] = concentration[i][j][k] + concentration2[i][j][k];
 				concentration[i][j][k] = concentration[i][j][k] * ambientConcentration[i][j][k];
 			}
 		}
@@ -1099,12 +1149,12 @@ void evaluateW50pion() {
 
 	PionDecayEvaluatorKelner* evaluator = new PionDecayEvaluatorKelner(1000, massProton * speed_of_light2, 1E8 * massProton * speed_of_light2, 1.0);
 
-	evaluator->writeEFEFromSourceToFile("W50pion.dat", source, 1.6E-10, 1.6E1, 1000);
+	//evaluator->writeEFEFromSourceToFile("W50pion.dat", source, 1.6E-7, 1.6E4, 500);
 
 	printf("start writing image\n");
-	evaluator->writeImageFromSourceToFile("W50pionImageMeV.dat", source, 1.6E-6, 1.6E-5, 20);
 	evaluator->writeImageFromSourceToFile("W50pionImageGeV.dat", source, 1.6E-3, 1.6E-2, 20);
-	evaluator->writeImageFromSourceToFile("W50pionImagePeV.dat", source, 1.6E0, 1.6E1, 20);
+	evaluator->writeImageFromSourceToFile("W50pionImageTeV.dat", source, 1.6E0, 1.6E1, 20);
+	evaluator->writeImageFromSourceToFile("W50pionImagePeV.dat", source, 1.6E3, 1.6E4, 20);
 }
 
 int main() {
