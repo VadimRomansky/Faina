@@ -957,7 +957,7 @@ void evaluateSynchrotronInWideRange() {
 	evaluator->writeFluxFromSourceToFile("wideRangeSynch.dat", source, 1E8 * hplank, 20 * MeV, 2000);
 }
 
-void evaluateW50() {
+void evaluateW50bremsstrahlung() {
 	double distance = (18000/3.26) * parsec;
 
 	const char* concentrationFileName = "../PLUTO/Tools/pyPLUTO/density.dat";
@@ -1009,7 +1009,32 @@ void evaluateW50synchrotron() {
 	RadiationEvaluator* evaluator = new SynchrotronEvaluator(100000, me_c2, 1E10 * me_c2, false);
 	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
 	//evaluator->writeFluxFromSourceToFile("outputSynch.dat", source, 10 * hplank * cyclotronOmega, 100000 * hplank * cyclotronOmega, 1000);
-	evaluator->writeEFEFromSourceToFile("outputSynch.dat", source, 1.6E-12, 1.6E-5, 2000);
+	evaluator->writeEFEFromSourceToFile("W50synchrotron.dat", source, 1.6E-18, 1.6E-5, 2000);
+
+
+}
+
+void evaluateW50compton() {
+	double distance = (18000 / 3.26) * parsec;
+	const char* fileName = "./examples_data/W50/electrons.dat";
+
+	MassiveParticleTabulatedIsotropicDistribution* electrons;
+	double concentration;
+	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massElectron, fileName, electrons, concentration);
+
+	double size = 1E19;
+	double B = 6E-5;
+
+	RadiationSourceInCylindrical* source = new SimpleFlatSource(electrons, B, pi / 2, 0, concentration, size, size, distance);
+	PhotonPlankDistribution* photons = PhotonPlankDistribution::getCMBradiation();
+	double photonConcentration = photons->getConcentration();
+	int Ne = 1000;
+	int Nmu = 100;
+	int Nphi = 4;
+	RadiationEvaluator* evaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2, 1E10 * me_c2, 0.1*kBoltzman*2.75, 50*kBoltzman*2.75, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
+	//evaluator->writeFluxFromSourceToFile("outputSynch.dat", source, 10 * hplank * cyclotronOmega, 100000 * hplank * cyclotronOmega, 1000);
+	evaluator->writeEFEFromSourceToFile("W50compton.dat", source, 1.6E-10, 1.6E3, 2000);
 
 
 }
@@ -1064,9 +1089,13 @@ void evaluateW50pion() {
 	//minY = -maxZ;
 	maxY = maxZ;
 
-	Nx = 200;
-	Nz = 50;
-	Ny = 25;
+	Nx = 100;
+	Nz = 100;
+	Ny = 50;
+
+	double dx = (maxX - minX) / Nx;
+	double dy = (maxY - minY) / Ny;
+	double dz = (maxZ - minZ) / Nz;
 
 	double time = 30000 * pi * 1E7;
 	int Nt = 100;
@@ -1077,12 +1106,27 @@ void evaluateW50pion() {
 	double*** ambientConcentration;
 
 	RadiationSourceFactory::readRectangularSourceArraysFromFile(B, Btheta, Bphi, ambientConcentration, minX, maxX, minZ, maxZ, minY, maxY, Nx, Nz, Ny, SourceInputGeometry::CYLINDRICAL, BFileName, concentrationFileName, pi / 2, 0.0, 0.0);
+	//fix unphysical concentration in the center
+	for (int i = 0; i < Nx; ++i) {
+		double x = minX + (i + 0.5) * dx;
+		for (int j = 0; j < Nz; ++j) {
+			double z = minZ + (j + 0.5) * dz;
+			for (int k = 0; k < Ny; ++k) {
+				double y = minY + (k + 0.5) * dy;
+				double r = sqrt(x * x + y * y + z * z);
+				if (r < 0.9E19) {
+					ambientConcentration[i][j][k] = 0.0;
+				}
+			}
+		}
+	}
 
 	const char* protonsFileName = "./examples_data/W50/protons.dat";
 
 	MassiveParticleTabulatedIsotropicDistribution* protons;
 	double sourceConcentration;
 	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massProton, protonsFileName, protons, sourceConcentration);
+
 
 	int Ne = protons->getN();
 	double* energy = protons->getEnergyArray();
@@ -1186,8 +1230,9 @@ int main() {
 	//evaluateTychoProfile();
 	//fitTychoProfile();
 	//evaluateSynchrotronInWideRange();
-	//evaluateW50();
+	//evaluateW50bemsstrahlung();
 	//evaluateW50synchrotron();
+	//evaluateW50compton();
 	evaluateW50pion();
 
 	return 0;
