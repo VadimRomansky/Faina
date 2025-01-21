@@ -1089,7 +1089,7 @@ void evaluateW50pion() {
 	//minY = -maxZ;
 	maxY = maxZ;
 
-	Nx = 100;
+	Nx = 200;
 	Nz = 100;
 	Ny = 50;
 

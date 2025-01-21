@@ -21,8 +21,8 @@ def plot_rectangular_array3d(filename, name):
     maxY = 1.2344e+20
 
     Nrho = 200
-    Nz = 50
-    Nphi = 25
+    Nz = 100
+    Nphi = 50
 
 
     radiation = np.zeros([Nrho,Nz,Nphi])
