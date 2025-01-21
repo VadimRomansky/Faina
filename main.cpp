@@ -1055,7 +1055,7 @@ double sourcePower(const double& time) {
 	double u = 0.25 * 0.1 * speed_of_light;
 	double r = 1E19;
 	double concentration = 5E-4;
-	return pi*r*r*concentration;
+	return pi*r*r*concentration*u;
 }
 
 double* getDiffusionCoefficient(double* energy, const int Ne) {
