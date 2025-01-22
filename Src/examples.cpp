@@ -877,7 +877,7 @@ void fitTimeDependentCSS161010() {
 
 	TabulatedSLSourceWithSynchCutoff* source2 = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance, downstreamV, velocity);
 	//TabulatedDiskSource* source2 = new TabulatedDiskSource(1, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance);
-	TabulatedDiskSourceWithSynchCutoff* source3 = new TabulatedDiskSourceWithSynchCutoff(1, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, velocity);
+	TabulatedDiskSourceWithSynchAndComptCutoff* source3 = new TabulatedDiskSourceWithSynchAndComptCutoff(1, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, velocity);
 
 	int Ne = 1000;
 	Emin = me_c2;
@@ -2183,7 +2183,7 @@ void fitCSS161010_2() {
 
 	TabulatedSLSourceWithSynchCutoff* source2 = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance, downstreamV, velocity);
 	//TabulatedDiskSource* source2 = new TabulatedDiskSource(1, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance);
-	TabulatedDiskSourceWithSynchCutoff* source3 = new TabulatedDiskSourceWithSynchCutoff(1, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, velocity);
+	TabulatedDiskSourceWithSynchAndComptCutoff* source3 = new TabulatedDiskSourceWithSynchAndComptCutoff(1, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, velocity);
 
 	int Ne = 1000;
 	Emin = me_c2;

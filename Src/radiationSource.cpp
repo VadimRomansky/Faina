@@ -2986,7 +2986,31 @@ MassiveParticleDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistri
 	//return std::unique_ptr<MassiveParticleDistribution>(new MassiveParticleMaxwellDistribution(massElectron, 1000, 1.0));
 }
 
-TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity, const double& redShift) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, phi, concentration, rho, z, distance, velocity, redShift)
+void TabulatedDiskSourceWithSynchAndComptCutoff::updateLB2()
+{
+	double drho = my_rho / my_Nrho;
+	double dz = 2 * my_rho / my_Nz;
+	for (int iz = my_Nz - 1; iz > 0; iz = iz - 1) {
+		for (int irho = 0; irho < my_Nrho; ++irho) {
+			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
+				double prev_LB2 = 0;
+				if (iz < my_Nz - 1) {
+					prev_LB2 = my_LB2[irho][iz + 1][iphi];
+				}
+				double rho = (irho + 0.5) * drho;
+				double z = (iz + 0.5) * dz - my_rho;
+				//my_LB2[irho][iz][iphi] = evaluateTotalLB2fromPoint(rho, z, iphi, theta);
+				double l = dz;
+				if (l < 0) {
+					l = 0;
+				}
+				my_LB2[irho][iz][iphi] = prev_LB2 + (my_B[irho][iz][iphi] * my_B[irho][iz][iphi] + my_photonEnergyDensity*8*pi)* l;
+			}
+		}
+	}
+}
+
+TabulatedDiskSourceWithSynchAndComptCutoff::TabulatedDiskSourceWithSynchAndComptCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& photonEnergyDensity, const double& velocity, const double& redShift) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, phi, concentration, rho, z, distance, velocity, redShift)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
@@ -3001,9 +3025,14 @@ TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho,
 	}
 	my_downstreamVelocity = downstreamVelocity;
 	my_meanB = getAverageBsquared();
+	my_photonEnergyDensity = photonEnergyDensity;
+
+	my_LB2 = create3dArray(my_Nrho, my_Nz, my_Nphi);
+	updateLB2();
+	write3dArrayToFile(my_LB2, my_Nrho, my_Nz, my_Nphi, "LB2.dat");
 }
 
-TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity, const double& redShift) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, phi, concentration, rho, z, distance, velocity, redShift)
+TabulatedDiskSourceWithSynchAndComptCutoff::TabulatedDiskSourceWithSynchAndComptCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& photonEnergyDensity, const double& velocity, const double& redShift) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, phi, concentration, rho, z, distance, velocity, redShift)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
@@ -3018,9 +3047,14 @@ TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho,
 	}
 	my_downstreamVelocity = downstreamVelocity;
 	my_meanB = getAverageBsquared();
+	my_photonEnergyDensity = photonEnergyDensity;
+
+	my_LB2 = create3dArray(my_Nrho, my_Nz, my_Nphi);
+	updateLB2();
+	write3dArrayToFile(my_LB2, my_Nrho, my_Nz, my_Nphi, "LB2.dat");
 }
 
-TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, double*** velocity, double*** vtheta, double*** vphi, const double& redShift) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, phi, concentration, rho, z, distance, velocity, vtheta, vphi, redShift)
+TabulatedDiskSourceWithSynchAndComptCutoff::TabulatedDiskSourceWithSynchAndComptCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, double*** velocity, double*** vtheta, double*** vphi, const double& photonEnergyDensity, const double& redShift) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, phi, concentration, rho, z, distance, velocity, vtheta, vphi, redShift)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
@@ -3035,9 +3069,14 @@ TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho,
 	}
 	my_downstreamVelocity = downstreamVelocity;
 	my_meanB = getAverageBsquared();
+	my_photonEnergyDensity = photonEnergyDensity;
+
+	my_LB2 = create3dArray(my_Nrho, my_Nz, my_Nphi);
+	updateLB2();
+	write3dArrayToFile(my_LB2, my_Nrho, my_Nz, my_Nphi, "LB2.dat");
 }
 
-TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& phi, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, double*** velocity, double*** vtheta, double*** vphi, const double& redShift) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, phi, concentration, rho, z, distance, velocity, vtheta, vphi, redShift)
+TabulatedDiskSourceWithSynchAndComptCutoff::TabulatedDiskSourceWithSynchAndComptCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& concentration, const double& theta, const double& phi, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, double*** velocity, double*** vtheta, double*** vphi, const double& photonEnergyDensity, const double& redShift) : TabulatedDiskSource(Nrho, Nz, Nphi, electronDistribution, B, theta, phi, concentration, rho, z, distance, velocity, vtheta, vphi, redShift)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
@@ -3052,9 +3091,14 @@ TabulatedDiskSourceWithSynchCutoff::TabulatedDiskSourceWithSynchCutoff(int Nrho,
 	}
 	my_downstreamVelocity = downstreamVelocity;
 	my_meanB = getAverageBsquared();
+	my_photonEnergyDensity = photonEnergyDensity;
+
+	my_LB2 = create3dArray(my_Nrho, my_Nz, my_Nphi);
+	updateLB2();
+	write3dArrayToFile(my_LB2, my_Nrho, my_Nz, my_Nphi, "LB2.dat");
 }
 
-TabulatedDiskSourceWithSynchCutoff::~TabulatedDiskSourceWithSynchCutoff()
+TabulatedDiskSourceWithSynchAndComptCutoff::~TabulatedDiskSourceWithSynchAndComptCutoff()
 {
 	for (int i = 0; i < my_maxThreads; ++i) {
 		if (my_localDistribution[i] != NULL) {
@@ -3064,7 +3108,7 @@ TabulatedDiskSourceWithSynchCutoff::~TabulatedDiskSourceWithSynchCutoff()
 	delete[] my_localDistribution;
 }
 
-void TabulatedDiskSourceWithSynchCutoff::resetParameters(const double* parameters, const double* normalizationUnits)
+void TabulatedDiskSourceWithSynchAndComptCutoff::resetParameters(const double* parameters, const double* normalizationUnits)
 {
 	/*parameters must be
 * R = parameters[0]
@@ -3093,7 +3137,7 @@ void TabulatedDiskSourceWithSynchCutoff::resetParameters(const double* parameter
 	my_z = my_rho * parameters[3] * normalizationUnits[3];
 	my_velocity = parameters[4] * normalizationUnits[4];
 	my_meanB = getAverageBsquared();
-
+	updateLB2();
 	for (int i = 0; i < my_maxThreads; ++i) {
 		if (my_localDistribution[i] != NULL) {
 			delete my_localDistribution[i];
@@ -3102,7 +3146,7 @@ void TabulatedDiskSourceWithSynchCutoff::resetParameters(const double* parameter
 	}
 }
 
-MassiveParticleDistribution* TabulatedDiskSourceWithSynchCutoff::getParticleDistribution(int irho, int iz, int iphi)
+MassiveParticleDistribution* TabulatedDiskSourceWithSynchAndComptCutoff::getParticleDistribution(int irho, int iz, int iphi)
 {
 	int numthread = omp_get_thread_num();
 	if (my_localDistribution[numthread] != NULL) {

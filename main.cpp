@@ -1014,7 +1014,7 @@ void evaluateW50synchrotron() {
 
 }
 
-void evaluateW50compton() {
+void evaluateW50comptonAndSynchrotron() {
 	double distance = (18000 / 3.26) * parsec;
 	const char* fileName = "./examples_data/W50/electrons.dat";
 
@@ -1025,17 +1025,26 @@ void evaluateW50compton() {
 	double size = 1E19;
 	double B = 6E-5;
 
-	RadiationSourceInCylindrical* source = new SimpleFlatSource(electrons, B, pi / 2, 0, concentration, size, size, distance);
+	//RadiationSourceInCylindrical* source = new SimpleFlatSource(electrons, B, pi / 2, 0, concentration, size, size, distance);
 	PhotonPlankDistribution* photons = PhotonPlankDistribution::getCMBradiation();
 	double photonConcentration = photons->getConcentration();
+	double photonEnergyDensity = photonConcentration * photons->getMeanEnergy();
+
+	int Nrho = 1;
+	int Nz = 100;
+
+	TabulatedDiskSourceWithSynchAndComptCutoff* source = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, electrons, B, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
+
 	int Ne = 1000;
 	int Nmu = 100;
 	int Nphi = 4;
-	RadiationEvaluator* evaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2, 1E10 * me_c2, 0.1*kBoltzman*2.75, 50*kBoltzman*2.75, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
-	double cyclotronOmega = electron_charge * B / (massElectron * speed_of_light);
-	//evaluator->writeFluxFromSourceToFile("outputSynch.dat", source, 10 * hplank * cyclotronOmega, 100000 * hplank * cyclotronOmega, 1000);
-	evaluator->writeEFEFromSourceToFile("W50compton.dat", source, 1.6E-10, 1.6E3, 2000);
+	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2, 1E10 * me_c2, 0.1*kBoltzman*2.75, 50*kBoltzman*2.75, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
 
+	comptonEvaluator->writeEFEFromSourceToFile("W50compton.dat", source, 1.6E-10, 1.6E3, 2000);
+
+	RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, me_c2, 1E10 * me_c2, false);
+
+	synchrotronEvaluator->writeEFEFromSourceToFile("W50synchrotron.dat", source, 1.6E-18, 1.6E-5, 2000);
 
 }
 
@@ -1232,8 +1241,8 @@ int main() {
 	//evaluateSynchrotronInWideRange();
 	//evaluateW50bemsstrahlung();
 	//evaluateW50synchrotron();
-	//evaluateW50compton();
-	evaluateW50pion();
+	evaluateW50comptonAndSynchrotron();
+	//evaluateW50pion();
 
 	return 0;
 }

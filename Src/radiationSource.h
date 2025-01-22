@@ -303,20 +303,23 @@ public:
 	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
 };
 
-class TabulatedDiskSourceWithSynchCutoff : public TabulatedDiskSource {
+class TabulatedDiskSourceWithSynchAndComptCutoff : public TabulatedDiskSource {
 protected:
 	int my_maxThreads;
 	double my_downstreamVelocity;
 	double my_meanB;
+	double my_photonEnergyDensity;
 	//MassiveParticlePowerLawCutoffDistribution* my_cutoffDistribution;
 	MassiveParticleTabulatedIsotropicDistribution* my_cutoffDistribution;
 	MassiveParticleTabulatedIsotropicDistribution** my_localDistribution;
+	double*** my_LB2;
+	void updateLB2();
 public:
-	TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity = 0, const double& redShift = 0);
-	TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& velocity = 0, const double& redShift = 0);
-	TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, double*** velocity, double*** vtheta, double*** vphi, const double& redShift = 0);
-	TabulatedDiskSourceWithSynchCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, double*** velocity, double*** vtheta, double*** vphi, const double& redShift = 0);
-	virtual ~TabulatedDiskSourceWithSynchCutoff();
+	TabulatedDiskSourceWithSynchAndComptCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& photonEnergyDensity = 0, const double& velocity = 0, const double& redShift = 0);
+	TabulatedDiskSourceWithSynchAndComptCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, const double& photonEnergyDensity = 0, const double& velocity = 0, const double& redShift = 0);
+	TabulatedDiskSourceWithSynchAndComptCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, double*** velocity, double*** vtheta, double*** vphi, const double& photonEnergyDensity = 0, const double& redShift = 0);
+	TabulatedDiskSourceWithSynchAndComptCutoff(int Nrho, int Nz, int Nphi, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& z, const double& distance, const double& downstreamVelocity, double*** velocity, double*** vtheta, double*** vphi, const double& photonEnergyDensity = 0, const double& redShift = 0);
+	virtual ~TabulatedDiskSourceWithSynchAndComptCutoff();
 
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
 	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
