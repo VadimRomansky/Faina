@@ -1072,7 +1072,7 @@ void evaluateW50comptonAndSynchrotron() {
 
 	int Nrho = 100;
 	int Nz = 1;
-	int Ny = 1;
+	int Ny = 2;
 
 	double* Bpar = getUvarovBpar(Nrho, 0, size);
 	double* Bper = getUvarovBper(Nrho, 0, size);
