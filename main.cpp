@@ -1046,6 +1046,18 @@ void evaluateW50comptonAndSynchrotron() {
 
 	synchrotronEvaluator->writeEFEFromSourceToFile("W50synchrotron.dat", source, 1.6E-18, 1.6E-5, 2000);
 
+	RadiationSumEvaluator* sumEvaluator = new RadiationSumEvaluator(Ne, me_c2, 1E10 * me_c2, comptonEvaluator, synchrotronEvaluator, false);
+
+	sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt.dat", source, 1.6E-18, 1.6E3, 5000);
+
+	printf("start writing image\n");
+	sumEvaluator->writeImageFromSourceToFile("W50scImageeV.dat", source, 1.6E-12, 1.6E-11, 20);
+	sumEvaluator->writeImageFromSourceToFile("W50scImageKeV.dat", source, 1.6E-9, 1.6E-8, 20);
+	sumEvaluator->writeImageFromSourceToFile("W50scImageMeV.dat", source, 1.6E-6, 1.6E-5, 20);
+	sumEvaluator->writeImageFromSourceToFile("W50scImageGeV.dat", source, 1.6E-3, 1.6E-2, 20);
+	sumEvaluator->writeImageFromSourceToFile("W50scImageTeV.dat", source, 1.6E0, 1.6E1, 20);
+	sumEvaluator->writeImageFromSourceToFile("W50scImagePeV.dat", source, 1.6E3, 1.6E4, 20);
+
 }
 
 void sourceCoordinates(const double& time, double& x, double& y, double& z) {
