@@ -1014,6 +1014,46 @@ void evaluateW50synchrotron() {
 
 }
 
+double* getUvarovBpar(int Nx, double minX, double maxX) {
+	double A0 = 41.0755*1E-6;
+	double A1 = 9.27296;
+	double A2 = 1.41262;
+	double A3 = 3.26888;
+	double A4 = 1.88243;
+	double A5 = 0.0767564;
+	double A6 = 0.00540849;
+	double UNIT_LENGTH = 5E16;
+	double* B = new double [Nx];
+	double dx = (maxX - minX) / Nx;
+	for (int i = 0; i < Nx; ++i) {
+		double x = minX + (i + 0.5) * dx;
+		double l = (maxX - x) / UNIT_LENGTH + 1;
+		B[i] = (A0 / (1 + pow(sqr((l - A3) / A1), A2))) * (1.0 / (1 + A6 * exp(-sqr((l - A4) / A5))));
+	}
+
+	return B;
+}
+
+double* getUvarovBper(int Nx, double minX, double maxX) {
+	double A0 = 98.3917*1E-6;
+	double A1 = 30.533;
+	double A2 = 2.33138;
+	double A3 = -23.2141;
+	double A4 = 18.847;
+	double A5 = 1.05756;
+	double A6 = 0.695847;
+	double UNIT_LENGTH = 5E16;
+	double* B = new double[Nx];
+	double dx = (maxX - minX) / Nx;
+	for (int i = 0; i < Nx; ++i) {
+		double x = minX + (i + 0.5) * dx;
+		double l = (maxX - x) / UNIT_LENGTH + 1;
+		B[i] = A0 / (1 + pow(sqr((l - A3) / A1), A2) + A4 * exp(-sqr((l - A5) / A6)));
+	}
+
+	return B;
+}
+
 void evaluateW50comptonAndSynchrotron() {
 	double distance = (18000 / 3.26) * parsec;
 	const char* fileName = "./examples_data/W50/electrons.dat";
@@ -1022,18 +1062,45 @@ void evaluateW50comptonAndSynchrotron() {
 	double concentration;
 	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massElectron, fileName, electrons, concentration);
 
-	double size = 1E19;
-	double B = 6E-5;
+	double size = 1E18;
+	double B0 = 6E-5;
 
 	//RadiationSourceInCylindrical* source = new SimpleFlatSource(electrons, B, pi / 2, 0, concentration, size, size, distance);
 	PhotonPlankDistribution* photons = PhotonPlankDistribution::getCMBradiation();
 	double photonConcentration = photons->getConcentration();
 	double photonEnergyDensity = photonConcentration * photons->getMeanEnergy();
 
-	int Nrho = 1;
-	int Nz = 100;
+	int Nrho = 100;
+	int Nz = 1;
+	int Ny = 1;
 
-	TabulatedDiskSourceWithSynchAndComptCutoff* source = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, electrons, B, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
+	double* Bpar = getUvarovBpar(Nrho, 0, size);
+	double* Bper = getUvarovBper(Nrho, 0, size);
+	double*** B = new double** [Nrho];
+	double*** Btheta = new double** [Nrho];
+	double*** Bphi = new double** [Nrho];
+	double*** concentrationArray = new double** [Nrho];
+	for (int i = 0; i < Nrho; ++i) {
+		B[i] = new double* [Nz];
+		Btheta[i] = new double* [Nz];
+		Bphi[i] = new double* [Nz];
+		concentrationArray[i] = new double* [Nz];
+		for (int j = 0; j < Nz; ++j) {
+			B[i][j] = new double[Ny];
+			Btheta[i][j] = new double[Ny];
+			Bphi[i][j] = new double[Ny];
+			concentrationArray[i][j] = new double[Ny];
+			for (int k = 0; k < Ny; ++k) {
+				B[i][j][k] = sqrt(Bpar[i] * Bpar[i] + Bper[i] * Bper[i]);
+				Btheta[i][j][k] = atan2(Bper[i], Bpar[i]);
+				Bphi[i][j][k] = pi / 4;
+				concentrationArray[i][j][k] = concentration;
+			}
+		}
+	}
+
+	//TabulatedDiskSourceWithSynchAndComptCutoff* source = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, electrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
+	RectangularSourceWithSynchAndComptCutoffFromRight* source = new RectangularSourceWithSynchAndComptCutoffFromRight(Nrho, 1, Nz, electrons, B, Btheta, Bphi, concentrationArray, 0, size, 0, size, 0, pi * size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
 
 	int Ne = 1000;
 	int Nmu = 100;
