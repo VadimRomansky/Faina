@@ -26,6 +26,7 @@ public:
 	virtual double getMaxOuterB() = 0;
 	virtual double getAverageSigma() = 0;
 	virtual double getAverageConcentration() = 0;
+	virtual double getAverageBsquared() = 0;
 
 	int getNz();
 	int getNx1();
@@ -108,6 +109,8 @@ protected:
 public:
 	RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double B, double theta, double phi, double concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity = 0, const double& redShift = 0);
 	RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity = 0, const double& redShift = 0);
+	RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double B, double theta, double phi, double concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift = 0);
+	RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift = 0);
 	virtual double getX(int ix);
 	virtual double getZ(int iz);
 	virtual double getY(int iy);
@@ -119,6 +122,7 @@ public:
 	virtual double getMaxOuterB();
 	virtual double getAverageSigma();
 	virtual double getAverageConcentration();
+	virtual double getAverageBsquared();
 
 	virtual bool isSource(int irho, int iphi);
 	virtual double getArea(int irho, int iz, int iphi) ;
@@ -161,6 +165,26 @@ public:
 
 	virtual double getParticleMass();
 	virtual double getTemperature(int ix, int iz, int iy);
+	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
+};
+
+class RectangularSourceWithSynchAndComptCutoffFromRight : public RectangularSource {
+protected:
+	int my_maxThreads;
+	double my_downstreamVelocity;
+	double my_meanB;
+	double my_photonEnergyDensity;
+	//MassiveParticlePowerLawCutoffDistribution* my_cutoffDistribution;
+	MassiveParticleTabulatedIsotropicDistribution* my_cutoffDistribution;
+	MassiveParticleTabulatedIsotropicDistribution** my_localDistribution;
+	double*** my_LB2;
+	void updateLB2();
+public:
+	RectangularSourceWithSynchAndComptCutoffFromRight(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minX, const double& maxX, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, const double& photonEnergyDensity = 0, const double& velocity = 0, const double& redShift = 0);
+	RectangularSourceWithSynchAndComptCutoffFromRight(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& minX, const double& maxX, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, const double& photonEnergyDensity = 0, const double& velocity = 0, const double& redShift = 0);
+	virtual ~RectangularSourceWithSynchAndComptCutoffFromRight();
+
+	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
 	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
 };
 
@@ -236,6 +260,7 @@ public:
 	double getMaxOuterB();
 	double getAverageSigma();
 	double getAverageConcentration();
+	double getAverageBsquared();
 	double getConcentration(int irho, int iz, int iphi);
 	void getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi);
 	double getSinTheta(int irho, int iz, int iphi);

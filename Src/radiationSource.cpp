@@ -198,6 +198,106 @@ RectangularSource::RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDist
 	}
 }
 
+RectangularSource::RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double B, double theta, double phi, double concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift) : RadiationSourceInCartesian(Nx, Ny, Nz, minX, maxX, minY, maxY, minZ, maxZ, distance, redShift)
+{
+	my_distribution = electronDistribution;
+
+	my_velocity = 0.0;
+
+	my_B = new double** [my_Nx];
+	my_theta = new double** [my_Nx];
+	my_phi = new double** [my_Nx];
+	my_concentration = new double** [my_Nx];
+	my_v = new double** [my_Nx];
+	my_vtheta = new double** [my_Nx];
+	my_vphi = new double** [my_Nx];
+	for (int irho = 0; irho < my_Nx; ++irho) {
+		my_B[irho] = new double* [my_Nz];
+		my_theta[irho] = new double* [my_Nz];
+		my_phi[irho] = new double* [my_Nz];
+		my_concentration[irho] = new double* [my_Nz];
+		my_v[irho] = new double* [my_Nz];
+		my_vtheta[irho] = new double* [my_Nz];
+		my_vphi[irho] = new double* [my_Nz];
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			my_B[irho][iz] = new double[my_Ny];
+			my_theta[irho][iz] = new double[my_Ny];
+			my_phi[irho][iz] = new double[my_Ny];
+			my_concentration[irho][iz] = new double[my_Ny];
+			my_v[irho][iz] = new double[my_Ny];
+			my_vtheta[irho][iz] = new double[my_Ny];
+			my_vphi[irho][iz] = new double[my_Ny];
+			for (int iphi = 0; iphi < my_Ny; ++iphi) {
+				my_B[irho][iz][iphi] = B;
+				my_theta[irho][iz][iphi] = theta;
+				my_phi[irho][iz][iphi] = phi;
+				my_concentration[irho][iz][iphi] = concentration;
+				my_v[irho][iz][iphi] = velocity[irho][iz][iphi];
+				my_vtheta[irho][iz][iphi] = vtheta[irho][iz][iphi];
+				my_vphi[irho][iz][iphi] = vphi[irho][iz][iphi];
+			}
+		}
+	}
+
+	my_isSource = new bool* [my_Nx];
+	for (int i = 0; i < my_Nx; ++i) {
+		my_isSource[i] = new bool[my_Ny];
+		for (int j = 0; j < my_Ny; ++j) {
+			my_isSource[i][j] = true;
+		}
+	}
+}
+
+RectangularSource::RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift) : RadiationSourceInCartesian(Nx, Ny, Nz, minX, maxX, minY, maxY, minZ, maxZ, distance, redShift)
+{
+	my_distribution = electronDistribution;
+
+	my_velocity = 0.0;
+
+	my_B = new double** [my_Nx];
+	my_theta = new double** [my_Nx];
+	my_phi = new double** [my_Nx];
+	my_concentration = new double** [my_Nx];
+	my_v = new double** [my_Nx];
+	my_vtheta = new double** [my_Nx];
+	my_vphi = new double** [my_Nx];
+	for (int irho = 0; irho < my_Nx; ++irho) {
+		my_B[irho] = new double* [my_Nz];
+		my_theta[irho] = new double* [my_Nz];
+		my_phi[irho] = new double* [my_Nz];
+		my_concentration[irho] = new double* [my_Nz];
+		my_v[irho] = new double* [my_Nz];
+		my_vtheta[irho] = new double* [my_Nz];
+		my_vphi[irho] = new double* [my_Nz];
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			my_B[irho][iz] = new double[my_Ny];
+			my_theta[irho][iz] = new double[my_Ny];
+			my_phi[irho][iz] = new double[my_Ny];
+			my_concentration[irho][iz] = new double[my_Ny];
+			my_v[irho][iz] = new double[my_Ny];
+			my_vtheta[irho][iz] = new double[my_Ny];
+			my_vphi[irho][iz] = new double[my_Ny];
+			for (int iphi = 0; iphi < my_Ny; ++iphi) {
+				my_B[irho][iz][iphi] = B[irho][iz][iphi];
+				my_theta[irho][iz][iphi] = theta[irho][iz][iphi];
+				my_phi[irho][iz][iphi] = phi[irho][iz][iphi];
+				my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi];
+				my_v[irho][iz][iphi] = velocity[irho][iz][iphi];
+				my_vtheta[irho][iz][iphi] = vtheta[irho][iz][iphi];
+				my_vphi[irho][iz][iphi] = vphi[irho][iz][iphi];
+			}
+		}
+	}
+
+	my_isSource = new bool* [my_Nx];
+	for (int i = 0; i < my_Nx; ++i) {
+		my_isSource[i] = new bool[my_Ny];
+		for (int j = 0; j < my_Ny; ++j) {
+			my_isSource[i][j] = true;
+		}
+	}
+}
+
 double RectangularSource::getX(int ix)
 {
 	double dx = (my_maxX - my_minX) / my_Nx;
@@ -386,6 +486,24 @@ double RectangularSource::getAverageConcentration()
 		exit(0);
 	}
 	return result;
+}
+
+double RectangularSource::getAverageBsquared()
+{
+	double magneticEnergy = 0;
+	double volume = 0;
+
+
+	for (int irho = 0; irho < my_Nx; ++irho) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Ny; ++iphi) {
+				magneticEnergy += my_B[irho][iz][iphi] * my_B[irho][iz][iphi] * getVolume(irho, iz, iphi);
+				volume += getVolume(irho, iz, iphi);
+			}
+		}
+	}
+
+	return sqrt(magneticEnergy / volume);
 }
 
 bool RectangularSource::isSource(int irho, int iphi)
@@ -626,6 +744,131 @@ MassiveParticleDistribution* ThermalRectangularSource::getParticleDistribution(i
 	return my_localDistribution[numthread];
 }
 
+void RectangularSourceWithSynchAndComptCutoffFromRight::updateLB2()
+{
+	double dx = (my_maxX - my_minX) / my_Nx;
+	for (int irho = my_Nx - 1; irho >= 0; irho = irho - 1) {
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			for (int iphi = 0; iphi < my_Ny; ++iphi) {
+				double prev_LB2 = 0;
+				if (irho < my_Nx - 1) {
+					prev_LB2 = my_LB2[irho + 1][iz][iphi];
+				}
+				double l = dx;
+				if (l < 0) {
+					l = 0;
+				}
+				my_LB2[irho][iz][iphi] = prev_LB2 + (my_B[irho][iz][iphi] * my_B[irho][iz][iphi] + my_photonEnergyDensity * 8 * pi) * l;
+			}
+		}
+	}
+}
+
+RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAndComptCutoffFromRight(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minX, const double& maxX, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, const double& photonEnergyDensity, const double& velocity, const double& redShift) : RectangularSource(Nx, Ny, Nz, electronDistribution, B, theta, phi, concentration, minX, maxX, minY, maxY, minZ, maxZ, distance, velocity, redShift)
+{
+	my_cutoffDistribution = dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electronDistribution);
+	if (my_cutoffDistribution == NULL) {
+		printf("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
+		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
+		exit(0);
+	}
+	my_maxThreads = omp_get_max_threads();
+	my_localDistribution = new MassiveParticleTabulatedIsotropicDistribution * [my_maxThreads];
+	for (int i = 0; i < my_maxThreads; ++i) {
+		my_localDistribution[i] = NULL;
+	}
+	my_downstreamVelocity = downstreamVelocity;
+	my_meanB = getAverageBsquared();
+	my_photonEnergyDensity = photonEnergyDensity;
+
+	my_LB2 = create3dArray(my_Nx, my_Nz, my_Ny);
+	updateLB2();
+	write3dArrayToFile(my_LB2, my_Nx, my_Nz, my_Ny, "LB2.dat");
+}
+
+RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAndComptCutoffFromRight(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& minX, const double& maxX, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, const double& photonEnergyDensity, const double& velocity, const double& redShift) : RectangularSource(Nx, Ny, Nz, electronDistribution, B, theta, phi, concentration, minX, maxX, minY, maxY, minZ, maxZ, distance, velocity, redShift)
+{
+	my_cutoffDistribution = dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electronDistribution);
+	if (my_cutoffDistribution == NULL) {
+		printf("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
+		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
+		exit(0);
+	}
+	my_maxThreads = omp_get_max_threads();
+	my_localDistribution = new MassiveParticleTabulatedIsotropicDistribution * [my_maxThreads];
+	for (int i = 0; i < my_maxThreads; ++i) {
+		my_localDistribution[i] = NULL;
+	}
+	my_downstreamVelocity = downstreamVelocity;
+	my_meanB = getAverageBsquared();
+	my_photonEnergyDensity = photonEnergyDensity;
+
+	my_LB2 = create3dArray(my_Nx, my_Nz, my_Ny);
+	updateLB2();
+	write3dArrayToFile(my_LB2, my_Nx, my_Nz, my_Ny, "LB2.dat");
+}
+
+RectangularSourceWithSynchAndComptCutoffFromRight::~RectangularSourceWithSynchAndComptCutoffFromRight()
+{
+	for (int i = 0; i < my_maxThreads; ++i) {
+		if (my_localDistribution[i] != NULL) {
+			delete my_localDistribution[i];
+		}
+	}
+	delete[] my_localDistribution;
+	delete3dArray(my_LB2, my_Nx, my_Nz, my_Ny);
+}
+
+void RectangularSourceWithSynchAndComptCutoffFromRight::resetParameters(const double* parameters, const double* normalizationUnits)
+{
+	RectangularSource::resetParameters(parameters, normalizationUnits);
+
+	my_meanB = getAverageBsquared();
+	updateLB2();
+	for (int i = 0; i < my_maxThreads; ++i) {
+		if (my_localDistribution[i] != NULL) {
+			delete my_localDistribution[i];
+			my_localDistribution[i] = NULL;
+		}
+	}
+}
+
+MassiveParticleDistribution* RectangularSourceWithSynchAndComptCutoffFromRight::getParticleDistribution(int irho, int iz, int iphi)
+{
+	int numthread = omp_get_thread_num();
+	if (my_localDistribution[numthread] != NULL) {
+		delete my_localDistribution[numthread];
+		my_localDistribution[numthread] = NULL;
+	}
+	my_localDistribution[numthread] = new MassiveParticleTabulatedIsotropicDistribution(*my_cutoffDistribution);
+
+	double LB2 = my_LB2[irho][iz][iphi];
+
+	double l = my_maxX - getX(irho);
+
+	if (LB2 > 0) {
+		double mass = my_cutoffDistribution->getMass();
+		//double Ecut = mass * mass * mass * mass * pow(speed_of_light, 7) * my_downstreamVelocity / (electron_charge * electron_charge * electron_charge * electron_charge * LB2);
+		//if (Ecut < mass * speed_of_light2) {
+			//todo
+		//	Ecut = mass * speed_of_light2 * 2.0;
+		//}
+		//double gammaCut = Ecut / (me_c2);
+		//printf("gammaCut = %g\n", gammaCut);
+		//my_cutoffDistribution->resetEcut(Ecut);
+		//my_localDistribution->setToZeroAboveE(Ecut);
+		//my_localDistribution->addExponentialCutoff(Ecut);
+		double lossRate = (4.0 / 9.0) * electron_charge * electron_charge * electron_charge * electron_charge * (LB2 / l) / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
+		double time = l / my_downstreamVelocity;
+		double k = lossRate / my_downstreamVelocity;
+		//printf("disk lossRate = %g\n", lossRate);
+		//printf("disk time = %g\n", time);
+		my_localDistribution[numthread]->transformToLosses(lossRate, time);
+		//my_localDistribution[numthread]->transformToLosses2(k, my_z - z1, my_z - z2);
+	}
+	return my_localDistribution[numthread];
+}
+
 RadiationSourceInCylindrical::RadiationSourceInCylindrical(int Nrho, int Nz, int Nphi, double distance, double redShift) : RadiationSource(Nrho, Nz, Nphi, distance, redShift) {
 	my_Nrho = Nrho;
 	my_Nphi = Nphi;
@@ -758,6 +1001,10 @@ double SimpleFlatSource::getAverageSigma()
 double SimpleFlatSource::getAverageConcentration()
 {
 	return my_concentration;
+}
+double SimpleFlatSource::getAverageBsquared()
+{
+	return my_B*my_B;
 }
 double SimpleFlatSource::getConcentration(int irho, int iz, int iphi)
 {
@@ -3154,39 +3401,24 @@ MassiveParticleDistribution* TabulatedDiskSourceWithSynchAndComptCutoff::getPart
 		my_localDistribution[numthread] = NULL;
 	}
 	my_localDistribution[numthread] = new MassiveParticleTabulatedIsotropicDistribution(*my_cutoffDistribution);
-	//my_cutoffDistribution->resetEcut(my_defaultCutoff);
-	double rho = (irho + 0.5) * my_rho / my_Nrho;
-	double z = (iz + 0.5) * my_z / my_Nz;
-	double z1 = iz * my_z / my_Nz;
-	double z2 = (iz + 1) * my_z / my_Nz;
-	//double l1 = my_rho - rho;
-	//double l2 = my_rho - sqrt(rho*rho + z*z);
-	double l2 = my_z - z;
-	//printf("l2 = %g\n", l2);
-	//double l3 = z;
-	//double l = min3(l1, l2, l3);
-	double l = l2;
-	//printf("disk l = %g\n", l);
-	if (l <= 0) {
-		/*printf("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
-		printf("rho = %g z = %g r = %g R = %g\n", rho, z, r, my_rho);
-		printLog("l <= 0 in TabulatedSLSourceWithSynchCutoff::getParticleDistribution irho = %d iz = %d\n", irho, iz);
-		printLog("rho = %g z = %g r = %g R = %g\n", rho, z, r, my_rho);*/
-		//exit(0);
-	}
-	if (l > 0) {
+
+	double LB2 = my_LB2[irho][iz][iphi];
+
+	double l = my_z - getZ(iz);
+
+	if(LB2 > 0){
 		double mass = my_cutoffDistribution->getMass();
-		double Ecut = mass * mass * mass * mass * pow(speed_of_light, 7) * my_downstreamVelocity / (electron_charge * electron_charge * electron_charge * electron_charge * my_meanB * my_meanB * l);
-		if (Ecut < mass * speed_of_light2) {
+		//double Ecut = mass * mass * mass * mass * pow(speed_of_light, 7) * my_downstreamVelocity / (electron_charge * electron_charge * electron_charge * electron_charge * LB2);
+		//if (Ecut < mass * speed_of_light2) {
 			//todo
-			Ecut = mass * speed_of_light2 * 2.0;
-		}
-		double gammaCut = Ecut / (me_c2);
+		//	Ecut = mass * speed_of_light2 * 2.0;
+		//}
+		//double gammaCut = Ecut / (me_c2);
 		//printf("gammaCut = %g\n", gammaCut);
 		//my_cutoffDistribution->resetEcut(Ecut);
 		//my_localDistribution->setToZeroAboveE(Ecut);
 		//my_localDistribution->addExponentialCutoff(Ecut);
-		double lossRate = (4.0/9.0)*electron_charge * electron_charge * electron_charge * electron_charge * my_meanB * my_meanB / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
+		double lossRate = (4.0/9.0)*electron_charge * electron_charge * electron_charge * electron_charge * (LB2/l) / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
 		double time = l / my_downstreamVelocity;
 		double k = lossRate / my_downstreamVelocity;
 		//printf("disk lossRate = %g\n", lossRate);
