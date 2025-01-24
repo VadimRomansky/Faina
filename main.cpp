@@ -1027,7 +1027,7 @@ double* getUvarovBpar(int Nx, double minX, double maxX) {
 	double dx = (maxX - minX) / Nx;
 	for (int i = 0; i < Nx; ++i) {
 		double x = minX + (i + 0.5) * dx;
-		double l = (maxX - x) / UNIT_LENGTH + 1;
+		double l = (maxX - x) / UNIT_LENGTH + 2;
 		B[i] = (A0 / (1 + pow(sqr((l - A3) / A1), A2))) * (1.0 / (1 + A6 * exp(-sqr((l - A4) / A5))));
 	}
 
@@ -1047,7 +1047,7 @@ double* getUvarovBper(int Nx, double minX, double maxX) {
 	double dx = (maxX - minX) / Nx;
 	for (int i = 0; i < Nx; ++i) {
 		double x = minX + (i + 0.5) * dx;
-		double l = (maxX - x) / UNIT_LENGTH + 1;
+		double l = (maxX - x) / UNIT_LENGTH + 2;
 		B[i] = A0 / (1 + pow(sqr((l - A3) / A1), A2) + A4 * exp(-sqr((l - A5) / A6)));
 	}
 
@@ -1062,7 +1062,7 @@ void evaluateW50comptonAndSynchrotron() {
 	double concentration;
 	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massElectron, fileName, electrons, concentration);
 
-	double size = 1E18;
+	double size = 2E18;
 	double B0 = 6E-5;
 
 	//RadiationSourceInCylindrical* source = new SimpleFlatSource(electrons, B, pi / 2, 0, concentration, size, size, distance);
@@ -1070,9 +1070,9 @@ void evaluateW50comptonAndSynchrotron() {
 	double photonConcentration = photons->getConcentration();
 	double photonEnergyDensity = photonConcentration * photons->getMeanEnergy();
 
-	int Nrho = 100;
+	int Nrho = 1000;
 	int Nz = 1;
-	int Ny = 2;
+	int Ny = 1;
 
 	double* Bpar = getUvarovBpar(Nrho, 0, size);
 	double* Bper = getUvarovBper(Nrho, 0, size);
@@ -1092,16 +1092,32 @@ void evaluateW50comptonAndSynchrotron() {
 			concentrationArray[i][j] = new double[Ny];
 			for (int k = 0; k < Ny; ++k) {
 				B[i][j][k] = sqrt(Bpar[i] * Bpar[i] + Bper[i] * Bper[i]);
-				Btheta[i][j][k] = atan2(Bper[i], Bpar[i]);
+				//par - x, per - y and z
+				Btheta[i][j][k] = atan2(Bper[i]/sqrt(2), sqrt(Bpar[i]*Bpar[i] + 0.5*Bper[i]*Bper[i]));
 				Bphi[i][j][k] = pi / 4;
 				concentrationArray[i][j][k] = concentration;
 			}
 		}
 	}
 
+	FILE* Bfile = fopen("Bturb.dat", "w");
+
+	for (int i = 0; i < Nrho; ++i) {
+		fprintf(Bfile, "%g %g %g\n", (i + 0.5) * size / Nrho, Bpar[i], Bper[i]);
+	}
+
+	fclose(Bfile);
+
 	//TabulatedDiskSourceWithSynchAndComptCutoff* source = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, electrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
-	RectangularSourceWithSynchAndComptCutoffFromRight* source = new RectangularSourceWithSynchAndComptCutoffFromRight(Nrho, 1, Nz, electrons, B, Btheta, Bphi, concentrationArray, 0, size, 0, size, 0, pi * size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
+	RectangularSourceWithSynchAndComptCutoffFromRight* source = new RectangularSourceWithSynchAndComptCutoffFromRight(Nrho, Ny, Nz, electrons, B, Btheta, Bphi, concentrationArray, 0, size, 0, size, 0, pi * size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
 	//RectangularSource* source = new RectangularSource(Nrho, Ny, Nz, electrons, B, Btheta, Bphi, concentrationArray, 0, size, 0, size, 0, pi * size, distance);
+
+	MassiveParticleIsotropicDistribution* distributionRight = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(Nrho - 1, 0, 0));
+	distributionRight->writeDistribution("distributionRight.dat", 200, me_c2, 1E10 * me_c2);
+	MassiveParticleIsotropicDistribution* distributionMiddle = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(Nrho / 2, 0, 0));
+	distributionMiddle->writeDistribution("distributionMiddle.dat", 200, me_c2, 1E10 * me_c2);
+	MassiveParticleIsotropicDistribution* distributionLeft = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(0, 0, 0));
+	distributionLeft->writeDistribution("distributionLeft.dat", 200, me_c2, 1E10 * me_c2);
 
 	int Ne = 1000;
 	int Nmu = 100;
@@ -1116,7 +1132,7 @@ void evaluateW50comptonAndSynchrotron() {
 
 	RadiationSumEvaluator* sumEvaluator = new RadiationSumEvaluator(Ne, me_c2, 1E10 * me_c2, comptonEvaluator, synchrotronEvaluator, false);
 
-	sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt.dat", source, 1.6E-18, 1.6E3, 500);
+	sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt.dat", source, 1.6E-18, 1.6E3, 200);
 
 	printf("start writing image\n");
 	sumEvaluator->writeImageFromSourceToFile("W50scImageeV.dat", source, 1.6E-12, 1.6E-11, 20);

@@ -6,6 +6,8 @@ from plot_array3d import plot_array3d
 from plot_array3d_animated import plot_array3d_animated
 from plot_bremsstrahlung import plot_bremsstrahlung
 from plot_compton_radiation import plot_compton_radiation
+from plot_data import plot_data
+from plot_data3 import plot_data3
 from plot_distributions import plot_distributions
 from plot_distributions2 import plot_distributions2
 from plot_distributions9 import plot_distributions9
@@ -33,6 +35,8 @@ if __name__ == '__main__':
     plt.rcParams['image.cmap'] = 'jet'
     #plt.rcParams['image.cmap'] = 'hot'
     #plot_dummy()
+    plot_data("../Bturb.dat", "B", 2)
+    plot_data3("../distributionRight.dat", "../distributionMiddle.dat", "../distributionLeft.dat", "distributions", 1)
     #plot_distributions()
     #plot_distributions9()
     #plot_distributions_protons()
@@ -42,8 +46,8 @@ if __name__ == '__main__':
     #plot_radiation("../W50bremsstrahlung.dat")
     #plot_radiation_EFE("../W50bremsstrahlung.dat", "W50bremsstrahlung")
     #plot_radiation_EFE("../W50pion.dat", "W50pion")
-    plot_radiation_EFE("../W50compton.dat", "W50compton")
-    plot_radiation_EFE("../W50synchrotron.dat", "W50synchrotron")
+    #plot_radiation_EFE("../W50compton.dat", "W50compton")
+    #plot_radiation_EFE("../W50synchrotron.dat", "W50synchrotron")
     plot_radiation_EFE("../W50synchandcompt.dat", "W50synchandcompt")
     #plot_synchrotron()
     #plot_synchrotron3()
