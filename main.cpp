@@ -1172,20 +1172,33 @@ void evaluateW50comptonAndSynchrotron() {
 	double factor = pow(Emax / Emin, 1.0 / (Nnu - 1));
 	double currentE = Emin;
 
-	FILE* outFile = fopen("xE.dat", "w");
+	double** F = new double*[Nnu];
+	for (int i = 0; i < Nnu; ++i) {
+		F[i] = new double[Nrho];
+	}
+
+
 	for (int i = 0; i < Nnu; ++i) {
 		printf("inu = %d\n", i);
 		printLog("inu = %d\n", i);
-		for (int j = 0; j < Nrho; ++j) {
-			double F = currentE * sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, source, j, 0);
-			if (j == 0) {
-				fprintf(outFile, "%g", F);
-			}
-			else {
-				fprintf(outFile, " %g", F);
-			}
+		int j;
+#pragma omp parallel for private(j) shared(F, source, currentE, factor, sumEvaluator, i)
+		for (j = 0; j < Nrho; ++j) {
+			F[i][j] = currentE * sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, source, j, 0);
 		}
 		currentE = factor * currentE;
+	}
+
+	FILE* outFile = fopen("xE.dat", "w");
+	for (int i = 0; i < Nnu; ++i) {
+		for (int j = 0; j < Nrho; ++j) {
+			if (j == 0) {
+				fprintf(outFile, "%g", F[i][j]);
+			}
+			else {
+				fprintf(outFile, " %g", F[i][j]);
+			}
+		}
 		fprintf(outFile, "\n");
 	}
 	fclose(outFile);
