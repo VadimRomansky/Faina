@@ -1062,7 +1062,7 @@ void evaluateW50comptonAndSynchrotron() {
 	double concentration;
 	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massElectron, fileName, electrons, concentration);
 
-	double size = 2E18;
+	double size = 5E18;
 	double B0 = 6E-5;
 
 	//RadiationSourceInCylindrical* source = new SimpleFlatSource(electrons, B, pi / 2, 0, concentration, size, size, distance);
@@ -1070,7 +1070,7 @@ void evaluateW50comptonAndSynchrotron() {
 	double photonConcentration = photons->getConcentration();
 	double photonEnergyDensity = photonConcentration * photons->getMeanEnergy();
 
-	int Nrho = 1000;
+	int Nrho = 10000;
 	int Nz = 1;
 	int Ny = 1;
 
@@ -1134,13 +1134,31 @@ void evaluateW50comptonAndSynchrotron() {
 
 	sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt.dat", source, 1.6E-18, 1.6E3, 200);
 
-	printf("start writing image\n");
-	printLog("start writing image\n");
+	printf("start writing images\n");
+	printLog("start writing images\n");
+
+	printf("start writing ev image\n");
+	printLog("start writing ev image\n");
 	sumEvaluator->writeImageFromSourceToFile("W50scImageeV.dat", source, 1.6E-12, 1.6E-11, 20);
+
+	printf("start writing keV image\n");
+	printLog("start writing keV image\n");
 	sumEvaluator->writeImageFromSourceToFile("W50scImageKeV.dat", source, 1.6E-9, 1.6E-8, 20);
+
+	printf("start writing MeV image\n");
+	printLog("start writing MeV images\n");
 	sumEvaluator->writeImageFromSourceToFile("W50scImageMeV.dat", source, 1.6E-6, 1.6E-5, 20);
+
+	printf("start writing GeV image\n");
+	printLog("start writing GeV image\n");
 	sumEvaluator->writeImageFromSourceToFile("W50scImageGeV.dat", source, 1.6E-3, 1.6E-2, 20);
+
+	printf("start writing TeV image\n");
+	printLog("start writing TeV image\n");
 	sumEvaluator->writeImageFromSourceToFile("W50scImageTeV.dat", source, 1.6E0, 1.6E1, 20);
+
+	printf("start writin PeV image\n");
+	printLog("start writing PeV image\n");
 	sumEvaluator->writeImageFromSourceToFile("W50scImagePeV.dat", source, 1.6E3, 1.6E4, 20);
 
 	printf("start writing x-E diagram\n");
@@ -1156,6 +1174,8 @@ void evaluateW50comptonAndSynchrotron() {
 
 	FILE* outFile = fopen("xE.dat", "w");
 	for (int i = 0; i < Nnu; ++i) {
+		printf("inu = %d\n", i);
+		printLog("inu = %d\n", i);
 		for (int j = 0; j < Nrho; ++j) {
 			double F = currentE * sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, source, j, 0);
 			if (j == 0) {
@@ -1165,6 +1185,7 @@ void evaluateW50comptonAndSynchrotron() {
 				fprintf(outFile, " %g", F);
 			}
 		}
+		currentE = factor * currentE;
 		fprintf(outFile, "\n");
 	}
 	fclose(outFile);
