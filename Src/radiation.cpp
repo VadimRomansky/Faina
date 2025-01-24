@@ -45,15 +45,23 @@ double RadiationEvaluator::evaluateFluxFromSource(const double& photonFinalEnerg
 #pragma omp parallel for private(irho) shared(photonFinalEnergy1, source, Nx1, Nz, Nx2) reduction(+:result)
 
     for (irho = 0; irho < Nx1; ++irho) {
+        //omp_set_lock(&my_lock);
+        //printLog("irho = %d\n", irho);
+        //omp_unset_lock(&my_lock);
         for (int iphi = 0; iphi < Nx2; ++iphi) {
+            //omp_set_lock(&my_lock);
+            //printLog("iphi = %d\n", iphi);
+            //omp_unset_lock(&my_lock);
             /*for (int iz = 0; iz < Nz; ++iz) {
                 result += evaluateFluxFromIsotropicFunction(photonFinalEnergy1, source->getParticleDistribution(irho, iz, iphi), source->getVolume(irho, iz, iphi), source->getDistance());
             }*/
             if (source->isSource(irho, iphi)) {
                 result += evaluateFluxFromSourceAtPoint(photonFinalEnergy1, source, irho, iphi);
                 if ((result != result) || (0 * result != 0 * result)) {
+                    omp_set_lock(&my_lock);
                     printf("flux from source = NaN or Infinity at irho = %d iphi = %d\n", irho, iphi);
                     printLog("flux from source = NaN or Infinity at irho = %d iphi = %d\n", irho, iphi);
+                    omp_unset_lock(&my_lock);
                     exit(0);
                 }
             }
@@ -188,7 +196,10 @@ void RadiationEvaluator::writeFluxFromSourceToFile(const char* fileName, Radiati
     double currentE = Ephmin;
     FILE* outFile = fopen(fileName, "w");
     for (int i = 0; i < Nph; ++i) {
-        printf("%d\n", i);
+        //omp_set_lock(&my_lock);
+        printf("writeFluxFromSourceToFile iph = %d\n", i);
+        printLog("writeFluxFromSourceToFile iph = %d\n", i);
+        //omp_unset_lock(&my_lock);
         double flux = evaluateFluxFromSource(currentE, source);
         fprintf(outFile, "%g %g\n", currentE, flux);
         currentE = currentE * factor;
@@ -202,7 +213,10 @@ void RadiationEvaluator::writeEFEFromSourceToFile(const char* fileName, Radiatio
     double currentE = Ephmin;
     FILE* outFile = fopen(fileName, "w");
     for (int i = 0; i < Nph; ++i) {
-        printf("%d\n", i);
+        //omp_set_lock(&my_lock);
+        printf("writeEFEFromSourceToFile iph = %d\n", i);
+        printLog("writeEFEFromSourceToFile iph = %d\n", i);
+        //omp_unset_lock(&my_lock);
         double flux = evaluateFluxFromSource(currentE, source);
         fprintf(outFile, "%g %g\n", currentE/1.6E-12, currentE*flux);
         currentE = currentE * factor;
@@ -228,7 +242,10 @@ void RadiationEvaluator::writeImageFromSourceToFile(const char* fileName, Radiat
     int irho;
 #pragma omp parallel for private(irho) shared(Ephmin, Ephmax, source, Nx1, Nz, Nx2, image)
     for (irho = 0; irho < Nx1; ++irho) {
+        omp_set_lock(&my_lock);
         printf("evaluating image irho = %d\n", irho);
+        printLog("evaluating image irho = %d\n", irho);
+        omp_unset_lock(&my_lock);
         for (int iphi = 0; iphi < Nx2; ++iphi) {
             double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
             double currentE = Ephmin;

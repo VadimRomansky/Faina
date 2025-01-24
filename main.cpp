@@ -1114,7 +1114,7 @@ void evaluateW50comptonAndSynchrotron() {
 
 	MassiveParticleIsotropicDistribution* distributionRight = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(Nrho - 1, 0, 0));
 	distributionRight->writeDistribution("distributionRight.dat", 200, me_c2, 1E10 * me_c2);
-	MassiveParticleIsotropicDistribution* distributionMiddle = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(Nrho / 2, 0, 0));
+	MassiveParticleIsotropicDistribution* distributionMiddle = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(Nrho - 2, 0, 0));
 	distributionMiddle->writeDistribution("distributionMiddle.dat", 200, me_c2, 1E10 * me_c2);
 	MassiveParticleIsotropicDistribution* distributionLeft = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(0, 0, 0));
 	distributionLeft->writeDistribution("distributionLeft.dat", 200, me_c2, 1E10 * me_c2);
@@ -1135,12 +1135,39 @@ void evaluateW50comptonAndSynchrotron() {
 	sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt.dat", source, 1.6E-18, 1.6E3, 200);
 
 	printf("start writing image\n");
+	printLog("start writing image\n");
 	sumEvaluator->writeImageFromSourceToFile("W50scImageeV.dat", source, 1.6E-12, 1.6E-11, 20);
 	sumEvaluator->writeImageFromSourceToFile("W50scImageKeV.dat", source, 1.6E-9, 1.6E-8, 20);
 	sumEvaluator->writeImageFromSourceToFile("W50scImageMeV.dat", source, 1.6E-6, 1.6E-5, 20);
 	sumEvaluator->writeImageFromSourceToFile("W50scImageGeV.dat", source, 1.6E-3, 1.6E-2, 20);
 	sumEvaluator->writeImageFromSourceToFile("W50scImageTeV.dat", source, 1.6E0, 1.6E1, 20);
 	sumEvaluator->writeImageFromSourceToFile("W50scImagePeV.dat", source, 1.6E3, 1.6E4, 20);
+
+	printf("start writing x-E diagram\n");
+	printLog("start writing x-E diagram\n");
+
+	double Emin = 1.6E-12;
+	double Emax = 1.6E4;
+
+	int Nnu = 200;
+	
+	double factor = pow(Emax / Emin, 1.0 / (Nnu - 1));
+	double currentE = Emin;
+
+	FILE* outFile = fopen("xE.dat", "w");
+	for (int i = 0; i < Nnu; ++i) {
+		for (int j = 0; j < Nrho; ++j) {
+			double F = currentE * sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, source, j, 0);
+			if (j == 0) {
+				fprintf(outFile, "%g", F);
+			}
+			else {
+				fprintf(outFile, " %g", F);
+			}
+		}
+		fprintf(outFile, "\n");
+	}
+	fclose(outFile);
 
 }
 
