@@ -1110,7 +1110,7 @@ void evaluateW50comptonAndSynchrotron() {
 
 	//TabulatedDiskSourceWithSynchAndComptCutoff* source = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, electrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
 	RectangularSourceWithSynchAndComptCutoffFromRight* source = new RectangularSourceWithSynchAndComptCutoffFromRight(Nrho, Ny, Nz, electrons, B, Btheta, Bphi, concentrationArray, 0, size, 0, size, 0, pi * size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
-	//RectangularSource* source = new RectangularSource(Nrho, Ny, Nz, electrons, B, Btheta, Bphi, concentrationArray, 0, size, 0, size, 0, pi * size, distance);
+	RectangularSource* source2 = new RectangularSource(Nrho, Ny, Nz, electrons, B, Btheta, Bphi, concentrationArray, 0, size, 0, size, 0, pi * size, distance);
 
 	MassiveParticleIsotropicDistribution* distributionRight = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(Nrho - 1, 0, 0));
 	distributionRight->writeDistribution("distributionRight.dat", 200, me_c2, 1E10 * me_c2);
@@ -1133,6 +1133,10 @@ void evaluateW50comptonAndSynchrotron() {
 	RadiationSumEvaluator* sumEvaluator = new RadiationSumEvaluator(Ne, me_c2, 1E10 * me_c2, comptonEvaluator, synchrotronEvaluator, false);
 
 	sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt.dat", source, 1.6E-18, 1.6E3, 200);
+	sumEvaluator->writeEFEFromSourceToFile("W50highenergy.dat", source, 1.6E-1, 1.6E3, 200);
+
+	sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt2.dat", source2, 1.6E-18, 1.6E3, 200);
+	sumEvaluator->writeEFEFromSourceToFile("W50highenergy2.dat", source2, 1.6E-1, 1.6E3, 200);
 
 	printf("start writing images\n");
 	printLog("start writing images\n");
@@ -1190,13 +1194,13 @@ void evaluateW50comptonAndSynchrotron() {
 	}
 
 	FILE* outFile = fopen("xE.dat", "w");
-	for (int i = 0; i < Nnu; ++i) {
-		for (int j = 0; j < Nrho; ++j) {
+	for (int i = 0; i < Nrho; ++i) {
+		for (int j = 0; j < Nnu; ++j) {
 			if (j == 0) {
-				fprintf(outFile, "%g", F[i][j]);
+				fprintf(outFile, "%g", F[j][i]);
 			}
 			else {
-				fprintf(outFile, " %g", F[i][j]);
+				fprintf(outFile, " %g", F[j][i]);
 			}
 		}
 		fprintf(outFile, "\n");
