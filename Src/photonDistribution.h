@@ -75,6 +75,7 @@ private:
 
 	static PhotonMultiPlankDistribution* my_GalacticField;
 public:
+	PhotonMultiPlankDistribution(const double& temperature1, const double& amplitude1, const double& temperature2, const double& amplitude2);
 	PhotonMultiPlankDistribution(int Nplank, const double* const temperatures, const double* const amplitudes);
     virtual ~PhotonMultiPlankDistribution();
 	virtual double distributionNormalized(const double& energy);

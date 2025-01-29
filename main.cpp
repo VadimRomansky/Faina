@@ -1067,8 +1067,14 @@ void evaluateW50comptonAndSynchrotron() {
 
 	//RadiationSourceInCylindrical* source = new SimpleFlatSource(electrons, B, pi / 2, 0, concentration, size, size, distance);
 	PhotonPlankDistribution* photons = PhotonPlankDistribution::getCMBradiation();
+	PhotonPlankDistribution* photonsIR = new PhotonPlankDistribution(140, 0.8/1800000);
+	double photonIRconcentration = photonsIR->getConcentration();
+	double photonIRenergyDensity = photonIRconcentration * photonsIR->getMeanEnergy();
 	double photonConcentration = photons->getConcentration();
 	double photonEnergyDensity = photonConcentration * photons->getMeanEnergy();
+	PhotonMultiPlankDistribution* photonsTotal = new PhotonMultiPlankDistribution(2.725, 1.0, 140, 0.8 / 1800000);
+	double photonTotalConcentration = photonsTotal->getConcentration();
+	double photonTotalEnergyDensity = photonTotalConcentration * photonsTotal->getMeanEnergy();
 
 	int Nrho = 10000;
 	int Nz = 1;
@@ -1109,7 +1115,7 @@ void evaluateW50comptonAndSynchrotron() {
 	fclose(Bfile);
 
 	//TabulatedDiskSourceWithSynchAndComptCutoff* source = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, electrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
-	RectangularSourceWithSynchAndComptCutoffFromRight* source = new RectangularSourceWithSynchAndComptCutoffFromRight(Nrho, Ny, Nz, electrons, B, Btheta, Bphi, concentrationArray, 0, size, 0, size, 0, pi * size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
+	RectangularSourceWithSynchAndComptCutoffFromRight* source = new RectangularSourceWithSynchAndComptCutoffFromRight(Nrho, Ny, Nz, electrons, B, Btheta, Bphi, concentrationArray, 0, size, 0, size, 0, pi * size, distance, 0.25 * 0.1 * speed_of_light, photonTotalEnergyDensity);
 	RectangularSource* source2 = new RectangularSource(Nrho, Ny, Nz, electrons, B, Btheta, Bphi, concentrationArray, 0, size, 0, size, 0, pi * size, distance);
 
 	MassiveParticleIsotropicDistribution* distributionRight = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(Nrho - 1, 0, 0));
@@ -1122,7 +1128,7 @@ void evaluateW50comptonAndSynchrotron() {
 	int Ne = 1000;
 	int Nmu = 100;
 	int Nphi = 4;
-	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2, 1E10 * me_c2, 0.1*kBoltzman*2.75, 50*kBoltzman*2.75, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2, 1E10 * me_c2, 0.1*kBoltzman*2.75, 50*kBoltzman*2.75, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
 
 	//comptonEvaluator->writeEFEFromSourceToFile("W50compton.dat", source, 1.6E-10, 1.6E3, 2000);
 

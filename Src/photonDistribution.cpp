@@ -117,6 +117,26 @@ PhotonPlankDistribution* PhotonPlankDistribution::getCMBradiation()
 	return my_CMBradiation;
 }
 
+PhotonMultiPlankDistribution::PhotonMultiPlankDistribution(const double& temperature1, const double& amplitude1, const double& temperature2, const double& amplitude2)
+{
+	my_Nplank = 2;
+	my_temperatures = new double[my_Nplank];
+	my_A = new double[my_Nplank];
+	my_concentrations = new double[my_Nplank];
+
+	my_concentration = 0;
+	double dzeta3 = 1.202056903;
+	double intPlank2 = 2 * dzeta3;
+
+	my_temperatures[0] = temperature1;
+	my_A[0] = amplitude1;
+	my_temperatures[1] = temperature2;
+	my_A[1] = amplitude2;
+	my_concentrations[0] = my_A[0] * intPlank2 * (8 * pi / cube(hplank * speed_of_light)) * cube(kBoltzman * my_temperatures[0]);
+	my_concentrations[1] = my_A[1] * intPlank2 * (8 * pi / cube(hplank * speed_of_light)) * cube(kBoltzman * my_temperatures[1]);
+	my_concentration = my_concentrations[0] + my_concentrations[1];
+}
+
 PhotonMultiPlankDistribution::PhotonMultiPlankDistribution(int Nplank, const double* const temperatures, const double* const amplitudes)
 {
 	my_Nplank = Nplank;
