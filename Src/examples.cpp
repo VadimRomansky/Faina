@@ -14,6 +14,9 @@
 #include "bremsstrahlung.h"
 #include "radiationSourceFactory.h"
 #include "coordinateTransform.h"
+#include "./Math/specialmath.h"
+#include "./Math/largeVectorBasis.h"
+#include "./Math/matrixElement.h"
 
 #include "examples.h"
 
@@ -2247,7 +2250,7 @@ void testMatrixInverse()
 
 	printf("2x2 matrix\n");
 
-	double** matrix1 = new double*[N];
+	double** matrix1 = new double* [N];
 	for (int i = 0; i < N; ++i) {
 		matrix1[i] = new double[N];
 		for (int j = 0; j < N; ++j) {
@@ -2323,5 +2326,64 @@ void testMatrixInverse()
 			printf("%g ", matrix4_inverse[i][j]);
 		}
 		printf("\n");
+	}
+}
+
+void testGMRES() {
+	//with this example gmres does not converge until N iterations
+	int N = 9;
+	std::vector<MatrixElement>* matrix = new std::vector<MatrixElement>[N];
+
+	matrix[0].push_back(MatrixElement(1.0, 0));
+	matrix[0].push_back(MatrixElement(2.0, 3));
+	matrix[0].push_back(MatrixElement(5.0, 6));
+
+	matrix[1].push_back(MatrixElement(1.0, 1));
+	matrix[1].push_back(MatrixElement(4.0, 4));
+
+	matrix[2].push_back(MatrixElement(1.0, 2));
+	matrix[2].push_back(MatrixElement(-2.0, 5));
+
+	matrix[3].push_back(MatrixElement(1.0, 3));
+
+	matrix[4].push_back(MatrixElement(1.0, 4));
+	matrix[4].push_back(MatrixElement(7.0, 2));
+
+	matrix[5].push_back(MatrixElement(1.0, 5));
+	matrix[5].push_back(MatrixElement(1.0, 1));
+
+	matrix[6].push_back(MatrixElement(1.0, 6));
+	matrix[6].push_back(MatrixElement(1.0, 0));
+
+	matrix[7].push_back(MatrixElement(1.0, 7));
+	matrix[7].push_back(MatrixElement(1.0, 5));
+
+	matrix[8].push_back(MatrixElement(1.0, 8));
+
+	double* R = new double[N];
+	R[0] = 1.0;
+	R[1] = 2.0;
+	R[2] = 3.0;
+
+	double* X = new double[N];
+
+	LargeVectorBasis* gmresBasis = new LargeVectorBasis(5, N);
+
+	generalizedMinimalResidualMethod(matrix, R, X, N, 1E-5, N, 2, gmresBasis);
+
+	for (int i = 0; i < N; ++i) {
+		printf("%g\n", X[i]);
+	}
+
+	conjugateGradientMethod(matrix, R, X, N, 1E-10, N, 2);
+
+	for (int i = 0; i < N; ++i) {
+		printf("%g\n", X[i]);
+	}
+
+	gaussSeidelMethod(matrix, R, X, N, 1E-10, N, 2);
+
+	for (int i = 0; i < N; ++i) {
+		printf("%g\n", X[i]);
 	}
 }

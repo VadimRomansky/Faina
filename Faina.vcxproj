@@ -135,6 +135,9 @@
     <ClCompile Include="Src\inverseCompton.cpp" />
     <ClCompile Include="Src\KPIevaluator.cpp" />
     <ClCompile Include="Src\massiveParticleDistribution.cpp" />
+    <ClCompile Include="Src\Math\largeVectorBasis.cpp" />
+    <ClCompile Include="Src\Math\matrixelement.cpp" />
+    <ClCompile Include="Src\Math\specialmath.cpp" />
     <ClCompile Include="Src\optimization.cpp" />
     <ClCompile Include="Src\photonDistribution.cpp" />
     <ClCompile Include="Src\pionDecay.cpp" />
@@ -152,6 +155,9 @@
     <ClInclude Include="Src\inverseCompton.h" />
     <ClInclude Include="Src\KPIevaluator.h" />
     <ClInclude Include="Src\massiveParticleDistribution.h" />
+    <ClInclude Include="Src\Math\largeVectorBasis.h" />
+    <ClInclude Include="Src\Math\matrixElement.h" />
+    <ClInclude Include="Src\Math\specialmath.h" />
     <ClInclude Include="Src\optimization.h" />
     <ClInclude Include="Src\particleDistribution.h" />
     <ClInclude Include="Src\photonDistribution.h" />

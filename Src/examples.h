@@ -60,5 +60,7 @@ void fitCSS161010_2();
 
 void testMatrixInverse();
 
+void testGMRES();
+
 
 #endif
