@@ -2387,3 +2387,60 @@ void testGMRES() {
 		printf("%g\n", X[i]);
 	}
 }
+
+void testNishinaLosses() {
+	double distance = 1E18;
+	double size = 1E16;
+	double concentration = 1;
+	double B = 1.0;
+	double Ee = me_c2 * 1E3;
+	double halfEe = me_c2 * 10;
+	double gamma = Ee / me_c2;
+	MassiveParticleMonoenergeticDistribution* electrons = new MassiveParticleMonoenergeticDistribution(massElectron, Ee, halfEe);
+	SimpleFlatSource* source = new SimpleFlatSource(electrons, B, pi / 2, 0, concentration, size, size, distance);
+	double volume = source->getTotalVolume();
+
+	int Neph = 50;
+	double minEph = 1.6E-12;
+	double maxEph = 1.6E-7;
+	double factor = pow(maxEph / minEph, 1.0 / (Neph - 1.0));
+	double Eph = minEph;
+
+	double* L = new double[Neph];
+
+	double* L1 = new double[Neph];
+	double* L2 = new double[Neph];
+	double* L3 = new double[Neph];
+
+	double r2 = sqr(electron_charge * electron_charge / me_c2);
+	double sigmaT = 8 * pi * r2 / 3.0;
+
+	for (int i = 0; i < Neph; ++i) {
+		printf("i = %d\n", i);
+		PhotonMonoenergeticDistribution* photons = new PhotonMonoenergeticDistribution(Eph, 0.001 * Eph);
+		double photonConcentration = 1.0/Eph;
+		double photonEnergyDensity = photonConcentration * photons->getMeanEnergy();
+		InverseComptonEvaluator* evaluator = new InverseComptonEvaluator(50, 10, 4, Ee - halfEe, Ee + halfEe, 0.999 * Eph, 1.001 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+		InverseComptonEvaluator* evaluator2 = new InverseComptonEvaluator(50, 20, 4, Ee - halfEe, Ee + halfEe, 0.999 * Eph, 1.001 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+
+		L[i] = evaluator->evaluateTotalFluxInEnergyRange(0.01 * Eph, 2 * Ee, 1000, source) * 4 * pi * distance * distance;
+		L1[i] = volume * concentration * (4.0 / 3.0) * speed_of_light * sigmaT * gamma * gamma * photonEnergyDensity / pow(1.0 + 4 * gamma * Eph / me_c2, 3.0 / 2.0);
+		L2[i] = volume * concentration * (4.0 / 3.0) * speed_of_light * sigmaT * gamma * gamma * photonEnergyDensity / pow(1.0 + 4 * pi * gamma * Eph / me_c2, 3.0 / 2.0);
+
+		L3[i] = evaluator2->evaluateTotalFluxInEnergyRange(0.01 * Eph, 2 * Ee, 1000, source) * 4 * pi * distance * distance;
+
+		Eph = Eph * factor;
+
+		delete evaluator;
+		delete evaluator2;
+		delete photons;
+	}
+
+	Eph = minEph;
+	FILE* outFile = fopen("nishina_losses.dat", "w");
+	for (int i = 0; i < Neph; ++i) {
+		fprintf(outFile, "%g %g %g %g %g\n", Eph/1.6E-12 , L[i], L1[i], L2[i], L3[i]);
+		Eph = Eph * factor;
+	}
+	fclose(outFile);
+}

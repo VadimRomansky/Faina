@@ -759,6 +759,7 @@ void RectangularSourceWithSynchAndComptCutoffFromRight::updateLB2()
 					l = 0;
 				}
 				my_LB2[irho][iz][iphi] = prev_LB2 + (my_B[irho][iz][iphi] * my_B[irho][iz][iphi] + my_photonEnergyDensity * 8 * pi) * l;
+				//my_LB2[irho][iz][iphi] = prev_LB2 + (my_B[irho][iz][iphi] * my_B[irho][iz][iphi]) * l;
 			}
 		}
 	}

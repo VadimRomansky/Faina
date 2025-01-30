@@ -2,10 +2,10 @@ from matplotlib import animation
 from pylab import *
 import numpy as np
 
-def plot_data(filename, name, Ncol):
+def plot_data(filename, name, Ncol, xscale = 'linear', yscale = 'linear'):
     plt.rcParams.update({'font.size': 40})
     plt.rcParams['text.usetex'] = True
-    plt.rcParams['axes.linewidth'] = 4
+    plt.rcParams['axes.linewidth'] = 1
 
     f1 = plt.figure(figsize=[10, 10])
     ax = f1.add_subplot(111)
@@ -21,6 +21,11 @@ def plot_data(filename, name, Ncol):
             data[j][i] = float(lines[i].split()[j])
 
     for i in range(Ncol):
-        plt.plot(data[0],data[i+1])
+        plt.plot(data[0],data[i+1], linewidth=4)
+
+    ax.set_xscale(xscale)
+    ax.set_yscale(yscale)
+
+    ax.legend([r'luminocity', r'no pi', r'pi'], fontsize="30")
 
     plt.savefig(name + '.png', bbox_inches='tight')

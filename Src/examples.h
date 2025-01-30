@@ -62,5 +62,7 @@ void testMatrixInverse();
 
 void testGMRES();
 
+void testNishinaLosses();
+
 
 #endif

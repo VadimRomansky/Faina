@@ -1938,6 +1938,118 @@ MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedI
 	return distributions;
 }
 
+void MassiveParticleDistributionFactory::evaluateDistributionAdvectionWithLosses(const double& mass, double* energy, double* distribution, double** outEnergy, double** outDistribution, const int Ne, const int Nx, double* x, double advectionV, double* B, double Uph1, double Eph1, double Uph2, double Eph2)
+{
+	double dx;
+	dx = x[0];
+	double dt = dx / advectionV;
+
+	double* dEold = new double[Ne];
+	double* dE = new double[Ne];
+
+	double mc2 = mass * speed_of_light * speed_of_light;
+
+	double r2 = sqr(electron_charge * electron_charge / mc2);
+	double sigmaT = 8 * pi * r2 / 3.0;
+
+	for (int i = 0; i < Ne; ++i) {
+		if (i == 0) {
+			dEold[i] = (energy[1] - energy[0]) / 2;
+			outEnergy[0][0] = energy[0];
+		}
+		else if (i < Ne - 1) {
+			dEold[i] = (energy[i + 1] - energy[i - 1]) / 2;
+
+			double E = energy[i];
+			double gamma = E / mc2;
+			double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
+			double lossRate = ((4.0 / 3.0) * sigmaT * beta * beta * E * E / (mass * mass * cube(speed_of_light))) * (B[0] * B[0] / (8 * pi) + Uph1 / pow(1 + 4 * E * Eph1 / sqr(mc2), 3.0 / 2.0) + Uph2 / pow(1 + 4 * E * Eph2 / sqr(mc2), 3.0 / 2.0));
+
+			outEnergy[0][i] = E - lossRate * dt;
+		}
+		else {
+			dEold[i] = (energy[i] - energy[i - 1]) / 2;
+
+			double E = energy[i];
+			double gamma = E / mc2;
+			double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
+			double lossRate = ((4.0 / 3.0) * sigmaT * beta * beta * E * E / (mass * mass * cube(speed_of_light))) * (B[0] * B[0] / (8 * pi) + Uph1 / pow(1 + 4 * E * Eph1 / sqr(mc2), 3.0 / 2.0) + Uph2 / pow(1 + 4 * E * Eph2 / sqr(mc2), 3.0 / 2.0));
+
+			outEnergy[0][i] = E - lossRate * dt;
+		}
+	}
+	for (int i = 0; i < Ne; ++i) {
+		if (i == 0) {
+			dE[i] = (outEnergy[0][1] - outEnergy[0][0]) / 2;
+		}
+		else if (i < Ne - 1) {
+			dE[i] = (outEnergy[0][i + 1] - outEnergy[0][i - 1]) / 2;
+		}
+		else {
+			dE[i] = (outEnergy[0][i] - outEnergy[0][i - 1]) / 2;
+		}
+
+		if (dE[i] < 0) {
+			printf("dE < 0 in evaluate distribution advection with losses\n");
+			printLog("dE < 0 in evaluate distribution advection with losses\n");
+			exit(0);
+		}
+
+		outDistribution[0][i] = distribution[i] * dEold[i] / dE[i];
+	}
+
+	for (int j = 1; j < Nx; ++j) {
+		dx = (x[j] - x[j - 1]);
+		dt = dx / advectionV;
+
+		for (int i = 0; i < Ne; ++i) {
+			if (i == 0) {
+				dEold[i] = (outEnergy[j-1][1] - outEnergy[j - 1][0]) / 2;
+				outEnergy[j][0] = outEnergy[j - 1][0];
+			}
+			else if (i < Ne - 1) {
+				dEold[i] = (outEnergy[j - 1][i + 1] - outEnergy[j - 1][i - 1]) / 2;
+
+				double E = outEnergy[j - 1][i];
+				double gamma = E / mc2;
+				double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
+				double lossRate = ((4.0 / 3.0) * sigmaT * beta * beta * E * E / (mass * mass * cube(speed_of_light))) * (B[j] * B[j] / (8 * pi) + Uph1 / pow(1 + 4 * E * Eph1 / sqr(mc2), 3.0 / 2.0) + Uph2 / pow(1 + 4 * E * Eph2 / sqr(mc2), 3.0 / 2.0));
+
+				outEnergy[j][i] = E - lossRate * dt;
+			}
+			else {
+				dEold[i] = (outEnergy[j - 1][i] - outEnergy[j - 1][i - 1]) / 2;
+
+				double E = outEnergy[j - 1][i];
+				double gamma = E / mc2;
+				double beta = sqrt(1.0 - 1.0 / (gamma * gamma));
+				double lossRate = ((4.0 / 3.0) * sigmaT * beta * beta * E * E / (mass * mass * cube(speed_of_light))) * (B[j] * B[j] / (8 * pi) + Uph1 / pow(1 + 4 * E * Eph1 / sqr(mc2), 3.0 / 2.0) + Uph2 / pow(1 + 4 * E * Eph2 / sqr(mc2), 3.0 / 2.0));
+
+				outEnergy[j][i] = E - lossRate * dt;
+			}
+		}
+		for (int i = 0; i < Ne; ++i) {
+			if (i == 0) {
+				dE[i] = (outEnergy[0][1] - outEnergy[0][0]) / 2;
+			}
+			else if (i < Ne - 1) {
+				dE[i] = (outEnergy[0][i + 1] - outEnergy[0][i - 1]) / 2;
+			}
+			else {
+				dE[i] = (outEnergy[0][i] - outEnergy[0][i - 1]) / 2;
+			}
+
+			if (dE[i] < 0) {
+				printf("dE < 0 in evaluate distribution advection with losses\n");
+				printLog("dE < 0 in evaluate distribution advection with losses\n");
+				exit(0);
+			}
+
+			outDistribution[0][i] = outDistribution[j-1][i] * dEold[i] / dE[i];
+		}
+	}
+}
+
 MassiveParticleMonoenergeticDistribution::MassiveParticleMonoenergeticDistribution(const double& mass, const double& Energy, const double& halfWidth)
 {
 	my_mass = mass;

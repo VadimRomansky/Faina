@@ -295,6 +295,7 @@ public:
 	static MassiveParticleDistribution** readTabulatedIsotropicDistributions(const double& mass, const char* fileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne);
 	static MassiveParticleDistribution** readTabulatedIsotropicDistributionsAddPowerLawTail(const double& mass, const char* fileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne, const double& Epower, const double& index);
 	static MassiveParticleDistribution** readTabulatedIsotropicDistributionsAddPowerLawTail(const double& mass, const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne, const double& Epower, const double& index);
+	static void evaluateDistributionAdvectionWithLosses(const double& mass, double* energy, double* distribution, double** outEnergy, double** outDistribution, const int Ne, const int Nx, double* x, double advectionV, double* B, double Uph1, double Eph1, double Uph2, double Eph2);
 };
 
 class MassiveParticleMovingDistribution : public MassiveParticleDistribution{
