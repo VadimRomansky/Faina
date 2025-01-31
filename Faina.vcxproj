@@ -136,7 +136,7 @@
     <ClCompile Include="Src\KPIevaluator.cpp" />
     <ClCompile Include="Src\massiveParticleDistribution.cpp" />
     <ClCompile Include="Src\Math\largeVectorBasis.cpp" />
-    <ClCompile Include="Src\Math\matrixelement.cpp" />
+    <ClCompile Include="Src\Math\matrixElement.cpp" />
     <ClCompile Include="Src\Math\specialmath.cpp" />
     <ClCompile Include="Src\optimization.cpp" />
     <ClCompile Include="Src\photonDistribution.cpp" />

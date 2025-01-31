@@ -1293,7 +1293,7 @@ void evaluateW50comptonAndSynchrotron2() {
 		distributions[i] = new double[Nee];
 	}
 
-	MassiveParticleDistributionFactory::evaluateDistributionAdvectionWithLosses(massElectron, energy0, distribution0, energy, distributions, Nee, Nrho, x, 0.25 * 0.1 * speed_of_light, inversedB, photonEnergyDensity, photons->getMeanEnergy(), 0, 0);
+	MassiveParticleDistributionFactory::evaluateDistributionAdvectionWithLosses(massElectron, energy0, distribution0, energy, distributions, Nee, Nrho, x, 0.25 * 0.1 * speed_of_light, inversedB, photonEnergyDensity, photons->getMeanEnergy(), photonIRenergyDensity, photonsIR->getMeanEnergy());
 
 	MassiveParticleDistribution**** electrons2 = new MassiveParticleDistribution ***[Nrho];
 	for (int i = 0; i < Nrho; ++i) {
@@ -1307,9 +1307,9 @@ void evaluateW50comptonAndSynchrotron2() {
 	}
 
 	//TabulatedDiskSourceWithSynchAndComptCutoff* source = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, electrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
-	RectangularSourceWithSynchAndComptCutoffFromRight* source = new RectangularSourceWithSynchAndComptCutoffFromRight(Nrho, Ny, Nz, electrons, B, Btheta, Bphi, concentrationArray, 0, size, 0, size, 0, pi * size, distance, 0.25 * 0.1 * speed_of_light, photonTotalEnergyDensity);
-	//RectangularSource* source2 = new RectangularSource(Nrho, Ny, Nz, electrons, B, Btheta, Bphi, concentrationArray, 0, size, 0, size, 0, pi * size, distance);
-	RectangularSourceInhomogenousDistribution* source2 = new RectangularSourceInhomogenousDistribution(Nrho, Ny, Nz, electrons2, B, Btheta, Bphi, concentrationArray, 0, size, 0, size, 0, pi * size, distance);
+	//RectangularSourceWithSynchAndComptCutoffFromRight* source = new RectangularSourceWithSynchAndComptCutoffFromRight(Nrho, Ny, Nz, electrons, B, Btheta, Bphi, concentrationArray, 0, size, 0, size, 0, pi * size, distance, 0.25 * 0.1 * speed_of_light, photonTotalEnergyDensity);
+	RectangularSourceInhomogenousDistribution* source = new RectangularSourceInhomogenousDistribution(Nrho, Ny, Nz, electrons2, B, Btheta, Bphi, concentrationArray, 0, size, 0, size, 0, pi * size, distance);
+	RectangularSource* source2 = new RectangularSource(Nrho, Ny, Nz, electrons, B, Btheta, Bphi, concentrationArray, 0, size, 0, size, 0, pi * size, distance);
 	MassiveParticleIsotropicDistribution* distributionRight = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(Nrho - 1, 0, 0));
 	distributionRight->writeDistribution("distributionRight.dat", 200, me_c2, 1E10 * me_c2);
 	MassiveParticleIsotropicDistribution* distributionMiddle = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(Nrho - 2, 0, 0));
@@ -1333,8 +1333,8 @@ void evaluateW50comptonAndSynchrotron2() {
 	sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt.dat", source, 1.6E-18, 1.6E3, 200);
 	sumEvaluator->writeEFEFromSourceToFile("W50highenergy.dat", source, 1.6E-1, 1.6E3, 200);
 
-	sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt2.dat", source2, 1.6E-18, 1.6E3, 200);
-	sumEvaluator->writeEFEFromSourceToFile("W50highenergy2.dat", source2, 1.6E-1, 1.6E3, 200);
+	//sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt2.dat", source2, 1.6E-18, 1.6E3, 200);
+	//sumEvaluator->writeEFEFromSourceToFile("W50highenergy2.dat", source2, 1.6E-1, 1.6E3, 200);
 
 	printf("start writing images\n");
 	printLog("start writing images\n");

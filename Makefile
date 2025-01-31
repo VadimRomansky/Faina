@@ -2,7 +2,7 @@
 # Makefile for building: Faina
 #############################################################################
 
-SRC          = ./Src
+SRC          = ./Src ./Src/Math	
 INCLUDE_DIRS = -I. -I$(SRC)
 
 ####### Compiler, tools and options
@@ -42,7 +42,10 @@ HEADERS       = ./Src/constants.h \
 		./Src/radiation.h \
 		./Src/radiationSource.h \
 		./Src/synchrotron.h \
-		./Src/util.h
+		./Src/util.h \
+		./Src/Math/matrixElement.h \
+		./Src/Math/largeVectorBasis.h \
+		./Src/Math/specialmath.h
 
 SOURCES       = Src/KPIevaluator.cpp \
 		Src/bremsstrahlung.cpp \
@@ -58,6 +61,9 @@ SOURCES       = Src/KPIevaluator.cpp \
 		Src/radiationSourceFactory.cpp \
 		Src/synchrotron.cpp \
 		Src/util.cpp \
+		Src/Math/matrixElement.cpp \
+		Src/Math/largeVectorBasis.cpp \
+		Src/Math/specialmath.cpp \
 		main.cpp 
 OBJS      = KPIevaluator.o \
 		bremsstrahlung.o \
@@ -73,6 +79,9 @@ OBJS      = KPIevaluator.o \
 		radiationSourceFactory.o \
 		synchrotron.o \
 		util.o \
+		matrixElement.o \
+		largeVectorBasis.o \
+		specialmath.o \
 		main.o
 
 TARGET        = Faina

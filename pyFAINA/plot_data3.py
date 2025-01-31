@@ -52,5 +52,8 @@ def plot_data3(filename1, filename2, filename3, name, Ncol):
     ax.set_xscale("log")
     ax.set_yscale("log")
 
+    ax.set_xlim([1E-5, 1E4])
+    ax.set_ylim([1E-16, 5E2])
+
 
     plt.savefig(name + '.png', bbox_inches='tight')

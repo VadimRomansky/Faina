@@ -296,6 +296,10 @@ public:
 	static MassiveParticleDistribution** readTabulatedIsotropicDistributionsAddPowerLawTail(const double& mass, const char* fileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne, const double& Epower, const double& index);
 	static MassiveParticleDistribution** readTabulatedIsotropicDistributionsAddPowerLawTail(const double& mass, const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne, const double& Epower, const double& index);
 	static void evaluateDistributionAdvectionWithLosses(const double& mass, double* energy, double* distribution, double** outEnergy, double** outDistribution, const int Ne, const int Nx, double* x, double advectionV, double* B, double Uph1, double Eph1, double Uph2, double Eph2);
+	static void evaluateDistributionAdvectionWithLossesBetweenTwoPoints(const double& mass, const double* inEnergy, const double* inDistribution, double* outEnergy, double* outDistribution, const int Ne, const double& deltaX, const double& advectionV, const double& B, const double& Uph1, const double& Eph1, const double& Uph2, const double& Eph2, const int Nstep);
+	static void redistributeArray(const double* inEnergy, const double* inDistribution, double* outEnergy, double* outDistribution, int Ne);
+	static void redistributeArrayWithFixedEnergy(const double* inEnergy, const double* inDistribution, const double* outEnergy, double* outDistribution, int Ne);
+	static double getDistribution(const double& E, const double* energy, const double* distribution, int Ne);
 };
 
 class MassiveParticleMovingDistribution : public MassiveParticleDistribution{
