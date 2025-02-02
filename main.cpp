@@ -1320,7 +1320,7 @@ void evaluateW50comptonAndSynchrotron2() {
 	int Ne = 1000;
 	int Nmu = 100;
 	int Nphi = 4;
-	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2, 1E10 * me_c2, 0.1 * kBoltzman * 2.75, 50 * kBoltzman * 2.75, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2, 1E10 * me_c2, 0.1 * kBoltzman * 2.75, 20 * kBoltzman * 140, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
 
 	//comptonEvaluator->writeEFEFromSourceToFile("W50compton.dat", source, 1.6E-10, 1.6E3, 2000);
 
