@@ -16,6 +16,8 @@ protected:
 	int my_Nmu;
 	int my_Nphi;
 
+	int my_Nph;
+
 	double my_Ephmin;
 	double my_Ephmax;
 
@@ -41,7 +43,7 @@ protected:
 	double evaluateComptonEmissivityKleinNishinaAnisotropic2(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& photonConcentration, const double& electronConcentration);
 	double evaluateComptonEmissivityKleinNishinaAnisotropic3(const double& photonFinalEnergy, const double& photonFinalTheta, const double& photonFinalPhi, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& photonConcentration, const double& electronConcentration);
 public:
-    InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonDistribution* photonDistribution, const double& photonConcentration, ComptonSolverType solverType, bool absorption = false, bool doppler = false);
+    InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax, int Nph, double Ephmin, double Ephmax, PhotonDistribution* photonDistribution, const double& photonConcentration, ComptonSolverType solverType, bool absorption = false, bool doppler = false);
 	virtual ~InverseComptonEvaluator();
     void resetParameters(const double *parameters, const double *normalizationUnits);
 
@@ -65,7 +67,7 @@ protected:
 	virtual PhotonDistribution* getPhotonDistribution(const double& rho, const double& z, const double& phi);
 	virtual double getPhotonConcentration(const double& rho, const double& z, const double& phi);
 public:
-	InverseComptonEvaluatorWithSource(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonDistribution* photonDistribution, const double& photonConcentration, ComptonSolverType solverType, const double& sourceR, const double& sourceZ, const double& sourcePhi, bool absorption = false, bool doppler = false);
+	InverseComptonEvaluatorWithSource(int Ne, int Nmu, int Nphi, double Emin, double Emax, int Nph, double Ephmin, double Ephmax, PhotonDistribution* photonDistribution, const double& photonConcentration, ComptonSolverType solverType, const double& sourceR, const double& sourceZ, const double& sourcePhi, bool absorption = false, bool doppler = false);
 	virtual ~InverseComptonEvaluatorWithSource();
 };
 

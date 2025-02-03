@@ -58,6 +58,8 @@ void evaluateComptonWithPowerLawDistribution() {
 	int Nphi = 10;
 	double index =2.0;
 
+	int Nph = 100;
+
 	double T = 11000;
 	//initializing mean galactic photon field
 	double luminosity = 510000 * 4 * 1E33;
@@ -88,16 +90,16 @@ void evaluateComptonWithPowerLawDistribution() {
 
 	double Ephmin = 0.1 * T * kBoltzman;
 	double Ephmax = 10 * T * kBoltzman;
-	InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution1, photonConcentration1, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	InverseComptonEvaluator* comptonEvaluator2 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution2, photonConcentration2, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	InverseComptonEvaluator* comptonEvaluator3 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution3, photonConcentration3, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	InverseComptonEvaluator* comptonEvaluator4 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution4, photonConcentration4, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	InverseComptonEvaluator* comptonEvaluator5 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution5, photonConcentration5, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	InverseComptonEvaluator* comptonEvaluator6 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution6, photonConcentration6, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	InverseComptonEvaluator* comptonEvaluator7 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution7, photonConcentration7, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	InverseComptonEvaluator* comptonEvaluator8 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution8, photonConcentration8, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	InverseComptonEvaluator* comptonEvaluator9 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution8, photonConcentration8, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
-	InverseComptonEvaluator* comptonEvaluator10 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution8, photonConcentration8, ComptonSolverType::ISOTROPIC_JONES);
+	InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDistribution1, photonConcentration1, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator2 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDistribution2, photonConcentration2, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator3 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDistribution3, photonConcentration3, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator4 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDistribution4, photonConcentration4, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator5 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDistribution5, photonConcentration5, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator6 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDistribution6, photonConcentration6, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator7 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDistribution7, photonConcentration7, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator8 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDistribution8, photonConcentration8, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator9 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDistribution8, photonConcentration8, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator10 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDistribution8, photonConcentration8, ComptonSolverType::ISOTROPIC_JONES);
 
 	//initializing photon energy grid for output
 	int Nnu = 50;
@@ -1119,8 +1121,8 @@ void compareComptonSynchrotron() {
 	//PhotonIsotropicDistribution* photons = PhotonPlankDistribution::getCMBradiation();
 	PhotonPlankDistribution* photons = new PhotonPlankDistribution(T, 1.0);
 	double photonConcentration = photons->getConcentration();
-	RadiationEvaluator* inverseComptonEvaluator = new InverseComptonEvaluator(100, 50, 4, Emin, Emax, Ephmin, Ephmax, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
-	RadiationEvaluator* inverseComptonEvaluator2 = new InverseComptonEvaluator(100, 50, 4, Emin, Emax, Ephmin, Ephmax, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+	RadiationEvaluator* inverseComptonEvaluator = new InverseComptonEvaluator(100, 50, 4, Emin, Emax, 100, Ephmin, Ephmax, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	RadiationEvaluator* inverseComptonEvaluator2 = new InverseComptonEvaluator(100, 50, 4, Emin, Emax, 100, Ephmin, Ephmax, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
 	double EminCompton = 0.1*kBoltzman*T;
 	double EmaxCompton = 20*sqrt(kBoltzman * T * Emax);
 	inverseComptonEvaluator->writeFluxFromSourceToFile("output2.dat", source, EminCompton, EmaxCompton, 100);
@@ -1280,6 +1282,7 @@ void testAnisotropicCompton() {
 	int Nrho = 2;
 	int Nz = 4;
 	int Nphi = 20;
+	int Nph = 100;
 	double index = 3.0;
 	double electronConcentration = 5E5;
 
@@ -1303,14 +1306,14 @@ void testAnisotropicCompton() {
 	RadiationSourceInCylindrical* source = new SimpleFlatSource(electrons, B, pi/2, 0, electronConcentration, rmax, rmax, distance);
 	PhotonPlankDistribution* photonDummyDistribution = new PhotonPlankDistribution(Tstar, sqr(rstar / rmax));
 	double photonConcentration = photonDummyDistribution->getConcentration();
-	InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDummyDistribution, photonConcentration, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	InverseComptonEvaluator* comptonEvaluator0 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDummyDistribution, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDummyDistribution, photonConcentration, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	InverseComptonEvaluator* comptonEvaluator0 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDummyDistribution, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
 
 	//comptonEvaluator1->outputDifferentialFlux("differentialFLux.dat");
 
 	double minEev = 0.3 * 0.001 * 1.6E-12;
 	double maxEev = 10 * 0.001 * 1.6E-12;
-	int Nph = 10;
+	//int Nph = 10;
 	//double kevFlux = comptonEvaluator2->evaluateTotalFluxInEnergyRange(minEev, maxEev, Nph, source);
 	//double kevJonesFlux = comptonEvaluator1->evaluateTotalFluxInEnergyRange(minEev, maxEev, Nph, source);
 	//printf("isotropic flux = %g\n", kevFlux);
@@ -1326,7 +1329,7 @@ void testAnisotropicCompton() {
 		double kevAnisotropicFlux1 = 0;
 		double kevAnisotropicFlux2 = 0;
 		double kevAnisotropicFlux3 = 0;
-		double factor = pow(maxEev / minEev, 1.0 / (Nph - 1));
+		//double factor = pow(maxEev / minEev, 1.0 / (Nph - 1));
 		double currentE = minEev;
 		double flux = 0;
 		/*for (int j = 0; j < Nph; ++j) {
@@ -1369,6 +1372,7 @@ void compareComptonWithPowerLawDistribution() {
 	int Ne = 200;
 	int Nmu = 40;
 	int Nphi = 4;
+	int Nph = 100;
 	double index = 3.5;
 
 	//initializing mean galactic photon field
@@ -1386,11 +1390,11 @@ void compareComptonWithPowerLawDistribution() {
 	double Ephmax = photonEnergy + halfWidth;
 	int evaluatorsNumber = 5;
 	InverseComptonEvaluator** evaluators = new InverseComptonEvaluator * [evaluatorsNumber];
-	evaluators[0] = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
-	evaluators[1] = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
-	evaluators[2] = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, photonConcentration, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	evaluators[3] = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, photonConcentration, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
-	evaluators[4] = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, photonConcentration, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	evaluators[0] = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDistribution, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	evaluators[1] = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDistribution, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+	evaluators[2] = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDistribution, photonConcentration, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	evaluators[3] = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDistribution, photonConcentration, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
+	evaluators[4] = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDistribution, photonConcentration, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
 
 	//initializing photon energy grid for output
 	int Nnu = 50;
@@ -2420,8 +2424,8 @@ void testNishinaLosses() {
 		PhotonMonoenergeticDistribution* photons = new PhotonMonoenergeticDistribution(Eph, 0.001 * Eph);
 		double photonConcentration = 1.0/Eph;
 		double photonEnergyDensity = photonConcentration * photons->getMeanEnergy();
-		InverseComptonEvaluator* evaluator = new InverseComptonEvaluator(50, 10, 4, Ee - halfEe, Ee + halfEe, 0.999 * Eph, 1.001 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
-		InverseComptonEvaluator* evaluator2 = new InverseComptonEvaluator(50, 20, 4, Ee - halfEe, Ee + halfEe, 0.999 * Eph, 1.001 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+		InverseComptonEvaluator* evaluator = new InverseComptonEvaluator(50, 10, 4, Ee - halfEe, Ee + halfEe, 50, 0.999 * Eph, 1.001 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+		InverseComptonEvaluator* evaluator2 = new InverseComptonEvaluator(50, 20, 4, Ee - halfEe, Ee + halfEe, 50, 0.999 * Eph, 1.001 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
 
 		L[i] = evaluator->evaluateTotalFluxInEnergyRange(0.01 * Eph, 2 * Ee, 1000, source) * 4 * pi * distance * distance;
 		L1[i] = volume * concentration * (4.0 / 3.0) * speed_of_light * sigmaT * gamma * gamma * photonEnergyDensity / pow(1.0 + 4 * gamma * Eph / me_c2, 3.0 / 2.0);

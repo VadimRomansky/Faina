@@ -10,7 +10,7 @@
 
 #include "inverseCompton.h"
 
-InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonDistribution* photonDistribution, const double& photonConcentration, ComptonSolverType solverType, bool absorption, bool doppler) : RadiationEvaluator(Ne, Emin, Emax, absorption, doppler){
+InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, double Emin, double Emax, int Nph, double Ephmin, double Ephmax, PhotonDistribution* photonDistribution, const double& photonConcentration, ComptonSolverType solverType, bool absorption, bool doppler) : RadiationEvaluator(Ne, Emin, Emax, absorption, doppler){
 	my_solverType = solverType;
 	
 	my_Ephmin = Ephmin;
@@ -18,6 +18,8 @@ InverseComptonEvaluator::InverseComptonEvaluator(int Ne, int Nmu, int Nphi, doub
 
 	my_Nmu = Nmu;
 	my_Nphi = Nphi;
+
+	my_Nph = Nph;
 
     my_photonDistribution = photonDistribution;
 	my_photonConcentration = photonConcentration;
@@ -125,13 +127,12 @@ double InverseComptonEvaluator::evaluateComptonEmissivityJonesIsotropic(const do
 
 	double I = 0;
 
-	int Nph = 100;
-	double* Eph = new double[Nph];
+	double* Eph = new double[my_Nph];
 	double Ephmin = my_Ephmin;
 	double Ephmax = my_Ephmax;
-	double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+	double factor = pow(Ephmax / Ephmin, 1.0 / (my_Nph - 1));
 	Eph[0] = Ephmin;
-	for (int i = 1; i < Nph; ++i) {
+	for (int i = 1; i < my_Nph; ++i) {
 		Eph[i] = Eph[i - 1] * factor;
 	}
 
@@ -139,7 +140,7 @@ double InverseComptonEvaluator::evaluateComptonEmissivityJonesIsotropic(const do
 	double photonFinalCosTheta = 1.0;
 	double photonFinalPhi = 0.0;
 	double* Ee = new double[my_Ne];
-	for (int l = 0; l < Nph; ++l) {
+	for (int l = 0; l < my_Nph; ++l) {
 		double photonInitialEnergy = Eph[l];
 		double dphotonInitialEnergy;
 		if (l == 0) {
@@ -1880,7 +1881,7 @@ double InverseComptonEvaluator::evaluateAbsorption(const double& photonFinalEner
 	return 0.0;
 }
 
-InverseComptonEvaluatorWithSource::InverseComptonEvaluatorWithSource(int Ne, int Nmu, int Nphi, double Emin, double Emax, double Ephmin, double Ephmax, PhotonDistribution* photonDistribution, const double& photonConcentration, ComptonSolverType solverType, const double& sourceR, const double& sourceZ, const double& sourcePhi, bool absorption, bool doppler) : InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Ephmin, Ephmax, photonDistribution, photonConcentration, solverType, absorption, doppler) {
+InverseComptonEvaluatorWithSource::InverseComptonEvaluatorWithSource(int Ne, int Nmu, int Nphi, double Emin, double Emax, int Nph, double Ephmin, double Ephmax, PhotonDistribution* photonDistribution, const double& photonConcentration, ComptonSolverType solverType, const double& sourceR, const double& sourceZ, const double& sourcePhi, bool absorption, bool doppler) : InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDistribution, photonConcentration, solverType, absorption, doppler) {
 	my_sourceR = sourceR;
 	my_sourceZ = sourceZ;
 	my_sourcePhi = sourcePhi;
