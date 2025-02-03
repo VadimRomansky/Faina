@@ -2,6 +2,7 @@ from matplotlib import animation
 from pylab import *
 import numpy as np
 
+from plot_W50_EFE import plot_W50_EFE
 from plot_array3d import plot_array3d
 from plot_array3d_animated import plot_array3d_animated
 from plot_bremsstrahlung import plot_bremsstrahlung
@@ -37,7 +38,7 @@ if __name__ == '__main__':
     #plot_dummy()
     #plot_data("../nishina_losses.dat","nishina_losses", 3, 'log', 'log')
     #plot_data("../Bturb.dat", "B", 2)
-    plot_data3("../distributionRight.dat", "../distributionMiddle.dat", "../distributionLeft.dat", "distributions", 1)
+    #plot_data3("../distributionRight.dat", "../distributionMiddle.dat", "../distributionLeft.dat", "distributions", 1)
     #plot_distributions()
     #plot_distributions9()
     #plot_distributions_protons()
@@ -49,9 +50,10 @@ if __name__ == '__main__':
     #plot_radiation_EFE("../W50pion.dat", "W50pion")
     #plot_radiation_EFE("../W50compton.dat", "W50compton")
     #plot_radiation_EFE("../W50synchrotron.dat", "W50synchrotron")
-    plot_radiation_EFE("../W50synchandcompt.dat", "W50synchandcompt")
+    #plot_radiation_EFE("../W50synchandcompt.dat", "W50synchandcompt")
+    plot_W50_EFE("../W50synchandcompt.dat", "W50synchandcompt")
     #plot_radiation_EFE("../W50synchandcompt2.dat", "W50synchandcompt2")
-    plot_radiation_EFE("../W50highenergy.dat", "W50highenergy")
+    #plot_radiation_EFE("../W50highenergy.dat", "W50highenergy")
     #plot_radiation_EFE("../W50highenergy2.dat", "W50highenergy2")
     #plot_synchrotron()
     #plot_synchrotron3()
