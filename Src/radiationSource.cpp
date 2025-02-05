@@ -100,6 +100,10 @@ int RadiationSourceInCartesian::getNy()
 
 RectangularSource::RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double B, double theta, double phi, double concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity, const double& redShift) : RadiationSourceInCartesian(Nx, Ny, Nz, minX, maxX, minY, maxY, minZ, maxZ, distance, redShift)
 {
+	my_xgrid = NULL;
+	my_ygrid = NULL;
+	my_zgrid = NULL;
+
 	my_distribution = electronDistribution;
 
 	my_velocity = velocity;
@@ -150,6 +154,10 @@ RectangularSource::RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDist
 
 RectangularSource::RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity, const double& redShift) : RadiationSourceInCartesian(Nx, Ny, Nz, minX, maxX, minY, maxY, minZ, maxZ, distance, redShift)
 {
+	my_xgrid = NULL;
+	my_ygrid = NULL;
+	my_zgrid = NULL;
+
 	my_distribution = electronDistribution;
 
 	my_velocity = velocity;
@@ -200,6 +208,10 @@ RectangularSource::RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDist
 
 RectangularSource::RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double B, double theta, double phi, double concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift) : RadiationSourceInCartesian(Nx, Ny, Nz, minX, maxX, minY, maxY, minZ, maxZ, distance, redShift)
 {
+	my_xgrid = NULL;
+	my_ygrid = NULL;
+	my_zgrid = NULL;
+
 	my_distribution = electronDistribution;
 
 	my_velocity = 0.0;
@@ -250,6 +262,246 @@ RectangularSource::RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDist
 
 RectangularSource::RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift) : RadiationSourceInCartesian(Nx, Ny, Nz, minX, maxX, minY, maxY, minZ, maxZ, distance, redShift)
 {
+	my_xgrid = NULL;
+	my_ygrid = NULL;
+	my_zgrid = NULL;
+
+	my_distribution = electronDistribution;
+
+	my_velocity = 0.0;
+
+	my_B = new double** [my_Nx];
+	my_theta = new double** [my_Nx];
+	my_phi = new double** [my_Nx];
+	my_concentration = new double** [my_Nx];
+	my_v = new double** [my_Nx];
+	my_vtheta = new double** [my_Nx];
+	my_vphi = new double** [my_Nx];
+	for (int irho = 0; irho < my_Nx; ++irho) {
+		my_B[irho] = new double* [my_Nz];
+		my_theta[irho] = new double* [my_Nz];
+		my_phi[irho] = new double* [my_Nz];
+		my_concentration[irho] = new double* [my_Nz];
+		my_v[irho] = new double* [my_Nz];
+		my_vtheta[irho] = new double* [my_Nz];
+		my_vphi[irho] = new double* [my_Nz];
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			my_B[irho][iz] = new double[my_Ny];
+			my_theta[irho][iz] = new double[my_Ny];
+			my_phi[irho][iz] = new double[my_Ny];
+			my_concentration[irho][iz] = new double[my_Ny];
+			my_v[irho][iz] = new double[my_Ny];
+			my_vtheta[irho][iz] = new double[my_Ny];
+			my_vphi[irho][iz] = new double[my_Ny];
+			for (int iphi = 0; iphi < my_Ny; ++iphi) {
+				my_B[irho][iz][iphi] = B[irho][iz][iphi];
+				my_theta[irho][iz][iphi] = theta[irho][iz][iphi];
+				my_phi[irho][iz][iphi] = phi[irho][iz][iphi];
+				my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi];
+				my_v[irho][iz][iphi] = velocity[irho][iz][iphi];
+				my_vtheta[irho][iz][iphi] = vtheta[irho][iz][iphi];
+				my_vphi[irho][iz][iphi] = vphi[irho][iz][iphi];
+			}
+		}
+	}
+
+	my_isSource = new bool* [my_Nx];
+	for (int i = 0; i < my_Nx; ++i) {
+		my_isSource[i] = new bool[my_Ny];
+		for (int j = 0; j < my_Ny; ++j) {
+			my_isSource[i][j] = true;
+		}
+	}
+}
+
+RectangularSource::RectangularSource(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double B, double theta, double phi, double concentration, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity, const double& redShift) : RadiationSourceInCartesian(Nx, Ny, Nz, 0, 0, minY, maxY, minZ, maxZ, distance, redShift)
+{
+	my_xgrid = new double[my_Nx];
+	my_ygrid = NULL;
+	my_zgrid = NULL;
+	for (int i = 0; i < my_Nx; ++i) {
+		my_xgrid[i] = xgrid[i];
+	}
+	my_minX = (3.0 * my_xgrid[0] - my_xgrid[1]) / 2.0;
+	my_maxX = (3.0 * my_xgrid[my_Nx - 1] - my_xgrid[my_Nx - 2]) / 2.0;
+
+	my_distribution = electronDistribution;
+
+	my_velocity = velocity;
+
+	my_B = new double** [my_Nx];
+	my_theta = new double** [my_Nx];
+	my_phi = new double** [my_Nx];
+	my_concentration = new double** [my_Nx];
+	my_v = new double** [my_Nx];
+	my_vtheta = new double** [my_Nx];
+	my_vphi = new double** [my_Nx];
+	for (int irho = 0; irho < my_Nx; ++irho) {
+		my_B[irho] = new double* [my_Nz];
+		my_theta[irho] = new double* [my_Nz];
+		my_phi[irho] = new double* [my_Nz];
+		my_concentration[irho] = new double* [my_Nz];
+		my_v[irho] = new double* [my_Nz];
+		my_vtheta[irho] = new double* [my_Nz];
+		my_vphi[irho] = new double* [my_Nz];
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			my_B[irho][iz] = new double[my_Ny];
+			my_theta[irho][iz] = new double[my_Ny];
+			my_phi[irho][iz] = new double[my_Ny];
+			my_concentration[irho][iz] = new double[my_Ny];
+			my_v[irho][iz] = new double[my_Ny];
+			my_vtheta[irho][iz] = new double[my_Ny];
+			my_vphi[irho][iz] = new double[my_Ny];
+			for (int iphi = 0; iphi < my_Ny; ++iphi) {
+				my_B[irho][iz][iphi] = B;
+				my_theta[irho][iz][iphi] = theta;
+				my_phi[irho][iz][iphi] = phi;
+				my_concentration[irho][iz][iphi] = concentration;
+				my_v[irho][iz][iphi] = my_velocity;
+				my_vtheta[irho][iz][iphi] = 0;
+				my_vphi[irho][iz][iphi] = 0;
+			}
+		}
+	}
+
+	my_isSource = new bool* [my_Nx];
+	for (int i = 0; i < my_Nx; ++i) {
+		my_isSource[i] = new bool[my_Ny];
+		for (int j = 0; j < my_Ny; ++j) {
+			my_isSource[i][j] = true;
+		}
+	}
+}
+
+RectangularSource::RectangularSource(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity, const double& redShift) : RadiationSourceInCartesian(Nx, Ny, Nz, 0, 0, minY, maxY, minZ, maxZ, distance, redShift)
+{
+	my_xgrid = new double[my_Nx];
+	my_ygrid = NULL;
+	my_zgrid = NULL;
+	for (int i = 0; i < my_Nx; ++i) {
+		my_xgrid[i] = xgrid[i];
+	}
+	my_minX = (3.0 * my_xgrid[0] - my_xgrid[1]) / 2.0;
+	my_maxX = (3.0 * my_xgrid[my_Nx - 1] - my_xgrid[my_Nx - 2]) / 2.0;
+
+	my_distribution = electronDistribution;
+
+	my_velocity = velocity;
+
+	my_B = new double** [my_Nx];
+	my_theta = new double** [my_Nx];
+	my_phi = new double** [my_Nx];
+	my_concentration = new double** [my_Nx];
+	my_v = new double** [my_Nx];
+	my_vtheta = new double** [my_Nx];
+	my_vphi = new double** [my_Nx];
+	for (int irho = 0; irho < my_Nx; ++irho) {
+		my_B[irho] = new double* [my_Nz];
+		my_theta[irho] = new double* [my_Nz];
+		my_phi[irho] = new double* [my_Nz];
+		my_concentration[irho] = new double* [my_Nz];
+		my_v[irho] = new double* [my_Nz];
+		my_vtheta[irho] = new double* [my_Nz];
+		my_vphi[irho] = new double* [my_Nz];
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			my_B[irho][iz] = new double[my_Ny];
+			my_theta[irho][iz] = new double[my_Ny];
+			my_phi[irho][iz] = new double[my_Ny];
+			my_concentration[irho][iz] = new double[my_Ny];
+			my_v[irho][iz] = new double[my_Ny];
+			my_vtheta[irho][iz] = new double[my_Ny];
+			my_vphi[irho][iz] = new double[my_Ny];
+			for (int iphi = 0; iphi < my_Ny; ++iphi) {
+				my_B[irho][iz][iphi] = B[irho][iz][iphi];
+				my_theta[irho][iz][iphi] = theta[irho][iz][iphi];
+				my_phi[irho][iz][iphi] = phi[irho][iz][iphi];
+				my_concentration[irho][iz][iphi] = concentration[irho][iz][iphi];
+				my_v[irho][iz][iphi] = my_velocity;
+				my_vtheta[irho][iz][iphi] = 0;
+				my_vphi[irho][iz][iphi] = 0;
+			}
+		}
+	}
+
+	my_isSource = new bool* [my_Nx];
+	for (int i = 0; i < my_Nx; ++i) {
+		my_isSource[i] = new bool[my_Ny];
+		for (int j = 0; j < my_Ny; ++j) {
+			my_isSource[i][j] = true;
+		}
+	}
+}
+
+RectangularSource::RectangularSource(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double B, double theta, double phi, double concentration, double minY, double maxY, double minZ, double maxZ, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift) : RadiationSourceInCartesian(Nx, Ny, Nz, 0, 0, minY, maxY, minZ, maxZ, distance, redShift)
+{
+	my_xgrid = new double[my_Nx];
+	my_ygrid = NULL;
+	my_zgrid = NULL;
+	for (int i = 0; i < my_Nx; ++i) {
+		my_xgrid[i] = xgrid[i];
+	}
+	my_minX = (3.0 * my_xgrid[0] - my_xgrid[1]) / 2.0;
+	my_maxX = (3.0 * my_xgrid[my_Nx - 1] - my_xgrid[my_Nx - 2]) / 2.0;
+
+	my_distribution = electronDistribution;
+
+	my_velocity = 0.0;
+
+	my_B = new double** [my_Nx];
+	my_theta = new double** [my_Nx];
+	my_phi = new double** [my_Nx];
+	my_concentration = new double** [my_Nx];
+	my_v = new double** [my_Nx];
+	my_vtheta = new double** [my_Nx];
+	my_vphi = new double** [my_Nx];
+	for (int irho = 0; irho < my_Nx; ++irho) {
+		my_B[irho] = new double* [my_Nz];
+		my_theta[irho] = new double* [my_Nz];
+		my_phi[irho] = new double* [my_Nz];
+		my_concentration[irho] = new double* [my_Nz];
+		my_v[irho] = new double* [my_Nz];
+		my_vtheta[irho] = new double* [my_Nz];
+		my_vphi[irho] = new double* [my_Nz];
+		for (int iz = 0; iz < my_Nz; ++iz) {
+			my_B[irho][iz] = new double[my_Ny];
+			my_theta[irho][iz] = new double[my_Ny];
+			my_phi[irho][iz] = new double[my_Ny];
+			my_concentration[irho][iz] = new double[my_Ny];
+			my_v[irho][iz] = new double[my_Ny];
+			my_vtheta[irho][iz] = new double[my_Ny];
+			my_vphi[irho][iz] = new double[my_Ny];
+			for (int iphi = 0; iphi < my_Ny; ++iphi) {
+				my_B[irho][iz][iphi] = B;
+				my_theta[irho][iz][iphi] = theta;
+				my_phi[irho][iz][iphi] = phi;
+				my_concentration[irho][iz][iphi] = concentration;
+				my_v[irho][iz][iphi] = velocity[irho][iz][iphi];
+				my_vtheta[irho][iz][iphi] = vtheta[irho][iz][iphi];
+				my_vphi[irho][iz][iphi] = vphi[irho][iz][iphi];
+			}
+		}
+	}
+
+	my_isSource = new bool* [my_Nx];
+	for (int i = 0; i < my_Nx; ++i) {
+		my_isSource[i] = new bool[my_Ny];
+		for (int j = 0; j < my_Ny; ++j) {
+			my_isSource[i][j] = true;
+		}
+	}
+}
+
+RectangularSource::RectangularSource(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, double minY, double maxY, double minZ, double maxZ, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift) : RadiationSourceInCartesian(Nx, Ny, Nz, 0, 0, minY, maxY, minZ, maxZ, distance, redShift)
+{
+	my_xgrid = new double[my_Nx];
+	my_ygrid = NULL;
+	my_zgrid = NULL;
+	for (int i = 0; i < my_Nx; ++i) {
+		my_xgrid[i] = xgrid[i];
+	}
+	my_minX = (3.0 * my_xgrid[0] - my_xgrid[1]) / 2.0;
+	my_maxX = (3.0 * my_xgrid[my_Nx - 1] - my_xgrid[my_Nx - 2]) / 2.0;
+
 	my_distribution = electronDistribution;
 
 	my_velocity = 0.0;

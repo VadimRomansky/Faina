@@ -1029,8 +1029,8 @@ double* getUvarovBpar(int Nx, double minX, double maxX) {
 		double x = minX + (i + 0.5) * dx;
 		double l = (maxX - x) / UNIT_LENGTH + 2;
 		B[i] = (A0 / (1 + pow(sqr((l - A3) / A1), A2))) * (1.0 / (1 + A6 * exp(-sqr((l - A4) / A5))));
-		if (B[i] < 1E-5 / sqrt(2.0)) {
-			B[i] = 1E-5 / sqrt(2.0);
+		if (B[i] < 1E-6 ) {
+			B[i] = 1E-6;
 		}
 	}
 
@@ -1038,7 +1038,7 @@ double* getUvarovBpar(int Nx, double minX, double maxX) {
 }
 
 double* getUvarovBper(int Nx, double minX, double maxX) {
-	double A0 = 98.3917*1E-6;
+	double A0 = 2*98.3917*1E-6;
 	double A1 = 30.533;
 	double A2 = 2.33138;
 	double A3 = -23.2141;
@@ -1052,8 +1052,8 @@ double* getUvarovBper(int Nx, double minX, double maxX) {
 		double x = minX + (i + 0.5) * dx;
 		double l = (maxX - x) / UNIT_LENGTH + 2;
 		B[i] = A0 / (1 + pow(sqr((l - A3) / A1), A2) + A4 * exp(-sqr((l - A5) / A6)));
-		if (B[i] < 1E-5 / sqrt(2.0)) {
-			B[i] = 1E-5 / sqrt(2.0);
+		if (B[i] < 1E-5) {
+			B[i] = 1E-5;
 		}
 	}
 

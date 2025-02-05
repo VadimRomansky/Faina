@@ -94,6 +94,10 @@ public:
 
 class RectangularSource : public RadiationSourceInCartesian {
 protected:
+	double* my_xgrid;
+	double* my_ygrid;
+	double* my_zgrid;
+
 	double*** my_B;
 	double*** my_theta;
 	double*** my_phi;
@@ -111,6 +115,10 @@ public:
 	RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity = 0, const double& redShift = 0);
 	RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double B, double theta, double phi, double concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift = 0);
 	RectangularSource(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift = 0);
+	RectangularSource(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double B, double theta, double phi, double concentration, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity = 0, const double& redShift = 0);
+	RectangularSource(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity = 0, const double& redShift = 0);
+	RectangularSource(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double B, double theta, double phi, double concentration, double minY, double maxY, double minZ, double maxZ, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift = 0);
+	RectangularSource(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, double minY, double maxY, double minZ, double maxZ, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift = 0);
 	virtual double getX(int ix);
 	virtual double getZ(int iz);
 	virtual double getY(int iy);
