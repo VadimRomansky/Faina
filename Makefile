@@ -2,8 +2,9 @@
 # Makefile for building: Faina
 #############################################################################
 
-SRC          = ./Src ./Src/Math	
+SRC          = ./Src
 INCLUDE_DIRS = -I. -I$(SRC)
+VPATH        = ./:$(SRC)/Math:$(SRC)
 
 ####### Compiler, tools and options
 
@@ -43,8 +44,8 @@ HEADERS       = ./Src/constants.h \
 		./Src/radiationSource.h \
 		./Src/synchrotron.h \
 		./Src/util.h \
-		./Src/Math/matrixElement.h \
 		./Src/Math/largeVectorBasis.h \
+		./Src/Math/matrixElement.h \
 		./Src/Math/specialmath.h
 
 SOURCES       = Src/KPIevaluator.cpp \
@@ -61,8 +62,8 @@ SOURCES       = Src/KPIevaluator.cpp \
 		Src/radiationSourceFactory.cpp \
 		Src/synchrotron.cpp \
 		Src/util.cpp \
-		Src/Math/matrixElement.cpp \
 		Src/Math/largeVectorBasis.cpp \
+		Src/Math/matrixElement.cpp \
 		Src/Math/specialmath.cpp \
 		main.cpp 
 OBJS      = KPIevaluator.o \
@@ -79,8 +80,8 @@ OBJS      = KPIevaluator.o \
 		radiationSourceFactory.o \
 		synchrotron.o \
 		util.o \
-		matrixElement.o \
 		largeVectorBasis.o \
+		matrixElement.o \
 		specialmath.o \
 		main.o
 
@@ -93,7 +94,7 @@ first: Faina
 Faina:  $(OBJS)
 	$(CXX) $(OBJS) -o $@ $(LDPATHS) $(LDFLAGS) $(LIBS)
 
-%.o: $(SRC)/%.cpp
+%.o: vpath %.cpp
 	$(CXX) $(CXX_FLAGS) -c -o $@ $< $(LDPATHS) $(LDFLAGS) $(LIBS)
 
 clean:

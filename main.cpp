@@ -1022,13 +1022,16 @@ double* getUvarovBpar(int Nx, double minX, double maxX) {
 	double A4 = 1.88243;
 	double A5 = 0.0767564;
 	double A6 = 0.00540849;
-	double UNIT_LENGTH = 2.5E18;
+	double UNIT_LENGTH = 2.5E17;
 	double* B = new double [Nx];
 	double dx = (maxX - minX) / Nx;
 	for (int i = 0; i < Nx; ++i) {
 		double x = minX + (i + 0.5) * dx;
 		double l = (maxX - x) / UNIT_LENGTH + 2;
 		B[i] = (A0 / (1 + pow(sqr((l - A3) / A1), A2))) * (1.0 / (1 + A6 * exp(-sqr((l - A4) / A5))));
+		if (B[i] < 1E-5 / sqrt(2.0)) {
+			B[i] = 1E-5 / sqrt(2.0);
+		}
 	}
 
 	return B;
@@ -1042,13 +1045,16 @@ double* getUvarovBper(int Nx, double minX, double maxX) {
 	double A4 = 18.847;
 	double A5 = 1.05756;
 	double A6 = 0.695847;
-	double UNIT_LENGTH = 2.5E18;
+	double UNIT_LENGTH = 2.5E17;
 	double* B = new double[Nx];
 	double dx = (maxX - minX) / Nx;
 	for (int i = 0; i < Nx; ++i) {
 		double x = minX + (i + 0.5) * dx;
 		double l = (maxX - x) / UNIT_LENGTH + 2;
 		B[i] = A0 / (1 + pow(sqr((l - A3) / A1), A2) + A4 * exp(-sqr((l - A5) / A6)));
+		if (B[i] < 1E-5 / sqrt(2.0)) {
+			B[i] = 1E-5 / sqrt(2.0);
+		}
 	}
 
 	return B;
@@ -1125,10 +1131,10 @@ void evaluateW50comptonAndSynchrotron() {
 	MassiveParticleIsotropicDistribution* distributionLeft = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(0, 0, 0));
 	distributionLeft->writeDistribution("distributionLeft.dat", 200, me_c2, 1E10 * me_c2);
 
-	int Ne = 1000;
+	int Ne = 200;
 	int Nmu = 100;
 	int Nphi = 4;
-	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2, 1E10 * me_c2, 1000, 0.1*kBoltzman*2.75, 50*kBoltzman*2.75, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2, 1E10 * me_c2, 250, 0.1*kBoltzman*2.75, 10*kBoltzman*140, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
 
 	//comptonEvaluator->writeEFEFromSourceToFile("W50compton.dat", source, 1.6E-10, 1.6E3, 2000);
 
@@ -1138,11 +1144,11 @@ void evaluateW50comptonAndSynchrotron() {
 
 	RadiationSumEvaluator* sumEvaluator = new RadiationSumEvaluator(Ne, me_c2, 1E10 * me_c2, comptonEvaluator, synchrotronEvaluator, false);
 
-	sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt.dat", source, 1.6E-18, 1.6E3, 200);
-	sumEvaluator->writeEFEFromSourceToFile("W50highenergy.dat", source, 1.6E-1, 1.6E3, 200);
+	sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt.dat", source, 1.6E-10, 1.6E3, 100);
+	sumEvaluator->writeEFEFromSourceToFile("W50highenergy.dat", source, 1.6E-1, 1.6E3, 100);
 
-	sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt2.dat", source2, 1.6E-18, 1.6E3, 200);
-	sumEvaluator->writeEFEFromSourceToFile("W50highenergy2.dat", source2, 1.6E-1, 1.6E3, 200);
+	//sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt2.dat", source2, 1.6E-18, 1.6E3, 200);
+	//sumEvaluator->writeEFEFromSourceToFile("W50highenergy2.dat", source2, 1.6E-1, 1.6E3, 200);
 
 	printf("start writing images\n");
 	printLog("start writing images\n");
@@ -1603,8 +1609,8 @@ int main() {
 	//evaluateSynchrotronInWideRange();
 	//evaluateW50bemsstrahlung();
 	//evaluateW50synchrotron();
-	//evaluateW50comptonAndSynchrotron();
-	evaluateW50comptonAndSynchrotron2();
+	evaluateW50comptonAndSynchrotron();
+	//evaluateW50comptonAndSynchrotron2();
 	//evaluateW50pion();
 
 	return 0;
