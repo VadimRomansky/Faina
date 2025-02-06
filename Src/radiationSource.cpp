@@ -552,20 +552,35 @@ RectangularSource::RectangularSource(int Nx, double* xgrid, int Ny, int Nz, Mass
 
 double RectangularSource::getX(int ix)
 {
-	double dx = (my_maxX - my_minX) / my_Nx;
-	return my_minX + dx*(ix + 0.5);
+	if (my_xgrid == NULL) {
+		double dx = (my_maxX - my_minX) / my_Nx;
+		return my_minX + dx * (ix + 0.5);
+	}
+	else {
+		return my_xgrid[ix];
+	}
 }
 
 double RectangularSource::getZ(int iz)
 {
-	double dz = (my_maxZ - my_minZ) / my_Nz;
-	return my_minZ + dz * (iz + 0.5);
+	if (my_zgrid == NULL) {
+		double dz = (my_maxZ - my_minZ) / my_Nz;
+		return my_minZ + dz * (iz + 0.5);
+	}
+	else {
+		return my_zgrid[iz];
+	}
 }
 
 double RectangularSource::getY(int iy)
 {
-	double dy = (my_maxY - my_minY) / my_Ny;
-	return my_minY + dy * (iy + 0.5);
+	if (my_ygrid == NULL) {
+		double dy = (my_maxY - my_minY) / my_Ny;
+		return my_minY + dy * (iy + 0.5);
+	}
+	else {
+		return my_ygrid[iy];
+	}
 }
 
 int RectangularSource::gerXindex(double x)
@@ -583,8 +598,18 @@ int RectangularSource::gerXindex(double x)
 	if (x == my_maxX) {
 		return my_Nx - 1;
 	}
-	double dx = (my_maxX - my_minX) / my_Nx;
-	return floor((x - my_minX) / dx);
+	if (my_xgrid == NULL) {
+		double dx = (my_maxX - my_minX) / my_Nx;
+		return floor((x - my_minX) / dx);
+	}
+	else {
+		for (int i = 0; i < my_Nx - 1; ++i) {
+			if ((my_xgrid[i] + my_xgrid[i + 1]) / 2 >= x) {
+				return i;
+			}
+		}
+		return my_Nx - 1;
+	}
 }
 
 int RectangularSource::getYindex(double y)
@@ -602,8 +627,18 @@ int RectangularSource::getYindex(double y)
 	if (y == my_maxY) {
 		return my_Ny - 1;
 	}
-	double dy = (my_maxY - my_minY) / my_Ny;
-	return floor((y - my_minY) / dy);
+	if (my_ygrid == NULL) {
+		double dy = (my_maxY - my_minY) / my_Ny;
+		return floor((y - my_minY) / dy);
+	}
+	else {
+		for (int i = 0; i < my_Ny; ++i) {
+			if ((my_ygrid[i] + my_ygrid[i + 1]) / 2.0 >= y) {
+				return i;
+			}
+		}
+		return my_Ny - 1;
+	}
 }
 
 int RectangularSource::getZindex(double z)
@@ -621,8 +656,18 @@ int RectangularSource::getZindex(double z)
 	if (z == my_maxZ) {
 		return my_Nz - 1;
 	}
-	double dz = (my_maxZ - my_minZ) / my_Nz;
-	return floor((z - my_minZ) / dz);
+	if (my_zgrid == NULL) {
+		double dz = (my_maxZ - my_minZ) / my_Nz;
+		return floor((z - my_minZ) / dz);
+	}
+	else {
+		for (int i = 0; i < my_Nz; ++i) {
+			if ((my_zgrid[i] + my_zgrid[i + 1]) / 2.0 > z) {
+				return i;
+			}
+		}
+		return my_Nz - 1;
+	}
 }
 
 double RectangularSource::getMaxB()
@@ -765,16 +810,42 @@ bool RectangularSource::isSource(int irho, int iphi)
 
 double RectangularSource::getArea(int irho, int iz, int iphi)
 {
-	double dx = (my_maxX - my_minX) / my_Nx;
-	double dy = (my_maxY - my_minY) / my_Ny;
+	double dx;
+	double dy;
+	if (my_xgrid == NULL) {
+		double dx = (my_maxX - my_minX) / my_Nx;
+	}
+	else {
+		if (irho == 0) {
+			dx = (my_xgrid[0] + my_xgrid[1]) / 2.0 - my_minX;
+		}
+		else if (irho == my_Nx - 1) {
+			dx = my_maxX - (my_xgrid[my_Nx - 1] + my_xgrid[my_Nx - 2]) / 2.0;
+		}
+		else {
+			dx = (my_xgrid[irho + 1] - my_xgrid[irho - 1]) / 2.0;
+		}
+	}
+	if (my_ygrid == NULL) {
+		double dy = (my_maxY - my_minY) / my_Ny;
+	}
+	else {
+		if (iphi == 0) {
+			dy = (my_ygrid[0] + my_ygrid[1]) / 2.0 - my_minY;
+		}
+		else if (iphi == my_Ny - 1) {
+			dy = my_maxY - (my_ygrid[my_Ny - 1] + my_ygrid[my_Ny - 2]) / 2.0;
+		}
+		else {
+			dy = (my_ygrid[iphi + 1] - my_ygrid[iphi - 1]) / 2.0;
+		}
+	}
 	return dx*dy;
 }
 
 double RectangularSource::getCrossSectionArea(int irhi, int iphi)
 {
-	double dx = (my_maxX - my_minX) / my_Nx;
-	double dy = (my_maxY - my_minY) / my_Ny;
-	return dx * dy;
+	return getArea(irhi, 0, iphi));
 }
 
 void RectangularSource::getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi)
@@ -821,8 +892,21 @@ double RectangularSource::getTotalVolume()
 
 double RectangularSource::getLength(int irho, int iz, int iphi)
 {
-	double dz = (my_maxZ - my_minZ) / my_Nz;
-	return dz;
+	if (my_zgrid == NULL) {
+		double dz = (my_maxZ - my_minZ) / my_Nz;
+		return dz;
+	}
+	else {
+		if (iz == 0) {
+			return (my_zgrid[0] + my_zgrid[1]) / 2.0 - my_minZ;
+		}
+		else if (iz == my_Nz - 1) {
+			return my_maxZ - (my_zgrid[my_Nz - 1] + my_zgrid[my_Nz - 2]) / 2.0;
+		}
+		else {
+			return (my_zgrid[iz + 1] - my_zgrid[iz - 1]) / 2.0;
+		}
+	}
 }
 
 void RectangularSource::resetParameters(const double* parameters, const double* normalizationUnits)
@@ -836,15 +920,31 @@ void RectangularSource::resetParameters(const double* parameters, const double* 
 * v = parameters[5]
 * where B[Nrho-1][0][0] = parameters[1]
 */
+	//todo nonuniform grid
 	double xsize = my_maxX - my_minX;
 	my_minX = parameters[0] * normalizationUnits[0]*my_minX/xsize;
 	my_maxX = parameters[0] * normalizationUnits[0] * my_maxX / xsize;
+	if (my_xgrid != NULL) {
+		for (int i = 0; i < my_Nx; ++i) {
+			my_xgrid[i] *= parameters[0] * normalizationUnits[0] / xsize;
+		}
+	}
 	double ysize = my_maxY - my_minY;
 	my_minY = parameters[1] * normalizationUnits[1] * my_minY / ysize;
 	my_maxY = parameters[1] * normalizationUnits[1] * my_maxY / ysize;
+	if (my_ygrid != NULL) {
+		for (int i = 0; i < my_Ny; ++i) {
+			my_ygrid[i] *= parameters[1] * normalizationUnits[1] / xsize;
+		}
+	}
 	double zsize = my_maxZ - my_minZ;
 	my_minZ = parameters[2] * normalizationUnits[2] * my_minZ / zsize;
 	my_maxZ = parameters[2] * normalizationUnits[2] * my_maxZ / zsize;
+	if (my_zgrid != NULL) {
+		for (int i = 0; i < my_Nz; ++i) {
+			my_zgrid[i] *= parameters[2] * normalizationUnits[2] / zsize;
+		}
+	}
 	double sigma = parameters[3] * normalizationUnits[3];
 	//double B0 = my_B[my_Nrho - 1][0][0];
 	//double n0 = my_concentration[my_Nrho - 1][0][0];
