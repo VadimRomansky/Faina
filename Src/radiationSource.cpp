@@ -813,7 +813,7 @@ double RectangularSource::getArea(int irho, int iz, int iphi)
 	double dx;
 	double dy;
 	if (my_xgrid == NULL) {
-		double dx = (my_maxX - my_minX) / my_Nx;
+		dx = (my_maxX - my_minX) / my_Nx;
 	}
 	else {
 		if (irho == 0) {
@@ -827,7 +827,7 @@ double RectangularSource::getArea(int irho, int iz, int iphi)
 		}
 	}
 	if (my_ygrid == NULL) {
-		double dy = (my_maxY - my_minY) / my_Ny;
+		dy = (my_maxY - my_minY) / my_Ny;
 	}
 	else {
 		if (iphi == 0) {
@@ -845,7 +845,7 @@ double RectangularSource::getArea(int irho, int iz, int iphi)
 
 double RectangularSource::getCrossSectionArea(int irhi, int iphi)
 {
-	return getArea(irhi, 0, iphi));
+	return getArea(irhi, 0, iphi);
 }
 
 void RectangularSource::getVelocity(int irho, int iz, int iphi, double& velocity, double& theta, double& phi)
@@ -1008,6 +1008,20 @@ RectangularSourceInhomogenousDistribution::RectangularSourceInhomogenousDistribu
 }
 
 RectangularSourceInhomogenousDistribution::RectangularSourceInhomogenousDistribution(int Nx, int Ny, int Nz, MassiveParticleDistribution**** electronDistributions, double*** B, double*** theta, double*** phi, double*** concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity, const double& redShift) : RectangularSource(Nx, Ny, Nz, NULL, B, theta, phi, concentration, minX, maxX, minY, maxY, minZ, maxZ, distance, velocity, redShift)
+{
+	my_distributions = new MassiveParticleDistribution * **[my_Nx];
+	for (int i = 0; i < my_Nx; ++i) {
+		my_distributions[i] = new MassiveParticleDistribution * *[my_Nz];
+		for (int j = 0; j < my_Nz; ++j) {
+			my_distributions[i][j] = new MassiveParticleDistribution * [my_Ny];
+			for (int k = 0; k < my_Ny; ++k) {
+				my_distributions[i][j][k] = electronDistributions[i][j][k];
+			}
+		}
+	}
+}
+
+RectangularSourceInhomogenousDistribution::RectangularSourceInhomogenousDistribution(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution**** electronDistributions, double*** B, double*** theta, double*** phi, double*** concentration, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity, const double& redShift) : RectangularSource(Nx, xgrid, Ny, Nz, NULL, B, theta, phi, concentration, minY, maxY, minZ, maxZ, distance, velocity, redShift)
 {
 	my_distributions = new MassiveParticleDistribution * **[my_Nx];
 	for (int i = 0; i < my_Nx; ++i) {

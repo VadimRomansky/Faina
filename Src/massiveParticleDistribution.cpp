@@ -1878,6 +1878,82 @@ void MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromM
 	outputDistribution = new MassiveParticleTabulatedIsotropicDistribution(mass, energy, distribution, n, DistributionInputType::ENERGY_FE);
 }
 
+void MassiveParticleDistributionFactory::readInhomogenousTabulatedIsotropicDistributionFromMonteCarlo(const double& mass, const char* xfileName, const char* pfileName, const char* distributionFileName, double* & xgrid, double* & energy, double** & distributions, double* & concentration, int& Nenergy, int& Nx)
+{
+	Nx = 0;
+	FILE* xfile = fopen(xfileName, "r");
+	while (!feof(xfile)) {
+		double a;
+		fscanf(xfile, "%lf", &a);
+		Nx = Nx + 1;
+	}
+	fclose(xfile);
+	Nx = Nx - 1;
+
+	Nenergy = 0;
+	FILE* pfile = fopen(pfileName, "r");
+	while (!feof(xfile)) {
+		double a;
+		fscanf(pfile, "%lf", &a);
+		Nenergy = Nenergy + 1;
+	}
+	fclose(pfile);
+	Nenergy = Nenergy - 1;
+
+	energy = new double[Nenergy];
+	xgrid = new double[Nx];
+	concentration = new double[Nx];
+	distributions = new double* [Nx];
+	for (int i = 0; i < Nx; ++i) {
+		distributions[i] = new double[Nenergy];
+	}
+
+	xfile = fopen(xfileName, "r");
+	pfile = fopen(pfileName, "r");
+	FILE* distributionFile = fopen(distributionFileName, "r");
+	for (int j = 0; j < Nenergy; ++j) {
+		double p;
+		fscanf(pfile, "%lf", &p);
+		double m_c2 = mass * speed_of_light2;
+		p = p * massProton * speed_of_light;
+		energy[j] = sqrt(p * p * speed_of_light2 + m_c2 * m_c2);
+	}
+	for (int i = 0; i < Nx; ++i) {
+		fscanf(xfile, "%lf", &xgrid[i]);
+
+
+		//energy[i] = sqrt(x * x * speed_of_light2 + m_c2 * m_c2);
+		//distribution[i] = y * x * energy[i] / speed_of_light2;
+		for (int j = 0; j < Nenergy; ++j) {
+			double m_c2 = mass * speed_of_light2;
+			double p = sqrt(energy[j] * energy[j] - m_c2 * m_c2) / speed_of_light;
+			double x = p / (massProton * speed_of_light);
+			double a;
+			fscanf(distributionFile, "%lf %lf", &a, &distributions[i][j]);
+			distributions[i][j] = (distributions[i][j] * p * energy[j] / speed_of_light2) / (x * x * x * x * cube(massProton * speed_of_light));
+		}
+
+		double norm = distributions[i][0] * (energy[1] - energy[0]);
+		for (int j = 1; j < Nenergy; ++j) {
+			norm += distributions[i][j] * (energy[j] - energy[j - 1]);
+		}
+		norm *= 4 * pi;
+		if (norm > 0) {
+			for (int j = 0; j < Nenergy; ++j) {
+				distributions[i][j] *= 1.0 / norm;
+			}
+			concentration[i] = norm;
+		}
+		else {
+			concentration[i] = 0;
+			distributions[i][0] = 1.0/(energy[1] - energy[0]);
+		}
+	}
+	fclose(xfile);
+	fclose(pfile);
+	fclose(distributionFile);
+}
+
 MassiveParticleDistribution** MassiveParticleDistributionFactory::readTabulatedIsotropicDistributions(const double& mass, const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne)
 {
 	MassiveParticleDistribution** distributions = new MassiveParticleDistribution * [Nfiles];

@@ -158,6 +158,8 @@ public:
 	RectangularSourceInhomogenousDistribution(int Nx, int Ny, int Nz, MassiveParticleDistribution**** electronDistributions, double B, double theta, double phi, double*** concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity = 0, const double& redShift = 0);
 	RectangularSourceInhomogenousDistribution(int Nx, int Ny, int Nz, MassiveParticleDistribution**** electronDistributions, double*** B, double*** theta, double*** phi, double*** concentration, double minX, double maxX, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity = 0, const double& redShift = 0);
 
+	RectangularSourceInhomogenousDistribution(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution**** electronDistributions, double*** B, double*** theta, double*** phi, double*** concentration, double minY, double maxY, double minZ, double maxZ, const double& distance, const double& velocity = 0, const double& redShift = 0);
+
 	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
 };
 
