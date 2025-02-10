@@ -8,7 +8,7 @@ def plot_W50_EFE(filename, name):
     lines = radiationFile.readlines()
     N = len(lines)
 
-    factor = 2E-12
+    factor = 2E-14
 
     radiation = np.zeros([3,N])
     for i in range(N):

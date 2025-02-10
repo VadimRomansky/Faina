@@ -38,7 +38,7 @@ if __name__ == '__main__':
     #plot_dummy()
     #plot_data("../nishina_losses.dat","nishina_losses", 3, 'log', 'log')
     #plot_data("../Bturb.dat", "B", 2)
-    #plot_data3("../distributionRight.dat", "../distributionMiddle.dat", "../distributionLeft.dat", "distributions", 1)
+    plot_data3("../distributionRight.dat", "../distributionMiddle.dat", "../distributionLeft.dat", "distributions", 1)
     #plot_distributions()
     #plot_distributions9()
     #plot_distributions_protons()
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     #plot_rectangular_image("../W50scImageTeV.dat", "W50scTeV", 0, 5E20, 1E18, 2E18, aspect = 'auto')
     #plot_rectangular_image("../W50scImagePeV.dat", "W50scPeV", 0, 5E20, 1E18, 2E18, aspect = 'auto')
 
-    #plot_rectangular_image("../xE.dat", "xE", 0, 5E29, 1, 16, aspect = 'auto')
+    plot_rectangular_image("../xE.dat", "xE", 0, 5E29, 1, 16, aspect = 'auto')
     #plot_image_array_animated("../image_array.dat","image_array")
     #plot_array3d()
     #plot_rectangular_array3d("../concentration.dat", "concentration")

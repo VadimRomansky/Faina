@@ -1946,7 +1946,8 @@ void MassiveParticleDistributionFactory::readInhomogenousTabulatedIsotropicDistr
 		}
 		else {
 			concentration[i] = 0;
-			distributions[i][0] = 1.0/(energy[1] - energy[0]);
+			distributions[i][0] = 1.0 / (energy[2] - energy[0]);
+			distributions[i][1] = 1.0 / (energy[2] - energy[0]);
 		}
 	}
 	fclose(xfile);
