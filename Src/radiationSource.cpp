@@ -1112,7 +1112,7 @@ MassiveParticleDistribution* ThermalRectangularSource::getParticleDistribution(i
 
 void RectangularSourceWithSynchAndComptCutoffFromRight::updateLB2()
 {
-	double dx = (my_maxX - my_minX) / my_Nx;
+	//double dx = (my_maxX - my_minX) / my_Nx;
 	for (int irho = my_Nx - 1; irho >= 0; irho = irho - 1) {
 		for (int iz = 0; iz < my_Nz; ++iz) {
 			for (int iphi = 0; iphi < my_Ny; ++iphi) {
@@ -1120,7 +1120,10 @@ void RectangularSourceWithSynchAndComptCutoffFromRight::updateLB2()
 				if (irho < my_Nx - 1) {
 					prev_LB2 = my_LB2[irho + 1][iz][iphi];
 				}
-				double l = dx;
+				double l = 0;
+				if (irho < my_Nx - 1) {
+					l = getX(irho + 1) - getX(irho);
+				}
 				if (l < 0) {
 					l = 0;
 				}
@@ -1154,6 +1157,28 @@ RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAnd
 }
 
 RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAndComptCutoffFromRight(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& minX, const double& maxX, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, const double& photonEnergyDensity, const double& velocity, const double& redShift) : RectangularSource(Nx, Ny, Nz, electronDistribution, B, theta, phi, concentration, minX, maxX, minY, maxY, minZ, maxZ, distance, velocity, redShift)
+{
+	my_cutoffDistribution = dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electronDistribution);
+	if (my_cutoffDistribution == NULL) {
+		printf("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
+		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
+		exit(0);
+	}
+	my_maxThreads = omp_get_max_threads();
+	my_localDistribution = new MassiveParticleTabulatedIsotropicDistribution * [my_maxThreads];
+	for (int i = 0; i < my_maxThreads; ++i) {
+		my_localDistribution[i] = NULL;
+	}
+	my_downstreamVelocity = downstreamVelocity;
+	my_meanB = getAverageBsquared();
+	my_photonEnergyDensity = photonEnergyDensity;
+
+	my_LB2 = create3dArray(my_Nx, my_Nz, my_Ny);
+	updateLB2();
+	write3dArrayToFile(my_LB2, my_Nx, my_Nz, my_Ny, "LB2.dat");
+}
+
+RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAndComptCutoffFromRight(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, const double& photonEnergyDensity, const double& velocity, const double& redShift) : RectangularSource(Nx, xgrid, Ny, Nz, electronDistribution, B, theta, phi, concentration, minY, maxY, minZ, maxZ, distance, velocity, redShift)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {

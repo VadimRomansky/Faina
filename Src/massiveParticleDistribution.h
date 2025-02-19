@@ -179,6 +179,7 @@ public:
 	MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* fileName, DistributionInputType inputType);
 	MassiveParticleTabulatedIsotropicDistribution(const double& mass, const char* energyFileName, const char* distributionFileName, DistributionInputType inputType);
 	MassiveParticleTabulatedIsotropicDistribution(const double& mass, const double* energy, const double* distribution, const int N, DistributionInputType inputType);
+	MassiveParticleTabulatedIsotropicDistribution(MassiveParticleIsotropicDistribution* distribution, const double& minE, const double& maxE, const int N);
     virtual ~MassiveParticleTabulatedIsotropicDistribution();
 	virtual double distributionNormalized(const double& energy);
 	virtual double getMeanEnergy();

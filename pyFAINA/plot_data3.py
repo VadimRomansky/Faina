@@ -2,7 +2,7 @@ from matplotlib import animation
 from pylab import *
 import numpy as np
 
-def plot_data3(filename1, filename2, filename3, name, Ncol):
+def plot_data3(filename1, filename2, filename3, name, Ncol, label1 = "", label2 = "", label3 = "", xlabel = "", ylabel = ""):
     plt.rcParams.update({'font.size': 40})
     plt.rcParams['text.usetex'] = True
     plt.rcParams['axes.linewidth'] = 4
@@ -41,19 +41,22 @@ def plot_data3(filename1, filename2, filename3, name, Ncol):
             data3[j][i] = float(lines3[i].split()[j])
 
     for i in range(Ncol):
-        plt.plot(data1[0],data1[i+1])
+        plt.plot(data1[0],data1[i+1], linewidth=4, label = label1)
 
     for i in range(Ncol):
-        plt.plot(data2[0],data2[i+1])
+        plt.plot(data2[0],data2[i+1], linewidth=4, label = label2)
 
     for i in range(Ncol):
-        plt.plot(data3[0],data3[i+1])
+        plt.plot(data3[0],data3[i+1], linewidth=4, label = label3)
 
     ax.set_xscale("log")
     ax.set_yscale("log")
+    ax.set_xlabel(xlabel, fontsize=40, fontweight='bold')
+    ax.set_ylabel(ylabel, fontsize=40, fontweight='bold')
+    ax.legend(fontsize="20")
 
-    ax.set_xlim([1E-5, 1E4])
-    ax.set_ylim([1E-16, 5E2])
+    #ax.set_xlim([1E-5, 1E4])
+    #ax.set_ylim([1E-16, 5E2])
 
 
     plt.savefig(name + '.png', bbox_inches='tight')

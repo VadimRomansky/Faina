@@ -584,6 +584,33 @@ MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropic
 	normalizeDistribution();
 }
 
+MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropicDistribution(MassiveParticleIsotropicDistribution* distribution, const double& minE, const double& maxE, const int N)
+{
+	my_mass = distribution->getMass();
+	if (N <= 0) {
+		printf("grid number <= 0 in tabulated spherical distribution\n");
+		printLog("grid number <= 0 in tabulated spherical distribution\n");
+		exit(0);
+	}
+	my_Ne = N;
+
+	my_inputType = DistributionInputType::ENERGY_FE;
+
+	my_energy = new double[my_Ne];
+	my_distribution = new double[my_Ne];
+	double factor = pow(maxE / minE, 1.0 / (my_Ne - 1.0));
+	double x = minE;
+	double y = distribution->distributionNormalized(x);
+	setDistributionAtPoint(0, x, y);
+	for (int i = 1; i < my_Ne; ++i) {
+		x = x * factor;
+		y = distribution->distributionNormalized(x);
+		setDistributionAtPoint(i, x, y);
+	}
+
+	normalizeDistribution();
+}
+
 MassiveParticleTabulatedIsotropicDistribution::~MassiveParticleTabulatedIsotropicDistribution() {
 	delete[] my_distribution;
 	delete[] my_energy;
