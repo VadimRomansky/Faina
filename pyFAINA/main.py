@@ -29,6 +29,7 @@ from plot_radiation4 import plot_radiation4
 from plot_radiation_EFE import plot_radiation_EFE
 from plot_rectangular_array3d import plot_rectangular_array3d
 from plot_rectangular_image import plot_rectangular_image
+from plot_rectangular_image_with_axis import plot_rectangular_image_with_axis
 from plot_synchrotron import plot_synchrotron
 from plot_synchrotron3 import plot_synchrotron3
 
@@ -39,7 +40,7 @@ if __name__ == '__main__':
     #plot_data("../nishina_losses.dat","nishina_losses", 3, 'log', 'log')
     #plot_data("../Bturb.dat", "B", 2)
     plot_data3("../distributionRight.dat", "../distributionMiddle.dat", "../distributionLeft.dat", "distributions", 1)
-    plot_data3("../W50_Bconst_2E-5_CMB+140.dat","../W50_Bprofile_CMB+140.dat","../W50_Bprofile_CMB.dat", "W50",1, "Bconst CMB+140", "Bprofile CMB+140", "Bprofile+CMB", r'$E~eV$', r'$EF(E)~erg~cm^{-2} s^{-1}$')
+    #plot_data3("../W50_Bconst_2E-5_CMB+140.dat","../W50_Bprofile_CMB+140.dat","../W50_Bprofile_CMB.dat", "W50",1, "Bconst CMB+140", "Bprofile CMB+140", "Bprofile+CMB", r'$E~eV$', r'$EF(E)~erg~cm^{-2} s^{-1}$')
     #plot_distributions()
     #plot_distributions9()
     #plot_distributions_protons()
@@ -84,6 +85,7 @@ if __name__ == '__main__':
     #plot_rectangular_image("../W50scImagePeV.dat", "W50scPeV", 0, 5E20, 1E18, 2E18, aspect = 'auto')
 
     #plot_rectangular_image("../xE.dat", "xE", 0, 5E29, 1, 16, aspect = 'auto')
+    plot_rectangular_image_with_axis("../xE.dat", "../x_grid.dat", "../E_grid.dat", "xE", 0, 5E29, 1, 16, aspect = 'auto')
     #plot_image_array_animated("../image_array.dat","image_array")
     #plot_array3d()
     #plot_rectangular_array3d("../concentration.dat", "concentration")
