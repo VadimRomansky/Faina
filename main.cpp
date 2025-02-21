@@ -1774,6 +1774,39 @@ void evaluateW50comptonAndSynchrotron4() {
 	MassiveParticleIsotropicDistribution* distributionLeft = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(Nx / 2, 0, 0));
 	distributionLeft->writeDistribution("distributionLeft.dat", 200, me_c2, 1E10 * me_c2);
 
+	FILE* outXfile = fopen("x_grid.dat", "w");
+	for (int i = 0; i < Nx; ++i) {
+		fprintf(outXfile, "%g\n", -xgrid[Nx - i - 1]);
+	}
+	fclose(outXfile);
+
+	double pmin = 0.1*massProton/massElectron;
+	double pmax = 5E6*massProton/massElectron;
+	int Np = 100;
+	double factorp = pow(pmax / pmin, 1.0 / (Np - 1.0));
+	FILE* outPfile = fopen("p_grid.dat", "w");
+	double p = pmin;
+	for (int i = 0; i < Np; ++i) {
+		fprintf(outPfile, "%g\n", p*massElectron/massProton);
+		p = p * factorp;
+	}
+	fclose(outPfile);
+
+	FILE* outDistributionFile = fopen("pdf.dat", "w");
+	for (int i = 0; i < Nx; ++i) {
+		p = pmin;
+		MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(Nx - i - 1, 0, 0));
+		for (int j = 0; j < Np; ++j) {
+			double E = sqrt(p * p * me_c2 * me_c2 + me_c2 * me_c2);
+			double F = distribution->distributionNormalized(E);
+			F = (F * p * p * p * me_c2 * me_c2 / E)*massElectron/massProton;
+			fprintf(outDistributionFile, "%g\n", F);
+			p = p * factorp;
+		}
+	}
+	fclose(outDistributionFile);
+
+
 	int Ne = 100;
 	int Nmu = 100;
 	int Nphi = 4;
