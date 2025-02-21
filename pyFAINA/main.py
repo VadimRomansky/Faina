@@ -85,7 +85,7 @@ if __name__ == '__main__':
     #plot_rectangular_image("../W50scImagePeV.dat", "W50scPeV", 0, 5E20, 1E18, 2E18, aspect = 'auto')
 
     #plot_rectangular_image("../xE.dat", "xE", 0, 5E29, 1, 16, aspect = 'auto')
-    plot_rectangular_image_with_axis("../xE.dat", "../x_grid.dat", "../E_grid.dat", "xE", 0, 5E29, 1, 16, aspect = 'auto')
+    plot_rectangular_image_with_axis("../xE.dat", "../x_grid.dat", "../E_grid.dat", "xE", aspect = 'auto')
     #plot_image_array_animated("../image_array.dat","image_array")
     #plot_array3d()
     #plot_rectangular_array3d("../concentration.dat", "concentration")

@@ -1247,6 +1247,14 @@ void evaluateW50comptonAndSynchrotron() {
 		F[i] = new double[Nrho];
 	}
 
+	FILE* Efile = fopen("E_grid.dat", "w");
+	for (int i = 0; i < Nnu; ++i) {
+		fprintf(Efile, "%g\n", currentE);
+		currentE = currentE * factor;
+	}
+	fclose(Efile);
+
+	currentE = Emin;
 
 	for (int i = 0; i < Nnu; ++i) {
 		printf("inu = %d\n", i);
@@ -1442,6 +1450,14 @@ void evaluateW50comptonAndSynchrotron2() {
 		F[i] = new double[Nrho];
 	}
 
+	FILE* Efile = fopen("E_grid.dat", "w");
+	for (int i = 0; i < Nnu; ++i) {
+		fprintf(Efile, "%g\n", currentE);
+		currentE = currentE * factor;
+	}
+	fclose(Efile);
+
+	currentE = Emin;
 
 	for (int i = 0; i < Nnu; ++i) {
 		printf("inu = %d\n", i);
@@ -1564,6 +1580,12 @@ void evaluateW50comptonAndSynchrotron3() {
 	MassiveParticleIsotropicDistribution* distributionLeft = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(Nx/2 - 200, 0, 0));
 	distributionLeft->writeDistribution("distributionLeft.dat", 200, me_c2, 1E10 * me_c2);
 
+	FILE* outXfile = fopen("x_grid.dat", "w");
+	for (int i = 0; i < Nx; ++i) {
+		fprintf(outXfile, "%g\n", xgrid[i]);
+	}
+	fclose(outXfile);
+
 	int Ne = 100;
 	int Nmu = 100;
 	int Nphi = 4;
@@ -1578,8 +1600,9 @@ void evaluateW50comptonAndSynchrotron3() {
 
 	RadiationSumEvaluator* sumEvaluator = new RadiationSumEvaluator(Ne, me_c2, 1E10 * me_c2, comptonEvaluator, synchrotronEvaluator, false);
 
-	sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt.dat", source, 1.6E-19, 1.6E4, 300);
-	sumEvaluator->writeEFEFromSourceToFile("W50highenergy.dat", source, 1.6E-1, 1.6E3, 300);
+	sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt.dat", source, 1.6E-12, 1.6E4, 200);
+	sumEvaluator->writeEFEFromSourceToFile("W50highenergy.dat", source, 1.6E-1, 1.6E4, 200);
+	sumEvaluator->writeEFEFromSourceToFile("W50kev.dat", source, 1.6E-9, 50*1.6E-9, 200);
 
 	//sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt2.dat", source2, 1.6E-18, 1.6E3, 200);
 	//sumEvaluator->writeEFEFromSourceToFile("W50highenergy2.dat", source2, 1.6E-1, 1.6E3, 200);
@@ -1626,6 +1649,15 @@ void evaluateW50comptonAndSynchrotron3() {
 	for (int i = 0; i < Nnu; ++i) {
 		F[i] = new double[Nx];
 	}
+
+	FILE* Efile = fopen("E_grid.dat", "w");
+	for (int i = 0; i < Nnu; ++i) {
+		fprintf(Efile, "%g\n", currentE);
+		currentE = currentE * factor;
+	}
+	fclose(Efile);
+
+	currentE = Emin;
 
 
 	for (int i = 0; i < Nnu; ++i) {
@@ -1776,7 +1808,7 @@ void evaluateW50comptonAndSynchrotron4() {
 
 	FILE* outXfile = fopen("x_grid.dat", "w");
 	for (int i = 0; i < Nx; ++i) {
-		fprintf(outXfile, "%g\n", -xgrid[Nx - i - 1]);
+		fprintf(outXfile, "%g\n", xgrid[i]);
 	}
 	fclose(outXfile);
 
@@ -1821,8 +1853,9 @@ void evaluateW50comptonAndSynchrotron4() {
 
 	RadiationSumEvaluator* sumEvaluator = new RadiationSumEvaluator(Ne, me_c2, 1E10 * me_c2, comptonEvaluator, synchrotronEvaluator, false);
 
-	sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt.dat", source, 1.6E-19, 1.6E4, 300);
-	sumEvaluator->writeEFEFromSourceToFile("W50highenergy.dat", source, 1.6E-1, 1.6E3, 300);
+	//sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt.dat", source, 1.6E-19, 1.6E4, 300);
+	//sumEvaluator->writeEFEFromSourceToFile("W50highenergy.dat", source, 1.6E-1, 1.6E3, 300);
+	//sumEvaluator->writeEFEFromSourceToFile("W50kev.dat", source, 1.6E-9, 50*1.6E-9, 300);
 
 	//sumEvaluator->writeEFEFromSourceToFile("W50synchandcompt2.dat", source2, 1.6E-18, 1.6E3, 200);
 	//sumEvaluator->writeEFEFromSourceToFile("W50highenergy2.dat", source2, 1.6E-1, 1.6E3, 200);
@@ -1832,27 +1865,27 @@ void evaluateW50comptonAndSynchrotron4() {
 
 	printf("start writing ev image\n");
 	printLog("start writing ev image\n");
-	sumEvaluator->writeImageFromSourceToFile("W50scImageeV.dat", source, 1.6E-12, 1.6E-11, 20);
+	//sumEvaluator->writeImageFromSourceToFile("W50scImageeV.dat", source, 1.6E-12, 1.6E-11, 20);
 
 	printf("start writing keV image\n");
 	printLog("start writing keV image\n");
-	sumEvaluator->writeImageFromSourceToFile("W50scImageKeV.dat", source, 1.6E-9, 1.6E-8, 20);
+	//sumEvaluator->writeImageFromSourceToFile("W50scImageKeV.dat", source, 1.6E-9, 1.6E-8, 20);
 
 	printf("start writing MeV image\n");
 	printLog("start writing MeV images\n");
-	sumEvaluator->writeImageFromSourceToFile("W50scImageMeV.dat", source, 1.6E-6, 1.6E-5, 20);
+	//sumEvaluator->writeImageFromSourceToFile("W50scImageMeV.dat", source, 1.6E-6, 1.6E-5, 20);
 
 	printf("start writing GeV image\n");
 	printLog("start writing GeV image\n");
-	sumEvaluator->writeImageFromSourceToFile("W50scImageGeV.dat", source, 1.6E-3, 1.6E-2, 20);
+	//sumEvaluator->writeImageFromSourceToFile("W50scImageGeV.dat", source, 1.6E-3, 1.6E-2, 20);
 
 	printf("start writing TeV image\n");
 	printLog("start writing TeV image\n");
-	sumEvaluator->writeImageFromSourceToFile("W50scImageTeV.dat", source, 1.6E0, 1.6E1, 20);
+	//sumEvaluator->writeImageFromSourceToFile("W50scImageTeV.dat", source, 1.6E0, 1.6E1, 20);
 
 	printf("start writin PeV image\n");
 	printLog("start writing PeV image\n");
-	sumEvaluator->writeImageFromSourceToFile("W50scImagePeV.dat", source, 1.6E3, 1.6E4, 20);
+	//sumEvaluator->writeImageFromSourceToFile("W50scImagePeV.dat", source, 1.6E3, 1.6E4, 20);
 
 	printf("start writing x-E diagram\n");
 	printLog("start writing x-E diagram\n");
@@ -1870,7 +1903,14 @@ void evaluateW50comptonAndSynchrotron4() {
 		F[i] = new double[Nx];
 	}
 
+	FILE* Efile = fopen("E_grid.dat", "w");
+	for (int i = 0; i < Nnu; ++i) {
+		fprintf(Efile, "%g\n", currentE);
+		currentE = currentE * factor;
+	}
+	fclose(Efile);
 
+	currentE = Emin;
 	for (int i = 0; i < Nnu; ++i) {
 		printf("inu = %d\n", i);
 		printLog("inu = %d\n", i);
@@ -2094,8 +2134,8 @@ int main() {
 	//evaluateW50synchrotron();
 	//evaluateW50comptonAndSynchrotron();
 	//evaluateW50comptonAndSynchrotron2();
-	//evaluateW50comptonAndSynchrotron3();
-	evaluateW50comptonAndSynchrotron4();
+	evaluateW50comptonAndSynchrotron3();
+	//evaluateW50comptonAndSynchrotron4();
 	//evaluateW50pion();
 
 	return 0;
