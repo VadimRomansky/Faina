@@ -3,6 +3,7 @@ from pylab import *
 import numpy as np
 
 from plot_W50_EFE import plot_W50_EFE
+from plot_W50_EFE_higenergy import plot_W50_EFE_highenergy
 from plot_array3d import plot_array3d
 from plot_array3d_animated import plot_array3d_animated
 from plot_bremsstrahlung import plot_bremsstrahlung
@@ -54,9 +55,10 @@ if __name__ == '__main__':
     #plot_radiation_EFE("../W50synchrotron.dat", "W50synchrotron")
     #plot_radiation_EFE("../W50synchandcompt.dat", "W50synchandcompt")
     plot_W50_EFE("../output/W50synchandcompt.dat", "W50synchandcompt")
+    plot_W50_EFE_highenergy("../output/W50synchandcompt.dat", "W50highenergy")
     #plot_radiation_EFE("../W50synchandcompt2.dat", "W50synchandcompt2")
-    #plot_radiation_EFE("../W50highenergy.dat", "W50highenergy")
-    #plot_radiation_EFE("../W50highenergy2.dat", "W50highenergy2")
+    #plot_radiation_EFE("../output/W50highenergy.dat", "W50highenergy", 1E12, 1E16)
+    plot_radiation_EFE("../output/W50synchandcompt.dat", "W50kev", 1000, 200000, 2E-12, 2E-10)
     #plot_synchrotron()
     #plot_synchrotron3()
     #plot_bremsstrahlung()
