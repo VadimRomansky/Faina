@@ -10,6 +10,7 @@ from plot_bremsstrahlung import plot_bremsstrahlung
 from plot_compton_radiation import plot_compton_radiation
 from plot_data import plot_data
 from plot_data3 import plot_data3
+from plot_data4 import plot_data4
 from plot_distributions import plot_distributions
 from plot_distributions2 import plot_distributions2
 from plot_distributions9 import plot_distributions9
@@ -40,8 +41,9 @@ if __name__ == '__main__':
     #plot_dummy()
     #plot_data("../nishina_losses.dat","nishina_losses", 3, 'log', 'log')
     #plot_data("../Bturb.dat", "B", 2)
-    plot_data3("../output/distributionRight.dat", "../output/distributionMiddle.dat", "../output/distributionLeft.dat", "distributions", 1)
-    #plot_data3("../W50_Bconst_2E-5_CMB+140.dat","../W50_Bprofile_CMB+140.dat","../W50_Bprofile_CMB.dat", "W50",1, "Bconst CMB+140", "Bprofile CMB+140", "Bprofile+CMB", r'$E~eV$', r'$EF(E)~erg~cm^{-2} s^{-1}$')
+    #plot_data3("../output/distributionRight.dat", "../output/distributionMiddle.dat", "../output/distributionLeft.dat", "distributions", 1)
+    #plot_data3("../W501.dat","../W502.dat","../W503.dat", "W50",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", r'$E~eV$', r'$EF(E)~erg~cm^{-2} s^{-1}$')
+    plot_data4("../W501.dat","../W502.dat","../W503.dat", "../W504.dat", "W50_multi",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", "MC function above 10 TeV B 20 mkG", r'$E~eV$', r'$EF(E)~erg~cm^{-2} s^{-1}$')
     #plot_distributions()
     #plot_distributions9()
     #plot_distributions_protons()
@@ -87,7 +89,7 @@ if __name__ == '__main__':
     #plot_rectangular_image("../W50scImagePeV.dat", "W50scPeV", 0, 5E20, 1E18, 2E18, aspect = 'auto')
 
     #plot_rectangular_image("../xE.dat", "xE", 0, 5E29, 1, 16, aspect = 'auto')
-    plot_rectangular_image_with_axis("../output/xE.dat", "../output/x_grid.dat", "../output/E_grid.dat", "xE", aspect = 'auto')
+    #plot_rectangular_image_with_axis("../output/xE.dat", "../output/x_grid.dat", "../output/E_grid.dat", "xE", aspect = 'auto')
     #plot_image_array_animated("../image_array.dat","image_array")
     #plot_array3d()
     #plot_rectangular_array3d("../concentration.dat", "concentration")

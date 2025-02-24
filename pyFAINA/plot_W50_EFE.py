@@ -112,6 +112,25 @@ def plot_W50_EFE(filename, name):
     plt.errorbar(xmm[0,:], xmm[1, :], yerr = [xmm[3,:], xmm[2, :]], xerr = [xmm[5, :], xmm[4, :]], ecolor = 'g', elinewidth=3, linewidth=0, capsize=5, capthick=3, label = 'XMM')
     plt.errorbar(fermi[0,:], fermi[1,:], yerr = fermi[4, :], xerr = [fermi[3, :], fermi[2, :]], uplims=fermiLimits, ecolor = 'y', elinewidth=3, linewidth=0, capsize=5, capthick=3, label = 'Fermi-LAT')
     plt.errorbar(hess[0,:], hess[1, :], yerr = [hess[3, :], hess[2, :]], xerr = [hess[5, :], hess[4, :]], uplims = hessLimits, ecolor='purple', elinewidth=3, linewidth=0, capsize=5, capthick=3, label = "H.E.S.S.")
+
+    Ne = 100
+    E1 = np.linspace(500, 10000, Ne)
+    F1 = np.zeros([Ne])
+    A = 8.2E-9
+    for i in range(Ne):
+        currentE = E1[i]*1.6E-12
+        F1[i] = A*currentE**(2-1.58)
+
+    E2 = np.linspace(3000,30000, Ne)
+    F2 = np.zeros([Ne])
+    B = 4.6E-12
+    for i in range(Ne):
+        currentE = E2[i]*1.6E-12
+        F2[i] = B*currentE**(2-1.999)
+
+    plt.plot(E1, F1, linewidth = 4, label = 'XMM')
+    plt.plot(E2, F2, linewidth = 4, label = 'NuSTAR')
+
     ax.legend(fontsize = "20")
     #plt.plot(radiation[0], radiation[2], 'b', linewidth=4)
     #plt.errorbar(cssx1, cssy1, cssError1, ecolor = 'b', elinewidth = 4, linewidth=0, capsize = 5, capthick = 4)

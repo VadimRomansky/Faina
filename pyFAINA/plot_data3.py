@@ -38,7 +38,7 @@ def plot_data3(filename1, filename2, filename3, name, Ncol, label1 = "", label2 
 
     for i in range(Nraw3):
         for j in range(Ncol + 1):
-            data3[j][i] = float(lines3[i].split()[j])
+            data3[j][i] = float(lines3[i].split()[j])*3
 
     for i in range(Ncol):
         plt.plot(data1[0],data1[i+1], linewidth=4, label = label1)
@@ -55,8 +55,8 @@ def plot_data3(filename1, filename2, filename3, name, Ncol, label1 = "", label2 
     ax.set_ylabel(ylabel, fontsize=40, fontweight='bold')
     ax.legend(fontsize="20")
 
-    #ax.set_xlim([1E-5, 1E4])
-    #ax.set_ylim([1E-16, 5E2])
+    ax.set_xlim([1E-2, 1E3])
+    ax.set_ylim([1E-1, 2E3])
 
 
     plt.savefig(name + '.png', bbox_inches='tight')
