@@ -245,8 +245,8 @@ void SynchrotronEvaluator::evaluateEmissivityAndAbsorption(const double& photonF
 	}
 
 	if (Emin > Emax) {
-		printf("Emin > Emax in synchrotron evaluator\n");
-		printLog("Emin > Emax in synchrotron evaluator\n");
+		printf("Emin > Emax in synchrotron evaluator ix1 = %d iz = %d ix2 = %d\n", ix1, iz, ix2);
+		printLog("Emin > Emax in synchrotron evaluator ix1 = %d iz = %d ix2 = %d\n", ix1, iz, ix2);
 		I = 0;
 		A = 0;
 		return;
