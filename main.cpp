@@ -1689,7 +1689,7 @@ void evaluateW50comptonAndSynchrotron3() {
 
 }
 
-void evaluateW50comptonAndSynchrotron4() {
+void evaluateW50comptonAndSynchrotronAdvectionfunction() {
 	double distance = (18000 / 3.26) * parsec;
 
 	double* energy;
@@ -1859,7 +1859,7 @@ void evaluateW50comptonAndSynchrotron4() {
 
 	RadiationSumEvaluator* sumEvaluator = new RadiationSumEvaluator(Ne, me_c2, 1E10 * me_c2, comptonEvaluator, synchrotronEvaluator, false);
 
-	sumEvaluator->writeEFEFromSourceToFile("./output/W50synchandcompt.dat", source, 1.6E-19, 1.6E4, 300);
+	sumEvaluator->writeEFEFromSourceToFile("./output/W50synchandcompt.dat", source, 1.6E-12, 1.6E4, 300);
 	sumEvaluator->writeEFEFromSourceToFile("./output/W50highenergy.dat", source, 1.6E-1, 1.6E3, 300);
 	sumEvaluator->writeEFEFromSourceToFile("./output/W50kev.dat", source, 1.6E-9, 50*1.6E-9, 300);
 
@@ -1944,7 +1944,7 @@ void evaluateW50comptonAndSynchrotron4() {
 
 }
 
-void evaluateW50comptonAndSynchrotron5() {
+void evaluateW50comptonAndSynchrotronMCwithoutupstream() {
 	double distance = (18000 / 3.26) * parsec;
 	const char* distributionFileName = "./examples_data/W50/lowfield/pdf_sf.dat";
 	const char* xfileName = "./examples_data/W50/lowfield/x_grid.dat";
@@ -2114,7 +2114,7 @@ void evaluateW50comptonAndSynchrotron5() {
 
 	RadiationSumEvaluator* sumEvaluator = new RadiationSumEvaluator(Ne, me_c2, 1E10 * me_c2, comptonEvaluator, synchrotronEvaluator, false);
 
-	sumEvaluator->writeEFEFromSourceToFile("./output/W50synchandcompt.dat", source, 1.6E-19, 1.6E4, 300);
+	sumEvaluator->writeEFEFromSourceToFile("./output/W50synchandcompt.dat", source, 1.6E-12, 1.6E4, 300);
 	sumEvaluator->writeEFEFromSourceToFile("./output/W50highenergy.dat", source, 1.6E-1, 1.6E3, 300);
 	sumEvaluator->writeEFEFromSourceToFile("./output/W50kev.dat", source, 1.6E-9, 50 * 1.6E-9, 300);
 
@@ -2396,8 +2396,8 @@ int main() {
 	//evaluateW50comptonAndSynchrotron();
 	//evaluateW50comptonAndSynchrotron2();
 	//evaluateW50comptonAndSynchrotron3();
-	evaluateW50comptonAndSynchrotron4();
-	//evaluateW50comptonAndSynchrotron5();
+	evaluateW50comptonAndSynchrotronAdvectionfunction();
+	//evaluateW50comptonAndSynchrotronMCwithoutupstream();
 	//evaluateW50pion();
 
 	return 0;
