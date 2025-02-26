@@ -12,6 +12,7 @@ from plot_data import plot_data
 from plot_data3 import plot_data3
 from plot_data4 import plot_data4
 from plot_data5 import plot_data5
+from plot_data6 import plot_data6
 from plot_distributions import plot_distributions
 from plot_distributions2 import plot_distributions2
 from plot_distributions9 import plot_distributions9
@@ -46,14 +47,15 @@ if __name__ == '__main__':
     #plot_data3("../output/distributionRight.dat", "../output/distributionMiddle.dat", "../output/distributionLeft.dat", "distributions", 1)
     #plot_data3("../W501.dat","../W502.dat","../W503.dat", "W50",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", r'$E~eV$', r'$EF(E)~erg~cm^{-2} s^{-1}$')
     #plot_data4("../W501.dat","../W502.dat","../W503.dat", "../W504.dat", "W50_multi",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", "MC function above 10 TeV B 20 mkG", r'$E~eV$', r'$EF(E)~erg~cm^{-2} s^{-1}$')
-    plot_data5("../W501.dat","../W502.dat","../W503.dat", "../W504.dat", "../W505.dat", "W50_multi",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", "MC function above 10 TeV B 20 mkG", "advection above 1 TeV B 20 mkG", '$E~eV$', '$EF(E)~erg~cm^{-2} s^{-1}$')
+    #plot_data5("../W501.dat","../W502.dat","../W503.dat", "../W504.dat", "../W505.dat", "W50_multi",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", "MC function above 10 TeV B 20 mkG", "advection above 1 TeV B 20 mkG", '$E~eV$', '$EF(E)~erg~cm^{-2} s^{-1}$')
+    plot_data6("../W501.dat","../W502.dat","../W503.dat", "../W504.dat", "../W505.dat", "../W506.dat", "W50_multi",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", "MC function above 10 TeV B 20 mkG", "advection above 1 TeV B 20 mkG", "test", '$E~eV$', '$EF(E)~erg~cm^{-2} s^{-1}$')
     #plot_distributions()
     #plot_distributions9()
-    #plot_distributions_protons()
+    #plot_distributions_proton
+    #plot_distributions_MC2()s()
     #plot_distributions2()
     #plot_distributions_4()
     #plot_distributions_mc()
-    plot_distributions_MC2()
     #plot_radiation("../W50bremsstrahlung.dat")
     #plot_radiation_EFE("../W50bremsstrahlung.dat", "W50bremsstrahlung")
     #plot_radiation_EFE("../W50pion.dat", "W50pion")
