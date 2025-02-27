@@ -8,7 +8,7 @@ def plot_W50_EFE_highenergy(filename, name):
     lines = radiationFile.readlines()
     N = len(lines)
 
-    factor = 2E-13
+    factor = 5E-5
 
     radiation = np.zeros([3,N])
     for i in range(N):
@@ -96,7 +96,7 @@ def plot_W50_EFE_highenergy(filename, name):
     ax.set_yscale("log")
     ax.set_xscale("log")
     #ax.set_xlim([100, 1E15])
-    ax.set_xlim([1E11, 5E15])
+    ax.set_xlim([1E9, 5E15])
     #ax.set_xlim([1E3, 5E4])
     ax.set_ylim([6E-16, 5E-12])
     ax.tick_params(axis='x', size=10, width=4)

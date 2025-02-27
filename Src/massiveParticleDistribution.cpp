@@ -843,7 +843,7 @@ void MassiveParticleTabulatedIsotropicDistribution::transformToLosses2(const dou
 
 void MassiveParticleTabulatedIsotropicDistribution::transformToThickRegime(const double& Uph)
 {
-	double sigmaT = (8.0 * pi / 3.0) * sqr(electron_charge / (my_mass * speed_of_light2));
+	double sigmaT = (8.0 * pi / 3.0) * sqr(electron_charge*electron_charge / (my_mass * speed_of_light2));
 	double coef = (4.0 / 3.0) * sigmaT / (my_mass * my_mass * speed_of_light * speed_of_light * speed_of_light);
 	double* tempDistribution = new double[my_Ne];
 	for (int i = 0; i < my_Ne; ++i) {

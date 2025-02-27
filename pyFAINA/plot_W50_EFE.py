@@ -95,7 +95,7 @@ def plot_W50_EFE(filename, name):
     #ax.set_ylabel(r'$F_{\nu}~мЯн$', fontsize=40,fontweight='bold')
     ax.set_yscale("log")
     ax.set_xscale("log")
-    ax.set_xlim([1E12, 1E16])
+    #ax.set_xlim([1E12, 1E16])
     #ax.set_xlim([1E11, 1E15])
     #ax.set_xlim([1E3, 5E4])
     #ax.set_ylim([6E-15, 5E-10])

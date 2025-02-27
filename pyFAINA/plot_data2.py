@@ -35,16 +35,16 @@ def plot_data2(filename1, filename2, name, Ncol, label1 = "", label2 = "", xlabe
     me_c2 = me*c*c
 
     for i in range(Ncol):
-        plt.plot(data1[0]/me_c2,data1[i+1], linewidth=4, label = label1)
+        plt.plot(data1[0],data1[i+1], linewidth=4, label = label1)
 
     for i in range(Ncol):
-        plt.plot(data2[0]/me_c2,data2[i+1], linewidth=4, label = label2)
+        plt.plot(data2[0],data2[i+1], linewidth=4, label = label2)
 
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlabel(xlabel, fontsize=40, fontweight='bold')
     ax.set_ylabel(ylabel, fontsize=40, fontweight='bold')
-    ax.legend(fontsize="20")
+    ax.legend(fontsize="40")
 
     #.set_xlim([1E-2, 1E3])
     #ax.set_ylim([1E-1, 2E3])
