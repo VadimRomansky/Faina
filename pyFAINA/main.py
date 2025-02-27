@@ -9,6 +9,7 @@ from plot_array3d_animated import plot_array3d_animated
 from plot_bremsstrahlung import plot_bremsstrahlung
 from plot_compton_radiation import plot_compton_radiation
 from plot_data import plot_data
+from plot_data2 import plot_data2
 from plot_data3 import plot_data3
 from plot_data4 import plot_data4
 from plot_data5 import plot_data5
@@ -44,6 +45,7 @@ if __name__ == '__main__':
     #plot_dummy()
     #plot_data("../nishina_losses.dat","nishina_losses", 3, 'log', 'log')
     #plot_data("../Bturb.dat", "B", 2)
+    plot_data2("../output/thinDistribution.dat","../output/thickDistribution.dat","distributions", 1, "thin", "thick", "$E/mc^2$", "$F(E)$")
     #plot_data3("../output/distributionRight.dat", "../output/distributionMiddle.dat", "../output/distributionLeft.dat", "distributions", 1)
     #plot_data3("../W501.dat","../W502.dat","../W503.dat", "W50",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", r'$E~eV$', r'$EF(E)~erg~cm^{-2} s^{-1}$')
     #plot_data4("../W501.dat","../W502.dat","../W503.dat", "../W504.dat", "W50_multi",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", "MC function above 10 TeV B 20 mkG", r'$E~eV$', r'$EF(E)~erg~cm^{-2} s^{-1}$')
@@ -64,6 +66,7 @@ if __name__ == '__main__':
     #plot_radiation_EFE("../W50synchrotron.dat", "W50synchrotron")
     #plot_radiation_EFE("../W50synchandcompt.dat", "W50synchandcompt")
     plot_W50_EFE("../output/W50synchandcompt.dat", "W50synchandcompt")
+    plot_W50_EFE("../output/W50thickCompton.dat", "W50thickCompton")
     plot_W50_EFE_highenergy("../output/W50synchandcompt.dat", "W50highenergy")
     #plot_radiation_EFE("../W50synchandcompt2.dat", "W50synchandcompt2")
     #plot_radiation_EFE("../output/W50highenergy.dat", "W50highenergy", 1E12, 1E16)

@@ -1964,6 +1964,64 @@ void evaluateW50comptonAndSynchrotronAdvectionfunction() {
 
 }
 
+void evaluateW50comptonThickRegime() {
+	double distance = (18000 / 3.26) * parsec;
+
+	double* energy;
+	double* xgrid;
+	double* concentration;
+	double** distributions;
+
+	int Nenergy;
+
+
+
+	double size = 30*parsec;
+	double B0 = 6E-5;
+
+	//RadiationSourceInCylindrical* source = new SimpleFlatSource(electrons, B, pi / 2, 0, concentration, size, size, distance);
+	PhotonPlankDistribution* photons = PhotonPlankDistribution::getCMBradiation();
+	PhotonPlankDistribution* photonsIR = new PhotonPlankDistribution(140, 0.8 / 1800000);
+	double photonIRconcentration = photonsIR->getConcentration();
+	double photonIRenergyDensity = photonIRconcentration * photonsIR->getMeanEnergy();
+	double photonConcentration = photons->getConcentration();
+	double photonEnergyDensity = photonConcentration * photons->getMeanEnergy();
+	PhotonMultiPlankDistribution* photonsTotal = new PhotonMultiPlankDistribution(2.725, 1.0, 140, 0.8 / 1800000);
+	//PhotonMultiPlankDistribution* photonsTotal = PhotonMultiPlankDistribution::getGalacticField();
+
+	double photonTotalConcentration = photonsTotal->getConcentration();
+	double photonTotalEnergyDensity = photonTotalConcentration * photonsTotal->getMeanEnergy();
+
+	const char* fileName = "./examples_data/W50/lowfield/GLE_pdf_sf1.dat";
+
+	MassiveParticleTabulatedIsotropicDistribution* electrons1;
+	double concentration1;
+	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massElectron, fileName, electrons1, concentration1);
+
+	electrons1->writeDistribution("./output/thinDistribution.dat", 2000, me_c2, 1E10 * me_c2);
+	electrons1->transformToThickRegime(photonTotalEnergyDensity);
+	electrons1->writeDistribution("./output/thickDistribution.dat", 2000, me_c2, 1E10 * me_c2);
+	double E0 = 1.6E-1;
+
+	//TabulatedDiskSourceWithSynchAndComptCutoff* source = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, electrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
+	//RectangularSourceWithSynchAndComptCutoffFromRight* source = new RectangularSourceWithSynchAndComptCutoffFromRight(Nx, xgrid, Ny, Nz, electrons, B, Btheta, Bphi, concentrationArray, 0, size, 0, pi * size, distance, 0.25 * 0.2 * speed_of_light, photonTotalEnergyDensity);
+	//RectangularSourceInhomogenousDistribution* source = new RectangularSourceInhomogenousDistribution(Nx, xgrid, Ny, Nz, electrons2, B, Btheta, Bphi, concentrationArray, 0, size, 0, pi * size, distance);
+	RectangularSource* source = new RectangularSource(1, 1, 1, electrons1, B0, pi/2, 0, concentration1, 0, size, 0, size, 0, pi * size, distance);
+
+
+
+	int Ne = 1000;
+	int Nmu = 100;
+	int Nphi = 4;
+	//RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 2.75 * kBoltzman * 20, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 140 * kBoltzman * 20, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
+
+	comptonEvaluator->writeEFEFromSourceToFile("./output/W50thickCompton.dat", source, 1.6E-10, 1.6E4, 2000);
+
+
+	return;
+}
+
 void evaluateW50comptonAndSynchrotronMCwithoutupstream() {
 	double distance = (18000 / 3.26) * parsec;
 	const char* distributionFileName = "./examples_data/W50/lowfield/pdf_sf.dat";
@@ -2416,7 +2474,8 @@ int main() {
 	//evaluateW50comptonAndSynchrotron();
 	//evaluateW50comptonAndSynchrotron2();
 	//evaluateW50comptonAndSynchrotron3();
-	evaluateW50comptonAndSynchrotronAdvectionfunction();
+	//evaluateW50comptonAndSynchrotronAdvectionfunction();
+	evaluateW50comptonThickRegime();
 	//evaluateW50comptonAndSynchrotronMCwithoutupstream();
 	//evaluateW50pion();
 

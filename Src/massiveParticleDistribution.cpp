@@ -841,6 +841,45 @@ void MassiveParticleTabulatedIsotropicDistribution::transformToLosses2(const dou
 	normalizeDistribution();
 }
 
+void MassiveParticleTabulatedIsotropicDistribution::transformToThickRegime(const double& Uph)
+{
+	double sigmaT = (8.0 * pi / 3.0) * sqr(electron_charge / (my_mass * speed_of_light2));
+	double coef = (4.0 / 3.0) * sigmaT / (my_mass * my_mass * speed_of_light * speed_of_light * speed_of_light);
+	double* tempDistribution = new double[my_Ne];
+	for (int i = 0; i < my_Ne; ++i) {
+		double E = my_energy[i];
+		double intJdE = 0;
+		for (int j = i; j < my_Ne; ++j) {
+			double dE = 0;
+			if (j == 0) {
+				dE = my_energy[1] - my_energy[0];
+			}
+			else {
+				dE = my_energy[j] - my_energy[j - 1];
+			}
+
+			intJdE = intJdE + my_distribution[j] * dE;
+			if ((intJdE != intJdE) || (0*intJdE != 0*intJdE)) {
+				printf("intJdE = NaN\n");
+				printLog("intJdE = NaN\n");
+				exit(0);
+			}
+		}
+		tempDistribution[i] = intJdE / (coef * E * E);
+		if ((tempDistribution[i] != tempDistribution[i]) || (0 * tempDistribution[i] != 0 * tempDistribution[i])) {
+			printf("temp distribution = NaN in transform to thick regime\n");
+			printLog("temp distribution = NaN in transform to thick regime\n");
+			exit(0);
+		}
+	}
+
+	for (int i = 0; i < my_Ne; ++i) {
+		my_distribution[i] = tempDistribution[i];
+	}
+	delete[] tempDistribution;
+	normalizeDistribution();
+}
+
 double* MassiveParticleTabulatedIsotropicDistribution::getEnergyArray()
 {
 	double* energy = new double[my_Ne];
