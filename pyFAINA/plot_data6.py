@@ -183,8 +183,8 @@ def plot_data6(filename1, filename2, filename3, filename4, filename5, filename6,
     ax.set_ylabel(ylabel, fontsize=40, fontweight='bold')
     ax.legend(fontsize="20")
 
-    ax.set_xlim([1, 1E17])
-    ax.set_ylim([1E-13, 2E-9])
+    #ax.set_xlim([1, 1E17])
+    #ax.set_ylim([1E-13, 2E-9])
 
 
     plt.savefig(name + '.png', bbox_inches='tight')

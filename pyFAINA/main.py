@@ -48,7 +48,8 @@ if __name__ == '__main__':
     #plot_data3("../W501.dat","../W502.dat","../W503.dat", "W50",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", r'$E~eV$', r'$EF(E)~erg~cm^{-2} s^{-1}$')
     #plot_data4("../W501.dat","../W502.dat","../W503.dat", "../W504.dat", "W50_multi",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", "MC function above 10 TeV B 20 mkG", r'$E~eV$', r'$EF(E)~erg~cm^{-2} s^{-1}$')
     #plot_data5("../W501.dat","../W502.dat","../W503.dat", "../W504.dat", "../W505.dat", "W50_multi",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", "MC function above 10 TeV B 20 mkG", "advection above 1 TeV B 20 mkG", '$E~eV$', '$EF(E)~erg~cm^{-2} s^{-1}$')
-    plot_data6("../W501.dat","../W502.dat","../W503.dat", "../W504.dat", "../W505.dat", "../W506.dat", "W50_multi",1, "MC function B profile + upstream", "MC function B profile", "MC function B 20 mkG", "advection B profile", "advection B 20 mkG", "advection B 20 mkG above 10 TeV", '$E~eV$', '$EF(E)~erg~cm^{-2} s^{-1}$')
+    #plot_data6("../W501.dat","../W502.dat","../W503.dat", "../W504.dat", "../W505.dat", "../W506.dat", "W50_multi",1, "MC function B profile + upstream", "MC function B profile", "MC function B 20 mkG", "advection B profile", "advection B 20 mkG", "advection B 20 mkG above 10 TeV", '$E~eV$', '$EF(E)~erg~cm^{-2} s^{-1}$')
+    plot_data6("../W501.dat","../W502.dat","../W503.dat", "../W504.dat", "../W505.dat", "../W506.dat", "W50_multi",1, "1 GeV", "10 GeV", "100 GeV", "1 TeV", "10 TeV", "100 TeV", '$E~eV$', '$EF(E)~erg~cm^{-2} s^{-1}$')
     #plot_distributions()
     #plot_distributions9()
     #plot_distributions_proton
