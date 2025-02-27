@@ -232,38 +232,50 @@ void SynchrotronEvaluator::evaluateEmissivityAndAbsorption(const double& photonF
 		exit(0);
 	}
 
-	double Emin = my_Emin;
-	if (Emin < electronDistribution->minEnergy()) {
-		Emin = electronDistribution->minEnergy();
-	}
-	double Emax = my_Emax;
-	double tempEemax = electronDistribution->maxEnergy();
-	if (tempEemax > 0) {
-		if (tempEemax < Emax) {
-			Emax = tempEemax;
-		}
-	}
-
-	if (Emin > Emax) {
-		printf("Emin > Emax in synchrotron evaluator ix1 = %d iz = %d ix2 = %d\n", ix1, iz, ix2);
-		printLog("Emin > Emax in synchrotron evaluator ix1 = %d iz = %d ix2 = %d\n", ix1, iz, ix2);
-		I = 0;
-		A = 0;
-		return;
-	}
-
 	if ((B == 0) || (sinTheta == 0)) {
 		I = 0;
 		A = 0;
 		return;
 	}
 
-	double factor = pow(Emax / Emin, 1.0 / (my_Ne - 1));
+	MassiveParticleTabulatedIsotropicDistribution* tabulatedIsotropicDistribution = dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(distribution);
 
-	double* Ee = new double[my_Ne];
-	Ee[0] = Emin;
-	for (int i = 1; i < my_Ne; ++i) {
-		Ee[i] = Ee[i - 1] * factor;
+	double* Ee;
+	int localNe = my_Ne;
+
+	if (tabulatedIsotropicDistribution == NULL) {
+
+		double Emin = my_Emin;
+		if (Emin < electronDistribution->minEnergy()) {
+			Emin = electronDistribution->minEnergy();
+		}
+		double Emax = my_Emax;
+		double tempEemax = electronDistribution->maxEnergy();
+		if (tempEemax > 0) {
+			if (tempEemax < Emax) {
+				Emax = tempEemax;
+			}
+		}
+
+		if (Emin > Emax) {
+			printf("Emin > Emax in synchrotron evaluator ix1 = %d iz = %d ix2 = %d\n", ix1, iz, ix2);
+			printLog("Emin > Emax in synchrotron evaluator ix1 = %d iz = %d ix2 = %d\n", ix1, iz, ix2);
+			I = 0;
+			A = 0;
+			return;
+		}
+
+		double factor = pow(Emax / Emin, 1.0 / (my_Ne - 1));
+
+	    Ee = new double[my_Ne];
+		Ee[0] = Emin;
+		for (int i = 1; i < my_Ne; ++i) {
+			Ee[i] = Ee[i - 1] * factor;
+		}
+	}
+	else {
+		localNe = tabulatedIsotropicDistribution->getN();
+		Ee = tabulatedIsotropicDistribution->getEnergyArray();
 	}
 	//Anu from ghiselini simple
 	I = 0;
@@ -283,7 +295,7 @@ void SynchrotronEvaluator::evaluateEmissivityAndAbsorption(const double& photonF
 	//todo what if < 0?
 	double coshi = sqrt(1.0 - sinTheta * sinTheta);
 
-	for (int j = 0; j < my_Ne; ++j) {
+	for (int j = 0; j <localNe; ++j) {
 		double delectronEnergy = 0;
 		if (j == 0) {
 			delectronEnergy = Ee[j + 1] - Ee[j];

@@ -115,12 +115,15 @@ double InverseComptonEvaluator::evaluateComptonEmissivityJonesIsotropic(const do
 		exit(0);
 	}
 
+	MassiveParticleTabulatedIsotropicDistribution* tabulatedIsotropicDistribution = dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electronDistribution);
+
 	PhotonIsotropicDistribution* isotropicPhotonDistribution = dynamic_cast<PhotonIsotropicDistribution*>(photonDistribution);
 	if (isotropicPhotonDistribution == NULL) {
 		printf("Jones solver works only with isotropic photons distribution\n");
 		printLog("Jones solver works only with isotropic photons distribution\n");
 		exit(0);
 	}
+
 	double m = electronDistribution->getMass();
 	double m_c2 = m * speed_of_light2;
 	double r2 = sqr(electron_charge * electron_charge / m_c2);
@@ -139,7 +142,16 @@ double InverseComptonEvaluator::evaluateComptonEmissivityJonesIsotropic(const do
 
 	double photonFinalCosTheta = 1.0;
 	double photonFinalPhi = 0.0;
-	double* Ee = new double[my_Ne];
+	double* Ee;
+	int localNe = my_Ne;
+	if (tabulatedIsotropicDistribution == NULL) {
+		Ee = new double[my_Ne];
+	}
+	else {
+		localNe = tabulatedIsotropicDistribution->getN();
+		Ee = tabulatedIsotropicDistribution->getEnergyArray();
+	}
+
 	for (int l = 0; l < my_Nph; ++l) {
 		double photonInitialEnergy = Eph[l];
 		double dphotonInitialEnergy;
@@ -150,50 +162,54 @@ double InverseComptonEvaluator::evaluateComptonEmissivityJonesIsotropic(const do
 			dphotonInitialEnergy = Eph[l] - Eph[l - 1];
 		}
 
-		double Eemax = my_Emax;
-		double tempEemax = electronDistribution->maxEnergy();
-		if (tempEemax > 0) {
-			if (tempEemax < Eemax) {
-				Eemax = tempEemax;
+		if (tabulatedIsotropicDistribution == NULL) {
+			double Eemax = my_Emax;
+			double tempEemax = electronDistribution->maxEnergy();
+			if (tempEemax > 0) {
+				if (tempEemax < Eemax) {
+					Eemax = tempEemax;
+				}
+			}
+
+			double Eemin = max(0.5 * photonFinalEnergy * (1.0 + sqrt(1 + m_c2 * m_c2 / (photonFinalEnergy * photonInitialEnergy))), m_c2);
+			if (Eemin < my_Emin) {
+				Eemin = my_Emin;
+			}
+			if (Eemin < electronDistribution->minEnergy()) {
+				Eemin = electronDistribution->minEnergy();
+			}
+			if (Eemin > Eemax) {
+				continue;
+			}
+			double Eetran = 2 * Eemin;
+			if (Eemax < Eemin) {
+				Eemax = 4 * Eemin;
+			}
+			if (Eemax <= Eetran) {
+				Eetran = (Eemax + Eemin) / 2;
+			}
+			int linearN = my_Ne / 2;
+			int logN = my_Ne - linearN;
+			double delta = (Eetran - Eemin) / linearN;
+			Ee[0] = Eemin;
+			for (int i = 0; i < linearN; ++i) {
+				Ee[i] = Eemin + delta * i;
+			}
+			double factor = pow(Eemax / Eetran, 1.0 / (logN - 1));
+			Ee[linearN] = Eetran;
+			for (int i = linearN + 1; i < my_Ne; ++i) {
+				Ee[i] = Ee[i - 1] * factor;
 			}
 		}
 
-		double Eemin = max(0.5 * photonFinalEnergy * (1.0 + sqrt(1 + m_c2 * m_c2 / (photonFinalEnergy * photonInitialEnergy))), m_c2);
-		if (Eemin < my_Emin) {
-			Eemin = my_Emin;
-		}
-		if (Eemin < electronDistribution->minEnergy()) {
-			Eemin = electronDistribution->minEnergy();
-		}
-		if (Eemin > Eemax) {
-			continue;
-		}
-		double Eetran = 2 * Eemin;
-		if (Eemax < Eemin) {
-			Eemax = 4 * Eemin;
-		}
-		if (Eemax <= Eetran) {
-			Eetran = (Eemax + Eemin) / 2;
-		}
-		int linearN = my_Ne / 2;
-		int logN = my_Ne - linearN;
-		double delta = (Eetran - Eemin) / linearN;
-		Ee[0] = Eemin;
- 		for (int i = 0; i < linearN; ++i) {
-			Ee[i] = Eemin + delta * i;
-		}
-		double factor = pow(Eemax / Eetran, 1.0 / (logN - 1));
-		Ee[linearN] = Eetran;
-		for (int i = linearN+1; i < my_Ne; ++i) {
-			Ee[i] = Ee[i - 1] * factor;
-		}
+		
 
 
 		/*if (Eemin < 20 * m_c2) {
 			printf("ok\n");
 		}*/
 		
-		for (int k = 0; k < my_Ne; ++k) {
+		for (int k = 0; k < localNe; ++k) {
 			double electronInitialEnergy = Ee[k];
 			if (k > 0) {
 				electronInitialEnergy = 0.5 * (Ee[k] + Ee[k - 1]);
@@ -222,12 +238,12 @@ double InverseComptonEvaluator::evaluateComptonEmissivityJonesIsotropic(const do
 				printLog("k electron energy = %d\n", k);
 				printf("photon energy = %g\n", photonFinalEnergy);
 				printLog("photon energy = %g\n", photonFinalEnergy);
-				printf("electron energy min = %g\n", Eemin);
-				printLog("electron energy min = %g\n", Eemin);
-				printf("electron energy tran = %g\n", Eetran);
-				printLog("electron energy tran = %g\n", Eetran);
-				printf("electron energy max = %g\n", Eemax);
-				printLog("electron energy max = %g\n", Eemax);
+				//printf("electron energy min = %g\n", Eemin);
+				//printLog("electron energy min = %g\n", Eemin);
+				//printf("electron energy tran = %g\n", Eetran);
+				//printLog("electron energy tran = %g\n", Eetran);
+				//printf("electron energy max = %g\n", Eemax);
+				//printLog("electron energy max = %g\n", Eemax);
 				for (int i = 0; i < my_Ne; ++i) {
 					printf("electron energy[%d] = %g\n", i, my_Ee[i]);
 					printLog("electron energy[%d] = %g\n", i, my_Ee[i]);

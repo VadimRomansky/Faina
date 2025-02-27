@@ -143,16 +143,16 @@ def plot_data6(filename1, filename2, filename3, filename4, filename5, filename6,
         plt.plot(data2[0],data2[i+1]*factor, linewidth=4, label = label2)
 
     for i in range(Ncol):
-        plt.plot(data3[0],data3[i+1]*3*factor, linewidth=4, label = label3)
+        plt.plot(data3[0],data3[i+1]*factor, linewidth=4, label = label3)
 
     for i in range(Ncol):
         plt.plot(data4[0],data4[i+1]*factor, linewidth=4, label = label4)
 
     for i in range(Ncol):
-        plt.plot(data5[0],data5[i+1]*3*factor, linewidth=4, label = label5)
+        plt.plot(data5[0],data5[i+1]*factor, linewidth=4, label = label5)
 
     for i in range(Ncol):
-        plt.plot(data6[0],data6[i+1]*3*factor, linewidth=4, label = label6)
+        plt.plot(data6[0],data6[i+1]*factor, linewidth=4, label = label6)
 
     plt.errorbar(lhaaso[0, :], lhaaso[1, :], yerr = [lhaaso[3, :], lhaaso[2, :]], uplims = lhaasoLimits, ecolor='b', elinewidth=3, linewidth=0, capsize=5, capthick=3, label = 'LHAASO')
     plt.errorbar(xmm[0,:], xmm[1, :], yerr = [xmm[3,:], xmm[2, :]], xerr = [xmm[5, :], xmm[4, :]], ecolor = 'g', elinewidth=3, linewidth=0, capsize=5, capthick=3, label = 'XMM')
