@@ -1014,7 +1014,7 @@ void evaluateW50synchrotron() {
 
 }
 
-double* getUvarovBpar(int Nx, double minX, double maxX) {
+double* getUvarovBpar(int Nx, double minX, double maxX, double L0) {
 	double A0 = 41.0755*1E-6;
 	double A1 = 9.27296;
 	double A2 = 1.41262;
@@ -1022,13 +1022,14 @@ double* getUvarovBpar(int Nx, double minX, double maxX) {
 	double A4 = 1.88243;
 	double A5 = 0.0767564;
 	double A6 = 0.00540849;
-	double UNIT_LENGTH = 2.5E17;
+	double UNIT_LENGTH = L0;
 	double* B = new double [Nx];
 	double dx = (maxX - minX) / Nx;
 	for (int i = 0; i < Nx; ++i) {
 		double x = minX + (i + 0.5) * dx;
 		double l = (maxX - x) / UNIT_LENGTH + 2;
-		B[i] = (A0 / (1 + pow(sqr((l - A3) / A1), A2))) * (1.0 / (1 + A6 * exp(-sqr((l - A4) / A5))));
+		//B[i] = (A0 / (1 + pow(sqr((l - A3) / A1), A2))) * (1.0 / (1 + A6 * exp(-sqr((l - A4) / A5))));
+		B[i] = A0 / (pow(1.0 + sqr((l - A3) / A1), A2)) / (1.0 + A6 * exp(-(l - A4) / A5));
 		if (B[i] < 1E-6 ) {
 			B[i] = 1E-6;
 		}
@@ -1037,7 +1038,7 @@ double* getUvarovBpar(int Nx, double minX, double maxX) {
 	return B;
 }
 
-double* getUvarovBper(int Nx, double minX, double maxX) {
+double* getUvarovBper(int Nx, double minX, double maxX, double L0) {
 	double A0 = 2*98.3917*1E-6;
 	double A1 = 30.533;
 	double A2 = 2.33138;
@@ -1045,13 +1046,14 @@ double* getUvarovBper(int Nx, double minX, double maxX) {
 	double A4 = 18.847;
 	double A5 = 1.05756;
 	double A6 = 0.695847;
-	double UNIT_LENGTH = 2.5E17;
+	double UNIT_LENGTH = L0;
 	double* B = new double[Nx];
 	double dx = (maxX - minX) / Nx;
 	for (int i = 0; i < Nx; ++i) {
 		double x = minX + (i + 0.5) * dx;
 		double l = (maxX - x) / UNIT_LENGTH + 2;
-		B[i] = A0 / (1 + pow(sqr((l - A3) / A1), A2) + A4 * exp(-sqr((l - A5) / A6)));
+		//B[i] = A0 / (1 + pow(sqr((l - A3) / A1), A2) + A4 * exp(-sqr((l - A5) / A6)));
+		B[i] = (A0 / (pow(1.0 + sqr((l - A3) / A1), A2)) + A4 * exp(-sqr((l - A5) / A6)));
 		if (B[i] < 1E-5) {
 			B[i] = 1E-5;
 		}
@@ -1060,54 +1062,63 @@ double* getUvarovBper(int Nx, double minX, double maxX) {
 	return B;
 }
 
-double* getUvarovBpar2(int Nx, double* xgrid) {
-	double A0 = 0.33*41.0755 * 1E-6;
+double* getUvarovBpar2(int Nx, double* xgrid, double L0) {
+	double factor = 0.33*1E-6;
+	double A0 = 41.0755 * factor;
 	double A1 = 9.27296;
 	double A2 = 1.41262;
 	double A3 = 3.26888;
 	double A4 = 1.88243;
 	double A5 = 0.0767564;
 	double A6 = 0.00540849;
-	double UNIT_LENGTH = 2.5E17;
+	double UNIT_LENGTH = L0;
 	double* B = new double[Nx];
 	for (int i = 0; i < Nx; ++i) {
 		double x = xgrid[i];
-		double l = x / UNIT_LENGTH + 2;
-		if (l > 1.0) {
-			B[i] = (A0 / (1 + pow(sqr((l - A3) / A1), A2))) * (1.0 / (1 + A6 * exp(-sqr((l - A4) / A5))));
-			if (B[i] < 1E-6) {
-				B[i] = 1E-6;
+		double shockx = 1.5;
+		double l = x / UNIT_LENGTH + shockx;
+		if (l > shockx) {
+			//B[i] = (A0 / (1 + pow(sqr((l - A3) / A1), A2))) * (1.0 / (1 + A6 * exp(-sqr((l - A4) / A5))));
+			//B[i] = A0 / (pow(1.0 + sqr((l - A3) / A1), A2)) / (1.0 + A6 * exp(-(l - A4) / A5));
+			B[i] = A0 / (pow(1.0 + sqr((l - A3) / A1), A2)) / (1.0 + A6 * exp(-(l - A4) / A5));
+			if (B[i] < 3E-6) {
+				B[i] = 3E-6;
 			}
 		}
 		else {
-			B[i] = 1E-6;
+			B[i] = 3E-6;
 		}
 	}
 
 	return B;
 }
 
-double* getUvarovBper2(int Nx, double* xgrid) {
-	double A0 = 0.33*2 * 98.3917 * 1E-6;
+double* getUvarovBper2(int Nx, double* xgrid, double L0) {
+	double factor = 0.33*1E-6;
+	double A0 = 98.3917 * factor;
 	double A1 = 30.533;
 	double A2 = 2.33138;
 	double A3 = -23.2141;
-	double A4 = 18.847;
+	double A4 = 18.847*factor;
 	double A5 = 1.05756;
 	double A6 = 0.695847;
-	double UNIT_LENGTH = 2.5E17;
+	double UNIT_LENGTH = L0;
 	double* B = new double[Nx];
 	for (int i = 0; i < Nx; ++i) {
 		double x = xgrid[i];
-		double l = x / UNIT_LENGTH + 2;
-		if (l > 1.0) {
-			B[i] = A0 / (1 + pow(sqr((l - A3) / A1), A2) + A4 * exp(-sqr((l - A5) / A6)));
-			if (B[i] < 1E-5) {
-				B[i] = 1E-5;
+		double shockx = 1.5;
+		double l = x / UNIT_LENGTH + shockx;
+		if (l > shockx) {
+			//B[i] = A0 / (1 + pow(sqr((l - A3) / A1), A2) + A4 * exp(-sqr((l - A5) / A6)));
+			//B[i] = A0 / (pow(1.0 + sqr((l - A3) / A1), A2) + A4 * exp(-sqr((l - A5) / A6)));
+			B[i] = (A0 / (pow(1.0 + sqr((l - A3) / A1), A2)) + A4 * exp(-sqr((l - A5) / A6)));
+			//B[i] = (A0 / ((pow(1.0 + sqr((l - A3) / A1), A2)) + A4 * exp(-sqr((l - A5) / A6))));
+			if (B[i] < 3E-6) {
+				B[i] = 3E-6;
 			}
 		}
 		else {
-			B[i] = 1E-5;
+			B[i] = 3E-6;
 		}
 	}
 
@@ -1140,8 +1151,8 @@ void evaluateW50comptonAndSynchrotron() {
 	int Nz = 1;
 	int Ny = 1;
 
-	double* Bpar = getUvarovBpar(Nrho, 0, size);
-	double* Bper = getUvarovBper(Nrho, 0, size);
+	double* Bpar = getUvarovBpar(Nrho, 0, size, 2.5E18);
+	double* Bper = getUvarovBper(Nrho, 0, size, 2.5E18);
 	double*** B = new double** [Nrho];
 	double*** Btheta = new double** [Nrho];
 	double*** Bphi = new double** [Nrho];
@@ -1314,8 +1325,8 @@ void evaluateW50comptonAndSynchrotron2() {
 	int Nz = 1;
 	int Ny = 1;
 
-	double* Bpar = getUvarovBpar(Nrho, 0, size);
-	double* Bper = getUvarovBper(Nrho, 0, size);
+	double* Bpar = getUvarovBpar(Nrho, 0, size, 2.5E18);
+	double* Bper = getUvarovBper(Nrho, 0, size, 2.5E18);
 	double*** B = new double** [Nrho];
 	double*** Btheta = new double** [Nrho];
 	double*** Bphi = new double** [Nrho];
@@ -1523,8 +1534,8 @@ void evaluateW50comptonAndSynchrotron3() {
 	int Nz = 1;
 	int Ny = 1;
 
-	double* Bpar = getUvarovBpar2(Nx, xgrid);
-	double* Bper = getUvarovBper2(Nx, xgrid);
+	double* Bpar = getUvarovBpar2(Nx, xgrid, 2.5E18);
+	double* Bper = getUvarovBper2(Nx, xgrid, 2.5E18);
 	double*** B = new double** [Nx];
 	double*** Btheta = new double** [Nx];
 	double*** Bphi = new double** [Nx];
@@ -1751,8 +1762,9 @@ void evaluateW50comptonAndSynchrotronAdvectionfunction() {
 	int Nz = 1;
 	int Ny = 1;
 
-	double* Bpar = getUvarovBpar2(Nx, xgrid);
-	double* Bper = getUvarovBper2(Nx, xgrid);
+	double L0 = 2E18;
+	double* Bpar = getUvarovBpar2(Nx, xgrid, L0);
+	double* Bper = getUvarovBper2(Nx, xgrid, L0);
 	double*** B = new double** [Nx];
 	double*** Btheta = new double** [Nx];
 	double*** Bphi = new double** [Nx];
@@ -1771,7 +1783,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunction() {
 				B[i][j][k] = sqrt(Bpar[i] * Bpar[i] + Bper[i] * Bper[i]);
 				//B[i][j][k] = 2E-5;
 				//par - x, per - y and z
-				Btheta[i][j][k] = atan2(Bper[i] / sqrt(2), sqrt(Bpar[i] * Bpar[i] + 0.5 * Bper[i] * Bper[i]));
+				Btheta[i][j][k] = atan2(Bper[i] , sqrt(Bpar[i] * Bpar[i] + Bper[i] * Bper[i]));
 				//Btheta[i][j][k] = pi / 2;
 				Bphi[i][j][k] = pi / 4;
 				concentrationArray[i][j][k] =1.0;
@@ -1786,6 +1798,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunction() {
 	FILE* Bfile = fopen("./output/Bturb.dat", "w");
 
 	for (int i = 0; i < Nx; ++i) {
+		//fprintf(Bfile, "%g %g %g\n", -xgrid[i]/L0 + 1.5, Bpar[i], Bper[i]);
 		fprintf(Bfile, "%g %g %g\n", xgrid[i], Bpar[i], Bper[i]);
 	}
 
@@ -1820,9 +1833,9 @@ void evaluateW50comptonAndSynchrotronAdvectionfunction() {
 	}
 
 	//TabulatedDiskSourceWithSynchAndComptCutoff* source = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, electrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
-	//RectangularSourceWithSynchAndComptCutoffFromRight* source = new RectangularSourceWithSynchAndComptCutoffFromRight(Nx, xgrid, Ny, Nz, electrons, B, Btheta, Bphi, concentrationArray, 0, size, 0, pi * size, distance, 0.25 * 0.2 * speed_of_light, photonTotalEnergyDensity);
+	RectangularSourceWithSynchAndComptCutoffFromRight* source = new RectangularSourceWithSynchAndComptCutoffFromRight(Nx, xgrid, Ny, Nz, electrons1, B, Btheta, Bphi, concentrationArray, 0, size, 0, pi * size, distance, 0.25 * 0.2 * speed_of_light, photonTotalEnergyDensity);
 	//RectangularSourceInhomogenousDistribution* source = new RectangularSourceInhomogenousDistribution(Nx, xgrid, Ny, Nz, electrons2, B, Btheta, Bphi, concentrationArray, 0, size, 0, pi * size, distance);
-	RectangularSource* source = new RectangularSource(1, Ny, Nz, electrons, B, Btheta, Bphi, concentrationArray, xgrid[0], xgrid[Nx - 1], 0, size, 0, pi * size, distance);
+	//RectangularSource* source = new RectangularSource(1, Ny, Nz, electrons, B, Btheta, Bphi, concentrationArray, xgrid[0], xgrid[Nx - 1], 0, size, 0, pi * size, distance);
 	MassiveParticleIsotropicDistribution* distributionRight = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(Nx - 1, 0, 0));
 	distributionRight->writeDistribution("./output/distributionRight.dat", 200, me_c2, 1E10 * me_c2);
 	MassiveParticleIsotropicDistribution* distributionMiddle = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(Nx - 2, 0, 0));
@@ -1877,7 +1890,68 @@ void evaluateW50comptonAndSynchrotronAdvectionfunction() {
 
 	RadiationSumEvaluator* sumEvaluator = new RadiationSumEvaluator(Ne, me_c2*500, 1E10 * me_c2, comptonEvaluator, synchrotronEvaluator, false);
 
-	sumEvaluator->writeEFEFromSourceToFile("./output/W50synchandcompt.dat", source, 1.6E-12, 1.6E4, 100);
+	sumEvaluator->writeEFEFromSourceToFile("./output/W50synchandcompt.dat", source, 1.6E-12, 1.6E4, 1000);
+
+	double* profileXMM = new double[Nx];
+	double* profileNuSTAR = new double[Nx];
+	int irho;
+
+	double Ephmin = 0.3 * 1000 * 1.6E-12;
+	double Ephmax = 10 * 1000 * 1.6E-12;
+	int Nph = 20;
+	omp_lock_t lock;
+	omp_init_lock(&lock);
+#pragma omp parallel for private(irho) shared(Ephmin, Ephmax, source, Nx, sumEvaluator, Nph, profileXMM, lock)
+	for (irho = 0; irho < Nx; ++irho) {
+		omp_set_lock(&lock);
+		printf("evaluating profile irho = %d\n", irho);
+		printLog("evaluating profile irho = %d\n", irho);
+		omp_unset_lock(&lock);
+			double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+			double currentE = Ephmin;
+			double localFlux = 0;
+			double s = source->getCrossSectionArea(irho, 0);
+			double d = source->getDistance();
+			for (int ie = 0; ie < Nph; ++ie) {
+				double dE = currentE * (factor - 1.0);
+				localFlux += sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, source, irho, 0) * dE * d * d / s;
+				currentE = currentE * factor;
+			}
+			profileXMM[irho] = localFlux;
+	}
+	FILE* xmmFile = fopen("./output/xmmprofile.dat", "w");
+	for (int i = 0; i < Nx; ++i) {
+		fprintf(xmmFile, "%g %g\n", xgrid[i], profileXMM[i]);
+	}
+	fclose(xmmFile);
+
+	Ephmin = 10 * 1000 * 1.6E-12;
+	Ephmax = 20 * 1000 * 1.6E-12;
+	Nph = 20;
+#pragma omp parallel for private(irho) shared(Ephmin, Ephmax, source, Nx, sumEvaluator, Nph, profileNuSTAR, lock)
+	for (irho = 0; irho < Nx; ++irho) {
+		omp_set_lock(&lock);
+		printf("evaluating image irho = %d\n", irho);
+		printLog("evaluating image irho = %d\n", irho);
+		omp_unset_lock(&lock);
+		double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+		double currentE = Ephmin;
+		double localFlux = 0;
+		double s = source->getCrossSectionArea(irho, 0);
+		double d = source->getDistance();
+		for (int ie = 0; ie < Nph; ++ie) {
+			double dE = currentE * (factor - 1.0);
+			localFlux += sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, source, irho, 0) * dE * d * d / s;
+			currentE = currentE * factor;
+		}
+		profileNuSTAR[irho] = localFlux;
+	}
+	omp_destroy_lock(&lock);
+
+	FILE* nustarFile = fopen("./output/nustarprofile.dat", "w");
+	for (int i = 0; i < Nx; ++i) {
+		fprintf(nustarFile, "%g %g\n", xgrid[i], profileNuSTAR[i]);
+	}
 	//sumEvaluator->writeEFEFromSourceToFile("./output/W50highenergy.dat", source, 1.6E-1, 1.6E3, 300);
 	//sumEvaluator->writeEFEFromSourceToFile("./output/W50kev.dat", source, 1.6E-9, 50*1.6E-9, 300);
 
@@ -1891,7 +1965,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunction() {
 
 	printf("start writing ev image\n");
 	printLog("start writing ev image\n");
-	//sumEvaluator->writeImageFromSourceToFile("./output/W50scImageeV.dat", source, 1.6E-12, 1.6E-11, 20);
+	sumEvaluator->writeImageFromSourceToFile("./output/W50scImageeV.dat", source, 1.6E-12, 1.6E-11, 20);
 
 	printf("start writing keV image\n");
 	printLog("start writing keV image\n");
@@ -2259,8 +2333,8 @@ void evaluateW50comptonAndSynchrotronMCwithoutupstream() {
 	int Nz = 1;
 	int Ny = 1;
 
-	double* Bpar = getUvarovBpar2(Nx, xgrid);
-	double* Bper = getUvarovBper2(Nx, xgrid);
+	double* Bpar = getUvarovBpar2(Nx, xgrid, 2.5E18);
+	double* Bper = getUvarovBper2(Nx, xgrid, 2.5E18);
 	double*** B = new double** [Nx];
 	double*** Btheta = new double** [Nx];
 	double*** Bphi = new double** [Nx];
@@ -2654,9 +2728,9 @@ int main() {
 	//evaluateW50comptonAndSynchrotron();
 	//evaluateW50comptonAndSynchrotron2();
 	//evaluateW50comptonAndSynchrotron3();
-	//evaluateW50comptonAndSynchrotronAdvectionfunction();
+	evaluateW50comptonAndSynchrotronAdvectionfunction();
 	//evaluateW50comptonThickRegime();
-	evaluateW50comptonAdvectionBigSource();
+	//evaluateW50comptonAdvectionBigSource();
 	//evaluateW50comptonAndSynchrotronMCwithoutupstream();
 	//evaluateW50pion();
 

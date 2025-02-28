@@ -26,6 +26,9 @@ def plot_data(filename, name, Ncol, xscale = 'linear', yscale = 'linear'):
     ax.set_xscale(xscale)
     ax.set_yscale(yscale)
 
-    ax.legend([r'luminocity', r'no pi', r'pi'], fontsize="30")
+    ax.set_xlim([1, 10])
+    ax.set_ylim([1E-5, 7E-5])
+
+    ax.legend([r'parallel', r'normal'], fontsize="30")
 
     plt.savefig(name + '.png', bbox_inches='tight')

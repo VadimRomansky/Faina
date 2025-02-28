@@ -8,7 +8,7 @@ def plot_W50_EFE(filename, name):
     lines = radiationFile.readlines()
     N = len(lines)
 
-    factor = 2E-13
+    factor = 2E-6
 
     radiation = np.zeros([3,N])
     for i in range(N):
@@ -98,7 +98,7 @@ def plot_W50_EFE(filename, name):
     #ax.set_xlim([1E12, 1E16])
     #ax.set_xlim([1E11, 1E15])
     #ax.set_xlim([1E3, 5E4])
-    #ax.set_ylim([6E-15, 5E-10])
+    ax.set_ylim([6E-15, 5E-10])
     ax.tick_params(axis='x', size=10, width=4)
     ax.tick_params(axis='y', size=10, width=4)
     ax.minorticks_on()

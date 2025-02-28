@@ -6,6 +6,7 @@ from plot_W50_EFE import plot_W50_EFE
 from plot_W50_EFE_higenergy import plot_W50_EFE_highenergy
 from plot_W50_compton2 import plot_W50_compton2
 from plot_W50_compton3 import plot_W50_compton3
+from plot_W50_profile import plot_W50_profile
 from plot_array3d import plot_array3d
 from plot_array3d_animated import plot_array3d_animated
 from plot_bremsstrahlung import plot_bremsstrahlung
@@ -46,16 +47,17 @@ if __name__ == '__main__':
     #plt.rcParams['image.cmap'] = 'hot'
     #plot_dummy()
     #plot_data("../nishina_losses.dat","nishina_losses", 3, 'log', 'log')
-    #plot_data("../Bturb.dat", "B", 2)
+    plot_data("../output/Bturb.dat", "B", 2, yscale = "log", xscale = "symlog")
     #plot_data2("../output/thinDistribution.dat","../output/thickDistribution.dat","distributions", 1, "thin", "thick", "$p/mc$", "$F(p)p^4$")
-    plot_W50_compton2("../output/W50comptonBigSource2.dat","../output/W50thickCompton.dat","W50compton",1,"numerical","thick","E eV", "$EF(E)~erg~cm^{-2} s^{-1}$")
-    plot_W50_compton3("../output/W50comptonBigSource.dat","../output/W50comptonBigSource2.dat","../output/W50thickCompton.dat","W50compton3",1,"numerical", "numerical thicker","thick","E eV", "$EF(E)~erg~cm^{-2} s^{-1}$")
+    plot_W50_profile("","profile")
+    #plot_W50_compton2("../output/W50comptonBigSource2.dat","../output/W50thickCompton.dat","W50compton",1,"numerical","thick","E eV", "$EF(E)~erg~cm^{-2} s^{-1}$")
+    #plot_W50_compton3("../output/W50comptonBigSource.dat","../output/W50comptonBigSource2.dat","../output/W50thickCompton.dat","W50compton3",1,"numerical", "numerical thicker","thick","E eV", "$EF(E)~erg~cm^{-2} s^{-1}$")
     #plot_data3("../output/distributionRight.dat", "../output/distributionMiddle.dat", "../output/distributionLeft.dat", "distributions", 1)
     #plot_data3("../W501.dat","../W502.dat","../W503.dat", "W50",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", r'$E~eV$', r'$EF(E)~erg~cm^{-2} s^{-1}$')
     #plot_data4("../W501.dat","../W502.dat","../W503.dat", "../W504.dat", "W50_multi",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", "MC function above 10 TeV B 20 mkG", r'$E~eV$', r'$EF(E)~erg~cm^{-2} s^{-1}$')
     #plot_data5("../W501.dat","../W502.dat","../W503.dat", "../W504.dat", "../W505.dat", "W50_multi",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", "MC function above 10 TeV B 20 mkG", "advection above 1 TeV B 20 mkG", '$E~eV$', '$EF(E)~erg~cm^{-2} s^{-1}$')
     #plot_data6("../W501.dat","../W502.dat","../W503.dat", "../W504.dat", "../W505.dat", "../W506.dat", "W50_multi",1, "MC function B profile + upstream", "MC function B profile", "MC function B 20 mkG", "advection B profile", "advection B 20 mkG", "advection B 20 mkG above 10 TeV", '$E~eV$', '$EF(E)~erg~cm^{-2} s^{-1}$')
-    plot_data6("../W501.dat","../W502.dat","../W503.dat", "../W504.dat", "../W505.dat", "../W506.dat", "W50_multi",1, "1 GeV", "10 GeV", "100 GeV", "1 TeV", "10 TeV", "100 TeV", '$E~eV$', '$EF(E)~erg~cm^{-2} s^{-1}$')
+    #plot_data6("../W501.dat","../W502.dat","../W503.dat", "../W504.dat", "../W505.dat", "../W506.dat", "W50_multi",1, "1 GeV", "10 GeV", "100 GeV", "1 TeV", "10 TeV", "100 TeV", '$E~eV$', '$EF(E)~erg~cm^{-2} s^{-1}$')
     #plot_distributions()
     #plot_distributions9()
     #plot_distributions_proton
@@ -74,7 +76,7 @@ if __name__ == '__main__':
     #plot_W50_EFE_highenergy("../output/W50synchandcompt.dat", "W50highenergy")
     #plot_radiation_EFE("../W50synchandcompt2.dat", "W50synchandcompt2")
     #plot_radiation_EFE("../output/W50highenergy.dat", "W50highenergy", 1E12, 1E16)
-    plot_radiation_EFE("../output/W50synchandcompt.dat", "W50kev", 1000, 200000, 2E-12, 2E-10)
+    #plot_radiation_EFE("../output/W50synchandcompt.dat", "W50kev", 1000, 200000, 2E-12, 2E-10)
     #plot_synchrotron()
     #plot_synchrotron3()
     #plot_bremsstrahlung()
