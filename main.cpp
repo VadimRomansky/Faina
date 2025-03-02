@@ -2713,7 +2713,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		fprintf(BoutputFile, "%g %g %g\n", downstreamXgrid[i], Bpar[i], Bper[i]);
 	}
 	for (int i = 0; i < upstreamNx; ++i) {
-		fprintf(BoutputFile, "%g %g %g\n", upstreamXgrid[i], 0.0, upstreamB[i]);
+		fprintf(BoutputFile, "%g %g %g\n", upstreamXgrid[i], 0.0, upstreamB[i][0][0]);
 	}
 
 	fclose(BoutputFile);
