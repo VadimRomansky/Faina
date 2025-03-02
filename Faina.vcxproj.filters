@@ -69,6 +69,9 @@
     <ClCompile Include="Src\Math\specialmath.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Src\diffusion.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\bremsstrahlung.h">
@@ -126,6 +129,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Src\Math\matrixElement.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\diffusion.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

@@ -23,6 +23,8 @@ bool checkNaNorInfinity(const double& v);
 
 double*** create3dArray(const int N1, const int N2, const int N3, const double& value = 0);
 void delete3dArray(double*** a, const int N1, const int N2, const int N3);
+double**** create4dArray(const int N1, const int N2, const int N3, const int N4, const double& value = 0);
+void delete4dArray(double**** a, const int N1, const int N2, const int N3, const int N4);
 void write3dArrayToFile(double*** a, const int N1, const int N2, const int N3, const char* fileName);
 int readRadiationFromFile(double*& E, double*& F, double*& error, const char* fileName);
 

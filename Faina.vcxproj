@@ -131,6 +131,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Src\bremsstrahlung.cpp" />
     <ClCompile Include="Src\coordinateTransform.cpp" />
+    <ClCompile Include="Src\diffusion.cpp" />
     <ClCompile Include="Src\examples.cpp" />
     <ClCompile Include="Src\inverseCompton.cpp" />
     <ClCompile Include="Src\KPIevaluator.cpp" />
@@ -152,6 +153,7 @@
     <ClInclude Include="Src\constants.h" />
     <ClInclude Include="Src\coordinateTransform.h" />
     <ClInclude Include="Src\examples.h" />
+    <ClInclude Include="Src\diffusion.h" />
     <ClInclude Include="Src\inverseCompton.h" />
     <ClInclude Include="Src\KPIevaluator.h" />
     <ClInclude Include="Src\massiveParticleDistribution.h" />

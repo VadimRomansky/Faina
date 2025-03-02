@@ -288,6 +288,38 @@ void delete3dArray(double*** a, const int N1, const int N2, const int N3)
     delete[] a;
 }
 
+double**** create4dArray(const int N1, const int N2, const int N3, const int N4, const double& value)
+{
+    double**** a = new double*** [N1];
+    for (int i = 0; i < N1; ++i) {
+        a[i] = new double** [N2];
+        for (int j = 0; j < N2; ++j) {
+            a[i][j] = new double* [N3];
+            for (int k = 0; k < N3; ++k) {
+                a[i][j][k] = new double[N4];
+                for (int l = 0; l < N4; ++l) {
+                    a[i][j][k][l] = value;
+                }
+            }
+        }
+    }
+    return a;
+}
+
+void delete4dArray(double**** a, const int N1, const int N2, const int N3, const int N4)
+{
+    for (int i = 0; i < N1; ++i) {
+        for (int j = 0; j < N2; ++j) {
+            for (int k = 0; k < N3; ++k) {
+                delete[] a[i][j][k];
+            }
+            delete[] a[i][j];
+        }
+        delete[] a[i];
+    }
+    delete[] a;
+}
+
 void write3dArrayToFile(double*** a, const int N1, const int N2, const int N3, const char* fileName)
 {
     FILE* outFile = fopen(fileName, "w");

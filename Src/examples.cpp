@@ -2336,50 +2336,82 @@ void testMatrixInverse()
 void testGMRES() {
 	//with this example gmres does not converge until N iterations
 	int N = 9;
-	std::vector<MatrixElement>* matrix = new std::vector<MatrixElement>[N];
-
-	matrix[0].push_back(MatrixElement(1.0, 0));
-	matrix[0].push_back(MatrixElement(2.0, 3));
-	matrix[0].push_back(MatrixElement(5.0, 6));
-
-	matrix[1].push_back(MatrixElement(1.0, 1));
-	matrix[1].push_back(MatrixElement(4.0, 4));
-
-	matrix[2].push_back(MatrixElement(1.0, 2));
-	matrix[2].push_back(MatrixElement(-2.0, 5));
-
-	matrix[3].push_back(MatrixElement(1.0, 3));
-
-	matrix[4].push_back(MatrixElement(1.0, 4));
-	matrix[4].push_back(MatrixElement(7.0, 2));
-
-	matrix[5].push_back(MatrixElement(1.0, 5));
-	matrix[5].push_back(MatrixElement(1.0, 1));
-
-	matrix[6].push_back(MatrixElement(1.0, 6));
-	matrix[6].push_back(MatrixElement(1.0, 0));
-
-	matrix[7].push_back(MatrixElement(1.0, 7));
-	matrix[7].push_back(MatrixElement(1.0, 5));
-
-	matrix[8].push_back(MatrixElement(1.0, 8));
-
-	double* R = new double[N];
-	R[0] = 1.0;
-	R[1] = 2.0;
-	R[2] = 3.0;
-
-	double* X = new double[N];
-
-	LargeVectorBasis* gmresBasis = new LargeVectorBasis(5, N);
-
-	generalizedMinimalResidualMethod(matrix, R, X, N, 1E-5, N, 2, gmresBasis);
-
+	/*std::vector<MatrixElement>**** matrix = new std::vector<MatrixElement>***[N];
 	for (int i = 0; i < N; ++i) {
-		printf("%g\n", X[i]);
+		matrix[i] = new std::vector<MatrixElement>**[1];
+		matrix[i][0] = new std::vector<MatrixElement>*[1];
+		matrix[i][0][0] = new std::vector<MatrixElement>[1];
+	}*/
+
+	std::vector<MatrixElement>**** matrix = new std::vector<MatrixElement>***[1];
+	matrix[0] = new std::vector<MatrixElement>**[1];
+	matrix[0][0] = new std::vector<MatrixElement>*[1];
+	matrix[0][0][0] = new std::vector<MatrixElement>[9];
+	for (int i = 0; i < N; ++i) {
+		//matrix[0][0][i] = new std::vector<MatrixElement>[1];
 	}
 
-	conjugateGradientMethod(matrix, R, X, N, 1E-10, N, 2);
+	matrix[0][0][0][0].push_back(MatrixElement(1.0, 0, 0, 0, 0));
+	matrix[0][0][0][0].push_back(MatrixElement(2.0, 0, 0, 0, 3));
+	matrix[0][0][0][0].push_back(MatrixElement(5.0, 0, 0, 0, 6));
+
+	matrix[0][0][0][1].push_back(MatrixElement(1.0, 0, 0, 0, 1));
+	matrix[0][0][0][1].push_back(MatrixElement(4.0, 0, 0, 0, 4));
+
+	matrix[0][0][0][2].push_back(MatrixElement(1.0, 0, 0, 0, 2));
+	matrix[0][0][0][2].push_back(MatrixElement(-2.0, 0, 0, 0, 5));
+
+	matrix[0][0][0][3].push_back(MatrixElement(1.0, 0, 0, 0, 3));
+
+	matrix[0][0][0][4].push_back(MatrixElement(1.0, 0, 0, 0, 4));
+	matrix[0][0][0][4].push_back(MatrixElement(7.0, 0, 0, 0, 2));
+
+	matrix[0][0][0][5].push_back(MatrixElement(1.0, 0, 0, 0, 5));
+	matrix[0][0][0][5].push_back(MatrixElement(1.0, 0, 0, 0, 1));
+
+	matrix[0][0][0][6].push_back(MatrixElement(1.0, 0, 0, 0, 6));
+	matrix[0][0][0][6].push_back(MatrixElement(1.0, 0, 0, 0, 0));
+
+	matrix[0][0][0][7].push_back(MatrixElement(1.0, 0, 0, 0, 7));
+	matrix[0][0][0][7].push_back(MatrixElement(1.0, 0, 0, 0, 5));
+
+	matrix[0][0][0][8].push_back(MatrixElement(1.0, 0, 0, 0, 8));
+
+	double**** R = new double***[1];
+	R[0] = new double** [1];
+	R[0][0] = new double* [1];
+	R[0][0][0] = new double[N];
+	for (int i = 0; i < N; ++i) {
+		//R[i] = new double** [1];
+		//R[0][i] = new double* [1];
+		//R[0][0][i] = new double[1];
+		R[0][0][0][i] = 0;
+	}
+	R[0][0][0][0] = 1.0;
+	R[0][0][0][1] = 2.0;
+	R[0][0][0][2] = 3.0;
+
+	double**** X = new double***[1];
+	X[0] = new double** [1];
+	X[0][0] = new double* [1];
+	X[0][0][0] = new double[N];
+	for (int i = 0; i < N; ++i) {
+		//X[i] = new double** [1];
+		//X[0][i] = new double* [1];
+		//X[0][0][i] = new double[1];
+	}
+
+	LargeVectorBasis* gmresBasis = new LargeVectorBasis(5, 1, 1, 1, N);
+
+	for (int i = 0; i < 1000; ++i) {
+		generalizedMinimalResidualMethod(matrix, R, X, 1, 1, 1, N, 1E-5, N, 2, gmresBasis);
+	}
+
+	for (int i = 0; i < N; ++i) {
+		printf("%g\n", X[0][0][0][i]);
+	}
+
+	/*conjugateGradientMethod(matrix, R, X, N, 1E-10, N, 2);
 
 	for (int i = 0; i < N; ++i) {
 		printf("%g\n", X[i]);
@@ -2389,7 +2421,7 @@ void testGMRES() {
 
 	for (int i = 0; i < N; ++i) {
 		printf("%g\n", X[i]);
-	}
+	}*/
 }
 
 void testNishinaLosses() {

@@ -1018,6 +1018,171 @@ void RadiationSourceFactory::readRectangularSourceArraysFromFile(double***& B, d
 	delete[] B3;
 }
 
+void RadiationSourceFactory::readRectangularSourceArraysWithVFromFile(double***& B, double***& Btheta, double***& Bphi, double***& V, double***& Vtheta, double***& Vphi, double***& concentration, const double& minX, const double& maxX, const double& minZ, const double& maxZ, const double& minY, const double& maxY, const int Nx, const int Nz, const int Ny, SourceInputGeometry geometry, const char* BFileName, const char* VFileName, const char* concentrationFileName, const double& thetar, const double& phir, const double& psir)
+{
+	FILE* Bfile = fopen(BFileName, "r");
+	FILE* Vfile = fopen(VFileName, "r");
+	FILE* concentrationFile = fopen(concentrationFileName, "r");
+	int Nxb, Nyb, Nzb;
+	int Nxv, Nyv, Nzv;
+	int Nxc, Nyc, Nzc;
+
+	fscanf(Bfile, "%d %d %d", &Nxb, &Nyb, &Nzb);
+	fscanf(Vfile, "%d %d %d", &Nxv, &Nyv, &Nzv);
+	fscanf(concentrationFile, "%d %d %d", &Nxc, &Nyc, &Nzc);
+
+	double x1, y1, z1;
+	double x2, y2, z2;
+
+	fscanf(Bfile, "%lf %lf %lf", &x1, &y1, &z1);
+	fscanf(Vfile, "%lf %lf %lf", &x1, &y1, &z1);
+	fscanf(concentrationFile, "%lf %lf %lf", &x1, &y1, &z1);
+
+	fscanf(Bfile, "%lf %lf %lf", &x2, &y2, &z2);
+	fscanf(Vfile, "%lf %lf %lf", &x2, &y2, &z2);
+	fscanf(concentrationFile, "%lf %lf %lf", &x2, &y2, &z2);
+
+	//todo V
+	if ((Nxb != Nxc) || (Nyb != Nyc) || (Nzb != Nzc)) {
+		printf("Dimensions are different in B and concentrationFile\n");
+		printLog("Dimensions are different in B and concentrationFile\n");
+		exit(0);
+	}
+
+	concentration = new double** [Nx];
+	B = new double** [Nx];
+	Btheta = new double** [Nx];
+	Bphi = new double** [Nx];
+	V = new double** [Nx];
+	Vtheta = new double** [Nx];
+	Vphi = new double** [Nx];
+
+	for (int i = 0; i < Nx; ++i) {
+		concentration[i] = new double* [Nz];
+		B[i] = new double* [Nz];
+		Btheta[i] = new double* [Nz];
+		Bphi[i] = new double* [Nz];
+		V[i] = new double* [Nz];
+		Vtheta[i] = new double* [Nz];
+		Vphi[i] = new double* [Nz];
+		for (int j = 0; j < Nz; ++j) {
+			concentration[i][j] = new double[Ny];
+			B[i][j] = new double[Ny];
+			Btheta[i][j] = new double[Ny];
+			Bphi[i][j] = new double[Ny];
+			V[i][j] = new double[Ny];
+			Vtheta[i][j] = new double[Ny];
+			Vphi[i][j] = new double[Ny];
+		}
+	}
+
+	double*** concentration1 = new double** [Nxb];
+
+	double*** B1 = new double** [Nxb];
+	double*** B2 = new double** [Nxb];
+	double*** B3 = new double** [Nxb];
+	double*** V1 = new double** [Nxb];
+	double*** V2 = new double** [Nxb];
+	double*** V3 = new double** [Nxb];
+	for (int i = 0; i < Nxb; ++i) {
+		concentration1[i] = new double* [Nyb];
+		B1[i] = new double* [Nyb];
+		B2[i] = new double* [Nyb];
+		B3[i] = new double* [Nyb];
+		V1[i] = new double* [Nyb];
+		V2[i] = new double* [Nyb];
+		V3[i] = new double* [Nyb];
+		for (int j = 0; j < Nyb; ++j) {
+			concentration1[i][j] = new double[Nzb];
+			B1[i][j] = new double[Nzb];
+			B2[i][j] = new double[Nzb];
+			B3[i][j] = new double[Nzb];
+			V1[i][j] = new double[Nzb];
+			V2[i][j] = new double[Nzb];
+			V3[i][j] = new double[Nzb];
+			for (int k = 0; k < Nzb; ++k) {
+				fscanf(concentrationFile, "%lf", &concentration1[i][j][k]);
+				fscanf(Bfile, "%lf %lf %lf", &B1[i][j][k], &B2[i][j][k], &B3[i][j][k]);
+				fscanf(Vfile, "%lf %lf %lf", &V1[i][j][k], &V2[i][j][k], &V3[i][j][k]);
+				if (checkNaNorInfinity(concentration1[i][j][k])) {
+					printf("concentration is Nan or Infinity %lf\n", concentration1[i][j][k]);
+					printLog("concentration is Nan or Infinity %lf\n", concentration1[i][j][k]);
+					exit(0);
+				}
+				if (checkNaNorInfinity(B1[i][j][k])) {
+					printf("B1 is Nan or Infinity %lf\n", B1[i][j][k]);
+					printLog("B1 is Nan or Infinity %lf\n", B1[i][j][k]);
+					exit(0);
+				}
+
+				if (checkNaNorInfinity(B2[i][j][k])) {
+					printf("B2 is Nan or Infinity %lf\n", B2[i][j][k]);
+					printLog("B2 is Nan or Infinity %lf\n", B2[i][j][k]);
+					exit(0);
+				}
+
+				if (checkNaNorInfinity(B3[i][j][k])) {
+					printf("B3 is Nan or Infinity %lf\n", B3[i][j][k]);
+					printLog("B3 is Nan or Infinity %lf\n", B3[i][j][k]);
+					exit(0);
+				}
+				if (checkNaNorInfinity(V1[i][j][k])) {
+					printf("V1 is Nan or Infinity %lf\n", V1[i][j][k]);
+					printLog("V1 is Nan or Infinity %lf\n", V1[i][j][k]);
+					exit(0);
+				}
+
+				if (checkNaNorInfinity(V2[i][j][k])) {
+					printf("V2 is Nan or Infinity %lf\n", V2[i][j][k]);
+					printLog("V2 is Nan or Infinity %lf\n", V2[i][j][k]);
+					exit(0);
+				}
+
+				if (checkNaNorInfinity(V3[i][j][k])) {
+					printf("V3 is Nan or Infinity %lf\n", V3[i][j][k]);
+					printLog("V3 is Nan or Infinity %lf\n", V3[i][j][k]);
+					exit(0);
+				}
+			}
+		}
+	}
+
+	//correctSourceConcentration(concentration, Nxb, Nyb, Nzb, Nxb - 1, Nyb - 1, Nzb - 1, 0.002);
+	//correctSourceConcentration(concentration, Nxb, Nyb, Nzb, Nxb / 2, Nyb / 2, Nzb - 1, 0.002);
+
+	transformScalarArrayToCartesian(concentration1, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, concentration, Nx, Nz, Ny, minX, maxX, minZ, maxZ, minY, maxY, thetar, phir, psir);
+	transformVectorArraysToCartesian(B1, B2, B3, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, B, Btheta, Bphi, Nx, Nz, Ny, minX, maxX, minZ, maxZ, minY, maxY, thetar, phir, psir);
+	transformVectorArraysToCartesian(V1, V2, V3, Nxb, Nyb, Nzb, x1, x2, y1, y2, z1, z2, geometry, V, Vtheta, Vphi, Nx, Nz, Ny, minX, maxX, minZ, maxZ, minY, maxY, thetar, phir, psir);
+
+	fclose(Bfile);
+	fclose(concentrationFile);
+	for (int i = 0; i < Nxb; ++i) {
+		for (int j = 0; j < Nyb; ++j) {
+			delete[] concentration1[i][j];
+			delete[] B1[i][j];
+			delete[] B2[i][j];
+			delete[] B3[i][j];
+			delete[] V1[i][j];
+			delete[] V2[i][j];
+			delete[] V3[i][j];
+		}
+		delete[] concentration1[i];
+		delete[] B1[i];
+		delete[] B2[i];
+		delete[] B3[i];
+		delete[] V1[i];
+		delete[] V2[i];
+		delete[] V3[i];
+	}
+	delete[] concentration1;
+	delete[] B1;
+	delete[] B2;
+	delete[] B3;
+	delete[] V1;
+	delete[] V2;
+	delete[] V3;
+}
+
 RectangularSource* RadiationSourceFactory::readRectangularSourceFromFile(MassiveParticleDistribution* electronDistribution, const double& minX, const double& maxX, const double& minZ, const double& maxZ, const double& minY, const double& maxY, const int Nx, const int Nz, const int Ny, const double& distance, SourceInputGeometry geometry, const char* BFileName, const char* concentrationFileName, const double& thetar, const double& phir, const double& psir)
 {
 

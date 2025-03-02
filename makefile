@@ -44,6 +44,7 @@ HEADERS       = ./Src/constants.h \
 		./Src/radiationSource.h \
 		./Src/synchrotron.h \
 		./Src/util.h \
+		./Src/diffusion.h \
 		./Src/Math/largeVectorBasis.h \
 		./Src/Math/matrixElement.h \
 		./Src/Math/specialmath.h
@@ -62,6 +63,7 @@ SOURCES       = Src/KPIevaluator.cpp \
 		Src/radiationSourceFactory.cpp \
 		Src/synchrotron.cpp \
 		Src/util.cpp \
+		Src/diffusion.cpp \
 		Src/Math/largeVectorBasis.cpp \
 		Src/Math/matrixElement.cpp \
 		Src/Math/specialmath.cpp \
@@ -80,6 +82,7 @@ OBJS      = KPIevaluator.o \
 		radiationSourceFactory.o \
 		synchrotron.o \
 		util.o \
+		diffusion.o \
 		largeVectorBasis.o \
 		matrixElement.o \
 		specialmath.o \
