@@ -447,13 +447,15 @@ void MassiveParticleTabulatedIsotropicDistribution::setDistributionAtPoint(int i
 		printLog("unknown electron input type\n");
 		exit(0);
 	}
+	my_kineticEnergy[i] = my_energy[i] - my_mass * speed_of_light2;
 }
 
 void MassiveParticleTabulatedIsotropicDistribution::normalizeDistribution()
 {
-	double norm = my_distribution[0] * (my_energy[1] - my_energy[0]);
+	//double norm = my_distribution[0] * (my_energy[1] - my_energy[0]);
+	double norm = my_distribution[0] * (my_kineticEnergy[1] - my_kineticEnergy[0]);
 	for (int i = 1; i < my_Ne; ++i) {
-		norm += my_distribution[i] * (my_energy[i] - my_energy[i - 1]);
+		norm += my_distribution[i] * (my_kineticEnergy[i] - my_kineticEnergy[i - 1]);
 	}
 	norm *= 4 * pi;
 	for (int i = 0; i < my_Ne; ++i) {
@@ -466,11 +468,13 @@ MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropic
 	my_Ne = distribution.my_Ne;
 
 	my_energy = new double[my_Ne];
+	my_kineticEnergy = new double[my_Ne];
 	my_distribution = new double[my_Ne];
 	my_inputType = distribution.my_inputType;
 
 	for (int i = 0; i < my_Ne; ++i) {
 		my_energy[i] = distribution.my_energy[i];
+		my_kineticEnergy[i] = my_energy[i] - my_mass * speed_of_light2;
 		my_distribution[i] = distribution.my_distribution[i];
 	}
 
@@ -495,6 +499,7 @@ MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropic
 	my_inputType = inputType;
 
 	my_energy = new double[my_Ne];
+	my_kineticEnergy = new double[my_Ne];
 	my_distribution = new double[my_Ne];
 
 	file = fopen(fileName, "r");
@@ -532,6 +537,7 @@ MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropic
 	my_inputType = inputType;
 
 	my_energy = new double[my_Ne];
+	my_kineticEnergy = new double[my_Ne];
 	my_distribution = new double[my_Ne];
 
 	energyFile = fopen(energyFileName, "r");
@@ -568,6 +574,7 @@ MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropic
 	my_inputType = inputType;
 
 	my_energy = new double[my_Ne];
+	my_kineticEnergy = new double[my_Ne];
 	my_distribution = new double[my_Ne];
 
 	for (int i = 0; i < my_Ne; ++i) {
@@ -597,6 +604,7 @@ MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropic
 	my_inputType = DistributionInputType::ENERGY_FE;
 
 	my_energy = new double[my_Ne];
+	my_kineticEnergy = new double[my_Ne];
 	my_distribution = new double[my_Ne];
 	double factor = pow(maxE / minE, 1.0 / (my_Ne - 1.0));
 	double x = minE;
@@ -614,6 +622,7 @@ MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropic
 MassiveParticleTabulatedIsotropicDistribution::~MassiveParticleTabulatedIsotropicDistribution() {
 	delete[] my_distribution;
 	delete[] my_energy;
+	delete[] my_kineticEnergy;
 }
 
 double MassiveParticleTabulatedIsotropicDistribution::distributionNormalized(const double& energy) {
@@ -786,9 +795,16 @@ void MassiveParticleTabulatedIsotropicDistribution::setToZeroAboveE(const double
 void MassiveParticleTabulatedIsotropicDistribution::transformToLosses(const double& lossRate, const double& time)
 {
 	for (int i = 0; i < my_Ne; ++i) {
-		double factor = (my_energy[i] - my_mass * speed_of_light2) * lossRate * time;
-		my_energy[i] = my_mass*speed_of_light2 + (my_energy[i] - my_mass*speed_of_light2) / (1 + factor);
+		//double factor = (my_energy[i] - my_mass * speed_of_light2) * lossRate * time;
+		double factor = my_kineticEnergy[i] * lossRate * time;
+		my_kineticEnergy[i] = my_kineticEnergy[i] / (1 + factor);
+		my_energy[i] = my_kineticEnergy[i] + my_mass * speed_of_light2;
 		my_distribution[i] = my_distribution[i] * sqr(1 + factor);
+		if (my_distribution[i] != my_distribution[i]) {
+			printf("distribution = NaN in transformToLosses\n");
+			printLog("distribution = NaN in transformToLosses\n");
+			exit(0);
+		}
 	}
 	normalizeDistribution();
 }

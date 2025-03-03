@@ -168,6 +168,7 @@ class MassiveParticleTabulatedIsotropicDistribution : public MassiveParticleIsot
 protected:
 	int my_Ne;
 	double* my_energy;
+	double* my_kineticEnergy;
 	double* my_distribution;
 	DistributionInputType my_inputType;
 protected:

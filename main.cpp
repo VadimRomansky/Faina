@@ -1078,7 +1078,7 @@ double* getUvarovBpar2(int Nx, double* xgrid, double L0) {
 		double x = xgrid[i];
 		double shockx = 1.5;
 		double l = x / UNIT_LENGTH + shockx;
-		if (l > shockx) {
+		if (l >= shockx) {
 			//downstreamB[i] = (A0 / (1 + pow(sqr((l - A3) / A1), A2))) * (1.0 / (1 + A6 * exp(-sqr((l - A4) / A5))));
 			//downstreamB[i] = A0 / (pow(1.0 + sqr((l - A3) / A1), A2)) / (1.0 + A6 * exp(-(l - A4) / A5));
 			B[i] = A0 / (pow(1.0 + sqr((l - A3) / A1), A2)) / (1.0 + A6 * exp(-(l - A4) / A5));
@@ -1109,7 +1109,7 @@ double* getUvarovBper2(int Nx, double* xgrid, double L0) {
 		double x = xgrid[i];
 		double shockx = 1.5;
 		double l = x / UNIT_LENGTH + shockx;
-		if (l > shockx) {
+		if (l >= shockx) {
 			//downstreamB[i] = A0 / (1 + pow(sqr((l - A3) / A1), A2) + A4 * exp(-sqr((l - A5) / A6)));
 			//downstreamB[i] = A0 / (pow(1.0 + sqr((l - A3) / A1), A2) + A4 * exp(-sqr((l - A5) / A6)));
 			B[i] = (A0 / (pow(1.0 + sqr((l - A3) / A1), A2)) + A4 * exp(-sqr((l - A5) / A6)));
@@ -2649,9 +2649,13 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	int Nz = 1;
 	int Ny = 1;
 
-	double L0 = 1E18;
+	double L0 = 2E18;
 	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0);
 	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0);
+
+	for (int i = 0; i < downstreamNx; ++i) {
+		downstreamXgrid[i] = -downstreamXgrid[i];
+	}
 
 	double*** downstreamB = new double** [downstreamNx];
 	double*** downstreamBtheta = new double** [downstreamNx];
@@ -2672,6 +2676,10 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 				//downstreamB[i][j][k] = 2E-5;
 				//par - x, per - y and z
 				downstreamBtheta[i][j][k] = atan2(Bper[i], sqrt(Bpar[i] * Bpar[i] + Bper[i] * Bper[i]));
+				/*if (downstreamXgrid[i] < -2E19) {
+					downstreamB[i][j][k] = 1E-4;
+					downstreamBtheta[i][j][k] = pi / 2;
+				}*/
 				//downstreamBtheta[i][j][k] = pi / 2;
 				downstreamBphi[i][j][k] = pi / 4;
 				downstreamConcentrationArray[i][j][k] = 1.0;
@@ -2702,15 +2710,12 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		}
 	}
 
-	for (int i = 0; i < downstreamNx; ++i) {
-		downstreamXgrid[i] = -downstreamXgrid[i];
-	}
-
 	FILE* BoutputFile = fopen("./output/Bturb.dat", "w");
 
 	for (int i = 0; i < downstreamNx; ++i) {
 		//fprintf(Bfile, "%g %g %g\n", -downstreamXgrid[i]/L0 + 1.5, Bpar[i], Bper[i]);
 		fprintf(BoutputFile, "%g %g %g\n", downstreamXgrid[i], Bpar[i], Bper[i]);
+		//fprintf(BoutputFile, "%g %g %g\n", downstreamXgrid[i], 0.0, downstreamB[i][0][0]);
 	}
 	for (int i = 0; i < upstreamNx; ++i) {
 		fprintf(BoutputFile, "%g %g %g\n", upstreamXgrid[i], 0.0, upstreamB[i][0][0]);
@@ -2822,6 +2827,18 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 
 	//sumEvaluator->writeEFEFromSourceToFile("./output/W50synchandcompt.dat", downstreamSource, 1.6E-12, 1.6E4, 1000);
 
+	double secondToRadian = pi / (180 * 3600);
+	double headMinSec = 0;
+	double headMaxSec = 12 * 15;
+	double coneMinSec = headMaxSec;
+	double coneMaxSec = 26 * 15;
+
+	double headMinX = -headMinSec * secondToRadian * distance;
+	double headMaxX = -headMaxSec * secondToRadian * distance;
+	double coneMinX = -coneMinSec * secondToRadian * distance;
+	double coneMaxX = -coneMaxSec * secondToRadian * distance;
+
+
 	double Ephmin = 1.6E-12;
 	double Ephmax = 1.6E4;
 	int Nph = 1000;
@@ -2833,9 +2850,24 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		printf("writeEFEFromSourceToFile iph = %d\n", i);
 		printLog("writeEFEFromSourceToFile iph = %d\n", i);
 		//omp_unset_lock(&my_lock);
-		double flux1 = sumEvaluator->evaluateFluxFromSource(currentE, downstreamSource);
+		//double flux1 = sumEvaluator->evaluateFluxFromSource(currentE, downstreamSource);
+		double flux1 = 0;
 		double flux2 = sumEvaluator->evaluateFluxFromSource(currentE, upstreamSource);
-		fprintf(outFile, "%g %g\n", currentE / 1.6E-12, currentE * (flux1 + flux2));
+		double fluxHead = 0;
+		double fluxCone = 0;
+		int j;
+#pragma omp parallel for private(j) shared(currentE, downstreamSource, downstreamXgrid, downstreamNx) reduction(+:flux1, fluxHead, fluxCone)
+		for (j = 0; j < downstreamNx; ++j) {
+			double flux = sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, downstreamSource, j, 0);
+			flux1 += flux;
+			if ((downstreamXgrid[j] >= headMaxX) && (downstreamXgrid[j] <= headMinX)) {
+				fluxHead += flux;
+			}
+			if ((downstreamXgrid[j] >= coneMaxX) && (downstreamXgrid[j] <= coneMinX)){
+				fluxCone += flux;
+			}
+		}
+		fprintf(outFile, "%g %g %g %g\n", currentE / 1.6E-12, currentE * (flux1 + flux2), currentE*fluxHead, currentE*fluxCone);
 		currentE = currentE * factor;
 	}
 	fclose(outFile);

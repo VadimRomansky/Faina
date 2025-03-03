@@ -56,10 +56,10 @@ def plot_W50_profile(filename, name):
     ax2.set_ylabel(r'$F/F_{max}$', fontsize=40, fontweight='bold')
     #ax1.set_xlabel(r'$\nu~Ггц$', fontsize=40,fontweight='bold')
     #ax1.set_ylabel(r'$F_{\nu}~mJy$', fontsize=40,fontweight='bold')
-    ax1.set_xlabel(r'$x cm$', fontsize=40, fontweight='bold')
-    ax2.set_xlabel(r'$x cm$', fontsize=40,fontweight='bold')
+    ax1.set_xlabel(r'$x~cm$', fontsize=40, fontweight='bold')
+    ax2.set_xlabel(r'$x~cm$', fontsize=40,fontweight='bold')
 
-    ax3.set_ylabel('$B mkG$', fontsize=40, fontweight='bold')
+    ax3.set_ylabel(r'$B~G$', fontsize=40, fontweight='bold')
     #ax1.set_ylabel(r'$F_{\nu}~мЯн$', fontsize=40,fontweight='bold')
     #ax1.set_yscale("log")
     #ax1.set_xscale("log")

@@ -3,12 +3,10 @@ from matplotlib import animation
 from pylab import *
 import numpy as np
 
-def plot_W50_EFE(filename, name):
+def plot_W50_EFE(filename, name, factor = 1.0):
     radiationFile = open(filename,'r')
     lines = radiationFile.readlines()
     N = len(lines)
-
-    factor = 0.2E-13
 
     radiation = np.zeros([3,N])
     for i in range(N):
@@ -126,7 +124,7 @@ def plot_W50_EFE(filename, name):
     B = 4.6E-12
     for i in range(Ne):
         currentE = E2[i]*1.6E-12
-        F2[i] = B*currentE**(2-1.999)
+        F2[i] = B*currentE**(2-1.99)
 
     plt.plot(E1, F1, linewidth = 4, label = 'XMM')
     plt.plot(E2, F2, linewidth = 4, label = 'NuSTAR')

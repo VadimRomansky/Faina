@@ -3,12 +3,10 @@ from matplotlib import animation
 from pylab import *
 import numpy as np
 
-def plot_W50_EFE_highenergy(filename, name):
+def plot_W50_EFE_highenergy(filename, name, factor = 1.0):
     radiationFile = open(filename,'r')
     lines = radiationFile.readlines()
     N = len(lines)
-
-    factor = 5E-5
 
     radiation = np.zeros([3,N])
     for i in range(N):
@@ -104,7 +102,7 @@ def plot_W50_EFE_highenergy(filename, name):
     ax.minorticks_on()
     plt.xticks([1E11,2E11, 3E11, 4E11,5E11, 6E11, 7E11, 8E11, 9E11,1E12,2E12, 3E12, 4E12,5E12, 6E12, 7E12, 8E12, 9E12,1E13,2E13, 3E13, 4E13,5E13,6E13,7E13,8E13,9E13,1E14,2E14,3E14,4E14,5E14,6E14,7E14,8E14,9E14,1E15,2E15,3E15,4E15,5E15])
     #plt.xticks([1E3, 2E3, 3E3, 4E3, 5E3, 6E3, 7E3, 8E3, 9E3, 1E4, 2E4, 3E4, 4E4, 5E4])
-    plt.yticks([6E-16, 7E-16, 8E-16, 9E-16, 1E-15, 2E-15, 3E-15, 4E-15, 5E-15, 6E-15, 7E-15, 8E-15, 9E-15, 1E-14, 2E-14, 3E-14, 4E-14, 5E-14, 6E-14, 7E-14, 8E-14, 9E-14, 1E-13, 2E-13, 3E-13, 4E-13, 5E-13, 6E-13, 7E-13, 8E-13, 9E-13, 1E-12, 2E-12, 3E-12, 4E-12, 5E-12])
+    #plt.yticks([6E-16, 7E-16, 8E-16, 9E-16, 1E-15, 2E-15, 3E-15, 4E-15, 5E-15, 6E-15, 7E-15, 8E-15, 9E-15, 1E-14, 2E-14, 3E-14, 4E-14, 5E-14, 6E-14, 7E-14, 8E-14, 9E-14, 1E-13, 2E-13, 3E-13, 4E-13, 5E-13, 6E-13, 7E-13, 8E-13, 9E-13, 1E-12, 2E-12, 3E-12, 4E-12, 5E-12])
 
     plt.plot(radiation[0], radiation[1], 'r', linewidth=4)
     #plt.plot(lhaaso[0], lhaaso[1],'b', linewidth=4)

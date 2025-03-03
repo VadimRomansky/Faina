@@ -4,6 +4,7 @@ import numpy as np
 
 from plot_W50_EFE import plot_W50_EFE
 from plot_W50_EFE_higenergy import plot_W50_EFE_highenergy
+from plot_W50_EFE_synchrotron import plot_W50_EFE_synchrotron
 from plot_W50_compton2 import plot_W50_compton2
 from plot_W50_compton3 import plot_W50_compton3
 from plot_W50_profile import plot_W50_profile
@@ -47,7 +48,7 @@ if __name__ == '__main__':
     #plt.rcParams['image.cmap'] = 'hot'
     #plot_dummy()
     #plot_data("../nishina_losses.dat","nishina_losses", 3, 'log', 'log')
-    plot_data("../output/Bturb.dat", "B", 2, yscale = "log", xscale = "symlog")
+    plot_data("../output/Bturb.dat", "B", 2, yscale = "linear", xscale = "linear")
     #plot_data2("../output/thinDistribution.dat","../output/thickDistribution.dat","distributions", 1, "thin", "thick", "$p/mc$", "$F(p)p^4$")
     plot_W50_profile("","profile")
     #plot_W50_compton2("../output/W50comptonBigSource2.dat","../output/W50thickCompton.dat","W50compton",1,"numerical","thick","E eV", "$EF(E)~erg~cm^{-2} s^{-1}$")
@@ -71,8 +72,10 @@ if __name__ == '__main__':
     #plot_radiation_EFE("../W50compton.dat", "W50compton")
     #plot_radiation_EFE("../W50synchrotron.dat", "W50synchrotron")
     #plot_radiation_EFE("../W50synchandcompt.dat", "W50synchandcompt")
-    plot_W50_EFE("../output/W50synchandcompt.dat", "W50synchandcompt")
-    plot_W50_EFE_highenergy("../output/W50thickCompton.dat", "W50thickCompton")
+    factor = 1E-14
+    plot_W50_EFE("../output/W50synchandcompt.dat", "W50synchandcompt", factor)
+    plot_W50_EFE_highenergy("../output/W50synchandcompt.dat", "W50сompton", factor)
+    plot_W50_EFE_synchrotron("../output/W50synchandcompt.dat", "W50synch", factor)
     #plot_W50_EFE_highenergy("../output/W50synchandcompt.dat", "W50highenergy")
     #plot_radiation_EFE("../W50synchandcompt2.dat", "W50synchandcompt2")
     #plot_radiation_EFE("../output/W50highenergy.dat", "W50highenergy", 1E12, 1E16)
