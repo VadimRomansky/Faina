@@ -38,7 +38,7 @@ def plot_data3(filename1, filename2, filename3, name, Ncol, label1 = "", label2 
 
     for i in range(Nraw3):
         for j in range(Ncol + 1):
-            data3[j][i] = float(lines3[i].split()[j])*3
+            data3[j][i] = float(lines3[i].split()[j])
 
     for i in range(Ncol):
         plt.plot(data1[0],data1[i+1], linewidth=4, label = label1)

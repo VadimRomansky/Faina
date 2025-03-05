@@ -709,7 +709,8 @@ void MassiveParticleTabulatedIsotropicDistribution::rescaleDistribution(const do
 {
 	double m_c2 = my_mass * speed_of_light2;
 	for (int i = 0; i < my_Ne; ++i) {
-		my_energy[i] = m_c2 + (my_energy[i] - m_c2) * k;
+		my_kineticEnergy[i] = my_kineticEnergy[i] * k;
+		my_energy[i] = m_c2 + my_kineticEnergy[i];
 	}
 	normalizeDistribution();
 }
@@ -734,24 +735,29 @@ void MassiveParticleTabulatedIsotropicDistribution::addPowerLaw(const double& Ep
 void MassiveParticleTabulatedIsotropicDistribution::prolongEnergyRange(const double& Emax, int N)
 {
 	double* tempEnergy = my_energy;
+	double* tempKineticEnergy = my_kineticEnergy;
 	double* tempDistribution = my_distribution;
 	int tempNe = my_Ne;
 
 	my_Ne = my_Ne + N;
 	my_energy = new double[my_Ne];
+	my_kineticEnergy = new double[my_Ne];
 	my_distribution = new double[my_Ne];
 	for (int i = 0; i < tempNe; ++i) {
 		my_energy[i] = tempEnergy[i];
+		my_kineticEnergy[i] = tempKineticEnergy[i];
 		my_distribution[i] = tempDistribution[i];
 	}
 
 	double factor = pow(Emax / my_energy[tempNe - 1], 1.0 / N);
 	for (int i = tempNe; i < my_Ne; ++i) {
 		my_energy[i] = my_energy[i - 1] * factor;
+		my_kineticEnergy[i] = my_energy[i] - my_mass * speed_of_light2;
 		my_distribution[i] = 0;
 	}
 	
 	delete[] tempEnergy;
+	delete[] tempKineticEnergy;
 	delete[] tempDistribution;
 }
 
@@ -868,10 +874,12 @@ void MassiveParticleTabulatedIsotropicDistribution::transformToThickRegime(const
 		for (int j = i; j < my_Ne; ++j) {
 			double dE = 0;
 			if (j == 0) {
-				dE = my_energy[1] - my_energy[0];
+				//dE = my_energy[1] - my_energy[0];
+				dE = my_kineticEnergy[1] - my_kineticEnergy[0];
 			}
 			else {
-				dE = my_energy[j] - my_energy[j - 1];
+				//dE = my_energy[j] - my_energy[j - 1];
+				dE = my_kineticEnergy[j] - my_kineticEnergy[j - 1];
 			}
 
 			intJdE = intJdE + my_distribution[j] * dE;
