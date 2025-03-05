@@ -1064,7 +1064,7 @@ double* getUvarovBper(int Nx, double minX, double maxX, double L0) {
 }
 
 double* getUvarovBpar2(int Nx, double* xgrid, double L0) {
-	double factor = 0.33*1E-6;
+	double factor = 0.2*1E-6;
 	double A0 = 41.0755 * factor;
 	double A1 = 9.27296;
 	double A2 = 1.41262;
@@ -1095,7 +1095,7 @@ double* getUvarovBpar2(int Nx, double* xgrid, double L0) {
 }
 
 double* getUvarovBper2(int Nx, double* xgrid, double L0) {
-	double factor = 0.33*1E-6;
+	double factor = 0.2*1E-6;
 	double A0 = 98.3917 * factor;
 	double A1 = 30.533;
 	double A2 = 2.33138;
@@ -2551,7 +2551,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	int Nenergy;
 	int Nx;
 
-	const char* xfileName = "./examples_data/W50/lowfield/x_grid.dat";
+	const char* xfileName = "./examples_data/W50/lowfield/x_grid_1.dat";
 	const char* BfileName = "./examples_data/W50/lowfield/Beff.dat";
 
 	const char* distributionFileName = "./examples_data/W50/lowfield/pdf_sf.dat";
@@ -2657,6 +2657,12 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		downstreamXgrid[i] = -downstreamXgrid[i];
 	}
 
+	for (int i = 0; i < downstreamNx; ++i) {
+		if (downstreamXgrid[i] < -2E19) {
+			Bpar[i] = 3E-5;
+		}
+	}
+
 	double*** downstreamB = new double** [downstreamNx];
 	double*** downstreamBtheta = new double** [downstreamNx];
 	double*** downstreamBphi = new double** [downstreamNx];
@@ -2676,10 +2682,6 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 				//downstreamB[i][j][k] = 2E-5;
 				//par - x, per - y and z
 				downstreamBtheta[i][j][k] = atan2(Bper[i], sqrt(Bpar[i] * Bpar[i] + Bper[i] * Bper[i]));
-				/*if (downstreamXgrid[i] < -2E19) {
-					downstreamB[i][j][k] = 1E-4;
-					downstreamBtheta[i][j][k] = pi / 2;
-				}*/
 				//downstreamBtheta[i][j][k] = pi / 2;
 				downstreamBphi[i][j][k] = pi / 4;
 				downstreamConcentrationArray[i][j][k] = 1.0;
@@ -2764,7 +2766,8 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	}*/
 
 	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
-	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.25 * 0.2 * speed_of_light, photonTotalEnergyDensity);
+	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.25 * 0.2 * speed_of_light, photonTotalEnergyDensity);
+	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.25 * 0.2 * speed_of_light, photonEnergyDensity);
 	//RectangularSourceInhomogenousDistribution* downstreamSource = new RectangularSourceInhomogenousDistribution(Nx, downstreamXgrid, Ny, Nz, electrons2, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
 	RadiationSource* upstreamSource = new RectangularSourceInhomogenousDistribution(upstreamNx, upstreamXgrid, Ny, Nz, upstreamElectrons, upstreamB, upstreamBtheta, upstreamBphi, upstreamConcentrationArray, 0, size, 0, pi * size, distance);
 	//RectangularSource* downstreamSource = new RectangularSource(1, Ny, Nz, upstreamElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, downstreamXgrid[0], downstreamXgrid[Nx - 1], 0, size, 0, pi * size, distance);
@@ -2814,8 +2817,8 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	int Ne = 10;
 	int Nmu = 100;
 	int Nphi = 4;
-	//RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 2.75 * kBoltzman * 20, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
-	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 140 * kBoltzman * 20, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	//RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 140 * kBoltzman * 20, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 140 * kBoltzman * 20, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
 
 	//comptonEvaluator->writeEFEFromSourceToFile("W50compton.dat", downstreamSource, 1.6E-10, 1.6E3, 2000);
 

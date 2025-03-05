@@ -55,8 +55,8 @@ def plot_data3(filename1, filename2, filename3, name, Ncol, label1 = "", label2 
     ax.set_ylabel(ylabel, fontsize=40, fontweight='bold')
     ax.legend(fontsize="20")
 
-    ax.set_xlim([1E-2, 1E3])
-    ax.set_ylim([1E-1, 2E3])
+    #ax.set_xlim([1E-2, 1E3])
+    #ax.set_ylim([1E-1, 2E3])
 
 
     plt.savefig(name + '.png', bbox_inches='tight')
