@@ -1064,7 +1064,7 @@ double* getUvarovBper(int Nx, double minX, double maxX, double L0) {
 }
 
 double* getUvarovBpar2(int Nx, double* xgrid, double L0) {
-	double factor = 0.2*1E-6;
+	double factor = 0.33*1E-6;
 	double A0 = 41.0755 * factor;
 	double A1 = 9.27296;
 	double A2 = 1.41262;
@@ -1095,7 +1095,7 @@ double* getUvarovBpar2(int Nx, double* xgrid, double L0) {
 }
 
 double* getUvarovBper2(int Nx, double* xgrid, double L0) {
-	double factor = 0.2*1E-6;
+	double factor = 0.33*1E-6;
 	double A0 = 98.3917 * factor;
 	double A1 = 30.533;
 	double A2 = 2.33138;
@@ -2649,7 +2649,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	int Nz = 1;
 	int Ny = 1;
 
-	double L0 = 2E18;
+	double L0 = 0.5E18;
 	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0);
 	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0);
 
@@ -2658,9 +2658,12 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	}
 
 	for (int i = 0; i < downstreamNx; ++i) {
-		if (downstreamXgrid[i] < -2E19) {
+		/*if (downstreamXgrid[i] < -2E19) {
 			Bpar[i] = 3E-5;
-		}
+		}*/
+                if(Bpar[i] < 1E-5){
+                    Bpar[i] = 1E-5;
+                }
 	}
 
 	double*** downstreamB = new double** [downstreamNx];
@@ -2681,7 +2684,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 				downstreamB[i][j][k] = sqrt(Bpar[i] * Bpar[i] + Bper[i] * Bper[i]);
 				//downstreamB[i][j][k] = 2E-5;
 				//par - x, per - y and z
-				downstreamBtheta[i][j][k] = atan2(Bper[i], sqrt(Bpar[i] * Bpar[i] + Bper[i] * Bper[i]));
+				downstreamBtheta[i][j][k] = atan2(sqrt(Bpar[i] * Bpar[i] + Bper[i] * Bper[i]), Bper[i]);
 				//downstreamBtheta[i][j][k] = pi / 2;
 				downstreamBphi[i][j][k] = pi / 4;
 				downstreamConcentrationArray[i][j][k] = 1.0;
@@ -2773,9 +2776,9 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	//RectangularSource* downstreamSource = new RectangularSource(1, Ny, Nz, upstreamElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, downstreamXgrid[0], downstreamXgrid[Nx - 1], 0, size, 0, pi * size, distance);
 	MassiveParticleIsotropicDistribution* distributionRight = dynamic_cast<MassiveParticleIsotropicDistribution*>(downstreamSource->getParticleDistribution(downstreamNx - 1, 0, 0));
 	distributionRight->writeDistribution("./output/distributionRight.dat", 200, me_c2, 1E10 * me_c2);
-	MassiveParticleIsotropicDistribution* distributionMiddle = dynamic_cast<MassiveParticleIsotropicDistribution*>(downstreamSource->getParticleDistribution(1, 0, 0));
+	MassiveParticleIsotropicDistribution* distributionMiddle = dynamic_cast<MassiveParticleIsotropicDistribution*>(downstreamSource->getParticleDistribution(downstreamNx - 2, 0, 0));
 	distributionMiddle->writeDistribution("./output/distributionMiddle.dat", 200, me_c2, 1E10 * me_c2);
-	MassiveParticleIsotropicDistribution* distributionLeft = dynamic_cast<MassiveParticleIsotropicDistribution*>(downstreamSource->getParticleDistribution(0, 0, 0));
+	MassiveParticleIsotropicDistribution* distributionLeft = dynamic_cast<MassiveParticleIsotropicDistribution*>(downstreamSource->getParticleDistribution(downstreamNx / 2, 0, 0));
 	distributionLeft->writeDistribution("./output/distributionLeft.dat", 200, me_c2, 1E10 * me_c2);
 
 	FILE* outXfile = fopen("./output/x_grid.dat", "w");
