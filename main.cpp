@@ -2551,7 +2551,18 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	int Nenergy;
 	int Nx;
 
-	const char* xfileName = "./examples_data/W50/lowfield/x_grid_1.dat";
+	double secondToRadian = pi / (180 * 3600);
+	double headMinSec = 0;
+	double headMaxSec = 12 * 15;
+	double coneMinSec = headMaxSec;
+	double coneMaxSec = 26 * 15;
+
+	double headMinX = -headMinSec * secondToRadian * distance;
+	double headMaxX = -headMaxSec * secondToRadian * distance;
+	double coneMinX = -coneMinSec * secondToRadian * distance;
+	double coneMaxX = -coneMaxSec * secondToRadian * distance;
+
+	const char* xfileName = "./examples_data/W50/lowfield/x_grid.dat";
 	const char* BfileName = "./examples_data/W50/lowfield/Beff.dat";
 
 	const char* distributionFileName = "./examples_data/W50/lowfield/pdf_sf.dat";
@@ -2577,6 +2588,8 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 
 	double* concentration1;
 	double** distributions1;
+
+	double electronToProtonCorrection = 3E-7;
 
 	MassiveParticleDistributionFactory::readInhomogenousTabulatedIsotropicDistributionFromMonteCarlo(massElectron, xfileName, pfileName, distributionFileName, xgrid1, energy, distributions1, concentration1, Nenergy, Nx);
 
@@ -2630,7 +2643,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		upstreamDistributions1[upstreamNx - 1 - i] = distributions1[i + minIndex];
 	}
 
-	double size = 5E20;
+	double size = 0.5*fabs(headMaxX);
 	double B0 = 6E-5;
 
 	//RadiationSourceInCylindrical* downstreamSource = new SimpleFlatSource(upstreamElectrons, downstreamB, pi / 2, 0, concentration, size, size, distance);
@@ -2710,7 +2723,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 				upstreamB[i][j][k] = upstreamB1[i];
 				upstreamBtheta[i][j][k] = pi / 4;
 				upstreamBphi[i][j][k] = 0;
-				upstreamConcentrationArray[i][j][k] = upstreamConcentration1[i];
+				upstreamConcentrationArray[i][j][k] = upstreamConcentration1[i]*electronToProtonCorrection;
 			}
 		}
 	}
@@ -2737,10 +2750,12 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	for (int i = 0; i < downstreamNx; ++i) {
 		for (int j = 0; j < Nz; ++j) {
 			for (int k = 0; k < Ny; ++k) {
-				downstreamConcentrationArray[i][j][k] = concentration2;
+				downstreamConcentrationArray[i][j][k] = concentration2*electronToProtonCorrection;
 			}
 		}
 	}
+
+	frontElectrons->rescaleDistribution(0.4);
 
 	MassiveParticleDistribution**** upstreamElectrons = new MassiveParticleDistribution * **[upstreamNx];
 	for (int i = 0; i < upstreamNx; ++i) {
@@ -2748,8 +2763,10 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		for (int j = 0; j < Nz; ++j) {
 			upstreamElectrons[i][j] = new MassiveParticleDistribution * [Ny];
 			for (int k = 0; k < Ny; ++k) {
-				upstreamElectrons[i][j][k] = new MassiveParticleTabulatedIsotropicDistribution(massElectron, energy, upstreamDistributions1[i], Nenergy, DistributionInputType::ENERGY_FE);
+				MassiveParticleTabulatedIsotropicDistribution* localDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, energy, upstreamDistributions1[i], Nenergy, DistributionInputType::ENERGY_FE);
 				//electrons2[i][j][k] = new MassiveParticlePowerLawCutoffDistribution(massElectron, 2.0, me_c2, 1.0, 1E15 * 1.6E-12);
+				localDistribution->rescaleDistribution(0.4);
+				upstreamElectrons[i][j][k] = localDistribution;
 			}
 		}
 	}
@@ -2802,26 +2819,27 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	}
 	fclose(outPfile);
 
-	/*FILE* outDistributionFile = fopen("./output/pdf.dat", "w");
-	for (int i = 0; i < downstreamNx; ++i) {
+	FILE* outDistributionFile = fopen("./output/distribution.dat", "w");
+	//for (int i = 0; i < downstreamNx; ++i) {
 		p = pmin;
-		MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(downstreamSource->getParticleDistribution(downstreamNx - i - 1, 0, 0));
+		//MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(downstreamSource->getParticleDistribution(downstreamNx - i - 1, 0, 0));
+		MassiveParticleIsotropicDistribution* distribution = frontElectrons;
 		for (int j = 0; j < Np; ++j) {
 			double E = sqrt(p * p * me_c2 * me_c2 + me_c2 * me_c2);
 			double F = distribution->distributionNormalized(E);
 			F = (F * p * p * p * me_c2 * me_c2 / E) * massElectron / massProton;
-			fprintf(outDistributionFile, "%g\n", F);
+			fprintf(outDistributionFile, "%g %g\n", p, F);
 			p = p * factorp;
 		}
-	}
-	fclose(outDistributionFile);*/
+	//}
+	fclose(outDistributionFile);
 
 
 	int Ne = 10;
 	int Nmu = 100;
 	int Nphi = 4;
-	//RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 140 * kBoltzman * 20, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
-	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 140 * kBoltzman * 20, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 140 * kBoltzman * 20, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	//RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 140 * kBoltzman * 20, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
 
 	//comptonEvaluator->writeEFEFromSourceToFile("W50compton.dat", downstreamSource, 1.6E-10, 1.6E3, 2000);
 
@@ -2832,17 +2850,6 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	RadiationSumEvaluator* sumEvaluator = new RadiationSumEvaluator(Ne, me_c2 * 500, 1E10 * me_c2, comptonEvaluator, synchrotronEvaluator, false);
 
 	//sumEvaluator->writeEFEFromSourceToFile("./output/W50synchandcompt.dat", downstreamSource, 1.6E-12, 1.6E4, 1000);
-
-	double secondToRadian = pi / (180 * 3600);
-	double headMinSec = 0;
-	double headMaxSec = 12 * 15;
-	double coneMinSec = headMaxSec;
-	double coneMaxSec = 26 * 15;
-
-	double headMinX = -headMinSec * secondToRadian * distance;
-	double headMaxX = -headMaxSec * secondToRadian * distance;
-	double coneMinX = -coneMinSec * secondToRadian * distance;
-	double coneMaxX = -coneMaxSec * secondToRadian * distance;
 
 
 	double Ephmin = 1.6E-12;
@@ -3095,9 +3102,9 @@ void evaluateW50comptonDiffusion() {
 	minY = -2E20;
 	maxY = 2E20;
 
-	Nx = 15;
-	Nz = 10;
-	Ny = 10;
+	Nx = 90;
+	Nz = 60;
+	Ny = 60;
 
 	double dx = (maxX - minX) / Nx;
 	double dy = (maxY - minY) / Ny;
@@ -3278,10 +3285,33 @@ void evaluateW50comptonDiffusion() {
 					concentrationArray[i][j][k] += 4*pi*F[i][j][k][l] * (p[l] - p[l - 1]) / p[l];
 					F[i][j][k][l] /= (p[l] * p[l] * p[l]);
 				}
+				if (concentrationArray[i][j][k] <= 0) {
+					F[i][j][k][0] = 1.0;
+				}
 				electrons[i][j][k] = new MassiveParticleTabulatedIsotropicDistribution(massElectron, p, F[i][j][k], Nmomentum, DistributionInputType::MOMENTUM_FP);
 			}
 		}
 	}
+
+	FILE* concentrationFile2 = fopen("concentration.dat", "w");
+	for (int i = 0; i < Nx; ++i) {
+		for (int j = 0; j < Nz; ++j) {
+			for (int k = 0; k < Ny; ++k) {
+				fprintf(concentrationFile2, "%g\n", concentrationArray[i][j][k]);
+			}
+		}
+	}
+	fclose(concentrationFile2);
+
+	FILE* distributionFile2 = fopen("F.dat", "w");
+	for (int i = 0; i < Nx; ++i) {
+		for (int j = 0; j < Nz; ++j) {
+			for (int k = 0; k < Ny; ++k) {
+				fprintf(distributionFile2, "%g\n", concentrationArray[i][j][k] * F[i][j][k][Nmomentum-1]);
+			}
+		}
+	}
+	fclose(distributionFile2);
 
 	printf("creating source\n");
 	printLog("creating source\n");
