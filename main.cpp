@@ -1559,7 +1559,7 @@ void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 
 	double* xgrid = new double[Nx];
 	for (int i = 0; i < Nx; ++i) {
-		xgrid[Nx - i - 1] = xgrid1[i + minIndex];
+		xgrid[Nx - i - 1] = -xgrid1[i + minIndex];
 	}
 
 	double size = 0.5 * fabs(headMaxX);
@@ -1582,8 +1582,8 @@ void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 	int Ny = 1;
 	double L0 = 0.5E18;
 
-	double* Bpar = getUvarovBpar2(Nx, xgrid, L0);
-	double* Bper = getUvarovBper2(Nx, xgrid, L0);
+	//double* Bpar = getUvarovBpar2(Nx, xgrid, L0);
+	//double* Bper = getUvarovBper2(Nx, xgrid, L0);
 	double*** B = new double** [Nx];
 	double*** Btheta = new double** [Nx];
 	double*** Bphi = new double** [Nx];
@@ -1599,12 +1599,12 @@ void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 			Bphi[i][j] = new double[Ny];
 			concentrationArray[Nx - i - 1][j] = new double[Ny];
 			for (int k = 0; k < Ny; ++k) {
-				B[i][j][k] = sqrt(Bpar[i] * Bpar[i] + Bper[i] * Bper[i]);
+				//B[i][j][k] = sqrt(Bpar[i] * Bpar[i] + Bper[i] * Bper[i]);
 				//downstreamB[i][j][k] = 2E-5;
 				//par - x, per - y and z
-				Btheta[i][j][k] = atan2(Bper[i] / sqrt(2), sqrt(Bpar[i] * Bpar[i] + 0.5 * Bper[i] * Bper[i]));
+				//Btheta[i][j][k] = atan2(Bper[i] / sqrt(2), sqrt(Bpar[i] * Bpar[i] + 0.5 * Bper[i] * Bper[i]));
 				//downstreamBtheta[i][j][k] = pi / 2;
-				Bphi[i][j][k] = pi / 4;
+				//Bphi[i][j][k] = pi / 4;
 				concentrationArray[Nx - i - 1][j][k] = concentration[i + minIndex]*electronToProtonCorrection;
 			}
 		}
@@ -1616,6 +1616,9 @@ void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 		fscanf(Bfile, "%lf", &Beff[i]);
 	}
 	fclose(Bfile);
+
+	double* Bpar = new double[Nx];
+	double* Bper = new double[Nx];
 
 	for (int i = 0; i < Nx; ++i) {
 		for (int j = 0; j < Nz; ++j) {
