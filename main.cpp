@@ -1500,23 +1500,69 @@ void evaluateW50comptonAndSynchrotron2() {
 
 }
 
-void evaluateW50comptonAndSynchrotron3() {
+void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 	double distance = (18000 / 3.26) * parsec;
-	const char* distributionFileName = "./examples_data/W50/lowfield/pdf_sf.dat";
-	const char* xfileName = "./examples_data/W50/lowfield/x_grid.dat";
-	const char* pfileName = "./examples_data/W50/lowfield/p_grid.dat";
+	const char* distributionFileName = "./examples_data/W50/lowfield0.4/pdf_sf.dat";
+	const char* xfileName = "./examples_data/W50/lowfield0.4/x_grid.dat";
+	const char* pfileName = "./examples_data/W50/lowfield0.4/p_grid.dat";
+	const char* BfileName = "./examples_data/W50/lowfield0.4/Beff.dat";
+
+	double secondToRadian = pi / (180 * 3600);
+	double headMinSec = 0;
+	double headMaxSec = 12 * 15;
+	double coneMinSec = headMaxSec;
+	double coneMaxSec = 26 * 15;
+
+	double headMinX = -headMinSec * secondToRadian * distance;
+	double headMaxX = -headMaxSec * secondToRadian * distance;
+	double coneMinX = -coneMinSec * secondToRadian * distance;
+	double coneMaxX = -coneMaxSec * secondToRadian * distance;
 
 	double* energy;
-	double* xgrid;
+	double* xgrid1;
 	double* concentration;
 	double** distributions;
 
 	int Nenergy;
+	int Nx1;
 	int Nx;
 
-	MassiveParticleDistributionFactory::readInhomogenousTabulatedIsotropicDistributionFromMonteCarlo(massElectron, xfileName, pfileName, distributionFileName, xgrid, energy, distributions, concentration, Nenergy, Nx);
+	double electronToProtonCorrection = 3E-7;
 
-	double size = 5E20;
+	MassiveParticleDistributionFactory::readInhomogenousTabulatedIsotropicDistributionFromMonteCarlo(massElectron, xfileName, pfileName, distributionFileName, xgrid1, energy, distributions, concentration, Nenergy, Nx1);
+
+	int zeroIndex = 0;
+	for (int i = 0; i < Nx1; ++i) {
+		if (xgrid1[i] >= 0) {
+			zeroIndex = i;
+			break;
+		}
+	}
+	double downstreamSize = 1E20;
+	double upstreamSize = 1.6E20;
+	int maxIndex = Nx1 - 1;
+	for (int i = 0; i < Nx1; ++i) {
+		if (xgrid1[i] >= downstreamSize) {
+			maxIndex = i;
+			break;
+		}
+	}
+	int minIndex = 0;
+	for (int i = 0; i < Nx1; ++i) {
+		if (xgrid1[i] >= -upstreamSize) {
+			minIndex = i;
+			break;
+		}
+	}
+
+	Nx = maxIndex - minIndex + 1;
+
+	double* xgrid = new double[Nx];
+	for (int i = 0; i < Nx; ++i) {
+		xgrid[Nx - i - 1] = xgrid1[i + minIndex];
+	}
+
+	double size = 0.5 * fabs(headMaxX);
 	double B0 = 6E-5;
 
 	//RadiationSourceInCylindrical* downstreamSource = new SimpleFlatSource(upstreamElectrons, downstreamB, pi / 2, 0, concentration, size, size, distance);
@@ -1534,9 +1580,10 @@ void evaluateW50comptonAndSynchrotron3() {
 
 	int Nz = 1;
 	int Ny = 1;
+	double L0 = 0.5E18;
 
-	double* Bpar = getUvarovBpar2(Nx, xgrid, 2.5E18);
-	double* Bper = getUvarovBper2(Nx, xgrid, 2.5E18);
+	double* Bpar = getUvarovBpar2(Nx, xgrid, L0);
+	double* Bper = getUvarovBper2(Nx, xgrid, L0);
 	double*** B = new double** [Nx];
 	double*** Btheta = new double** [Nx];
 	double*** Bphi = new double** [Nx];
@@ -1545,12 +1592,12 @@ void evaluateW50comptonAndSynchrotron3() {
 		B[i] = new double* [Nz];
 		Btheta[i] = new double* [Nz];
 		Bphi[i] = new double* [Nz];
-		concentrationArray[i] = new double* [Nz];
+		concentrationArray[Nx - i - 1] = new double* [Nz];
 		for (int j = 0; j < Nz; ++j) {
 			B[i][j] = new double[Ny];
 			Btheta[i][j] = new double[Ny];
 			Bphi[i][j] = new double[Ny];
-			concentrationArray[i][j] = new double[Ny];
+			concentrationArray[Nx - i - 1][j] = new double[Ny];
 			for (int k = 0; k < Ny; ++k) {
 				B[i][j][k] = sqrt(Bpar[i] * Bpar[i] + Bper[i] * Bper[i]);
 				//downstreamB[i][j][k] = 2E-5;
@@ -1558,18 +1605,37 @@ void evaluateW50comptonAndSynchrotron3() {
 				Btheta[i][j][k] = atan2(Bper[i] / sqrt(2), sqrt(Bpar[i] * Bpar[i] + 0.5 * Bper[i] * Bper[i]));
 				//downstreamBtheta[i][j][k] = pi / 2;
 				Bphi[i][j][k] = pi / 4;
-				concentrationArray[i][j][k] = concentration[i];
+				concentrationArray[Nx - i - 1][j][k] = concentration[i + minIndex]*electronToProtonCorrection;
 			}
 		}
 	}
 
-	FILE* Bfile = fopen("./output/Bturb.dat", "w");
+	double* Beff = new double[Nx1];
+	FILE* Bfile = fopen(BfileName, "r");
+	for (int i = 0; i < Nx1; ++i) {
+		fscanf(Bfile, "%lf", &Beff[i]);
+	}
+	fclose(Bfile);
 
 	for (int i = 0; i < Nx; ++i) {
-		fprintf(Bfile, "%g %g %g\n", xgrid[i], Bpar[i], Bper[i]);
+		for (int j = 0; j < Nz; ++j) {
+			for (int k = 0; k < Ny; ++k) {
+				Bpar[Nx - i - 1] = Beff[i + minIndex];
+				Bper[Nx - i - 1] = 0;
+				B[Nx - i - 1][j][k] = Beff[i + minIndex];
+				Btheta[i][j][k] = pi / 2;
+				Bphi[i][j][k] = 0;
+			}
+		}
 	}
 
-	fclose(Bfile);
+	FILE* BoutFile = fopen("./output/Bturb.dat", "w");
+
+	for (int i = 0; i < Nx; ++i) {
+		fprintf(BoutFile, "%g %g %g\n", xgrid[i], Bpar[i], Bper[i]);
+	}
+
+	fclose(BoutFile);
 
 	MassiveParticleDistribution**** electrons2 = new MassiveParticleDistribution * **[Nx];
 	for (int i = 0; i < Nx; ++i) {
@@ -1600,104 +1666,146 @@ void evaluateW50comptonAndSynchrotron3() {
 	}
 	fclose(outXfile);
 
-	int Ne = 200;
+	double pmin = 0.1 * massProton / massElectron;
+	double pmax = 5E6 * massProton / massElectron;
+	int Np = 100;
+	double factorp = pow(pmax / pmin, 1.0 / (Np - 1.0));
+	FILE* outPfile = fopen("./output/p_grid.dat", "w");
+	double p = pmin;
+	for (int i = 0; i < Np; ++i) {
+		fprintf(outPfile, "%g\n", p * massElectron / massProton);
+		p = p * factorp;
+	}
+	fclose(outPfile);
+
+	/*FILE* outDistributionFile = fopen("./output/distribution.dat", "w");
+	//for (int i = 0; i < downstreamNx; ++i) {
+	p = pmin;
+	//MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(downstreamSource->getParticleDistribution(downstreamNx - i - 1, 0, 0));
+	MassiveParticleIsotropicDistribution* distribution = frontElectrons;
+	for (int j = 0; j < Np; ++j) {
+		double E = sqrt(p * p * me_c2 * me_c2 + me_c2 * me_c2);
+		double F = distribution->distributionNormalized(E);
+		F = (F * p * p * p * me_c2 * me_c2 / E) * massElectron / massProton;
+		fprintf(outDistributionFile, "%g %g\n", p, F);
+		p = p * factorp;
+	}
+	//}
+	fclose(outDistributionFile);*/
+
+
+	int Ne = 10;
 	int Nmu = 100;
 	int Nphi = 4;
-    //RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 2.75 * kBoltzman * 20, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
-	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 140 * kBoltzman * 20, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 140 * kBoltzman * 20, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	//RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 140 * kBoltzman * 20, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
 
-	//comptonEvaluator->writeEFEFromSourceToFile("./output/W50compton.dat", downstreamSource, 1.6E-10, 1.6E3, 2000);
+	//comptonEvaluator->writeEFEFromSourceToFile("W50compton.dat", downstreamSource, 1.6E-10, 1.6E3, 2000);
 
-	RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, me_c2, 1E10 * me_c2, false);
+	RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, me_c2 * 500, 1E10 * me_c2, false);
 
-	//synchrotronEvaluator->writeEFEFromSourceToFile("./output/W50synchrotron.dat", downstreamSource, 1.6E-18, 1.6E-5, 2000);
+	//synchrotronEvaluator->writeEFEFromSourceToFile("W50synchrotron.dat", downstreamSource, 1.6E-18, 1.6E-5, 2000);
 
-	RadiationSumEvaluator* sumEvaluator = new RadiationSumEvaluator(Ne, me_c2, 1E10 * me_c2, comptonEvaluator, synchrotronEvaluator, false);
+	RadiationSumEvaluator* sumEvaluator = new RadiationSumEvaluator(Ne, me_c2 * 500, 1E10 * me_c2, comptonEvaluator, synchrotronEvaluator, false);
 
-	sumEvaluator->writeEFEFromSourceToFile("./output/W50synchandcompt.dat", source, 1.6E-12, 1.6E4, 200);
-	sumEvaluator->writeEFEFromSourceToFile("./output/W50highenergy.dat", source, 1.6E-1, 1.6E4, 200);
-	sumEvaluator->writeEFEFromSourceToFile("./output/W50kev.dat", source, 1.6E-9, 50*1.6E-9, 200);
+	//sumEvaluator->writeEFEFromSourceToFile("./output/W50synchandcompt.dat", downstreamSource, 1.6E-12, 1.6E4, 1000);
 
-	//sumEvaluator->writeEFEFromSourceToFile("./output/W50synchandcompt2.dat", source2, 1.6E-18, 1.6E3, 200);
-	//sumEvaluator->writeEFEFromSourceToFile("./output/W50highenergy2.dat", source2, 1.6E-1, 1.6E3, 200);
 
-	printf("start writing images\n");
-	printLog("start writing images\n");
-
-	printf("start writing ev image\n");
-	printLog("start writing ev image\n");
-	//sumEvaluator->writeImageFromSourceToFile("./output/W50scImageeV.dat", downstreamSource, 1.6E-12, 1.6E-11, 20);
-
-	printf("start writing keV image\n");
-	printLog("start writing keV image\n");
-	//sumEvaluator->writeImageFromSourceToFile("./output/W50scImageKeV.dat", downstreamSource, 1.6E-9, 1.6E-8, 20);
-
-	printf("start writing MeV image\n");
-	printLog("start writing MeV images\n");
-	//sumEvaluator->writeImageFromSourceToFile("./output/W50scImageMeV.dat", downstreamSource, 1.6E-6, 1.6E-5, 20);
-
-	printf("start writing GeV image\n");
-	printLog("start writing GeV image\n");
-	//sumEvaluator->writeImageFromSourceToFile("./output/W50scImageGeV.dat", downstreamSource, 1.6E-3, 1.6E-2, 20);
-
-	printf("start writing TeV image\n");
-	printLog("start writing TeV image\n");
-	//sumEvaluator->writeImageFromSourceToFile("./output/W50scImageTeV.dat", downstreamSource, 1.6E0, 1.6E1, 20);
-
-	printf("start writin PeV image\n");
-	printLog("start writing PeV image\n");
-	//sumEvaluator->writeImageFromSourceToFile("./output/W50scImagePeV.dat", downstreamSource, 1.6E3, 1.6E4, 20);
-
-	printf("start writing x-E diagram\n");
-	printLog("start writing x-E diagram\n");
-
-	double Emin = 1.6E-12;
-	double Emax = 1.6E4;
-
-	int Nnu = 200;
-
-	double factor = pow(Emax / Emin, 1.0 / (Nnu - 1));
-	double currentE = Emin;
-
-	double** F = new double* [Nnu];
-	for (int i = 0; i < Nnu; ++i) {
-		F[i] = new double[Nx];
-	}
-
-	FILE* Efile = fopen("./output/E_grid.dat", "w");
-	for (int i = 0; i < Nnu; ++i) {
-		fprintf(Efile, "%g\n", currentE);
+	double Ephmin = 1.6E-12;
+	double Ephmax = 1.6E4;
+	int Nph = 1000;
+	double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+	double currentE = Ephmin;
+	FILE* outFile = fopen("./output/W50synchandcompt.dat", "w");
+	for (int i = 0; i < Nph; ++i) {
+		//omp_set_lock(&my_lock);
+		printf("writeEFEFromSourceToFile iph = %d\n", i);
+		printLog("writeEFEFromSourceToFile iph = %d\n", i);
+		//omp_unset_lock(&my_lock);
+		//double flux1 = sumEvaluator->evaluateFluxFromSource(currentE, downstreamSource);
+		double flux1 = 0;
+		double fluxHead = 0;
+		double fluxCone = 0;
+		int j;
+#pragma omp parallel for private(j) shared(currentE, source, xgrid, Nx) reduction(+:flux1, fluxHead, fluxCone)
+		for (j = 0; j < Nx; ++j) {
+			double flux = sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, source, j, 0);
+			flux1 += flux;
+			if ((xgrid[j] >= headMaxX) && (xgrid[j] <= headMinX)) {
+				fluxHead += flux;
+			}
+			if ((xgrid[j] >= coneMaxX) && (xgrid[j] <= coneMinX)) {
+				fluxCone += flux;
+			}
+		}
+		fprintf(outFile, "%g %g %g %g\n", currentE / 1.6E-12, currentE * (flux1), currentE * fluxHead, currentE * fluxCone);
 		currentE = currentE * factor;
 	}
-	fclose(Efile);
-
-	currentE = Emin;
-
-
-	for (int i = 0; i < Nnu; ++i) {
-		printf("inu = %d\n", i);
-		printLog("inu = %d\n", i);
-		int j;
-#pragma omp parallel for private(j) shared(F, source, currentE, factor, sumEvaluator, i)
-		for (j = 0; j < Nx; ++j) {
-			F[i][j] = currentE * sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, source, j, 0) / source->getCrossSectionArea(j, 0);
-		}
-		currentE = factor * currentE;
-	}
-
-	FILE* outFile = fopen("./output/xE.dat", "w");
-	for (int i = 0; i < Nx; ++i) {
-		for (int j = 0; j < Nnu; ++j) {
-			if (j == 0) {
-				fprintf(outFile, "%g", F[j][i]);
-			}
-			else {
-				fprintf(outFile, " %g", F[j][i]);
-			}
-		}
-		fprintf(outFile, "\n");
-	}
 	fclose(outFile);
+
+	double* profileXMM = new double[Nx];
+	double* profileNuSTAR = new double[Nx];
+	int irho;
+
+	Ephmin = 0.3 * 1000 * 1.6E-12;
+	Ephmax = 10 * 1000 * 1.6E-12;
+	Nph = 20;
+	omp_lock_t lock;
+	omp_init_lock(&lock);
+#pragma omp parallel for private(irho) shared(Ephmin, Ephmax, source, Nx, sumEvaluator, Nph, profileXMM, lock)
+	for (irho = 0; irho < Nx; ++irho) {
+		omp_set_lock(&lock);
+		printf("evaluating profile irho = %d\n", irho);
+		printLog("evaluating profile irho = %d\n", irho);
+		omp_unset_lock(&lock);
+		double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+		double currentE = Ephmin;
+		double localFlux = 0;
+		double s = source->getCrossSectionArea(irho, 0);
+		double d = source->getDistance();
+		for (int ie = 0; ie < Nph; ++ie) {
+			double dE = currentE * (factor - 1.0);
+			localFlux += sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, source, irho, 0) * dE * d * d / s;
+			currentE = currentE * factor;
+		}
+		profileXMM[irho] = localFlux;
+	}
+
+	FILE* xmmFile = fopen("./output/xmmprofile.dat", "w");
+	for (int i = 0; i < Nx; ++i) {
+		fprintf(xmmFile, "%g %g\n", xgrid[i], profileXMM[i]);
+	}
+	fclose(xmmFile);
+
+	Ephmin = 10 * 1000 * 1.6E-12;
+	Ephmax = 20 * 1000 * 1.6E-12;
+	Nph = 20;
+#pragma omp parallel for private(irho) shared(Ephmin, Ephmax, source,Nx, sumEvaluator, Nph, profileNuSTAR, lock)
+	for (irho = 0; irho < Nx; ++irho) {
+		omp_set_lock(&lock);
+		printf("evaluating image irho = %d\n", irho);
+		printLog("evaluating image irho = %d\n", irho);
+		omp_unset_lock(&lock);
+		double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+		double currentE = Ephmin;
+		double localFlux = 0;
+		double s = source->getCrossSectionArea(irho, 0);
+		double d = source->getDistance();
+		for (int ie = 0; ie < Nph; ++ie) {
+			double dE = currentE * (factor - 1.0);
+			localFlux += sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, source, irho, 0) * dE * d * d / s;
+			currentE = currentE * factor;
+		}
+		profileNuSTAR[irho] = localFlux;
+	}
+
+	omp_destroy_lock(&lock);
+
+	FILE* nustarFile = fopen("./output/nustarprofile.dat", "w");
+	for (int i = 0; i < Nx; ++i) {
+		fprintf(nustarFile, "%g %g\n", xgrid[i], profileNuSTAR[i]);
+	}
+	fclose(nustarFile);
 
 }
 
@@ -3539,12 +3647,12 @@ int main() {
 	//evaluateW50synchrotron();
 	//evaluateW50comptonAndSynchrotron();
 	//evaluateW50comptonAndSynchrotron2();
-	//evaluateW50comptonAndSynchrotron3();
+	evaluateW50comptonAndSynchrotronMCfunctionUpstream();
 	//evaluateW50comptonAndSynchrotronAdvectionfunction();
 	//evaluateW50comptonThickRegime();
 	//evaluateW50comptonAdvectionBigSource();
 	//evaluateW50comptonAndSynchrotronMCwithoutupstream();
-	evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream();
+	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream();
 	//evaluateW50comptonDiffusion();
 	//evaluateW50pion();
 
