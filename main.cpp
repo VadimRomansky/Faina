@@ -1642,14 +1642,15 @@ void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 
 	MassiveParticleDistribution**** electrons2 = new MassiveParticleDistribution * **[Nx];
 	for (int i = 0; i < Nx; ++i) {
-		electrons2[i] = new MassiveParticleDistribution * *[Nz];
+		electrons2[Nx - 1 - i] = new MassiveParticleDistribution * *[Nz];
 		for (int j = 0; j < Nz; ++j) {
-			electrons2[i][j] = new MassiveParticleDistribution * [Ny];
+			electrons2[Nx - 1 - i][j] = new MassiveParticleDistribution * [Ny];
 			for (int k = 0; k < Ny; ++k) {
-				electrons2[i][j][k] = new MassiveParticleTabulatedIsotropicDistribution(massElectron, energy, distributions[i], Nenergy, DistributionInputType::ENERGY_FE);
+				electrons2[Nx - 1 - i][j][k] = new MassiveParticleTabulatedIsotropicDistribution(massElectron, energy, distributions[i + minIndex], Nenergy, DistributionInputType::ENERGY_FE);
 				//electrons2[i][j][k] = new MassiveParticlePowerLawCutoffDistribution(massElectron, 2.0, me_c2, 1.0, 1E15 * 1.6E-12);
 			}
 		}
+
 	}
 
 	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
@@ -1681,11 +1682,11 @@ void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 	}
 	fclose(outPfile);
 
-	/*FILE* outDistributionFile = fopen("./output/distribution.dat", "w");
-	//for (int i = 0; i < downstreamNx; ++i) {
+	FILE* outDistributionFile = fopen("./output/pdf.dat", "w");
+	for (int i = 0; i < Nx; ++i) {
 	p = pmin;
-	//MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(downstreamSource->getParticleDistribution(downstreamNx - i - 1, 0, 0));
-	MassiveParticleIsotropicDistribution* distribution = frontElectrons;
+	MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(Nx - i - 1, 0, 0));
+	//MassiveParticleIsotropicDistribution* distribution = frontElectrons;
 	for (int j = 0; j < Np; ++j) {
 		double E = sqrt(p * p * me_c2 * me_c2 + me_c2 * me_c2);
 		double F = distribution->distributionNormalized(E);
@@ -1693,8 +1694,8 @@ void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 		fprintf(outDistributionFile, "%g %g\n", p, F);
 		p = p * factorp;
 	}
-	//}
-	fclose(outDistributionFile);*/
+	}
+	fclose(outDistributionFile);
 
 
 	int Ne = 10;
@@ -2805,7 +2806,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 			downstreamBphi[i][j] = new double[Ny];
 			downstreamConcentrationArray[i][j] = new double[Ny];
 			for (int k = 0; k < Ny; ++k) {
-				downstreamB[i][j][k] = sqrt(Bpar[i] * Bpar[i] + Bper[i] * Bper[i]);
+				downstreamB[i][j][k] = sqrt(Bpar[i] * Bpar[i] + 2*Bper[i] * Bper[i]);
 				//downstreamB[i][j][k] = 2E-5;
 				//par - x, per - y and z
 				downstreamBtheta[i][j][k] = atan2(sqrt(Bpar[i] * Bpar[i] + Bper[i] * Bper[i]), Bper[i]);

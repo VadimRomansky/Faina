@@ -3,9 +3,9 @@ from pylab import *
 import numpy as np
 
 def plot_distributions_MC2():
-    x_data1 = np.loadtxt('../examples_data/W50/lowfield/x_grid.dat')
-    p_data1 = np.loadtxt('../examples_data/W50/lowfield/p_grid.dat')
-    dist1 = np.loadtxt('../examples_data/W50/lowfield/pdf_sf.dat')
+    x_data1 = np.loadtxt('../examples_data/W50/lowfield0.4/x_grid.dat')
+    p_data1 = np.loadtxt('../examples_data/W50/lowfield0.4/p_grid.dat')
+    dist1 = np.loadtxt('../examples_data/W50/lowfield0.4/pdf_sf.dat')
 
     x_data2 = np.loadtxt('../examples_data/W50/lowfield/advection/x_grid.dat')
     p_data2 = np.loadtxt('../examples_data/W50/lowfield/advection/p_grid.dat')
@@ -30,7 +30,7 @@ def plot_distributions_MC2():
     count = 0
     for i in range(Nx2):
         for j in range(N2):
-            distribution2[i][j] = dist2[count]
+            distribution2[i][j] = dist2[count][1]
             count = count + 1
 
 
@@ -55,23 +55,23 @@ def plot_distributions_MC2():
     #ax.minorticks_on()
     # plt.axis([0.0,1.0,0.0,1.0])
 
-    n = 0
+    n = 450
     plt.plot(p_data1, distribution1[diff + n,0:N1],'r', linewidth = 4)
     plt.plot(p_data2, distribution2[n, 0:N2],'r', linewidth = 4, linestyle = 'dashed')
 
-    n = 180
+    n = 480
     plt.plot(p_data1, distribution1[diff + n,0:N1],'g', linewidth = 4)
     plt.plot(p_data2, distribution2[n, 0:N2],'g', linewidth = 4, linestyle = 'dashed')
 
-    n = 210
+    n = 500
     plt.plot(p_data1, distribution1[diff + n,0:N1],'b', linewidth = 4)
     plt.plot(p_data2, distribution2[n, 0:N2],'b', linewidth = 4, linestyle = 'dashed')
 
-    n = 250
+    n = 520
     plt.plot(p_data1, distribution1[diff + n, 0:N1], 'magenta', linewidth=4)
     plt.plot(p_data2, distribution2[n, 0:N2], 'magenta', linewidth=4, linestyle='dashed')
 
     ax.set_xlim(1E-2, 1E8)
-    ax.set_ylim(1E-4,1)
+    #ax.set_ylim(1-5,1E4)
 
     plt.savefig('distribution_diffusion and advection.png', bbox_inches='tight')
