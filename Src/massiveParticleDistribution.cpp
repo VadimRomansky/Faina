@@ -2008,6 +2008,7 @@ void MassiveParticleDistributionFactory::readInhomogenousTabulatedIsotropicDistr
 		p = p * massProton * speed_of_light;
 		energy[j] = sqrt(p * p * speed_of_light2 + m_c2 * m_c2);
 	}
+	double m_c2 = mass * speed_of_light2;
 	for (int i = 0; i < Nx; ++i) {
 		fscanf(xfile, "%lf", &xgrid[i]);
 
@@ -2015,12 +2016,17 @@ void MassiveParticleDistributionFactory::readInhomogenousTabulatedIsotropicDistr
 		//energy[i] = sqrt(x * x * speed_of_light2 + m_c2 * m_c2);
 		//distribution[i] = y * x * energy[i] / speed_of_light2;
 		for (int j = 0; j < Nenergy; ++j) {
-			double m_c2 = mass * speed_of_light2;
-			double p = sqrt(energy[j] * energy[j] - m_c2 * m_c2) / speed_of_light;
-			double x = p / (massProton * speed_of_light);
-			double a;
-			fscanf(distributionFile, "%lf %lf", &a, &distributions[i][j]);
-			distributions[i][j] = (distributions[i][j] * p * energy[j] / speed_of_light2) / (x * x * x * x * cube(massProton * speed_of_light));
+			//double p = sqrt(energy[j] * energy[j] - m_c2 * m_c2) / speed_of_light;
+			//double x = p / (massProton * speed_of_light);
+			//double a;
+			double x;
+			double y;
+			fscanf(distributionFile, "%lf %lf", &x, &y);
+			//distributions[i][j] = (distributions[i][j] * p * energy[j] / speed_of_light2) / (x * x * x * x * cube(massProton * speed_of_light));
+
+			double p = x * massProton * speed_of_light;
+			double E = sqrt(p * p * speed_of_light2 + m_c2 * m_c2);
+			distributions[i][j] = (y * p * E / speed_of_light2) / (x * x * x * x * cube(massProton * speed_of_light));
 		}
 
 		double norm = distributions[i][0] * (energy[1] - energy[0]);

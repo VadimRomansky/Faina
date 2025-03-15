@@ -53,7 +53,7 @@ if __name__ == '__main__':
     plot_W50_profile("","profile")
     #plot_W50_compton2("../output/W50comptonBigSource2.dat","../output/W50thickCompton.dat","W50compton",1,"numerical","thick","E eV", "$EF(E)~erg~cm^{-2} s^{-1}$")
     #plot_W50_compton3("../output/W50comptonBigSource.dat","../output/W50comptonBigSource2.dat","../output/W50thickCompton.dat","W50compton3",1,"numerical", "numerical thicker","thick","E eV", "$EF(E)~erg~cm^{-2} s^{-1}$")
-    plot_data3("../output/distributionRight.dat", "../output/distributionMiddle.dat", "../output/distributionLeft.dat", "distributions", 1)
+    #plot_data3("../output/distributionRight.dat", "../output/distributionMiddle.dat", "../output/distributionLeft.dat", "distributions", 1)
     #plot_data3("../W501.dat","../W502.dat","../W503.dat", "W50",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", r'$E~eV$', r'$EF(E)~erg~cm^{-2} s^{-1}$')
     #plot_data4("../W501.dat","../W502.dat","../W503.dat", "../W504.dat", "W50_multi",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", "MC function above 10 TeV B 20 mkG", r'$E~eV$', r'$EF(E)~erg~cm^{-2} s^{-1}$')
     #plot_data5("../W501.dat","../W502.dat","../W503.dat", "../W504.dat", "../W505.dat", "W50_multi",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", "MC function above 10 TeV B 20 mkG", "advection above 1 TeV B 20 mkG", '$E~eV$', '$EF(E)~erg~cm^{-2} s^{-1}$')
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     #plot_radiation_EFE("../W50compton.dat", "W50compton")
     #plot_radiation_EFE("../W50synchrotron.dat", "W50synchrotron")
     #plot_radiation_EFE("../W50synchandcompt.dat", "W50synchandcompt")
-    factor = 2E-9
+    factor = 3E-7
     plot_W50_EFE("../output/W50synchandcompt.dat", "W50synchandcompt", factor)
     plot_W50_EFE_highenergy("../output/W50synchandcompt.dat", "W50сompton", factor)
     plot_W50_EFE_synchrotron("../output/W50synchandcompt.dat", "W50synch", factor)

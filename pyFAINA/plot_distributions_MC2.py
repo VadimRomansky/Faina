@@ -3,13 +3,13 @@ from pylab import *
 import numpy as np
 
 def plot_distributions_MC2():
-    x_data1 = np.loadtxt('../examples_data/W50/lowfield0.4/x_grid.dat')
-    p_data1 = np.loadtxt('../examples_data/W50/lowfield0.4/p_grid.dat')
-    dist1 = np.loadtxt('../examples_data/W50/lowfield0.4/pdf_sf.dat')
+    x_data1 = np.loadtxt('../examples_data/W50/lowfield0.4/MC/x_grid.dat')
+    p_data1 = np.loadtxt('../examples_data/W50/lowfield0.4/MC/p_grid.dat')
+    dist1 = np.loadtxt('../examples_data/W50/lowfield0.4/MC/pdf.dat')
 
-    x_data2 = np.loadtxt('../examples_data/W50/lowfield/advection/x_grid.dat')
-    p_data2 = np.loadtxt('../examples_data/W50/lowfield/advection/p_grid.dat')
-    dist2 = np.loadtxt('../examples_data/W50/lowfield/advection/pdf.dat')
+    x_data2 = np.loadtxt('../examples_data/W50/lowfield0.4/advection/x_grid.dat')
+    p_data2 = np.loadtxt('../examples_data/W50/lowfield0.4/advection/p_grid.dat')
+    dist2 = np.loadtxt('../examples_data/W50/lowfield0.4/advection/pdf.dat')
 
     Nx1 = x_data1.shape[0]
     Nx2 = x_data2.shape[0]
@@ -55,23 +55,23 @@ def plot_distributions_MC2():
     #ax.minorticks_on()
     # plt.axis([0.0,1.0,0.0,1.0])
 
-    n = 450
+    n = 1
     plt.plot(p_data1, distribution1[diff + n,0:N1],'r', linewidth = 4)
-    plt.plot(p_data2, distribution2[n, 0:N2],'r', linewidth = 4, linestyle = 'dashed')
+    plt.plot(p_data2, 0.2*distribution2[n, 0:N2],'r', linewidth = 4, linestyle = 'dashed')
 
-    n = 480
+    n = 10
     plt.plot(p_data1, distribution1[diff + n,0:N1],'g', linewidth = 4)
-    plt.plot(p_data2, distribution2[n, 0:N2],'g', linewidth = 4, linestyle = 'dashed')
+    plt.plot(p_data2, 0.2*distribution2[n, 0:N2],'g', linewidth = 4, linestyle = 'dashed')
 
-    n = 500
+    n = 20
     plt.plot(p_data1, distribution1[diff + n,0:N1],'b', linewidth = 4)
-    plt.plot(p_data2, distribution2[n, 0:N2],'b', linewidth = 4, linestyle = 'dashed')
+    plt.plot(p_data2, 0.2*distribution2[n, 0:N2],'b', linewidth = 4, linestyle = 'dashed')
 
-    n = 520
+    n = 50
     plt.plot(p_data1, distribution1[diff + n, 0:N1], 'magenta', linewidth=4)
-    plt.plot(p_data2, distribution2[n, 0:N2], 'magenta', linewidth=4, linestyle='dashed')
+    plt.plot(p_data2, 0.2*distribution2[n, 0:N2], 'magenta', linewidth=4, linestyle='dashed')
 
-    ax.set_xlim(1E-2, 1E8)
-    #ax.set_ylim(1-5,1E4)
+    ax.set_xlim(1E1, 1E7)
+    ax.set_ylim(5E-7,2E-5)
 
     plt.savefig('distribution_diffusion and advection.png', bbox_inches='tight')
