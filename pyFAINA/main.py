@@ -4,6 +4,7 @@ import numpy as np
 
 from plot_W50_EFE import plot_W50_EFE
 from plot_W50_EFE_higenergy import plot_W50_EFE_highenergy
+from plot_W50_EFE_higenergy2 import plot_W50_EFE_highenergy2
 from plot_W50_EFE_synchrotron import plot_W50_EFE_synchrotron
 from plot_W50_compton2 import plot_W50_compton2
 from plot_W50_compton3 import plot_W50_compton3
@@ -72,9 +73,10 @@ if __name__ == '__main__':
     #plot_radiation_EFE("../W50compton.dat", "W50compton")
     #plot_radiation_EFE("../W50synchrotron.dat", "W50synchrotron")
     #plot_radiation_EFE("../W50synchandcompt.dat", "W50synchandcompt")
-    factor = 3E-7
+    factor = 2E-4
     plot_W50_EFE("../output/W50synchandcompt.dat", "W50synchandcompt", factor)
     plot_W50_EFE_highenergy("../output/W50synchandcompt.dat", "W50сompton", factor)
+    plot_W50_EFE_highenergy2("../output/W50synchandcompt.dat","../output/W50thickcompton.dat","W50compton2", factor)
     plot_W50_EFE_synchrotron("../output/W50synchandcompt.dat", "W50synch", factor)
     #plot_W50_EFE_highenergy("../output/W50synchandcompt.dat", "W50highenergy")
     #plot_radiation_EFE("../W50synchandcompt2.dat", "W50synchandcompt2")

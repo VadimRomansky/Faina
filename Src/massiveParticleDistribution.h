@@ -194,7 +194,7 @@ public:
 	void setToZeroAboveE(const double& E);
 	void transformToLosses(const double& lossRate, const double& time);
 	void transformToLosses2(const double& k, const double& l1, const double& l2);
-	void transformToThickRegime(const double& Uph);
+	void transformToThickRegime(const double& Uph, double& norm);
 
 	double* getEnergyArray();
 	double* getDistributionArray();

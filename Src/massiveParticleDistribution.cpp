@@ -863,11 +863,12 @@ void MassiveParticleTabulatedIsotropicDistribution::transformToLosses2(const dou
 	normalizeDistribution();
 }
 
-void MassiveParticleTabulatedIsotropicDistribution::transformToThickRegime(const double& Uph)
+void MassiveParticleTabulatedIsotropicDistribution::transformToThickRegime(const double& Uph, double& norm)
 {
 	double sigmaT = (8.0 * pi / 3.0) * sqr(electron_charge*electron_charge / (my_mass * speed_of_light2));
-	double coef = (4.0 / 3.0) * sigmaT / (my_mass * my_mass * speed_of_light * speed_of_light * speed_of_light);
+	double coef = (4.0 / 3.0) * sigmaT * Uph / (my_mass * my_mass * speed_of_light * speed_of_light * speed_of_light);
 	double* tempDistribution = new double[my_Ne];
+	norm = 0;
 	for (int i = 0; i < my_Ne; ++i) {
 		double E = my_energy[i];
 		double intJdE = 0;
@@ -895,7 +896,18 @@ void MassiveParticleTabulatedIsotropicDistribution::transformToThickRegime(const
 			printLog("temp distribution = NaN in transform to thick regime\n");
 			exit(0);
 		}
+		double dE = 0;
+		if (i == 0) {
+			dE = my_kineticEnergy[1] - my_kineticEnergy[0];
+		}
+		else {
+			dE = my_kineticEnergy[i] - my_kineticEnergy[i - 1];
+		}
+
+		norm = norm + tempDistribution[i] * dE;
 	}
+
+	norm *= 4 * pi;
 
 	for (int i = 0; i < my_Ne; ++i) {
 		my_distribution[i] = tempDistribution[i];

@@ -134,4 +134,15 @@ public:
 	double getTemperature();
 };
 
+/*class PhotonField {
+public:
+	virtual PhotonDistribution* getPhotonDistribution(double& concentration, double x, double y, double z) = 0;
+};
+
+class RadialPlankPhotonField : public PhotonField {
+public:
+	RadialPlankPhotonField(double temperature, double power, double deltaTheta);
+	virtual PhotonDistribution* getPhotonDistribution(double& concentration, double x, double y, double z);
+};*/
+
 #endif

@@ -57,19 +57,19 @@ def plot_distributions_MC2():
 
     n = 1
     plt.plot(p_data1, distribution1[diff + n,0:N1],'r', linewidth = 4)
-    plt.plot(p_data2, 0.2*distribution2[n, 0:N2],'r', linewidth = 4, linestyle = 'dashed')
+    plt.plot(p_data2, 0.9*distribution2[n, 0:N2],'r', linewidth = 4, linestyle = 'dashed')
 
     n = 10
     plt.plot(p_data1, distribution1[diff + n,0:N1],'g', linewidth = 4)
-    plt.plot(p_data2, 0.2*distribution2[n, 0:N2],'g', linewidth = 4, linestyle = 'dashed')
+    plt.plot(p_data2, 0.9*distribution2[n, 0:N2],'g', linewidth = 4, linestyle = 'dashed')
 
     n = 20
     plt.plot(p_data1, distribution1[diff + n,0:N1],'b', linewidth = 4)
-    plt.plot(p_data2, 0.2*distribution2[n, 0:N2],'b', linewidth = 4, linestyle = 'dashed')
+    plt.plot(p_data2, 0.9*distribution2[n, 0:N2],'b', linewidth = 4, linestyle = 'dashed')
 
     n = 50
     plt.plot(p_data1, distribution1[diff + n, 0:N1], 'magenta', linewidth=4)
-    plt.plot(p_data2, 0.2*distribution2[n, 0:N2], 'magenta', linewidth=4, linestyle='dashed')
+    plt.plot(p_data2, 0.9*distribution2[n, 0:N2], 'magenta', linewidth=4, linestyle='dashed')
 
     ax.set_xlim(1E1, 1E7)
     ax.set_ylim(5E-7,2E-5)

@@ -128,7 +128,7 @@ void SynchrotronEvaluator::evaluateEmissivityAndAbsorption(const double& photonF
 {
 	double photonFinalFrequency = photonFinalEnergy / hplank;
 	double B = source->getB(ix1, iz, ix2);
-	if (B != B) {
+	if ((B != B) || (0*B != 0*B)) {
 		printf("B = NaN\n");
 		printLog("B = NaN\n");
 		exit(0);
