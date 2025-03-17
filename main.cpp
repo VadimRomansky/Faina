@@ -1064,7 +1064,7 @@ double* getUvarovBper(int Nx, double minX, double maxX, double L0) {
 }
 
 double* getUvarovBpar2(int Nx, double* xgrid, double L0) {
-	double factor = 0.25*1E-6;
+	double factor = 0.33*1E-6;
 	double A0 = 41.0755 * factor;
 	double A1 = 9.27296;
 	double A2 = 1.41262;
@@ -1095,7 +1095,7 @@ double* getUvarovBpar2(int Nx, double* xgrid, double L0) {
 }
 
 double* getUvarovBper2(int Nx, double* xgrid, double L0) {
-	double factor = 0.25*1E-6;
+	double factor = 0.33*1E-6;
 	double A0 = 98.3917 * factor;
 	double A1 = 30.533;
 	double A2 = 2.33138;
@@ -1502,10 +1502,10 @@ void evaluateW50comptonAndSynchrotron2() {
 
 void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 	double distance = (18000 / 3.26) * parsec;
-	const char* distributionFileName = "./examples_data/W50/lowfield/pdf_sf.dat";
-	const char* xfileName = "./examples_data/W50/lowfield/x_grid.dat";
-	const char* pfileName = "./examples_data/W50/lowfield/p_grid.dat";
-	const char* BfileName = "./examples_data/W50/lowfield/Beff.dat";
+	const char* distributionFileName = "./examples_data/W50/lowfield0.4/pdf_sf.dat";
+	const char* xfileName = "./examples_data/W50/lowfield0.4/x_grid.dat";
+	const char* pfileName = "./examples_data/W50/lowfield0.4/p_grid.dat";
+	const char* BfileName = "./examples_data/W50/lowfield0.4/Beff.dat";
 
 	double secondToRadian = pi / (180 * 3600);
 	double headMinSec = 0;
@@ -2727,13 +2727,13 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	double coneMinX = -coneMinSec * secondToRadian * distance;
 	double coneMaxX = -coneMaxSec * secondToRadian * distance;
 
-	const char* xfileName = "./examples_data/W50/lowfield/x_grid.dat";
-	const char* BfileName = "./examples_data/W50/lowfield/Beff.dat";
+	const char* xfileName = "./examples_data/W50/lowfield0.4/x_grid.dat";
+	const char* BfileName = "./examples_data/W50/lowfield0.4/Beff.dat";
 
-	const char* distributionFileName = "./examples_data/W50/lowfield/pdf_sf.dat";
-	const char* pfileName = "./examples_data/W50/lowfield/p_grid.dat";
+	const char* distributionFileName = "./examples_data/W50/lowfield0.4/pdf_sf.dat";
+	const char* pfileName = "./examples_data/W50/lowfield0.4/p_grid.dat";
 
-	const char* fileName = "./examples_data/W50/lowfield/electrons.dat";
+	const char* fileName = "./examples_data/W50/lowfield0.4/electrons.dat";
 
 	/*Nx = 0;
 	FILE* xfile = fopen(xfileName, "r");
@@ -2837,15 +2837,16 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		downstreamXgrid[i] = -downstreamXgrid[i];
 	}
 
-	double minField = 8E-6;
+	double minField = 1E-5;
+	double sinField = 0.0 * minField;
 
 	for (int i = 0; i < downstreamNx; ++i) {
 		/*if (downstreamXgrid[i] < -2E19) {
 			Bpar[i] = 3E-5;
 		}*/
                 if(sqrt(Bpar[i]*Bpar[i] + 2*Bper[i]*Bper[i]) < minField){
-                    Bpar[i] = minField/sqrt(3.0);
-					Bper[i] = minField / sqrt(3.0);
+                    Bpar[i] = (sqrt(1.0 - 0.3*0.3/2)*minField + sinField*sin(downstreamXgrid[i]*2*pi/(10*L0))) / sqrt(3.0);
+					Bper[i] = (sqrt(1.0 - 0.3*0.3/2)*minField + sinField*sin(downstreamXgrid[i]*2*pi/(10*L0))) / sqrt(3.0);
                 }
 	}
 
@@ -2875,6 +2876,8 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		}
 	}
 
+	double Bfactor = Bper[downstreamNx - 1] * sqrt(2.0) / upstreamB1[0];
+
 	double*** upstreamB = new double** [upstreamNx];
 	double*** upstreamBtheta = new double** [upstreamNx];
 	double*** upstreamBphi = new double** [upstreamNx];
@@ -2890,7 +2893,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 			upstreamBphi[i][j] = new double[Ny];
 			upstreamConcentrationArray[i][j] = new double[Ny];
 			for (int k = 0; k < Ny; ++k) {
-				upstreamB[i][j][k] = upstreamB1[i];
+				upstreamB[i][j][k] = upstreamB1[i]*Bfactor;
 				upstreamBtheta[i][j][k] = pi / 4;
 				upstreamBphi[i][j][k] = 0;
 				upstreamConcentrationArray[i][j][k] = upstreamConcentration1[i]*electronToProtonCorrection;
@@ -2918,7 +2921,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		//fprintf(BoutputFile, "%g %g %g\n", downstreamXgrid[i], 0.0, downstreamB[i][0][0]);
 	}
 	for (int i = 0; i < upstreamNx; ++i) {
-		fprintf(BoutputFile, "%g %g %g\n", upstreamXgrid[i], 0.0, upstreamB[i][0][0]);
+		fprintf(BoutputFile, "%g %g %g\n", upstreamXgrid[i], 0.0, upstreamB[i][0][0]/sqrt(2.0));
 	}
 
 	fclose(BoutputFile);
