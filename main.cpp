@@ -1064,7 +1064,7 @@ double* getUvarovBper(int Nx, double minX, double maxX, double L0) {
 }
 
 double* getUvarovBpar2(int Nx, double* xgrid, double L0) {
-	double factor = 0.33*1E-6;
+	double factor = 0.25*1E-6;
 	double A0 = 41.0755 * factor;
 	double A1 = 9.27296;
 	double A2 = 1.41262;
@@ -1095,7 +1095,7 @@ double* getUvarovBpar2(int Nx, double* xgrid, double L0) {
 }
 
 double* getUvarovBper2(int Nx, double* xgrid, double L0) {
-	double factor = 0.33*1E-6;
+	double factor = 0.25*1E-6;
 	double A0 = 98.3917 * factor;
 	double A1 = 30.533;
 	double A2 = 2.33138;
@@ -1649,10 +1649,10 @@ void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 					Bphi[i][j][k] = atan2(Bpar1[Nx - i - 1], Bper1[Nx - i - 1]);
 				}
 				else {
-					Bpar[Nx - i - 1] = Beff[i + minIndex];
-					Bper[Nx - i - 1] = 0;
+					Bpar[Nx - i - 1] = 0;
+					Bper[Nx - i - 1] = Beff[i + minIndex]/sqrt(2.0);
 					B[Nx - i - 1][j][k] = Beff[i + minIndex];
-					Btheta[i][j][k] = pi / 2;
+					Btheta[i][j][k] = pi / 4;
 					Bphi[i][j][k] = 0;
 				}
 				if ((B[Nx - i - 1][j][k] != B[Nx - i - 1][j][k]) || (0 * B[Nx - i - 1][j][k] != 0 * B[Nx - i - 1][j][k])) {
@@ -2837,13 +2837,15 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		downstreamXgrid[i] = -downstreamXgrid[i];
 	}
 
+	double minField = 8E-6;
+
 	for (int i = 0; i < downstreamNx; ++i) {
 		/*if (downstreamXgrid[i] < -2E19) {
 			Bpar[i] = 3E-5;
 		}*/
-                if(sqrt(Bpar[i]*Bpar[i] + 2*Bper[i]*Bper[i]) < 1E-5){
-                    Bpar[i] = 1E-5/sqrt(3.0);
-					Bper[i] = 1E-5 / sqrt(3.0);
+                if(sqrt(Bpar[i]*Bpar[i] + 2*Bper[i]*Bper[i]) < minField){
+                    Bpar[i] = minField/sqrt(3.0);
+					Bper[i] = minField / sqrt(3.0);
                 }
 	}
 
@@ -2916,7 +2918,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		//fprintf(BoutputFile, "%g %g %g\n", downstreamXgrid[i], 0.0, downstreamB[i][0][0]);
 	}
 	for (int i = 0; i < upstreamNx; ++i) {
-		fprintf(BoutputFile, "%g %g %g\n", upstreamXgrid[i], upstreamB[i][0][0], 0.0);
+		fprintf(BoutputFile, "%g %g %g\n", upstreamXgrid[i], 0.0, upstreamB[i][0][0]);
 	}
 
 	fclose(BoutputFile);
