@@ -1064,7 +1064,7 @@ double* getUvarovBper(int Nx, double minX, double maxX, double L0) {
 }
 
 double* getUvarovBpar2(int Nx, double* xgrid, double L0) {
-	double factor = 0.33*1E-6;
+	double factor = 0.25*1E-6;
 	double A0 = 41.0755 * factor;
 	double A1 = 9.27296;
 	double A2 = 1.41262;
@@ -1095,7 +1095,7 @@ double* getUvarovBpar2(int Nx, double* xgrid, double L0) {
 }
 
 double* getUvarovBper2(int Nx, double* xgrid, double L0) {
-	double factor = 0.33*1E-6;
+	double factor = 0.25*1E-6;
 	double A0 = 98.3917 * factor;
 	double A1 = 30.533;
 	double A2 = 2.33138;
@@ -1807,7 +1807,7 @@ void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 		double d = source->getDistance();
 		for (int ie = 0; ie < Nph; ++ie) {
 			double dE = currentE * (factor - 1.0);
-			localFlux += sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, source, irho, 0) * dE * d * d / s;
+			localFlux += (1.0 / currentE) * sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, source, irho, 0) * dE * d * d / s;
 			currentE = currentE * factor;
 		}
 		profileXMM[irho] = localFlux;
@@ -1835,7 +1835,7 @@ void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 		double d = source->getDistance();
 		for (int ie = 0; ie < Nph; ++ie) {
 			double dE = currentE * (factor - 1.0);
-			localFlux += sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, source, irho, 0) * dE * d * d / s;
+			localFlux += (1.0 / currentE) * sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, source, irho, 0) * dE * d * d / s;
 			currentE = currentE * factor;
 		}
 		profileNuSTAR[irho] = localFlux;
@@ -2837,7 +2837,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		downstreamXgrid[i] = -downstreamXgrid[i];
 	}
 
-	double minField = 1E-5;
+	double minField = 8E-6;
 	double sinField = 0.0 * minField;
 
 	for (int i = 0; i < downstreamNx; ++i) {
@@ -2845,8 +2845,8 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 			Bpar[i] = 3E-5;
 		}*/
                 if(sqrt(Bpar[i]*Bpar[i] + 2*Bper[i]*Bper[i]) < minField){
-                    Bpar[i] = (sqrt(1.0 - 0.3*0.3/2)*minField + sinField*sin(downstreamXgrid[i]*2*pi/(10*L0))) / sqrt(3.0);
-					Bper[i] = (sqrt(1.0 - 0.3*0.3/2)*minField + sinField*sin(downstreamXgrid[i]*2*pi/(10*L0))) / sqrt(3.0);
+                    Bpar[i] = minField / sqrt(3.0);
+					Bper[i] = minField / sqrt(3.0);
                 }
 	}
 
@@ -3110,7 +3110,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		double d = downstreamSource->getDistance();
 		for (int ie = 0; ie < Nph; ++ie) {
 			double dE = currentE * (factor - 1.0);
-			localFlux += sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, downstreamSource, irho, 0) * dE * d * d / s;
+			localFlux += (1.0/currentE)*sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, downstreamSource, irho, 0) * dE * d * d / s;
 			currentE = currentE * factor;
 		}
 		profileXMM[irho] = localFlux;
@@ -3128,7 +3128,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		double d = upstreamSource->getDistance();
 		for (int ie = 0; ie < Nph; ++ie) {
 			double dE = currentE * (factor - 1.0);
-			localFlux += sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, upstreamSource, irho, 0) * dE * d * d / s;
+			localFlux += (1.0 / currentE) * sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, upstreamSource, irho, 0) * dE * d * d / s;
 			currentE = currentE * factor;
 		}
 		profileXMM[downstreamNx + irho] = localFlux;
@@ -3158,7 +3158,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		double d = downstreamSource->getDistance();
 		for (int ie = 0; ie < Nph; ++ie) {
 			double dE = currentE * (factor - 1.0);
-			localFlux += sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, downstreamSource, irho, 0) * dE * d * d / s;
+			localFlux += (1.0 / currentE) * sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, downstreamSource, irho, 0) * dE * d * d / s;
 			currentE = currentE * factor;
 		}
 		profileNuSTAR[irho] = localFlux;
@@ -3176,7 +3176,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		double d = upstreamSource->getDistance();
 		for (int ie = 0; ie < Nph; ++ie) {
 			double dE = currentE * (factor - 1.0);
-			localFlux += sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, upstreamSource, irho, 0) * dE * d * d / s;
+			localFlux += (1.0 / currentE) * sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, upstreamSource, irho, 0) * dE * d * d / s;
 			currentE = currentE * factor;
 		}
 		profileNuSTAR[downstreamNx + irho] = localFlux;
