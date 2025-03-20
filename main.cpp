@@ -1547,7 +1547,7 @@ void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 			break;
 		}
 	}
-	//maxIndex = Nx1 - 1;
+	maxIndex = Nx1 - 1;
 	int minIndex = 0;
 	for (int i = 0; i < Nx1; ++i) {
 		if (xgrid1[i] >= -upstreamSize) {
@@ -1555,7 +1555,7 @@ void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 			break;
 		}
 	}
-	//minIndex = 0;
+	minIndex = 0;
 
 	int downstreamNx = maxIndex + 1 - zeroIndex;
 	int upstreamNx = zeroIndex - minIndex;
@@ -2785,7 +2785,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 			break;
 		}
 	}
-	//maxIndex = Nx - 1;
+	maxIndex = Nx - 1;
 	int minIndex = 0;
 	for (int i = 0; i < Nx; ++i) {
 		if (xgrid1[i] >= -upstreamSize) {
@@ -2793,7 +2793,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 			break;
 		}
 	}
-	//minIndex = 0;
+	minIndex = 0;
 
 	int downstreamNx = maxIndex + 1 - zeroIndex;
 	int upstreamNx = zeroIndex - minIndex;
@@ -2854,6 +2854,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
                 }
 	}
 
+	double* downstreamB1 = new double [downstreamNx];
 	double*** downstreamB = new double** [downstreamNx];
 	double*** downstreamBtheta = new double** [downstreamNx];
 	double*** downstreamBphi = new double** [downstreamNx];
@@ -2870,6 +2871,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 			downstreamConcentrationArray[i][j] = new double[Ny];
 			for (int k = 0; k < Ny; ++k) {
 				downstreamB[i][j][k] = sqrt(Bpar[i] * Bpar[i] + 2*Bper[i] * Bper[i]);
+				downstreamB1[i] = downstreamB[i][j][k];
 				//downstreamB[i][j][k] = 2E-5;
 				//par - x, per - y and z
 				downstreamBtheta[i][j][k] = atan2(sqrt(Bpar[i] * Bpar[i] + Bper[i] * Bper[i]), Bper[i]);
@@ -2934,6 +2936,53 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	double concentration2;
 	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massElectron, fileName, frontElectrons, concentration2);
 	//frontElectrons = new MassiveParticleTabulatedIsotropicDistribution(new MassiveParticlePowerLawDistribution(massElectron, 2.0, me_c2), me_c2, 1600, 1000);
+
+	int Nediff = frontElectrons->getN();
+	double* energyGrid = frontElectrons->getEnergyArray();
+	double* frontDistribution = frontElectrons->getDistributionArray();
+	for (int i = 0; i < Nediff; ++i) {
+		frontDistribution[i] = frontDistribution[i] * concentration2*electronToProtonCorrection;
+	}
+	double** diffDistributions = NULL;
+	double Uph[1];
+	double Eph[1];
+	Uph[0] = photonEnergyDensity;
+	//Uph[1] = photonIRenergyDensity;
+	Eph[0] = 2.8 * kBoltzman * 2.725;
+	//Eph[1] = 2.8 * kBoltzman * 140;
+	MassiveParticleDistributionFactory::evaluateDistributionDiffusionAdvectionWithLosses(massElectron, energyGrid, frontDistribution, diffDistributions, Nediff, downstreamNx, downstreamXgrid, 0.15 * 0.2 * speed_of_light, downstreamB1, 2, Uph, Eph);
+
+	FILE* outXfile1 = fopen("./output/x_grid1.dat", "w");
+	for (int i = 0; i < downstreamNx; ++i) {
+		fprintf(outXfile1, "%g\n", downstreamXgrid[i]);
+	}
+	for (int i = 0; i < upstreamNx; ++i) {
+		fprintf(outXfile1, "%g\n", upstreamXgrid[i]);
+	}
+	fclose(outXfile1);
+	FILE* outPfile1 = fopen("./output/p_grid1.dat", "w");
+	for (int i = 0; i < Nediff; ++i) {
+		double p = sqrt(energyGrid[i] * energyGrid[i] - me_c2 * me_c2) / (speed_of_light * speed_of_light);
+		fprintf(outPfile1, "%g\n", p * massElectron / massProton);
+	}
+	fclose(outPfile1);
+
+	FILE* outDistributionFile1 = fopen("./output/pdf1.dat", "w");
+	for (int i = 0; i < downstreamNx; ++i) {
+
+		for (int j = 0; j < Nediff; ++j) {
+			double p = sqrt(energyGrid[j] * energyGrid[j] - me_c2 * me_c2) / (speed_of_light * speed_of_light);;
+			double F = diffDistributions[i][j];
+			F = (F * p * p * p * me_c2 * me_c2 / energyGrid[j]) * massElectron / massProton;
+			fprintf(outDistributionFile1, "%g %g\n", p, F);
+		}
+	}
+	for (int i = 0; i < upstreamNx; ++i) {
+		for (int j = 0; j < Nediff; ++j) {
+			fprintf(outDistributionFile1, "%g %g\n", 0.0, 0.0);
+		}
+	}
+	fclose(outDistributionFile1);
 
 	for (int i = 0; i < downstreamNx; ++i) {
 		for (int j = 0; j < Nz; ++j) {

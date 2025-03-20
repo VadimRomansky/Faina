@@ -8,6 +8,7 @@
 #include "massiveParticleDistribution.h"
 #include "./Math/specialmath.h"
 #include "./Math/matrixElement.h"
+#include "./Math/largeVectorBasis.h"
 
 double MassiveParticleIsotropicDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
 {
@@ -2311,7 +2312,7 @@ void MassiveParticleDistributionFactory::redistributeArrayWithFixedEnergy(const 
 	}
 }
 
-void MassiveParticleDistributionFactory::evaluateDistributionDiffusionAdvectionWithLosses(const double& mass, double* energy, double* distribution, double** outDistribution, const int Ne, const int Nx, double* x, double advectionV, double* B, int Nph, double* Uph, double* Eph) {
+void MassiveParticleDistributionFactory::evaluateDistributionDiffusionAdvectionWithLosses(const double& mass, double* energy, double* distribution, double** outDistribution, const int Ne, const int Nx, double* xgrid, double advectionV, double* B, int Nph, double* Uph, double* Eph) {
 	outDistribution = new double* [Nx];
 	for (int i = 0; i < Nx; ++i) {
 		outDistribution[i] = new double[Ne];
@@ -2360,15 +2361,22 @@ void MassiveParticleDistributionFactory::evaluateDistributionDiffusionAdvectionW
 	//todo from left?
 	for (int j = 0; j < Ne; ++j) {
 		b[Nx - 1][0][0][j] = 1.0;
+		matrix[Nx - 1][0][0][j].push_back(MatrixElement(1.0, Nx - 1, 0, 0, j));
 		rightPart[Nx - 1][0][0][j] = distribution[j];
 
 		b[0][0][0][j] = 1.0;
+		matrix[0][0][0][j].push_back(MatrixElement(1.0, 0, 0, 0, j));
 		rightPart[0][0][0][j] = 0.0;
 	}
 
 	for (int i = 1; i < Nx - 1; ++i) {
 		for (int j = 0; j < Ne; ++j) {
 			double E = energy[j];
+
+			double Dleft = E * speed_of_light / (3 * electron_charge * B[i - 1]);
+			double D = E * speed_of_light / (3 * electron_charge * B[i]);
+			double Dright = E * speed_of_light / (3 * electron_charge * B[i + 1]);
+
 			double lossRate = coef * E * E * (B[i] * B[i] / (8 * pi));
 			for (int k = 0; k < Nph; ++k) {
 				lossRate = lossRate + coef * Uph[k] * E * E / (1 + 4 * E * Eph[k] / sqr(mc2));
@@ -2385,16 +2393,38 @@ void MassiveParticleDistributionFactory::evaluateDistributionDiffusionAdvectionW
 			}
 			else {
 				double E1 = energy[j];
-				double dE = energy[j] - energy[j-1];
+				double dE = energy[j] - energy[j - 1];
 				double lossRate1 = coef * E1 * E1 * (B[i] * B[i] / 8 * pi);
 				for (int k = 0; k < Nph; ++k) {
 					lossRate1 = lossRate1 + coef * Uph[k] * E1 * E1 / (1 + 4 * E1 * Eph[k] / sqr(mc2));
 				}
 				matrix[i][0][0][j].push_back(MatrixElement(lossRate / dE, i, 0, 0, j));
-				matrix[i][0][0][j].push_back(MatrixElement(-lossRate1 / dE, i, 0, 0, j-1));
+				matrix[i][0][0][j].push_back(MatrixElement(-lossRate1 / dE, i, 0, 0, j - 1));
 			}
 
+			double value = -((Dright + D) / (xgrid[i + 1] - xgrid[i]) + (D + Dleft) / (xgrid[i] - xgrid[i - 1])) / (xgrid[i + 1] - xgrid[i - 1]);
+			matrix[i][0][0][j].push_back(MatrixElement(value, i, 0, 0, j));
+			value = (Dright + D) / ((xgrid[i + 1] - xgrid[i]) * (xgrid[i + 1] - xgrid[i - 1]));
+			matrix[i][0][0][j].push_back(MatrixElement(value, i + 1, 0, 0, j));
+			value = (Dleft + D) / ((xgrid[i] - xgrid[i - 1]) * (xgrid[i + 1] - xgrid[i - 1]));
+			matrix[i][0][0][j].push_back(MatrixElement(value, i - 1, 0, 0, j));
 
+			value = -advectionV / (xgrid[i + 1] - xgrid[i]);
+			matrix[i][0][0][j].push_back(MatrixElement(value, i, 0, 0, j));
+			value = advectionV / (xgrid[i + 1] - xgrid[i]);
+			matrix[i][0][0][j].push_back(MatrixElement(value, i + 1, 0, 0, j));
+		}
+	}
+
+	LargeVectorBasis* basis = new LargeVectorBasis(100, Nx, 1, 1, Ne);
+
+	generalizedMinimalResidualMethod(matrix, rightPart, tempDistribution, Nx, 1, 1, Ne, 1E-5, Nx * Ne - 1, 2, basis);
+
+	for (int i = 0; i < Nx; ++i) {
+		for (int j = 0; j < Ne; ++j) {
+			if (tempDistribution[i][0][0][j] > 0) {
+				outDistribution[i][j] = tempDistribution[i][0][0][j];
+			}
 		}
 	}
 }
