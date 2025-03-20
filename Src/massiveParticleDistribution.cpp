@@ -1,10 +1,13 @@
 #include "stdio.h"
 #include "math.h"
+#include "vector"
 
 #include "constants.h"
 #include "util.h"
 
 #include "massiveParticleDistribution.h"
+#include "./Math/specialmath.h"
+#include "./Math/matrixElement.h"
 
 double MassiveParticleIsotropicDistribution::distributionNormalized(const double& energy, const double& mu, const double& phi)
 {
@@ -2305,6 +2308,94 @@ void MassiveParticleDistributionFactory::redistributeArrayWithFixedEnergy(const 
 {
 	for (int i = 0; i < Ne; ++i) {
 		outDistribution[i] = MassiveParticleDistributionFactory::getDistribution(outEnergy[i], inEnergy, inDistribution, Ne);
+	}
+}
+
+void MassiveParticleDistributionFactory::evaluateDistributionDiffusionAdvectionWithLosses(const double& mass, double* energy, double* distribution, double** outDistribution, const int Ne, const int Nx, double* x, double advectionV, double* B, int Nph, double* Uph, double* Eph) {
+	outDistribution = new double* [Nx];
+	for (int i = 0; i < Nx; ++i) {
+		outDistribution[i] = new double[Ne];
+	}
+
+	double mc2 = mass * speed_of_light * speed_of_light;
+
+	double r2 = sqr(electron_charge * electron_charge / mc2);
+	double sigmaT = 8 * pi * r2 / 3.0;
+	double coef = (4.0 / 3.0) * sigmaT / (mass * mass * cube(speed_of_light));
+
+	double**** tempDistribution = new double*** [Nx];
+	double**** rightPart = new double*** [Nx];
+	std::vector<MatrixElement>**** matrix = new std::vector<MatrixElement>***[Nx];
+	double**** a = new double*** [Nx];
+	double**** b = new double*** [Nx];
+	double**** c = new double*** [Nx];
+	for (int i = 0; i < Nx; ++i) {
+		tempDistribution[i] = new double** [1];
+		tempDistribution[i][0] = new double* [1];
+		tempDistribution[i][0][0] = new double[Ne];
+		rightPart[i] = new double** [1];
+		rightPart[i][0] = new double* [1];
+		rightPart[i][0][0] = new double[Ne];
+		matrix[i] = new std::vector<MatrixElement>** [1];
+		matrix[i][0] = new std::vector<MatrixElement>* [1];
+		matrix[i][0][0] = new std::vector<MatrixElement> [Ne];
+		a[i] = new double** [1];
+		a[i][0] = new double* [1];
+		a[i][0][0] = new double[Ne];
+		b[i] = new double** [1];
+		b[i][0] = new double* [1];
+		b[i][0][0] = new double[Ne];
+		c[i] = new double** [1];
+		c[i][0] = new double* [1];
+		c[i][0][0] = new double[Ne];
+		for (int j = 0; j < Ne; ++j) {
+			tempDistribution[i][0][0][j] = 0.0;
+			rightPart[i][0][0][j] = 0.0;
+			a[i][0][0][j] = 0.0;
+			b[i][0][0][j] = 0.0;
+			c[i][0][0][j] = 0.0;
+		}
+	}
+
+	//todo from left?
+	for (int j = 0; j < Ne; ++j) {
+		b[Nx - 1][0][0][j] = 1.0;
+		rightPart[Nx - 1][0][0][j] = distribution[j];
+
+		b[0][0][0][j] = 1.0;
+		rightPart[0][0][0][j] = 0.0;
+	}
+
+	for (int i = 1; i < Nx - 1; ++i) {
+		for (int j = 0; j < Ne; ++j) {
+			double E = energy[j];
+			double lossRate = coef * E * E * (B[i] * B[i] / (8 * pi));
+			for (int k = 0; k < Nph; ++k) {
+				lossRate = lossRate + coef * Uph[k] * E * E / (1 + 4 * E * Eph[k] / sqr(mc2));
+			}
+			if (j < Ne - 1) {
+				double E1 = energy[j + 1];
+				double dE = energy[j + 1] - energy[j];
+				double lossRate1 = coef * E1 * E1 * (B[i] * B[i] / 8 * pi);
+				for (int k = 0; k < Nph; ++k) {
+					lossRate1 = lossRate1 + coef * Uph[k] * E1 * E1 / (1 + 4 * E1 * Eph[k] / sqr(mc2));
+				}
+				matrix[i][0][0][j].push_back(MatrixElement(lossRate1 / dE, i, 0, 0, j + 1));
+				matrix[i][0][0][j].push_back(MatrixElement(-lossRate / dE, i, 0, 0, j));
+			}
+			else {
+				double E1 = energy[j];
+				double dE = energy[j] - energy[j-1];
+				double lossRate1 = coef * E1 * E1 * (B[i] * B[i] / 8 * pi);
+				for (int k = 0; k < Nph; ++k) {
+					lossRate1 = lossRate1 + coef * Uph[k] * E1 * E1 / (1 + 4 * E1 * Eph[k] / sqr(mc2));
+				}
+				matrix[i][0][0][j].push_back(MatrixElement(lossRate / dE, i, 0, 0, j));
+				matrix[i][0][0][j].push_back(MatrixElement(-lossRate1 / dE, i, 0, 0, j-1));
+			}
+
+
+		}
 	}
 }
 

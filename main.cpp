@@ -1064,7 +1064,7 @@ double* getUvarovBper(int Nx, double minX, double maxX, double L0) {
 }
 
 double* getUvarovBpar2(int Nx, double* xgrid, double L0) {
-	double factor = 0.25*1E-6;
+	double factor = 0.33*1E-6;
 	double A0 = 41.0755 * factor;
 	double A1 = 9.27296;
 	double A2 = 1.41262;
@@ -1095,7 +1095,7 @@ double* getUvarovBpar2(int Nx, double* xgrid, double L0) {
 }
 
 double* getUvarovBper2(int Nx, double* xgrid, double L0) {
-	double factor = 0.25*1E-6;
+	double factor = 0.33*1E-6;
 	double A0 = 98.3917 * factor;
 	double A1 = 30.533;
 	double A2 = 2.33138;
@@ -1502,10 +1502,10 @@ void evaluateW50comptonAndSynchrotron2() {
 
 void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 	double distance = (18000 / 3.26) * parsec;
-	const char* distributionFileName = "./examples_data/W50/lowfield0.4/pdf_sf.dat";
-	const char* xfileName = "./examples_data/W50/lowfield0.4/x_grid.dat";
-	const char* pfileName = "./examples_data/W50/lowfield0.4/p_grid.dat";
-	const char* BfileName = "./examples_data/W50/lowfield0.4/Beff.dat";
+	const char* distributionFileName = "./examples_data/W50/lowfieldCMB/pdf_sf.dat";
+	const char* xfileName = "./examples_data/W50/lowfieldCMB/x_grid.dat";
+	const char* pfileName = "./examples_data/W50/lowfieldCMB/p_grid.dat";
+	const char* BfileName = "./examples_data/W50/lowfieldCMB/Beff.dat";
 
 	double secondToRadian = pi / (180 * 3600);
 	double headMinSec = 0;
@@ -1547,6 +1547,7 @@ void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 			break;
 		}
 	}
+	//maxIndex = Nx1 - 1;
 	int minIndex = 0;
 	for (int i = 0; i < Nx1; ++i) {
 		if (xgrid1[i] >= -upstreamSize) {
@@ -1554,6 +1555,7 @@ void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 			break;
 		}
 	}
+	//minIndex = 0;
 
 	int downstreamNx = maxIndex + 1 - zeroIndex;
 	int upstreamNx = zeroIndex - minIndex;
@@ -2727,13 +2729,13 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	double coneMinX = -coneMinSec * secondToRadian * distance;
 	double coneMaxX = -coneMaxSec * secondToRadian * distance;
 
-	const char* xfileName = "./examples_data/W50/lowfield0.4/x_grid.dat";
-	const char* BfileName = "./examples_data/W50/lowfield0.4/Beff.dat";
+	const char* xfileName = "./examples_data/W50/lowfieldCMB/x_grid.dat";
+	const char* BfileName = "./examples_data/W50/lowfieldCMB/Beff.dat";
 
-	const char* distributionFileName = "./examples_data/W50/lowfield0.4/pdf_sf.dat";
-	const char* pfileName = "./examples_data/W50/lowfield0.4/p_grid.dat";
+	const char* distributionFileName = "./examples_data/W50/lowfieldCMB/pdf_sf.dat";
+	const char* pfileName = "./examples_data/W50/lowfieldCMB/p_grid.dat";
 
-	const char* fileName = "./examples_data/W50/lowfield0.4/electrons.dat";
+	const char* fileName = "./examples_data/W50/lowfieldCMB/electrons.dat";
 
 	/*Nx = 0;
 	FILE* xfile = fopen(xfileName, "r");
@@ -2783,6 +2785,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 			break;
 		}
 	}
+	//maxIndex = Nx - 1;
 	int minIndex = 0;
 	for (int i = 0; i < Nx; ++i) {
 		if (xgrid1[i] >= -upstreamSize) {
@@ -2790,6 +2793,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 			break;
 		}
 	}
+	//minIndex = 0;
 
 	int downstreamNx = maxIndex + 1 - zeroIndex;
 	int upstreamNx = zeroIndex - minIndex;
@@ -2837,7 +2841,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		downstreamXgrid[i] = -downstreamXgrid[i];
 	}
 
-	double minField = 8E-6;
+	double minField = 1E-5;
 	double sinField = 0.0 * minField;
 
 	for (int i = 0; i < downstreamNx; ++i) {
@@ -2929,6 +2933,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	MassiveParticleTabulatedIsotropicDistribution* frontElectrons;
 	double concentration2;
 	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massElectron, fileName, frontElectrons, concentration2);
+	//frontElectrons = new MassiveParticleTabulatedIsotropicDistribution(new MassiveParticlePowerLawDistribution(massElectron, 2.0, me_c2), me_c2, 1600, 1000);
 
 	for (int i = 0; i < downstreamNx; ++i) {
 		for (int j = 0; j < Nz; ++j) {
@@ -2969,7 +2974,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	}*/
 
 	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
-	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.25 * 0.2 * speed_of_light, photonTotalEnergyDensity);
+	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.15 * 0.2 * speed_of_light, photonTotalEnergyDensity);
 	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.25 * 0.2 * speed_of_light, photonEnergyDensity);
 	//RectangularSourceInhomogenousDistribution* downstreamSource = new RectangularSourceInhomogenousDistribution(Nx, downstreamXgrid, Ny, Nz, electrons2, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
 	RadiationSource* upstreamSource = new RectangularSourceInhomogenousDistribution(upstreamNx, upstreamXgrid, Ny, Nz, upstreamElectrons, upstreamB, upstreamBtheta, upstreamBphi, upstreamConcentrationArray, 0, size, 0, pi * size, distance);
@@ -3036,6 +3041,27 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		fprintf(concentrationFile, "%g %g\n", upstreamXgrid[i], upstreamConcentrationArray[i][0][0]);
 	}
 	fclose(concentrationFile);
+
+	FILE* outDiffusionConvectionFile = fopen("./output/diffusionConvection.dat", "w");
+	double tempE[3] = { 48, 160, 480 };
+	for (int i = 1; i < downstreamNx - 1; ++i) {
+		MassiveParticleIsotropicDistribution* leftDistribution = new MassiveParticleTabulatedIsotropicDistribution(*dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(downstreamSource->getParticleDistribution(i - 1, 0, 0)));
+		MassiveParticleIsotropicDistribution* middleDistribution = new MassiveParticleTabulatedIsotropicDistribution(*dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(downstreamSource->getParticleDistribution(i, 0, 0)));
+		MassiveParticleIsotropicDistribution* rightDistribution = new MassiveParticleTabulatedIsotropicDistribution(*dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(downstreamSource->getParticleDistribution(i + 1, 0, 0)));
+		fprintf(outDiffusionConvectionFile, "%g", downstreamXgrid[i]);
+		for (int j = 0; j < 3; ++j) {
+			double D = tempE[j] * speed_of_light / (3 * electron_charge * downstreamB[i][0][0]);
+			double Dd2f = fabs(2*D * ((rightDistribution->distributionNormalized(tempE[j]) * downstreamConcentrationArray[i + 1][0][0] - middleDistribution->distributionNormalized(tempE[j]) * downstreamConcentrationArray[i][0][0]) / (downstreamXgrid[i + 1] - downstreamXgrid[i]) -
+				(middleDistribution->distributionNormalized(tempE[j]) * downstreamConcentrationArray[i][0][0] - leftDistribution->distributionNormalized(tempE[j]) * downstreamConcentrationArray[i - 1][0][0]) / (downstreamXgrid[i] - downstreamXgrid[i - 1])) / (downstreamXgrid[i + 1] - downstreamXgrid[i - 1]));
+			double udf = fabs(0.15 * 0.2 * speed_of_light * (rightDistribution->distributionNormalized(tempE[j]) * downstreamConcentrationArray[i + 1][0][0] - middleDistribution->distributionNormalized(tempE[j]) * downstreamConcentrationArray[i][0][0]) / (downstreamXgrid[i + 1] - downstreamXgrid[i]));
+			fprintf(outDiffusionConvectionFile, " %g %g", Dd2f, udf);
+		}
+		delete[] leftDistribution;
+		delete[] middleDistribution;
+		delete[] rightDistribution;
+		fprintf(outDiffusionConvectionFile, "\n");
+	}
+	fclose(outDiffusionConvectionFile);
 
 
 	int Ne = 10;

@@ -19,6 +19,7 @@ from plot_data3 import plot_data3
 from plot_data4 import plot_data4
 from plot_data5 import plot_data5
 from plot_data6 import plot_data6
+from plot_diffusionConvection import plot_diffusionConvection
 from plot_distributions import plot_distributions
 from plot_distributions2 import plot_distributions2
 from plot_distributions9 import plot_distributions9
@@ -49,6 +50,7 @@ if __name__ == '__main__':
     #plt.rcParams['image.cmap'] = 'hot'
     #plot_dummy()
     #plot_data("../nishina_losses.dat","nishina_losses", 3, 'log', 'log')
+    plot_diffusionConvection("../output/diffusionConvection.dat", "D", 6, yscale = "log", xscale = "symlog")
     plot_data("../output/Bturb.dat", "B", 2, yscale = "linear", xscale = "linear")
     #plot_data2("../output/thinDistribution.dat","../output/thickDistribution.dat","distributions", 1, "thin", "thick", "$p/mc$", "$F(p)p^4$")
     plot_W50_profile("","profile")
