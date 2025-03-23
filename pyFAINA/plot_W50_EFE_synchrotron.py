@@ -16,6 +16,12 @@ def plot_W50_EFE_synchrotron(filename, name, factor = 1.0):
         radiation[2,i] = factor*float(s[2])
         radiation[3,i] = factor*float(s[3])
 
+    outFile = open('Wsynchandcompt.dat', 'w')
+    for i in range(N):
+        print(radiation[0,i], radiation[1,i], radiation[2,i], radiation[3,i], sep = ' ', file = outFile)
+
+    outFile.close()
+
 
     plt.rcParams.update({'font.size': 40})
     plt.rcParams['text.usetex'] = True

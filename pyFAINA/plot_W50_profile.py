@@ -43,7 +43,7 @@ def plot_W50_profile(filename, name):
     maxflux = np.amax(modelnustar[1,:])
     N2 = modelnustar.shape[1]
     for i in range(N2):
-        modelnustar[1,i] = modelnustar[1,i]/maxflux
+        modelnustar[1,i] = 1.1*modelnustar[1,i]/maxflux
 
     plt.rcParams.update({'font.size': 40})
     plt.rcParams['text.usetex'] = True
