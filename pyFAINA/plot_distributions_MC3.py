@@ -72,24 +72,24 @@ def plot_distributions_MC3():
     n = 1
     plt.plot(p_data1, distribution1[diff + n,0:N1],'r', linewidth = 4)
     plt.plot(p_data2, 0.8*distribution2[n, 0:N2],'r', linewidth = 4, linestyle = 'dashed')
-    plt.plot(p_data3, 0.8 * distribution3[n, 0:N3], 'r', linewidth=4, linestyle='dashed')
-
-    n = 10
-    plt.plot(p_data1, distribution1[diff + n,0:N1],'g', linewidth = 4)
-    plt.plot(p_data2, 0.8*distribution2[n, 0:N2],'g', linewidth = 4, linestyle = 'dashed')
-    plt.plot(p_data3, 0.8 * distribution3[n, 0:N3], 'g', linewidth=4, linestyle='dashed')
+    plt.plot(p_data3, 0.6 * distribution3[n, 0:N3], 'r', linewidth=4, linestyle='dashdot')
 
     n = 50
+    plt.plot(p_data1, distribution1[diff + n,0:N1],'g', linewidth = 4)
+    plt.plot(p_data2, 0.8*distribution2[n, 0:N2],'g', linewidth = 4, linestyle = 'dashed')
+    plt.plot(p_data3, 0.6 * distribution3[n, 0:N3], 'g', linewidth=4, linestyle='dashdot')
+
+    n = 70
     plt.plot(p_data1, distribution1[diff + n,0:N1],'b', linewidth = 4)
     plt.plot(p_data2, 0.8*distribution2[n, 0:N2],'b', linewidth = 4, linestyle = 'dashed')
-    plt.plot(p_data3, 0.8 * distribution3[n, 0:N3], 'b', linewidth=4, linestyle='dashed')
+    plt.plot(p_data3, 0.6 * distribution3[n, 0:N3], 'b', linewidth=4, linestyle='dashdot')
 
-    n = 301
+    n = 100
     plt.plot(p_data1, distribution1[diff + n, 0:N1], 'magenta', linewidth=4)
     plt.plot(p_data2, 0.8*distribution2[n, 0:N2], 'magenta', linewidth=4, linestyle='dashed')
-    plt.plot(p_data3, 0.8 * distribution3[n, 0:N3], 'magenta', linewidth=4, linestyle='dashed')
+    plt.plot(p_data3, 0.6 * distribution3[n, 0:N3], 'magenta', linewidth=4, linestyle='dashdot')
 
     ax.set_xlim(1E1, 1E7)
-    #ax.set_ylim(5E-7,2E-5)
+    ax.set_ylim(5E-7,2E-5)
 
     plt.savefig('distribution_diffusion and advection3.png', bbox_inches='tight')

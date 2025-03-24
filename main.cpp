@@ -2729,13 +2729,13 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	double coneMinX = -coneMinSec * secondToRadian * distance;
 	double coneMaxX = -coneMaxSec * secondToRadian * distance;
 
-	const char* xfileName = "./examples_data/W50/B15FEB6E18/x_grid.dat";
-	const char* BfileName = "./examples_data/W50/B15FEB6E18/Beff.dat";
+	const char* xfileName = "./examples_data/W50/lowfield0.4/x_grid.dat";
+	const char* BfileName = "./examples_data/W50/lowfield0.4/Beff.dat";
 
-	const char* distributionFileName = "./examples_data/W50/B15FEB6E18/pdf_sf.dat";
-	const char* pfileName = "./examples_data/W50/B15FEB6E18/p_grid.dat";
+	const char* distributionFileName = "./examples_data/W50/lowfield0.4/pdf_sf.dat";
+	const char* pfileName = "./examples_data/W50/lowfield0.4/p_grid.dat";
 
-	const char* fileName = "./examples_data/W50/B15FEB6E18/electrons.dat";
+	const char* fileName = "./examples_data/W50/lowfield0.4/electrons.dat";
 
 	/*Nx = 0;
 	FILE* xfile = fopen(xfileName, "r");
@@ -2950,7 +2950,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	//Uph[1] = photonIRenergyDensity;
 	Eph[0] = 2.8 * kBoltzman * 2.725;
 	//Eph[1] = 2.8 * kBoltzman * 140;
-	MassiveParticleDistributionFactory::evaluateDistributionDiffusionAdvectionWithLosses(massElectron, energyGrid, frontDistribution, diffDistributions, Nediff, downstreamNx, downstreamXgrid, 0.15 * 0.26 * speed_of_light, downstreamB1, 2, Uph, Eph);
+	MassiveParticleDistributionFactory::evaluateDistributionDiffusionAdvectionWithLosses(massElectron, energyGrid, frontDistribution, diffDistributions, Nediff, downstreamNx, downstreamXgrid, 0.15 * 0.2 * speed_of_light, downstreamB1, 1, Uph, Eph);
 
 	FILE* outXfile1 = fopen("./output/x_grid1.dat", "w");
 	for (int i = 0; i < downstreamNx; ++i) {
@@ -2973,13 +2973,14 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		for (int j = 0; j < Nediff; ++j) {
 			double p = sqrt(energyGrid[j] * energyGrid[j] - me_c2 * me_c2) / (speed_of_light);
 			double F = diffDistributions[i][j];
-			F = (F * p * p * p * me_c2 * me_c2 / energyGrid[j]) * massElectron / massProton;
+			F = (F * (p * p * p/cube(massElectron*speed_of_light)) * me_c2 * me_c2 / energyGrid[j]) * massElectron / massProton;
 			fprintf(outDistributionFile1, "%g %g\n", p/(massProton*speed_of_light), F);
 		}
 	}
 	for (int i = 0; i < upstreamNx; ++i) {
 		for (int j = 0; j < Nediff; ++j) {
-			fprintf(outDistributionFile1, "%g %g\n", 0.0, 0.0);
+			double p = sqrt(energyGrid[j] * energyGrid[j] - me_c2 * me_c2) / (speed_of_light);
+			fprintf(outDistributionFile1, "%g %g\n", p / (massProton * speed_of_light), 0.0);
 		}
 	}
 	fclose(outDistributionFile1);

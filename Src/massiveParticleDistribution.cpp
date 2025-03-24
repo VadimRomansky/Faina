@@ -2141,7 +2141,7 @@ void MassiveParticleDistributionFactory::evaluateDistributionAdvectionWithLosses
 	for (int i = 1; i < Nx; ++i) {
 		double dx = x[Nx - i] - x[Nx - i - 1];
 		for (int j = 0; j < Ne; ++j) {
-			double E = energy[j] - mass * speed_of_light * speed_of_light;
+			double E = energy[j] - mc2;
 			double lossRate = coef * E * E * (B[Nx - 1 - i] * B[Nx - 1 - i] / (8 * pi));
 			double dlossRate = 2 * coef * E * (B[Nx - 1 - i] * B[Nx - 1 - i] / (8 * pi));
 			for (int k = 0; k < Nph; ++k) {
@@ -2150,7 +2150,7 @@ void MassiveParticleDistributionFactory::evaluateDistributionAdvectionWithLosses
 			}
 			double dEdE = 1 + dlossRate * dx / advectionV;
 			double E1 = E + lossRate * dx / advectionV;
-			double F = MassiveParticleDistributionFactory::getDistribution(E1, energy, outDistribution[Nx - i], Ne);
+			double F = MassiveParticleDistributionFactory::getDistribution(E1 + mc2, energy, outDistribution[Nx - i], Ne);
 			outDistribution[Nx - i - 1][j] = F * dEdE;
 		}
 	}
@@ -2349,6 +2349,8 @@ void MassiveParticleDistributionFactory::evaluateDistributionDiffusionAdvectionW
 
 	MassiveParticleDistributionFactory::evaluateDistributionAdvectionWithLosses(mass, energy, distribution, outDistribution, Ne, Nx, xgrid, advectionV, B, Nph, Uph, Eph);
 
+	return;
+
 	double mc2 = mass * speed_of_light * speed_of_light;
 
 	double r2 = sqr(electron_charge * electron_charge / mc2);
@@ -2463,7 +2465,7 @@ void MassiveParticleDistributionFactory::evaluateDistributionDiffusionAdvectionW
 		}
 	}
 
-	generalizedMinimalResidualMethod(matrix, rightPart, tempDistribution, initialDistribution, Nx, 1, 1, Ne, 1000, Nx * Ne - 1, 2, basis);
+	generalizedMinimalResidualMethod(matrix, rightPart, tempDistribution, initialDistribution, Nx, 1, 1, Ne, 1E-2, Nx * Ne - 1, 2, basis);
 	//bool converges = false;
 	//biconjugateStabilizedGradientMethod(matrix, rightPart, tempDistribution, Nx, 1, 1, Ne, 1E-5, Nx * Ne - 1, 2, converges);
 
@@ -2518,7 +2520,7 @@ double MassiveParticleDistributionFactory::getDistribution(const double& E, cons
 	double result;
 	if (distribution[currentI] <= 0 || distribution[nextI] <= 0) {
 		result = (distribution[currentI] * (energy[nextI] - E) + distribution[nextI] * (E - energy[currentI])) / (energy[nextI] - energy[currentI]);
-		result = 0;
+		//result = 0;
 	}
 	else {
 		result = distribution[currentI] * exp(log(distribution[nextI] / distribution[currentI]) * ((log(E / energy[currentI])) / (log(energy[nextI] / energy[currentI]))));
