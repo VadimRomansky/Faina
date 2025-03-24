@@ -25,6 +25,7 @@ from plot_distributions2 import plot_distributions2
 from plot_distributions9 import plot_distributions9
 from plot_distributions_4 import plot_distributions_4
 from plot_distributions_MC2 import plot_distributions_MC2
+from plot_distributions_MC3 import plot_distributions_MC3
 from plot_distributions_mc import plot_distributions_mc
 from plot_distributions_protons import plot_distributions_protons
 from plot_error_profile import plot_error_profile
@@ -66,6 +67,7 @@ if __name__ == '__main__':
     #plot_distributions9()
     #plot_distributions_proton
     plot_distributions_MC2()
+    plot_distributions_MC3()
     #plot_distributions2()
     #plot_distributions_4()
     #plot_distributions_mc()
