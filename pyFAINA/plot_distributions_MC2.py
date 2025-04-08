@@ -55,23 +55,23 @@ def plot_distributions_MC2():
     #ax.minorticks_on()
     # plt.axis([0.0,1.0,0.0,1.0])
 
-    n = 80
+    n = 10
     plt.plot(p_data1, distribution1[diff + n,0:N1],'r', linewidth = 4)
     plt.plot(p_data2, 0.8*distribution2[n, 0:N2],'r', linewidth = 4, linestyle = 'dashed')
 
-    n = 90
+    n = 20
     plt.plot(p_data1, distribution1[diff + n,0:N1],'g', linewidth = 4)
     plt.plot(p_data2, 0.8*distribution2[n, 0:N2],'g', linewidth = 4, linestyle = 'dashed')
 
-    n = 100
+    n = 50
     plt.plot(p_data1, distribution1[diff + n,0:N1],'b', linewidth = 4)
     plt.plot(p_data2, 0.8*distribution2[n, 0:N2],'b', linewidth = 4, linestyle = 'dashed')
 
-    n = 301
+    n = 228
     plt.plot(p_data1, distribution1[diff + n, 0:N1], 'magenta', linewidth=4)
     plt.plot(p_data2, 0.8*distribution2[n, 0:N2], 'magenta', linewidth=4, linestyle='dashed')
 
     ax.set_xlim(1E1, 1E7)
-    ax.set_ylim(5E-7,2E-5)
+    ax.set_ylim(5E-14,2E-5)
 
     plt.savefig('distribution_diffusion and advection.png', bbox_inches='tight')
