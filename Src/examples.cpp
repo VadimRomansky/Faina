@@ -2401,11 +2401,19 @@ void testGMRES() {
 		//X[0][0][i] = new double[1];
 	}
 
+	double**** initialVector = new double*** [1];
+	initialVector[0] = new double** [1];
+	initialVector[0][0] = new double* [1];
+	initialVector[0][0][0] = new double[1];
+	for (int i = 0; i < N; ++i) {
+		initialVector[0][0][0][i] = 1.0;
+	}
+
 	LargeVectorBasis* gmresBasis = new LargeVectorBasis(5, 1, 1, 1, N);
 
-	for (int i = 0; i < 1000; ++i) {
-		generalizedMinimalResidualMethod(matrix, R, X, 1, 1, 1, N, 1E-5, N, 2, gmresBasis);
-	}
+	//for (int i = 0; i < 1000; ++i) {
+		generalizedMinimalResidualMethod(matrix, R, X, initialVector, 1, 1, 1, N, 1E-5, N, 2, gmresBasis);
+	//}
 
 	for (int i = 0; i < N; ++i) {
 		printf("%g\n", X[0][0][0][i]);

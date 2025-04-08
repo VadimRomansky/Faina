@@ -2446,7 +2446,7 @@ void RadiationSourceFactory::createRectangularSourceArraysFromDiffusion(const do
 				distributions[i][j][k] = new double[Ne];
 				double y = minY + (k + 0.5) * dy;
 				evaluateDistributionAfterDiffusion(energy, distributions[i][j][k], Ne, D, x, y, z, time, Nt, sourceDistribution, sourceCoordinates, sourcePower);
-				concentration[i][j][k] = MassiveParticleDistributionFactory::evaluateNorm(energy, distributions[i][j][k], Ne);
+				concentration[i][j][k] = 4*pi*MassiveParticleDistributionFactory::evaluateNorm(energy, distributions[i][j][k], Ne);
 				distributions1[i][j][k] = new MassiveParticleTabulatedIsotropicDistribution(mass, energy, distributions[i][j][k], Ne, DistributionInputType::ENERGY_FE);
 			}
 		}

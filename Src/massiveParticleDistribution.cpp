@@ -1921,6 +1921,8 @@ double CompoundWeightedMassiveParticleIsotropicDistribution::maxEnergy()
 	return tempEmax;
 }
 
+
+//note 4 pi!
 double MassiveParticleDistributionFactory::evaluateNorm(double* energy, double* distribution, int Ne)
 {
 	double norm = distribution[0] * (energy[1] - energy[0]);
@@ -2156,6 +2158,51 @@ void MassiveParticleDistributionFactory::evaluateDistributionAdvectionWithLosses
 	}
 }
 
+void MassiveParticleDistributionFactory::evaluateDistributionAdvectionWithLossesAnalytic(const double& mass, double* energy, double* distribution, double** outDistribution, const int Ne, const int Nx, double* x, double advectionV, double* B, int Nph, double* Uph, double* Eph) {
+	double mc2 = mass * speed_of_light * speed_of_light;
+
+	double r2 = sqr(electron_charge * electron_charge / mc2);
+	double sigmaT = 8 * pi * r2 / 3.0;
+	double coef = (4.0 / 3.0) * sigmaT / (mass * mass * cube(speed_of_light));
+
+	double* tempEnergy = new double[Ne];
+	double* tempDistribution = new double[Ne];
+
+	for (int j = 0; j < Ne; ++j) {
+		outDistribution[Nx - 1][j] = distribution[j];
+	}
+
+	double lB2 = 0;
+	for (int i = 1; i < Nx; ++i) {
+		double dx = x[Nx - i] - x[Nx - i - 1];
+
+		lB2 = lB2 + (B[Nx - 1 - i] * B[Nx - 1 - i] / (8 * pi)) * dx;
+		//double lossRate = coef * (B[Nx - 1 - i] * B[Nx - 1 - i] / (8 * pi));
+		for (int k = 0; k < Nph; ++k) {
+			//lossRate = lossRate + coef * Uph[k];
+			lB2 = lB2 + Uph[k] * dx;
+		}
+
+		for (int j = 0; j < Ne; ++j) {
+			double E = energy[j] - mc2;
+
+			double lossRate = coef * lB2;
+			double factor = E * lossRate /advectionV;
+
+			tempEnergy[j] = E / (1 + factor) + mc2;
+			
+			
+			tempDistribution[j] = outDistribution[Nx - 1][j] * sqr(1 + factor);
+		}
+
+		MassiveParticleDistributionFactory::redistributeArrayWithFixedEnergy(tempEnergy, tempDistribution, energy, outDistribution[Nx - i - 1], Ne);
+	}
+
+	delete[] tempDistribution;
+	delete[] tempEnergy;
+
+}
+
 void MassiveParticleDistributionFactory::evaluateDistributionAdvectionWithLosses(const double& mass, double* energy, double* distribution, double** outEnergy, double** outDistribution, const int Ne, const int Nx, double* x, double advectionV, double* B, double Uph1, double Eph1, double Uph2, double Eph2)
 {
 	double dx;
@@ -2337,7 +2384,7 @@ void MassiveParticleDistributionFactory::redistributeArray(const double* inEnerg
 void MassiveParticleDistributionFactory::redistributeArrayWithFixedEnergy(const double* inEnergy, const double* inDistribution, const double* outEnergy, double* outDistribution, int Ne)
 {
 	for (int i = 0; i < Ne; ++i) {
-		outDistribution[i] = MassiveParticleDistributionFactory::getDistribution(outEnergy[i], inEnergy, inDistribution, Ne);
+			outDistribution[i] = MassiveParticleDistributionFactory::getDistribution(outEnergy[i], inEnergy, inDistribution, Ne);
 	}
 }
 
@@ -2347,9 +2394,16 @@ void MassiveParticleDistributionFactory::evaluateDistributionDiffusionAdvectionW
 		outDistribution[i] = new double[Ne];
 	}
 
-	MassiveParticleDistributionFactory::evaluateDistributionAdvectionWithLosses(mass, energy, distribution, outDistribution, Ne, Nx, xgrid, advectionV, B, Nph, Uph, Eph);
+	//MassiveParticleDistributionFactory::evaluateDistributionAdvectionWithLosses(mass, energy, distribution, outDistribution, Ne, Nx, xgrid, advectionV, B, Nph, Uph, Eph);
+	MassiveParticleDistributionFactory::evaluateDistributionAdvectionWithLossesAnalytic(mass, energy, distribution, outDistribution, Ne, Nx, xgrid, advectionV, B, Nph, Uph, Eph);
 
-	return;
+	/*for (int i = 0; i < Nx; ++i) {
+		for (int j = 0; j < Ne; ++j) {
+			outDistribution[i][j] *= 1E80;
+		}
+	}*/
+
+	//return;
 
 	double mc2 = mass * speed_of_light * speed_of_light;
 
@@ -2465,7 +2519,7 @@ void MassiveParticleDistributionFactory::evaluateDistributionDiffusionAdvectionW
 		}
 	}
 
-	generalizedMinimalResidualMethod(matrix, rightPart, tempDistribution, initialDistribution, Nx, 1, 1, Ne, 1E-2, Nx * Ne - 1, 2, basis);
+	generalizedMinimalResidualMethod(matrix, rightPart, tempDistribution, initialDistribution, Nx, 1, 1, Ne, 1E-5, Nx * Ne - 1, 2, basis);
 	//bool converges = false;
 	//biconjugateStabilizedGradientMethod(matrix, rightPart, tempDistribution, Nx, 1, 1, Ne, 1E-5, Nx * Ne - 1, 2, converges);
 

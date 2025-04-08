@@ -1063,8 +1063,8 @@ double* getUvarovBper(int Nx, double minX, double maxX, double L0) {
 	return B;
 }
 
-double* getUvarovBpar2(int Nx, double* xgrid, double L0) {
-	double factor = 0.25*1E-6;
+double* getUvarovBpar2(int Nx, double* xgrid, double L0, double factor) {
+	factor = factor * 1E-6;
 	double A0 = 41.0755 * factor;
 	double A1 = 9.27296;
 	double A2 = 1.41262;
@@ -1094,8 +1094,8 @@ double* getUvarovBpar2(int Nx, double* xgrid, double L0) {
 	return B;
 }
 
-double* getUvarovBper2(int Nx, double* xgrid, double L0) {
-	double factor = 0.25*1E-6;
+double* getUvarovBper2(int Nx, double* xgrid, double L0, double factor) {
+	factor = factor*1E-6;
 	double A0 = 98.3917 * factor;
 	double A1 = 30.533;
 	double A2 = 2.33138;
@@ -1502,10 +1502,10 @@ void evaluateW50comptonAndSynchrotron2() {
 
 void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 	double distance = (18000 / 3.26) * parsec;
-	const char* distributionFileName = "./examples_data/W50/lowfieldCMB/pdf_sf.dat";
-	const char* xfileName = "./examples_data/W50/lowfieldCMB/x_grid.dat";
-	const char* pfileName = "./examples_data/W50/lowfieldCMB/p_grid.dat";
-	const char* BfileName = "./examples_data/W50/lowfieldCMB/Beff.dat";
+	const char* distributionFileName = "./examples_data/W50/B15FEB6E18/pdf_sf.dat";
+	const char* xfileName = "./examples_data/W50/B15FEB6E18/x_grid.dat";
+	const char* pfileName = "./examples_data/W50/B15FEB6E18/p_grid.dat";
+	const char* BfileName = "./examples_data/W50/B15FEB6E18/Beff.dat";
 
 	double secondToRadian = pi / (180 * 3600);
 	double headMinSec = 0;
@@ -1547,7 +1547,7 @@ void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 			break;
 		}
 	}
-	maxIndex = Nx1 - 1;
+	//maxIndex = Nx1 - 1;
 	int minIndex = 0;
 	for (int i = 0; i < Nx1; ++i) {
 		if (xgrid1[i] >= -upstreamSize) {
@@ -1555,7 +1555,7 @@ void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 			break;
 		}
 	}
-	minIndex = 0;
+	//minIndex = 0;
 
 	int downstreamNx = maxIndex + 1 - zeroIndex;
 	int upstreamNx = zeroIndex - minIndex;
@@ -1592,8 +1592,8 @@ void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 	int Ny = 1;
 
 	double L0 = 0.5E18;
-	double* Bpar1 = getUvarovBpar2(downstreamNx, downstreamXgrid, L0);
-	double* Bper1 = getUvarovBper2(downstreamNx, downstreamXgrid, L0);
+	double* Bpar1 = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 0.25);
+	double* Bper1 = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 0.25);
 
 	for (int i = 0; i < downstreamNx; ++i) {
 		if (sqrt(Bpar1[i] * Bpar1[i] + 2 * Bper1[i] * Bper1[i]) < 1E-5) {
@@ -1923,8 +1923,8 @@ void evaluateW50comptonAndSynchrotronAdvectionfunction() {
 	int Ny = 1;
 
 	double L0 = 1E18;
-	double* Bpar = getUvarovBpar2(Nx, xgrid, L0);
-	double* Bper = getUvarovBper2(Nx, xgrid, L0);
+	double* Bpar = getUvarovBpar2(Nx, xgrid, L0, 0.25);
+	double* Bper = getUvarovBper2(Nx, xgrid, L0, 0.25);
 	double*** B = new double** [Nx];
 	double*** Btheta = new double** [Nx];
 	double*** Bphi = new double** [Nx];
@@ -2107,6 +2107,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunction() {
 		profileNuSTAR[irho] = localFlux;
 	}
 	omp_destroy_lock(&lock);
+
 
 	FILE* nustarFile = fopen("./output/nustarprofile.dat", "w");
 	for (int i = 0; i < Nx; ++i) {
@@ -2508,8 +2509,8 @@ void evaluateW50comptonAndSynchrotronMCwithoutupstream() {
 	int Nz = 1;
 	int Ny = 1;
 
-	double* Bpar = getUvarovBpar2(Nx, xgrid, 2.5E18);
-	double* Bper = getUvarovBper2(Nx, xgrid, 2.5E18);
+	double* Bpar = getUvarovBpar2(Nx, xgrid, 2.5E18, 0.25);
+	double* Bper = getUvarovBper2(Nx, xgrid, 2.5E18, 0.25);
 	double*** B = new double** [Nx];
 	double*** Btheta = new double** [Nx];
 	double*** Bphi = new double** [Nx];
@@ -2729,13 +2730,13 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	double coneMinX = -coneMinSec * secondToRadian * distance;
 	double coneMaxX = -coneMaxSec * secondToRadian * distance;
 
-	const char* xfileName = "./examples_data/W50/lowfield0.4/x_grid.dat";
-	const char* BfileName = "./examples_data/W50/lowfield0.4/Beff.dat";
+	const char* xfileName = "./examples_data/W50/B15FEB6E18/x_grid.dat";
+	const char* BfileName = "./examples_data/W50/B15FEB6E18/Beff.dat";
 
-	const char* distributionFileName = "./examples_data/W50/lowfield0.4/pdf_sf.dat";
-	const char* pfileName = "./examples_data/W50/lowfield0.4/p_grid.dat";
+	const char* distributionFileName = "./examples_data/W50/B15FEB6E18/pdf_sf.dat";
+	const char* pfileName = "./examples_data/W50/B15FEB6E18/p_grid.dat";
 
-	const char* fileName = "./examples_data/W50/lowfield0.4/electrons.dat";
+	const char* fileName = "./examples_data/W50/B15FEB6E18/electrons.dat";
 
 	/*Nx = 0;
 	FILE* xfile = fopen(xfileName, "r");
@@ -2785,7 +2786,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 			break;
 		}
 	}
-	maxIndex = Nx - 1;
+	//maxIndex = Nx - 1;
 	int minIndex = 0;
 	for (int i = 0; i < Nx; ++i) {
 		if (xgrid1[i] >= -upstreamSize) {
@@ -2793,7 +2794,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 			break;
 		}
 	}
-	minIndex = 0;
+	//minIndex = 0;
 
 	int downstreamNx = maxIndex + 1 - zeroIndex;
 	int upstreamNx = zeroIndex - minIndex;
@@ -2834,14 +2835,14 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	int Ny = 1;
 
 	double L0 = 0.5E18;
-	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0);
-	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0);
+	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 0.25);
+	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 0.25);
 
 	for (int i = 0; i < downstreamNx; ++i) {
 		downstreamXgrid[i] = -downstreamXgrid[i];
 	}
 
-	double minField = 1E-5;
+	double minField = 8E-6;
 	double sinField = 0.0 * minField;
 
 	for (int i = 0; i < downstreamNx; ++i) {
@@ -2943,6 +2944,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	for (int i = 0; i < Nediff; ++i) {
 		frontDistribution[i] = frontDistribution[i] * concentration2*electronToProtonCorrection;
 	}
+	double norm1 = 4*pi*MassiveParticleDistributionFactory::evaluateNorm(energyGrid, frontDistribution, Nediff);
 	double** diffDistributions = NULL;
 	double Uph[1];
 	double Eph[1];
@@ -2950,7 +2952,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	//Uph[1] = photonIRenergyDensity;
 	Eph[0] = 2.8 * kBoltzman * 2.725;
 	//Eph[1] = 2.8 * kBoltzman * 140;
-	MassiveParticleDistributionFactory::evaluateDistributionDiffusionAdvectionWithLosses(massElectron, energyGrid, frontDistribution, diffDistributions, Nediff, downstreamNx, downstreamXgrid, 0.15 * 0.2 * speed_of_light, downstreamB1, 1, Uph, Eph);
+	MassiveParticleDistributionFactory::evaluateDistributionDiffusionAdvectionWithLosses(massElectron, energyGrid, frontDistribution, diffDistributions, Nediff, downstreamNx, downstreamXgrid, 0.15 * 0.26 * speed_of_light, downstreamB1, 1, Uph, Eph);
 
 	FILE* outXfile1 = fopen("./output/x_grid1.dat", "w");
 	for (int i = 0; i < downstreamNx; ++i) {
@@ -2962,25 +2964,28 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	fclose(outXfile1);
 	FILE* outPfile1 = fopen("./output/p_grid1.dat", "w");
 	for (int i = 0; i < Nediff; ++i) {
-		double p = sqrt(energyGrid[i] * energyGrid[i] - me_c2 * me_c2) / (speed_of_light);
-		fprintf(outPfile1, "%g\n", p / (massProton*speed_of_light));
+		double p = sqrt(energyGrid[i] * energyGrid[i] - me_c2 * me_c2) / (speed_of_light * speed_of_light);
+		fprintf(outPfile1, "%g\n", p / massProton);
 	}
 	fclose(outPfile1);
 
 	FILE* outDistributionFile1 = fopen("./output/pdf1.dat", "w");
 	for (int i = 0; i < downstreamNx; ++i) {
-
+		double normD = 4 * pi * MassiveParticleDistributionFactory::evaluateNorm(energyGrid, diffDistributions[i], Nediff);
 		for (int j = 0; j < Nediff; ++j) {
-			double p = sqrt(energyGrid[j] * energyGrid[j] - me_c2 * me_c2) / (speed_of_light);
+			double p = sqrt(energyGrid[j] * energyGrid[j] - me_c2 * me_c2) / (speed_of_light * speed_of_light);
 			double F = diffDistributions[i][j];
-			F = (F * (p * p * p/cube(massElectron*speed_of_light)) * me_c2 * me_c2 / energyGrid[j]) * massElectron / massProton;
-			fprintf(outDistributionFile1, "%g %g\n", p/(massProton*speed_of_light), F);
+			F = ((F * p * p * p * me_c2 * me_c2 / energyGrid[j]) * massElectron / massProton)/cube(massElectron);
+			fprintf(outDistributionFile1, "%g %g\n", p/massProton, F);
 		}
 	}
 	for (int i = 0; i < upstreamNx; ++i) {
+		double normU = 4 * pi * MassiveParticleDistributionFactory::evaluateNorm(energy, upstreamDistributions1[i], Nenergy);
 		for (int j = 0; j < Nediff; ++j) {
-			double p = sqrt(energyGrid[j] * energyGrid[j] - me_c2 * me_c2) / (speed_of_light);
-			fprintf(outDistributionFile1, "%g %g\n", p / (massProton * speed_of_light), 0.0);
+			double p = sqrt(energyGrid[j] * energyGrid[j] - me_c2 * me_c2) / (speed_of_light * speed_of_light);
+			double F = MassiveParticleDistributionFactory::getDistribution(energyGrid[j], energy, upstreamDistributions1[i], Nenergy)*upstreamConcentrationArray[i][0][0];
+			F = ((F * p * p * p * me_c2 * me_c2 / energyGrid[j]) * massElectron / massProton)/cube(massElectron);
+			fprintf(outDistributionFile1, "%g %g\n", p/massProton, F);
 		}
 	}
 	fclose(outDistributionFile1);
@@ -2988,12 +2993,25 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	for (int i = 0; i < downstreamNx; ++i) {
 		for (int j = 0; j < Nz; ++j) {
 			for (int k = 0; k < Ny; ++k) {
-				downstreamConcentrationArray[i][j][k] = concentration2*electronToProtonCorrection;
+				double norm = 4*pi*MassiveParticleDistributionFactory::evaluateNorm(energyGrid, diffDistributions[i], Nediff);
+				//downstreamConcentrationArray[i][j][k] = concentration2*electronToProtonCorrection;
+				downstreamConcentrationArray[i][j][k] = norm;
 			}
 		}
 	}
 
 	//frontElectrons->rescaleDistribution(0.4);
+
+	MassiveParticleDistribution**** downstreamElectrons = new MassiveParticleDistribution * **[downstreamNx];
+	for (int i = 0; i < downstreamNx; ++i) {
+		downstreamElectrons[i] = new MassiveParticleDistribution * *[Ny];
+		for (int j = 0; j < Ny; ++j) {
+			downstreamElectrons[i][j] = new MassiveParticleDistribution * [Nz];
+			for (int k = 0; k < Nz; ++k) {
+				downstreamElectrons[i][j][k] = new MassiveParticleTabulatedIsotropicDistribution(massElectron, energyGrid, diffDistributions[i], Nediff, DistributionInputType::ENERGY_FE);
+			}
+		}
+	}
 
 	MassiveParticleDistribution**** upstreamElectrons = new MassiveParticleDistribution * **[upstreamNx];
 	for (int i = 0; i < upstreamNx; ++i) {
@@ -3024,9 +3042,9 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	}*/
 
 	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
-	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.15 * 0.26 * speed_of_light, photonTotalEnergyDensity);
+	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.15 * 0.26 * speed_of_light, photonTotalEnergyDensity);
 	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.25 * 0.2 * speed_of_light, photonEnergyDensity);
-	//RectangularSourceInhomogenousDistribution* downstreamSource = new RectangularSourceInhomogenousDistribution(Nx, downstreamXgrid, Ny, Nz, electrons2, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
+	RectangularSourceInhomogenousDistribution* downstreamSource = new RectangularSourceInhomogenousDistribution(downstreamNx, downstreamXgrid, Ny, Nz, downstreamElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
 	RadiationSource* upstreamSource = new RectangularSourceInhomogenousDistribution(upstreamNx, upstreamXgrid, Ny, Nz, upstreamElectrons, upstreamB, upstreamBtheta, upstreamBphi, upstreamConcentrationArray, 0, size, 0, pi * size, distance);
 	//RectangularSource* downstreamSource = new RectangularSource(1, Ny, Nz, upstreamElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, downstreamXgrid[0], downstreamXgrid[Nx - 1], 0, size, 0, pi * size, distance);
 	MassiveParticleIsotropicDistribution* distributionRight = dynamic_cast<MassiveParticleIsotropicDistribution*>(downstreamSource->getParticleDistribution(downstreamNx - 1, 0, 0));
@@ -3092,7 +3110,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	}
 	fclose(concentrationFile);
 
-	FILE* outDiffusionConvectionFile = fopen("./output/diffusionConvection.dat", "w");
+	/*FILE* outDiffusionConvectionFile = fopen("./output/diffusionConvection.dat", "w");
 	double tempE[3] = { 48, 160, 480 };
 	for (int i = 1; i < downstreamNx - 1; ++i) {
 		MassiveParticleIsotropicDistribution* leftDistribution = new MassiveParticleTabulatedIsotropicDistribution(*dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(downstreamSource->getParticleDistribution(i - 1, 0, 0)));
@@ -3111,7 +3129,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 		delete[] rightDistribution;
 		fprintf(outDiffusionConvectionFile, "\n");
 	}
-	fclose(outDiffusionConvectionFile);
+	fclose(outDiffusionConvectionFile);*/
 
 
 	int Ne = 10;
@@ -3806,7 +3824,7 @@ int main() {
 	//testChevalier();
 	//fitCSS161010_2();
 	//testMatrixInverse();
-	//testGMRES();
+	testGMRES();
 	//testNishinaLosses();
 
 	//evaluateFluxSNRtoWind();
@@ -3823,7 +3841,7 @@ int main() {
 	//evaluateW50comptonThickRegime();
 	//evaluateW50comptonAdvectionBigSource();
 	//evaluateW50comptonAndSynchrotronMCwithoutupstream();
-	evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream();
+	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream();
 	//evaluateW50comptonDiffusion();
 	//evaluateW50pion();
 
