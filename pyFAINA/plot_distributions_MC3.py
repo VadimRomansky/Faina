@@ -3,17 +3,17 @@ from pylab import *
 import numpy as np
 
 def plot_distributions_MC3():
-    x_data1 = np.loadtxt('../examples_data/W50/lowfield0.4/MC/x_grid.dat')
-    p_data1 = np.loadtxt('../examples_data/W50/lowfield0.4/MC/p_grid.dat')
-    dist1 = np.loadtxt('../examples_data/W50/lowfield0.4/MC/pdf.dat')
+    x_data1 = np.loadtxt('../examples_data/W50/B15FEB6E18/MC/x_grid.dat')
+    p_data1 = np.loadtxt('../examples_data/W50/B15FEB6E18/MC/p_grid.dat')
+    dist1 = np.loadtxt('../examples_data/W50/B15FEB6E18/MC/pdf.dat')
 
-    x_data2 = np.loadtxt('../examples_data/W50/lowfield0.4/advection/x_grid.dat')
-    p_data2 = np.loadtxt('../examples_data/W50/lowfield0.4/advection/p_grid.dat')
-    dist2 = np.loadtxt('../examples_data/W50/lowfield0.4/advection/pdf.dat')
+    x_data2 = np.loadtxt('../examples_data/W50/B15FEB6E18/advection/x_grid.dat')
+    p_data2 = np.loadtxt('../examples_data/W50/B15FEB6E18/advection/p_grid.dat')
+    dist2 = np.loadtxt('../examples_data/W50/B15FEB6E18/advection/pdf.dat')
 
-    x_data3 = np.loadtxt('../examples_data/W50/lowfield0.4/diffusion/x_grid.dat')
-    p_data3 = np.loadtxt('../examples_data/W50/lowfield0.4/diffusion/p_grid.dat')
-    dist3 = np.loadtxt('../examples_data/W50/lowfield0.4/diffusion/pdf.dat')
+    x_data3 = np.loadtxt('../examples_data/W50/B15FEB6E18/diffusion/x_grid.dat')
+    p_data3 = np.loadtxt('../examples_data/W50/B15FEB6E18/diffusion/p_grid.dat')
+    dist3 = np.loadtxt('../examples_data/W50/B15FEB6E18/diffusion/pdf.dat')
 
     Nx1 = x_data1.shape[0]
     Nx2 = x_data2.shape[0]
@@ -70,26 +70,26 @@ def plot_distributions_MC3():
     # plt.axis([0.0,1.0,0.0,1.0])
 
     n = 1
-    plt.plot(p_data1, distribution1[diff + n,0:N1],'r', linewidth = 4)
-    plt.plot(p_data2, 0.8*distribution2[n, 0:N2],'r', linewidth = 4, linestyle = 'dashed')
-    plt.plot(p_data3, 0.6 * distribution3[n, 0:N3], 'r', linewidth=4, linestyle='dashdot')
+    plt.plot(p_data1, distribution1[diff + n,0:N1],'r', linewidth = 2)
+    plt.plot(p_data2, 0.8*distribution2[n, 0:N2],'r', linewidth = 2, linestyle = 'dashed')
+    plt.plot(p_data3, 0.6 * distribution3[n, 0:N3], 'r', linewidth=2, linestyle='dashdot')
 
-    n = 50
-    plt.plot(p_data1, distribution1[diff + n,0:N1],'g', linewidth = 4)
-    plt.plot(p_data2, 0.8*distribution2[n, 0:N2],'g', linewidth = 4, linestyle = 'dashed')
-    plt.plot(p_data3, 0.6 * distribution3[n, 0:N3], 'g', linewidth=4, linestyle='dashdot')
+    n = 2
+    plt.plot(p_data1, distribution1[diff + n,0:N1],'g', linewidth = 2)
+    plt.plot(p_data2, 0.8*distribution2[n, 0:N2],'g', linewidth = 2, linestyle = 'dashed')
+    plt.plot(p_data3, 0.6 * distribution3[n, 0:N3], 'g', linewidth=2, linestyle='dashdot')
 
-    n = 70
-    plt.plot(p_data1, distribution1[diff + n,0:N1],'b', linewidth = 4)
-    plt.plot(p_data2, 0.8*distribution2[n, 0:N2],'b', linewidth = 4, linestyle = 'dashed')
-    plt.plot(p_data3, 0.6 * distribution3[n, 0:N3], 'b', linewidth=4, linestyle='dashdot')
+    n = 3
+    plt.plot(p_data1, distribution1[diff + n,0:N1],'b', linewidth = 2)
+    plt.plot(p_data2, 0.8*distribution2[n, 0:N2],'b', linewidth = 2, linestyle = 'dashed')
+    plt.plot(p_data3, 0.6 * distribution3[n, 0:N3], 'b', linewidth=2, linestyle='dashdot')
 
-    n = 100
-    plt.plot(p_data1, distribution1[diff + n, 0:N1], 'magenta', linewidth=4)
-    plt.plot(p_data2, 0.8*distribution2[n, 0:N2], 'magenta', linewidth=4, linestyle='dashed')
-    plt.plot(p_data3, 0.6 * distribution3[n, 0:N3], 'magenta', linewidth=4, linestyle='dashdot')
+    n = 228
+    plt.plot(p_data1, distribution1[diff + n, 0:N1], 'magenta', linewidth=2)
+    plt.plot(p_data2, 0.8*distribution2[n, 0:N2], 'magenta', linewidth=2, linestyle='dashed')
+    plt.plot(p_data3, 0.6 * distribution3[n, 0:N3], 'magenta', linewidth=2, linestyle='dashdot')
 
-    ax.set_xlim(1E1, 1E7)
-    ax.set_ylim(5E-7,2E-5)
+    ax.set_xlim(1E-1, 1E7)
+    ax.set_ylim(5E-11,2E-7)
 
     plt.savefig('distribution_diffusion and advection3.png', bbox_inches='tight')
