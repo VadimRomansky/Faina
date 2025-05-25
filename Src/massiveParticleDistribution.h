@@ -293,8 +293,10 @@ public:
 class MassiveParticleDistributionFactory {
 public:
 	static double evaluateNorm(double* energy, double* distribution, int Ne);
+	static void readTwoColumns(const char* fileName, double*& energy, double*& distribution, int& N);
 	static void readTabulatedIsotropicDistributionFromMonteCarlo(const double& mass, const char* fileName, MassiveParticleTabulatedIsotropicDistribution*& outputDistribution, double& outputConcentration);
 	static void readInhomogenousTabulatedIsotropicDistributionFromMonteCarlo(const double& mass, const char* xfileName, const char* pfileName, const char* distributionFileName, double* & xgrid, double* & energy, double** & distributions, double* & concentration, int& Nenergy, int& Nx);
+	static MassiveParticleTabulatedIsotropicDistribution* readTabulatedIsotropicDistributionAndConcentration(const double& mass, const char* fileName, DistributionInputType iputType, double& concentration);
 	static MassiveParticleDistribution** readTabulatedIsotropicDistributions(const double& mass, const char* energyFileName, const char* distributionFileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne);
 	static MassiveParticleDistribution** readTabulatedIsotropicDistributions(const double& mass, const char* fileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne);
 	static MassiveParticleDistribution** readTabulatedIsotropicDistributionsAddPowerLawTail(const double& mass, const char* fileName, const char* fileExtension, int Nfiles, DistributionInputType inputType, int Ne, const double& Epower, const double& index);

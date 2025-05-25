@@ -1127,7 +1127,7 @@ void RectangularSourceWithSynchAndComptCutoffFromRight::updateLB2()
 				if (l < 0) {
 					l = 0;
 				}
-				my_LB2[irho][iz][iphi] = prev_LB2 + (my_B[irho][iz][iphi] * my_B[irho][iz][iphi] + my_photonEnergyDensity * 8 * pi) * l;
+				my_LB2[irho][iz][iphi] = prev_LB2 + (my_B[irho][iz][iphi] * my_B[irho][iz][iphi] + my_photonEnergyDensity * 8 * pi) * l/my_downstreamVelocity[irho][iz][iphi];
 				//my_LB2[irho][iz][iphi] = prev_LB2 + (my_B[irho][iz][iphi] * my_B[irho][iz][iphi]) * l;
 			}
 		}
@@ -1147,7 +1147,16 @@ RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAnd
 	for (int i = 0; i < my_maxThreads; ++i) {
 		my_localDistribution[i] = NULL;
 	}
-	my_downstreamVelocity = downstreamVelocity;
+	my_downstreamVelocity = new double** [my_Nx];
+	for (int i = 0; i < my_Nx; ++i) {
+		my_downstreamVelocity[i] = new double* [my_Nz];
+		for (int k = 0; k < my_Nz; ++k) {
+			my_downstreamVelocity[i][k] = new double[my_Ny];
+			for (int j = 0; j < my_Ny; ++j) {
+				my_downstreamVelocity[i][k][j] = downstreamVelocity;
+			}
+		}
+	}
 	my_meanB = getAverageBsquared();
 	my_photonEnergyDensity = photonEnergyDensity;
 
@@ -1169,7 +1178,16 @@ RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAnd
 	for (int i = 0; i < my_maxThreads; ++i) {
 		my_localDistribution[i] = NULL;
 	}
-	my_downstreamVelocity = downstreamVelocity;
+	my_downstreamVelocity = new double** [my_Nx];
+	for (int i = 0; i < my_Nx; ++i) {
+		my_downstreamVelocity[i] = new double* [my_Nz];
+		for (int k = 0; k < my_Nz; ++k) {
+			my_downstreamVelocity[i][k] = new double[my_Ny];
+			for (int j = 0; j < my_Ny; ++j) {
+				my_downstreamVelocity[i][k][j] = downstreamVelocity;
+			}
+		}
+	}
 	my_meanB = getAverageBsquared();
 	my_photonEnergyDensity = photonEnergyDensity;
 
@@ -1178,7 +1196,7 @@ RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAnd
 	write3dArrayToFile(my_LB2, my_Nx, my_Nz, my_Ny, "LB2.dat");
 }
 
-RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAndComptCutoffFromRight(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, const double& photonEnergyDensity, const double& velocity, const double& redShift) : RectangularSource(Nx, xgrid, Ny, Nz, electronDistribution, B, theta, phi, concentration, minY, maxY, minZ, maxZ, distance, velocity, redShift)
+/*RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAndComptCutoffFromRight(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, const double& photonEnergyDensity, const double& velocity, const double& redShift) : RectangularSource(Nx, xgrid, Ny, Nz, electronDistribution, B, theta, phi, concentration, minY, maxY, minZ, maxZ, distance, velocity, redShift)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
@@ -1191,7 +1209,48 @@ RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAnd
 	for (int i = 0; i < my_maxThreads; ++i) {
 		my_localDistribution[i] = NULL;
 	}
-	my_downstreamVelocity = downstreamVelocity;
+	my_downstreamVelocity = new double** [my_Nx];
+	for (int i = 0; i < my_Nx; ++i) {
+		my_downstreamVelocity[i] = new double* [my_Nz];
+		for (int k = 0; k < my_Nz; ++k) {
+			my_downstreamVelocity[i][k] = new double[my_Ny];
+			for (int j = 0; j < my_Ny; ++j) {
+				my_downstreamVelocity[i][k][j] = downstreamVelocity;
+			}
+		}
+	}
+	my_meanB = getAverageBsquared();
+	my_photonEnergyDensity = photonEnergyDensity;
+
+	my_LB2 = create3dArray(my_Nx, my_Nz, my_Ny);
+	updateLB2();
+	write3dArrayToFile(my_LB2, my_Nx, my_Nz, my_Ny, "LB2.dat");
+}*/
+
+RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAndComptCutoffFromRight(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity1, const double& downstreamVelocity2, const double& photonEnergyDensity, const double& velocity, const double& redShift) : RectangularSource(Nx, xgrid, Ny, Nz, electronDistribution, B, theta, phi, concentration, minY, maxY, minZ, maxZ, distance, velocity, redShift)
+{
+	my_cutoffDistribution = dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electronDistribution);
+	if (my_cutoffDistribution == NULL) {
+		printf("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
+		printLog("distribution in TabulatedSLSourceWithSynchCutoff must be only MassiveParticleTabulatedIsotropicDistribution\n");
+		exit(0);
+	}
+	my_maxThreads = omp_get_max_threads();
+	my_localDistribution = new MassiveParticleTabulatedIsotropicDistribution * [my_maxThreads];
+	for (int i = 0; i < my_maxThreads; ++i) {
+		my_localDistribution[i] = NULL;
+	}
+	my_downstreamVelocity = new double** [my_Nx];
+	for (int i = 0; i < my_Nx; ++i) {
+		my_downstreamVelocity[i] = new double* [my_Nz];
+		for (int k = 0; k < my_Nz; ++k) {
+			my_downstreamVelocity[i][k] = new double[my_Ny];
+			for (int j = 0; j < my_Ny; ++j) {
+				my_downstreamVelocity[i][k][j] = downstreamVelocity1 + (downstreamVelocity2 - downstreamVelocity1)*(my_xgrid[i] - my_xgrid[my_Nx-1])/(my_xgrid[0] - my_xgrid[my_Nx - 1]);
+				my_concentration[i][k][j] = my_concentration[my_Nx - 1][k][j] * downstreamVelocity1 / my_downstreamVelocity[i][k][j];
+			}
+		}
+	}
 	my_meanB = getAverageBsquared();
 	my_photonEnergyDensity = photonEnergyDensity;
 
@@ -1209,6 +1268,7 @@ RectangularSourceWithSynchAndComptCutoffFromRight::~RectangularSourceWithSynchAn
 	}
 	delete[] my_localDistribution;
 	delete3dArray(my_LB2, my_Nx, my_Nz, my_Ny);
+	delete3dArray(my_downstreamVelocity, my_Nx, my_Nz, my_Ny);
 }
 
 void RectangularSourceWithSynchAndComptCutoffFromRight::resetParameters(const double* parameters, const double* normalizationUnits)
@@ -1250,12 +1310,19 @@ MassiveParticleDistribution* RectangularSourceWithSynchAndComptCutoffFromRight::
 		//my_cutoffDistribution->resetEcut(Ecut);
 		//my_localDistribution->setToZeroAboveE(Ecut);
 		//my_localDistribution->addExponentialCutoff(Ecut);
-		double lossRate = (4.0 / 9.0) * electron_charge * electron_charge * electron_charge * electron_charge * (LB2 / l) / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
-		double time = l / my_downstreamVelocity;
-		double k = lossRate / my_downstreamVelocity;
+		double lossRate = (4.0 / 9.0) * electron_charge * electron_charge * electron_charge * electron_charge * (LB2) / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
+		double time = 1.0;
+		//double k = lossRate / my_downstreamVelocity;
 		//printf("disk lossRate = %g\n", lossRate);
 		//printf("disk time = %g\n", time);
-		my_localDistribution[numthread]->transformToLosses(lossRate, time);
+
+		//my_localDistribution[numthread]->transformToLosses(lossRate, time);
+		for (int i = irho; i < my_Nx - 1; ++i) {
+			lossRate = (4.0 / 9.0) * electron_charge * electron_charge * electron_charge * electron_charge * (my_LB2[my_Nx - 2 - i + irho][iz][iphi] - my_LB2[my_Nx - 1 - i + irho][iz][iphi]) / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
+			my_localDistribution[numthread]->transformToLosses(lossRate, time);
+			double factor = pow(my_downstreamVelocity[my_Nx - 1 - i + irho][iz][iphi] / my_downstreamVelocity[my_Nx - 2 - i + irho][iz][iphi], 1.0 / 3.0);
+			my_localDistribution[numthread]->rescaleDistribution(factor);
+		}
 		//my_localDistribution[numthread]->transformToLosses2(k, my_z - z1, my_z - z2);
 	}
 	return my_localDistribution[numthread];

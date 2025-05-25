@@ -181,7 +181,7 @@ public:
 class RectangularSourceWithSynchAndComptCutoffFromRight : public RectangularSource {
 protected:
 	int my_maxThreads;
-	double my_downstreamVelocity;
+	double*** my_downstreamVelocity;
 	double my_meanB;
 	double my_photonEnergyDensity;
 	//MassiveParticlePowerLawCutoffDistribution* my_cutoffDistribution;
@@ -192,7 +192,8 @@ protected:
 public:
 	RectangularSourceWithSynchAndComptCutoffFromRight(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minX, const double& maxX, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, const double& photonEnergyDensity = 0, const double& velocity = 0, const double& redShift = 0);
 	RectangularSourceWithSynchAndComptCutoffFromRight(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& minX, const double& maxX, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, const double& photonEnergyDensity = 0, const double& velocity = 0, const double& redShift = 0);
-	RectangularSourceWithSynchAndComptCutoffFromRight(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, const double& photonEnergyDensity = 0, const double& velocity = 0, const double& redShift = 0);
+	//sRectangularSourceWithSynchAndComptCutoffFromRight(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, const double& photonEnergyDensity = 0, const double& velocity = 0, const double& redShift = 0);
+	RectangularSourceWithSynchAndComptCutoffFromRight(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity1, const double& downstreamVelocity2, const double& photonEnergyDensity = 0, const double& velocity = 0, const double& redShift = 0);
 	virtual ~RectangularSourceWithSynchAndComptCutoffFromRight();
 
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
