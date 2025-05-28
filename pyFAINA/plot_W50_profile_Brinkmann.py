@@ -25,6 +25,9 @@ def plot_W50_profile_Brinkmann(filename, name):
     for i in range(N1):
         modelxmm[1,i] = modelxmm[1,i]/maxflux
 
+    Bturb = np.loadtxt("../output/BturbBrinkmann.dat")
+    Bturb = Bturb.T
+
     plt.rcParams.update({'font.size': 15})
     plt.rcParams["figure.dpi"] = 500
     plt.rcParams['axes.linewidth'] = 1.0
@@ -33,12 +36,18 @@ def plot_W50_profile_Brinkmann(filename, name):
         "font.family": 'Times New Roman'
     })
 
-    f1 = plt.figure(figsize=[5, 4])
-    ax = f1.add_subplot(111)
+    f1, (ax1, ax2) = plt.subplots(2, 1, sharex='col')
+    f1.set_figheight(5)
+    f1.set_figwidth(5)
+    plt.subplots_adjust(hspace=.0)
 
-    ax.set_ylabel(r'$F/F_{max}$', fontsize=20,fontweight='bold')
+    ax1.set_ylabel(r'$F/F_{max}$', fontsize=20,fontweight='bold')
 
-    ax.set_xlabel(r'z [pc]', fontsize=20, fontweight='bold')
+    ax1.set_xlabel(r'z [pc]', fontsize=20, fontweight='bold')
+
+    ax2.set_xlabel(r'z [pc]', fontsize=20, fontweight='bold')
+
+    ax2.set_ylabel(r'B [$\mu$G]', fontsize=20, fontweight='bold')
 
     #ax1.set_xscale("log")
     #ax.set_yscale("log")
@@ -46,9 +55,12 @@ def plot_W50_profile_Brinkmann(filename, name):
     #ax1.set_xlim([1E11, 1E15])
     #ax1.set_xlim([1E3, 5E4])
     #ax1.set_ylim([6E-15, 5E-10])
-    ax.tick_params(axis='x', size=5, width=1)
-    ax.tick_params(axis='y', size=5, width=1)
-    ax.minorticks_on()
+    ax1.tick_params(axis='x', size=5, width=1)
+    ax1.tick_params(axis='y', size=5, width=1)
+    ax1.minorticks_on()
+    ax2.tick_params(axis='x', size=5, width=1)
+    ax2.tick_params(axis='y', size=5, width=1)
+    ax2.minorticks_on()
 
     #plt.xticks([1E11,2E11, 3E11, 4E11,5E11, 6E11, 7E11, 8E11, 9E11,1E12,2E12, 3E12, 4E12,5E12, 6E12, 7E12, 8E12, 9E12,1E13,2E13, 3E13, 4E13,5E13,6E13,7E13,8E13,9E13,1E14,2E14,3E14,4E14,5E14,6E14,7E14,8E14,9E14])
     #plt.xticks([1E3, 2E3, 3E3, 4E3, 5E3, 6E3, 7E3, 8E3, 9E3, 1E4, 2E4, 3E4, 4E4, 5E4])
@@ -56,15 +68,19 @@ def plot_W50_profile_Brinkmann(filename, name):
 
    # ax1.plot(xmmprofile[0], xmmprofile[1], 'r', linewidth=4)
     #plt.plot(lhaaso[0], lhaaso[1],'b', linewidth=4)
-    ax.plot(modelxmm[0]/3E18, modelxmm[1], 'b', linewidth = 2, label = 'model 0.3-10 keV')
-    ax.plot(xmmprofile[0]/3E18, xmmprofile[1], 'r', linewidth=2, label = 'XMM')
+    ax1.plot(modelxmm[0]/3E18, modelxmm[1], 'b', linewidth = 2, label = 'model 0.3-10 keV')
+    ax1.plot(xmmprofile[0]/3E18, xmmprofile[1], 'r', linewidth=2, label = 'XMM')
 
-    ax.legend(fontsize = "10")
+    ax1.legend(fontsize = "10")
+
+    ax2.plot(Bturb[0, :] / 3E18, Bturb[1, :] * 1E6, 'b', linewidth=2, label=r'B$_{\|}$')
+    ax2.plot(Bturb[0, :] / 3E18, Bturb[2, :] * 1E6, 'r', linewidth=2, label=r'B$_{\perp}$')
+    ax2.legend(fontsize = "10")
 
     #ax.set_xlim([-5E19, 1E19])
 
     #ax3.set_yscale("log")
-    #ax3.set_ylim([9E-7, 6E-5])
+    ax2.set_ylim([0, 7])
 
 
     #plt.plot(radiation[0], radiation[2], 'b', linewidth=4)

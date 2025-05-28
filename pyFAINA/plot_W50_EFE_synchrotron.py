@@ -190,13 +190,14 @@ def plot_W50_EFE_synchrotron(filename, name, factor = 1.0):
             tempFlux[j] = coneMinFluxNustar*(2-indexes[j])*(E2[i]*1.6E-12)**(2-indexes[j])/(EmaxNustar**(2-indexes[j]) - EminNustar**(2-indexes[j]))
         lowConeFluxNustar[i] = np.amin(tempFlux)
 
+    Ne1 = Ne-3
 
     plt.plot(E1, F1h, linewidth = 1, label = 'head XMM', color = 'm', linestyle = 'dashed')
     plt.fill_between(E1, lowHeadFluxXmm, upperHeadFluxXmm, color = 'm', alpha = 0.2)
     #plt.plot(E1, F1hl, linewidth=1, color = 'm', linestyle = 'dashed')
     #plt.plot(E1, F1hr, linewidth=1, color = 'm', linestyle = 'dashed')
-    plt.plot(E2, F2h, linewidth = 1, label = 'head NuSTAR', color = 'm', linestyle = 'dotted')
-    plt.fill_between(E2, lowHeadFluxNustar, upperHeadFluxNustar, color = 'm', alpha = 0.2)
+    plt.plot(E2[0:Ne1-1], F2h[0:Ne1-1], linewidth = 1, label = 'head NuSTAR', color = 'm', linestyle = 'dotted')
+    plt.fill_between(E2[0:Ne1-1], lowHeadFluxNustar[0:Ne1-1], upperHeadFluxNustar[0:Ne1-1], color = 'm', alpha = 0.2)
     #plt.plot(E2, F2hl, linewidth=1, color = 'm', linestyle = 'dotted')
     #plt.plot(E2, F2hr, linewidth=1, color = 'm', linestyle = 'dotted')
 
@@ -204,8 +205,8 @@ def plot_W50_EFE_synchrotron(filename, name, factor = 1.0):
     plt.fill_between(E1, lowConeFluxXmm, upperConeFluxXmm, color = 'c', alpha = 0.4)
     #plt.plot(E1, F1cl, linewidth=1, color = 'c', linestyle = 'dashed')
     #plt.plot(E1, F1cr, linewidth=1, color = 'c', linestyle = 'dashed')
-    plt.plot(E2, F2c, linewidth = 1, label = 'cone NuSTAR', color = 'c', linestyle = 'dotted')
-    plt.fill_between(E2, lowConeFluxNustar, upperConeFluxNustar, color = 'c', alpha = 0.4)
+    plt.plot(E2[0:Ne1-1], F2c[0:Ne1-1], linewidth = 1, label = 'cone NuSTAR', color = 'c', linestyle = 'dotted')
+    plt.fill_between(E2[0:Ne1-1], lowConeFluxNustar[0:Ne1-1], upperConeFluxNustar[0:Ne1-1], color = 'c', alpha = 0.4)
     #plt.plot(E2, F2cl, linewidth=1, color = 'c', linestyle = 'dotted')
     #plt.plot(E2, F2cr, linewidth=1, color = 'c', linestyle = 'dotted')
 
