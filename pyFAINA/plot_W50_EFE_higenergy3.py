@@ -18,6 +18,13 @@ def plot_W50_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1.0
         radiation5[1, i] = factor * float(s[4])
         #radiation[2,i] = float(s[2])
 
+    for i in range(int(0.9*N1),N1):
+        radiation1[1,i] = 0.5*(radiation1[1,i-1] + radiation1[1,i])
+    for i in range(int(0.9*N1),N1):
+        radiation1[1,i] = 0.5*(radiation1[1,i-1] + radiation1[1,i])
+    #for i in range(int(0.8*N1),N1):
+    #    radiation1[1,i] = 0.5*(radiation1[1,i-1] + radiation1[1,i])
+
     radiationFile2 = open(filename2,'r')
     lines2 = radiationFile2.readlines()
     N2 = len(lines2)
@@ -26,7 +33,12 @@ def plot_W50_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1.0
     for i in range(N2):
         s = lines2[i].split()
         radiation2[0,i] = float(s[0])
-        radiation2[1,i] = 5*factor*float(s[1])
+        radiation2[1,i] = 10*factor*float(s[1])
+
+    for i in range(int(0.9*N2),N2):
+        radiation2[1,i] = 0.5*(radiation2[1,i-1] + radiation2[1,i])
+    for i in range(int(0.9*N2),N2):
+        radiation2[1,i] = 0.5*(radiation2[1,i-1] + radiation2[1,i])
 
     radiationFile3 = open(filename3, 'r')
     lines3 = radiationFile3.readlines()
@@ -38,10 +50,25 @@ def plot_W50_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1.0
         radiation3[0, i] = float(s[0])
         radiation3[1, i] = factor * float(s[1])
 
+    for i in range(int(0.9*N3),N3):
+        radiation3[1,i] = 0.5*(radiation3[1,i-1] + radiation3[1,i])
+    for i in range(int(0.9*N3),N3):
+        radiation3[1,i] = 0.5*(radiation3[1,i-1] + radiation3[1,i])
+
     radiation4 = np.zeros([2,N3])
     for i in range(N3):
         radiation4[0, i] = radiation3[0, i]
         radiation4[1, i] = radiation3[1, i] + radiation2[1, i] + radiation1[1,i]
+
+    lhaasomodel = np.zeros([2, N3])
+    for i in range(N3):
+        lhaasomodel[0,i] = radiation3[0,i]
+        lhaasomodel[1,i] = radiation3[1,i] + 0.3*radiation2[1,i] + radiation1[1,i]
+
+    hessmodel = np.zeros([2,N3])
+    for i in range(N3):
+        hessmodel[0,i] = radiation3[0,i]
+        hessmodel[1,i] = 0.2*radiation2[1,i] + radiation1[1,i]
 
     lhaasoFile = open("../examples_data/W50/LHAASO.dat",'r')
     lhaasoLines = lhaasoFile.readlines()
@@ -144,8 +171,9 @@ def plot_W50_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1.0
     plt.plot(radiation1[0], radiation1[1], 'r', linewidth=2, label = 'jet')
     #plt.plot(radiation5[0], radiation5[1], 'salmon', linewidth=2, label='jet e2')
     plt.plot(radiation2[0], radiation2[1], 'orange', linewidth=2, label = 'thick from front')
-    plt.plot(radiation3[0], radiation3[1], 'c', linewidth=2, label='thick from downstream')
-    plt.plot(radiation4[0], radiation4[1], 'g', linewidth=2, label='sum jet + 2 thick')
+    plt.plot(radiation3[0], radiation3[1], 'g', linewidth=2, label='thick from downstream')
+    plt.plot(radiation3[0], hessmodel[1], 'salmon', linewidth=2, label='sum jet + thick from front')
+    plt.plot(radiation3[0], lhaasomodel[1], 'c', linewidth=2, label = 'sum jet + 2 thick')
     #plt.plot(lhaaso[0], lhaaso[1],'b', linewidth=4)
     plt.errorbar(lhaaso[0, :], lhaaso[1, :], yerr = [lhaaso[3, :], lhaaso[2, :]], uplims = lhaasoLimits, ecolor='b', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=3.5, label = 'LHAASO')
     #plt.errorbar(xmm[0,:], xmm[1, :], yerr = [xmm[3,:], xmm[2, :]], xerr = [xmm[5, :], xmm[4, :]], ecolor = 'g', elinewidth=3, linewidth=0, capsize=5, capthick=3, label = 'XMM')
