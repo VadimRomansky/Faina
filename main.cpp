@@ -2383,7 +2383,7 @@ void evaluateW50comptonThickRegime() {
 	return;
 }
 
-void evaluateW50comptonThickRegime() {
+void evaluateW50comptonThickRegimeBrinkmann() {
 	double distance = (18000 / 3.26) * parsec;
 
 	double secondToRadian = pi / (180 * 3600);
@@ -4920,11 +4920,11 @@ int main() {
 	//evaluateW50comptonAndSynchrotron2();
 	//evaluateW50comptonAndSynchrotronMCfunctionUpstream();
 	//evaluateW50comptonAndSynchrotronAdvectionfunction();
-	//evaluateW50comptonThickRegime();
+	evaluateW50comptonThickRegime();
 	//evaluateW50comptonAdvectionBigSource();
 	//evaluateW50comptonAndSynchrotronMCwithoutupstream();
 	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream();
-	evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
+	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
 	//evaluateW50comptonDiffusion();
 	//evaluateW50pion();
 
