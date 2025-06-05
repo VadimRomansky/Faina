@@ -41,13 +41,13 @@ def plot_W50_profile_Brinkmann(filename, name):
     f1.set_figwidth(5)
     plt.subplots_adjust(hspace=.0)
 
-    ax1.set_ylabel(r'$F/F_{max}$', fontsize=20,fontweight='bold')
+    ax1.set_ylabel(r'$F/F_{max}$', fontsize=14,fontweight='bold')
 
-    ax1.set_xlabel(r'z [pc]', fontsize=20, fontweight='bold')
+    ax1.set_xlabel(r'z [pc]', fontsize=14, fontweight='bold')
 
-    ax2.set_xlabel(r'z [pc]', fontsize=20, fontweight='bold')
+    ax2.set_xlabel(r'z [pc]', fontsize=14, fontweight='bold')
 
-    ax2.set_ylabel(r'B [$\mu$G]', fontsize=20, fontweight='bold')
+    ax2.set_ylabel(r'B [$\mu$G]', fontsize=14, fontweight='bold')
 
     #ax1.set_xscale("log")
     #ax.set_yscale("log")

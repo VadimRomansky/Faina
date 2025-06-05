@@ -34,10 +34,10 @@ def plot_W50_EFE_synchrotron(filename, name, factor = 1.0):
     f1 = plt.figure(figsize=[5, 4])
     ax = f1.add_subplot(111)
     #ax.set_xlabel(r'$\nu~GHz$', fontsize=40,fontweight='bold')
-    ax.set_xlabel(r'E [eV]', fontsize=20,fontweight='bold')
+    ax.set_xlabel(r'E [eV]', fontsize=14,fontweight='bold')
     #ax.set_xlabel(r'$\nu~Ггц$', fontsize=40,fontweight='bold')
     #ax.set_ylabel(r'$F_{\nu}~mJy$', fontsize=40,fontweight='bold')
-    ax.set_ylabel(r'EF(E) [erg cm$^{-2}$ s$^{-1}$]', fontsize=20,fontweight='bold')
+    ax.set_ylabel(r'EF(E) [erg cm$^{-2}$ s$^{-1}$]', fontsize=14,fontweight='bold')
     #ax.set_ylabel(r'$F_{\nu}~мЯн$', fontsize=40,fontweight='bold')
     ax.set_yscale("log")
     ax.set_xscale("log")
@@ -52,8 +52,8 @@ def plot_W50_EFE_synchrotron(filename, name, factor = 1.0):
     plt.xticks([1E2, 2E2, 3E2, 4E2, 5E2, 6E2, 7E2, 8E2, 9E2, 1E3, 2E3, 3E3, 4E3, 5E3, 6E3, 7E3, 8E3, 9E3, 1E4, 2E4, 3E4, 4E4, 5E4, 6E4, 7E4, 8E4, 9E4, 1E5, 2E5, 3E5, 4E5, 6E5, 7E5, 8E5, 9E5, 1E6])
     #plt.yticks([6E-11, 7E-11, 8E-11, 9E-11, 1E-10, 2E-10])
 
-    plt.plot(radiation[0], radiation[2], 'r', linewidth=2, label = 'head')
-    plt.plot(radiation[0], radiation[3], 'b', linewidth=2, label = 'cone')
+    plt.plot(radiation[0], radiation[2], 'r', linewidth=2, label = 'Head model')
+    plt.plot(radiation[0], radiation[3], 'b', linewidth=2, label = 'Cone model')
 
     Ne = 10
     E1 = np.linspace(500, 10000, Ne)
@@ -192,20 +192,20 @@ def plot_W50_EFE_synchrotron(filename, name, factor = 1.0):
 
     Ne1 = Ne-3
 
-    plt.plot(E1, F1h, linewidth = 1, label = 'head XMM', color = 'm', linestyle = 'dashed')
+    plt.plot(E1, F1h, linewidth = 1, label = 'Head XMM', color = 'm', linestyle = 'dashed')
     plt.fill_between(E1, lowHeadFluxXmm, upperHeadFluxXmm, color = 'm', alpha = 0.2)
     #plt.plot(E1, F1hl, linewidth=1, color = 'm', linestyle = 'dashed')
     #plt.plot(E1, F1hr, linewidth=1, color = 'm', linestyle = 'dashed')
-    plt.plot(E2[0:Ne1-1], F2h[0:Ne1-1], linewidth = 1, label = 'head NuSTAR', color = 'm', linestyle = 'dotted')
+    plt.plot(E2[0:Ne1-1], F2h[0:Ne1-1], linewidth = 1, label = 'Head NuSTAR', color = 'm', linestyle = 'dotted')
     plt.fill_between(E2[0:Ne1-1], lowHeadFluxNustar[0:Ne1-1], upperHeadFluxNustar[0:Ne1-1], color = 'm', alpha = 0.2)
     #plt.plot(E2, F2hl, linewidth=1, color = 'm', linestyle = 'dotted')
     #plt.plot(E2, F2hr, linewidth=1, color = 'm', linestyle = 'dotted')
 
-    plt.plot(E1, F1c, linewidth = 1, label = 'cone XMM', color = 'c', linestyle = 'dashed')
+    plt.plot(E1, F1c, linewidth = 1, label = 'Cone XMM', color = 'c', linestyle = 'dashed')
     plt.fill_between(E1, lowConeFluxXmm, upperConeFluxXmm, color = 'c', alpha = 0.4)
     #plt.plot(E1, F1cl, linewidth=1, color = 'c', linestyle = 'dashed')
     #plt.plot(E1, F1cr, linewidth=1, color = 'c', linestyle = 'dashed')
-    plt.plot(E2[0:Ne1-1], F2c[0:Ne1-1], linewidth = 1, label = 'cone NuSTAR', color = 'c', linestyle = 'dotted')
+    plt.plot(E2[0:Ne1-1], F2c[0:Ne1-1], linewidth = 1, label = 'Cone NuSTAR', color = 'c', linestyle = 'dotted')
     plt.fill_between(E2[0:Ne1-1], lowConeFluxNustar[0:Ne1-1], upperConeFluxNustar[0:Ne1-1], color = 'c', alpha = 0.4)
     #plt.plot(E2, F2cl, linewidth=1, color = 'c', linestyle = 'dotted')
     #plt.plot(E2, F2cr, linewidth=1, color = 'c', linestyle = 'dotted')
