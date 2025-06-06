@@ -2383,135 +2383,6 @@ void evaluateW50comptonThickRegime() {
 	return;
 }
 
-void evaluateW50comptonThickRegimeBrinkmann() {
-	double distance = (18000 / 3.26) * parsec;
-
-	double secondToRadian = pi / (180 * 3600);
-	double headMinSec = 0;
-	double headMaxSec = 12 * 15;
-	double coneMinSec = headMaxSec;
-	double coneMaxSec = 26 * 15;
-
-	double headMinX = -headMinSec * secondToRadian * distance;
-	double headMaxX = -headMaxSec * secondToRadian * distance;
-	double coneMinX = -coneMinSec * secondToRadian * distance;
-	double coneMaxX = -coneMaxSec * secondToRadian * distance;
-
-	double* energy;
-	double* xgrid;
-	double* concentration;
-	double** distributions;
-
-	int Nenergy;
-
-	double size = 0.5 * fabs(headMaxX);
-	double B0 = 3E-6;
-	double magneticEnergyDensity = B0 * B0 / (8 * pi);
-
-	//RadiationSourceInCylindrical* downstreamSource = new SimpleFlatSource(upstreamElectrons, downstreamB, pi / 2, 0, concentration, size, size, distance);
-	PhotonPlankDistribution* photons = PhotonPlankDistribution::getCMBradiation();
-	PhotonPlankDistribution* photonsIR = new PhotonPlankDistribution(30, 0.8 / 1000000000);
-	double photonIRconcentration = photonsIR->getConcentration();
-	double photonIRenergyDensity = photonIRconcentration * photonsIR->getMeanEnergy();
-	double photonConcentration = photons->getConcentration();
-	double photonEnergyDensity = photonConcentration * photons->getMeanEnergy();
-	PhotonMultiPlankDistribution* photonsTotal = new PhotonMultiPlankDistribution(2.725, 1.0, 30, 0.8 / 100000000);
-	//PhotonMultiPlankDistribution* photonsTotal = PhotonMultiPlankDistribution::getGalacticField();
-
-	double photonTotalConcentration = photonsTotal->getConcentration();
-	double photonTotalEnergyDensity = photonTotalConcentration * photonsTotal->getMeanEnergy();
-
-	const char* fileName = "./examples_data/W50/newdistribution/electrons.dat";
-	const char* farFileName = "./examples_data/w50/newdistribution/fardownstreamelectrons.dat";
-	const char* farFileNameBrinkmann = "./examples_data/w50/Brinkmann2/fardownstreamelectronsBrinkmann.dat";
-	const char* farUpFileName = "./examples_data/w50/newdistribution/farupstreamelectrons.dat";
-	const char* protonsFileName = "./examples_data/W50/newdistribution/protons.dat";
-
-
-
-
-	MassiveParticleTabulatedIsotropicDistribution* electrons1;
-	double concentration1;
-	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massElectron, fileName, electrons1, concentration1);
-
-	MassiveParticleTabulatedIsotropicDistribution* frontProtons;
-	double concentration3;
-	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massProton, protonsFileName, frontProtons, concentration3);
-
-	double electronToProtonCorrection = concentration3 * frontProtons->getDistributionArray()[70] / (concentration1 * electrons1->getDistributionArray()[70]);
-
-	MassiveParticleTabulatedIsotropicDistribution* fardownstreamDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, farFileName, DistributionInputType::ENERGY_FE);
-	MassiveParticleTabulatedIsotropicDistribution* fardownstreamDistributionBrinkmann = new MassiveParticleTabulatedIsotropicDistribution(massElectron, farFileNameBrinkmann, DistributionInputType::ENERGY_FE);
-	double farUpstreamConcentration;
-	MassiveParticleTabulatedIsotropicDistribution* farupstreamDistribution = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionAndConcentration(massElectron, farUpFileName, DistributionInputType::ENERGY_FE, farUpstreamConcentration);
-
-	//frontElectrons->writeDistribution("./output/thinDistribution.dat", 2000, me_c2, 1E10 * me_c2);
-	FILE* outDistributionFile = fopen("./output/thinDistribution.dat", "w");
-	double pmin = 0.1 * massProton / massElectron;
-	double pmax = 5E6 * massProton / massElectron;
-	int Np = 2000;
-	double factorp = pow(pmax / pmin, 1.0 / (Np - 1.0));
-	double p = pmin;
-	for (int j = 0; j < Np; ++j) {
-			double E = sqrt(p * p * me_c2 * me_c2 + me_c2 * me_c2);
-			double F = electrons1->distributionNormalized(E);
-			F = (F * p * p * p * me_c2 * me_c2 / E) * massElectron / massProton;
-			fprintf(outDistributionFile, "%g %g\n", p, F);
-			p = p * factorp;
-	}
-	fclose(outDistributionFile);
-	double norm = 0;
-	electrons1->transformToThickRegime(photonTotalEnergyDensity+magneticEnergyDensity, norm);
-	double norm2 = 0;
-	double concentration2 = concentration1;
-	fardownstreamDistribution->transformToThickRegime(photonTotalEnergyDensity+magneticEnergyDensity, norm2);
-	double normBrinkmann = 0;
-	double concentrationBrinkmann = concentration2;
-	fardownstreamDistributionBrinkmann->transformToThickRegime(photonTotalEnergyDensity + magneticEnergyDensity, normBrinkmann);
-	double norm3 = 0;
-	farupstreamDistribution->transformToThickRegime(photonTotalEnergyDensity+magneticEnergyDensity, norm3);
-	//frontElectrons->writeDistribution("./output/thickDistribution.dat", 2000, me_c2, 1E10 * me_c2);
-	outDistributionFile = fopen("./output/thickDistribution.dat", "w");
-	p = pmin;
-	for (int j = 0; j < Np; ++j) {
-		double E = sqrt(p * p * me_c2 * me_c2 + me_c2 * me_c2);
-		double F = electrons1->distributionNormalized(E);
-		F = (F * p * p * p * me_c2 * me_c2 / E) * massElectron / massProton;
-		fprintf(outDistributionFile, "%g %g\n", p, F);
-		p = p * factorp;
-	}
-	fclose(outDistributionFile);
-	double E0 = 1.6E-1;
-
-	double u = 0.26 * 0.15 * speed_of_light;
-	double outOfJetFactor = 0.1;
-	concentration1 *= outOfJetFactor*u * pi * size * size*electronToProtonCorrection*norm;
-	concentration2 *= u * pi * size * size * electronToProtonCorrection * norm2;
-	concentrationBrinkmann *= u * pi * size * size * electronToProtonCorrection * normBrinkmann;
-
-	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
-	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(Nx, downstreamXgrid, Ny, Nz, upstreamElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.25 * 0.2 * speed_of_light, photonTotalEnergyDensity);
-	//RectangularSourceInhomogenousDistribution* downstreamSource = new RectangularSourceInhomogenousDistribution(Nx, downstreamXgrid, Ny, Nz, electrons2, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
-	RectangularSource* source = new RectangularSource(1, 1, 1, electrons1, B0, pi / 2, 0, concentration1, 0, 1, 0, 1, 0, 1, distance);
-	RectangularSource* source2 = new RectangularSource(1, 1, 1, fardownstreamDistribution, B0, pi / 2, 0, concentration2, 0, 1, 0, 1, 0, 1, distance);
-	RectangularSource* sourceBrinkmann = new RectangularSource(1, 1, 1, fardownstreamDistributionBrinkmann, B0, pi / 2, 0, concentrationBrinkmann, 0, 1, 0, 1, 0, 1, distance);
-
-
-	int Ne = 10000;
-	int Nmu = 100;
-	int Nphi = 4;
-	//RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 2.75 * kBoltzman * 20, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
-	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 20000, 0.1 * kBoltzman * 2.75, 30 * kBoltzman * 20, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
-	RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, me_c2 * 500, 1E10 * me_c2, false, false);
-	RadiationEvaluator* sumEvaluator = new RadiationSumEvaluator(Ne, me_c2 * 500, 1E10 * me_c2, comptonEvaluator, synchrotronEvaluator, false, false);
-
-	sumEvaluator->writeEFEFromSourceToFile("./output/W50thickCompton.dat", source, 1.6E-12, 1.6E4,1000);
-	sumEvaluator->writeEFEFromSourceToFile("./output/W50thickCompton2.dat", source2, 1.6E-12, 1.6E4, 1000);
-	sumEvaluator->writeEFEFromSourceToFile("./output/W50thickComptonBrinkmann.dat", sourceBrinkmann, 1.6E-12, 1.6E4, 1000);
-
-	return;
-}
-
 void evaluateW50comptonAdvectionBigSource() {
 	double distance = (18000 / 3.26) * parsec;
 
@@ -3837,8 +3708,8 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 	int Ny = 1;
 
 	double L0 = 0.3E18;
-	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 0.125);
-	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 0.125);
+	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 0.25);
+	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 0.25);
 	//double* Bpar = getUvarovBpar2new(downstreamNx, downstreamXgrid, L0, 0.6);
 	//double* Bper = getUvarovBper2new(downstreamNx, downstreamXgrid, L0, 0.4);
 	double L1 = 3E19;
@@ -3847,12 +3718,12 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 	double* Bpar1 = getUvarovBpar2new(downstreamNx, downstreamXgrid, L1, 0.5);
 	double* Bper1 = getUvarovBper2new(downstreamNx, downstreamXgrid, L1, 0.5);
 
-	for (int i = 0; i < downstreamNx; ++i) {
+	/*for (int i = 0; i < downstreamNx; ++i) {
 		Bpar[i] = Bpar[i] + Bpar1[i];
 		Bper[i] = Bper[i] + Bper1[i];
-	}
+	}*/
 
-	double L0Brinkmann = 1.0E18;
+	double L0Brinkmann = 2.0E18;
 	double* BparBrinkmann = getUvarovBpar2(downstreamNxBrinkmann, downstreamXgridBrinkmann, L0Brinkmann, 9.3/60.0);
 	double* BperBrinkmann = getUvarovBper2(downstreamNxBrinkmann, downstreamXgridBrinkmann, L0Brinkmann, 9.3/60.0);
 
@@ -3869,31 +3740,49 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 		downstreamXgridBrinkmann[i] = -downstreamXgridBrinkmann[i];
 	}
 
-	double minField = 0.0;
+	double minField = 8.0E-6;
 	double sinField = 0.0 * minField;
 
-	for (int i = 0; i < downstreamNx; ++i) {
-		/*if (downstreamXgrid[i] < -2E19) {
-			Bpar[i] = 3E-5;
-		}*/
+        int minFieldIndex = 0;
+        for(int i = 1; i < downstreamNx; ++i){
+            if (sqrt(Bpar[downstreamNx - i - 1] * Bpar[downstreamNx - i - 1] + 2 * Bper[downstreamNx - i - 1] * Bper[downstreamNx - i - 1]) < minField) {
+                minFieldIndex = downstreamNx - i;
+                break;
+            }
+        }
+        for(int i = 0; i < minFieldIndex; ++i){
+            Bpar[i] = Bpar[minFieldIndex];
+            Bper[i] = Bper[minFieldIndex];
+        }
+
+	/*for (int i = 0; i < downstreamNx; ++i) {
 		if (sqrt(Bpar[i] * Bpar[i] + 2 * Bper[i] * Bper[i]) < minField) {
 			Bpar[i] = minField / sqrt(3.0);
 			Bper[i] = minField / sqrt(3.0);
 		}
-	}
+	}*/
 
-	double minFieldBrinkmann = 0.0;
+	double minFieldBrinkmann = 3.0E-6;
 	double sinFieldBrinkmann = 0.0 * minFieldBrinkmann;
 
-	for (int i = 0; i < downstreamNxBrinkmann; ++i) {
-		/*if (downstreamXgrid[i] < -2E19) {
-			Bpar[i] = 3E-5;
-		}*/
+        int minFieldIndexBrinkmann = 0;
+        for(int i = 1; i < downstreamNxBrinkmann; ++i){
+            if (sqrt(BparBrinkmann[downstreamNxBrinkmann - i - 1] * BparBrinkmann[downstreamNxBrinkmann - i - 1] + 2 * BperBrinkmann[downstreamNxBrinkmann - i - 1] * BperBrinkmann[downstreamNxBrinkmann - i - 1]) < minFieldBrinkmann) {
+                minFieldIndexBrinkmann = downstreamNxBrinkmann - i;
+                break;
+            }
+        }
+        for(int i = 0; i < minFieldIndexBrinkmann; ++i){
+            BparBrinkmann[i] = BparBrinkmann[minFieldIndexBrinkmann];
+            BperBrinkmann[i] = BperBrinkmann[minFieldIndexBrinkmann];
+        }
+
+	/*for (int i = 0; i < downstreamNxBrinkmann; ++i) {
 		if (sqrt(BparBrinkmann[i] * BparBrinkmann[i] + 2 * BperBrinkmann[i] * BperBrinkmann[i]) < minFieldBrinkmann) {
 			BparBrinkmann[i] = minFieldBrinkmann / sqrt(3.0);
 			BperBrinkmann[i] = minFieldBrinkmann / sqrt(3.0);
 		}
-	}
+	}*/
 
 	double* downstreamB1 = new double[downstreamNx];
 	double*** downstreamB = new double** [downstreamNx];
@@ -4000,6 +3889,17 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 	}
 
 	fclose(BoutputFile);
+
+	FILE* BoutputFileBrinkmann = fopen("./output/BturbBrinkmann.dat", "w");
+
+	for (int i = 0; i < downstreamNxBrinkmann; ++i) {
+		//fprintf(Bfile, "%g %g %g\n", -downstreamXgrid[i]/L0 + 1.5, Bpar[i], Bper[i]);
+		fprintf(BoutputFileBrinkmann, "%g %g %g\n", downstreamXgridBrinkmann[i], BparBrinkmann[i], BperBrinkmann[i]);
+		//fprintf(BoutputFile, "%g %g %g\n", downstreamXgrid[i], 0.0, downstreamB[i][0][0]);
+	}
+
+	fclose(BoutputFileBrinkmann);
+
 
 	int Nediff = frontElectrons->getN();
 	double* energyGrid = frontElectrons->getEnergyArray();
@@ -4114,7 +4014,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 
 	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
 	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.15 * 0.26 * speed_of_light, photonTotalEnergyDensity);
-	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.15 * 0.26 * speed_of_light, 0.15 * 0.26 * speed_of_light, photonEnergyDensity);
+	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 10.3E8, 10.3E8, photonEnergyDensity);
 	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSourceBrinkmann = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNxBrinkmann, downstreamXgridBrinkmann, Ny, Nz, frontElectronsBrinkmann, downstreamBBrinkmann, downstreamBthetaBrinkmann, downstreamBphiBrinkmann, downstreamConcentrationArrayBrinkmann, 0, sizeBrinkmann, 0, pi * sizeBrinkmann, distance, 0.093E10, 0.093E10, photonEnergyDensity);
 	//RectangularSourceInhomogenousDistribution* downstreamSource = new RectangularSourceInhomogenousDistribution(downstreamNx, downstreamXgrid, Ny, Nz, downstreamElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
 	RadiationSource* upstreamSource = new RectangularSourceInhomogenousDistribution(upstreamNx, upstreamXgrid, Ny, Nz, upstreamElectrons, upstreamB, upstreamBtheta, upstreamBphi, upstreamConcentrationArray, 0, size, 0, pi * size, distance);
@@ -4134,16 +4034,6 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 		fprintf(outFarFile, "%g %g\n", Efardownstream[i], Ffardownstream[i]);
 	}
 	fclose(outFarFile);
-
-	MassiveParticleTabulatedIsotropicDistribution* fardownstreamDistributionBrinkmann= dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(downstreamSourceBrinkmann->getParticleDistribution(0, 0, 0));
-	int NfardownstreamBrinkmann = fardownstreamDistributionBrinkmann->getN();
-	double* EfardownstreamBrinkmann = fardownstreamDistributionBrinkmann->getEnergyArray();
-	double* FfardownstreamBrinkmann = fardownstreamDistributionBrinkmann->getDistributionArray();
-	FILE* outFarFileBrinkmann = fopen("fardownstreamelectronsBrinkmann.dat", "w");
-	for (int i = 0; i < NfardownstreamBrinkmann; ++i) {
-		fprintf(outFarFileBrinkmann, "%g %g\n", EfardownstreamBrinkmann[i], FfardownstreamBrinkmann[i]);
-	}
-	fclose(outFarFileBrinkmann);
 
 	double pmin = 0.1 * massProton / massElectron;
 	double pmax = 5E6 * massProton / massElectron;
@@ -4920,11 +4810,11 @@ int main() {
 	//evaluateW50comptonAndSynchrotron2();
 	//evaluateW50comptonAndSynchrotronMCfunctionUpstream();
 	//evaluateW50comptonAndSynchrotronAdvectionfunction();
-	evaluateW50comptonThickRegime();
+	//evaluateW50comptonThickRegime();
 	//evaluateW50comptonAdvectionBigSource();
 	//evaluateW50comptonAndSynchrotronMCwithoutupstream();
 	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream();
-	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
+	evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
 	//evaluateW50comptonDiffusion();
 	//evaluateW50pion();
 
