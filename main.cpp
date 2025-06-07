@@ -4012,6 +4012,9 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 		}
 	}
 
+	double powerInProtons0 = frontProtons->evaluateEnergyInRange(1000, massProton*speed_of_light*speed_of_light, 1000 * 1.6E-12 * 1E12) * concentration3 * pi * size * size * 10.3E8;
+	double powerInProtons = frontProtons->evaluateEnergyInRange(1000, 50 * 1.6E-12 * 1E12, 1000 * 1.6E-12 * 1E12) * concentration3 * pi * size * size * 10.3E8;
+
 	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
 	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.15 * 0.26 * speed_of_light, photonTotalEnergyDensity);
 	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 10.3E8, 10.3E8, photonEnergyDensity);

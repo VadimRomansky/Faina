@@ -29,6 +29,7 @@ public:
 
     };
 	double distributionNormalized(const double& energy, const double& mu, const double& phi);
+	double evaluateEnergyInRange(int Ne, const double& Emin, const double& Emax);
 
 	virtual double distributionNormalized(const double& energy) = 0;
 	void writeDistribution(const char* fileName, int Ne, const double& Emin, const double& Emax);
