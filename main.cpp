@@ -2300,10 +2300,10 @@ void evaluateW50comptonThickRegime() {
 	double photonTotalConcentration = photonsTotal->getConcentration();
 	double photonTotalEnergyDensity = photonTotalConcentration * photonsTotal->getMeanEnergy();
 
-	const char* fileName = "./examples_data/W50/newdistribution/electrons.dat";
-	const char* farFileName = "./examples_data/w50/newdistribution/fardownstreamelectrons.dat";
-	const char* farUpFileName = "./examples_data/w50/newdistribution/farupstreamelectrons.dat";
-	const char* protonsFileName = "./examples_data/W50/newdistribution/protons.dat";
+	const char* fileName = "./examples_data/W50/newPeV/electrons.dat";
+	const char* farFileName = "./examples_data/w50/newPeV/fardownstreamelectrons.dat";
+	const char* farUpFileName = "./examples_data/w50/newPeV/farupstreamelectrons.dat";
+	const char* protonsFileName = "./examples_data/W50/newPeV/protons.dat";
 
 
 
@@ -2358,6 +2358,7 @@ void evaluateW50comptonThickRegime() {
 	double E0 = 1.6E-1;
 
 	double u = 0.26 * 0.15 * speed_of_light;
+	u = 10.3E8;
 	double outOfJetFactor = 0.1;
 	concentration1 *= outOfJetFactor*u * pi * size * size*electronToProtonCorrection*norm;
 	concentration2 *= u * pi * size * size * electronToProtonCorrection * norm2;
@@ -3541,14 +3542,14 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 	double coneMinX = -coneMinSec * secondToRadian * distance;
 	double coneMaxX = -coneMaxSec * secondToRadian * distance;
 
-	const char* xfileName = "./examples_data/W50/newdistribution/x_grid.dat";
+	const char* xfileName = "./examples_data/W50/newPeV/x_grid.dat";
 	const char* BfileName = "./examples_data/W50/B15FEB6E18/Beff.dat";
 
 	const char* distributionFileName = "./examples_data/W50/newdistribution/electrons_full.dat";
-	const char* pfileName = "./examples_data/W50/newdistribution/p_grid.dat";
+	const char* pfileName = "./examples_data/W50/newPeV/p_grid.dat";
 
-	const char* fileName = "./examples_data/W50/newdistribution/electrons.dat";
-	const char* protonsFileName = "./examples_data/W50/newdistribution/protons.dat";
+	const char* fileName = "./examples_data/W50/newPeV/electrons.dat";
+	const char* protonsFileName = "./examples_data/W50/newPeV/protons.dat";
 
 	const char* xfileNameBrinkmann = "./examples_data/W50/Brinkmann2/x_grid.dat";
 	//const char* BfileNameBrinkmann = "./examples_data/W50/B15FEB6E18/Beff.dat";
@@ -4011,9 +4012,6 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 			}
 		}
 	}
-
-	double powerInProtons0 = frontProtons->evaluateEnergyInRange(1000, massProton*speed_of_light*speed_of_light, 1000 * 1.6E-12 * 1E12) * concentration3 * pi * size * size * 10.3E8;
-	double powerInProtons = frontProtons->evaluateEnergyInRange(1000, 50 * 1.6E-12 * 1E12, 1000 * 1.6E-12 * 1E12) * concentration3 * pi * size * size * 10.3E8;
 
 	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
 	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.15 * 0.26 * speed_of_light, photonTotalEnergyDensity);
@@ -4813,11 +4811,11 @@ int main() {
 	//evaluateW50comptonAndSynchrotron2();
 	//evaluateW50comptonAndSynchrotronMCfunctionUpstream();
 	//evaluateW50comptonAndSynchrotronAdvectionfunction();
-	//evaluateW50comptonThickRegime();
+	evaluateW50comptonThickRegime();
 	//evaluateW50comptonAdvectionBigSource();
 	//evaluateW50comptonAndSynchrotronMCwithoutupstream();
 	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream();
-	evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
+	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
 	//evaluateW50comptonDiffusion();
 	//evaluateW50pion();
 
