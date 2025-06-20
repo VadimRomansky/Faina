@@ -31,19 +31,44 @@ def plot_W50_profile(filename, name):
         nustarprofile[2,i] = nustardata[i,2] - nustarprofile[1,i]
         nustarprofile[3,i] = nustarprofile[1,i] - nustardata[i,3]
 
+    xmmwidth = 10*secondtoradian*distance
+    nustarwidth = 15*secondtoradian*distance
+
     modelxmm = np.loadtxt("../output/xmmprofile.dat")
     modelxmm = modelxmm.T
-    maxflux = np.amax(modelxmm[1,:])
     N1 = modelxmm.shape[1]
+    averagedFluxXmm = 0
+    lXmm = 0
+    for i in range(N1):
+        if((modelxmm[0,i] > -xmmwidth*9.5/10.0) and (modelxmm[0,i] < xmmwidth*0.5/10.0)):
+            averagedFluxXmm = averagedFluxXmm + modelxmm[1,i]*(modelxmm[0,i] - modelxmm[0,i-1])
+            lXmm = lXmm + (modelxmm[0,i] - modelxmm[0,i-1])
+    averagedFluxXmm = averagedFluxXmm/lXmm
+    for i in range(N1):
+        if ((modelxmm[0, i] > -xmmwidth*9.5/10.0) and (modelxmm[0, i] < xmmwidth*0.5/10.0)):
+            modelxmm[1,i] = averagedFluxXmm
+
+    maxflux = np.amax(modelxmm[1, :])
     for i in range(N1):
         modelxmm[1,i] = modelxmm[1,i]/maxflux
 
     modelnustar = np.loadtxt("../output/nustarprofile.dat")
     modelnustar = modelnustar.T
-    maxflux = np.amax(modelnustar[1,:])
     N2 = modelnustar.shape[1]
+    averagedFluxNustar = 0
+    lNustar = 0
     for i in range(N2):
-        modelnustar[1,i] = 1.1*modelnustar[1,i]/maxflux
+        if((modelnustar[0,i] > - nustarwidth*9.5/10) and (modelnustar[0,i] < nustarwidth*0.5/10.0)):
+            averagedFluxNustar = averagedFluxNustar + modelnustar[1,i]*(modelnustar[0,i] - modelnustar[0,i-1])
+            lNustar = lNustar + (modelnustar[0,i] - modelnustar[0,i-1])
+    averagedFluxNustar = averagedFluxNustar/lNustar
+    for i in range(N2):
+        if((modelnustar[0,i] > - nustarwidth*9.5/10) and (modelnustar[0,i] < nustarwidth*0.5/10.0)):
+            modelnustar[1,i] = averagedFluxNustar
+
+    maxflux = np.amax(modelnustar[1, :])
+    for i in range(N2):
+        modelnustar[1,i] = modelnustar[1,i]/maxflux
 
     plt.rcParams.update({'font.size': 15})
     plt.rcParams["figure.dpi"] = 500
