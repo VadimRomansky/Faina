@@ -33,7 +33,7 @@ def plot_W50_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1.0
     for i in range(N2):
         s = lines2[i].split()
         radiation2[0,i] = float(s[0])
-        radiation2[1,i] = 10*factor*float(s[1])
+        radiation2[1,i] = factor*float(s[1])
 
     for i in range(int(0.9*N2),N2):
         radiation2[1,i] = 0.5*(radiation2[1,i-1] + radiation2[1,i])
@@ -170,9 +170,9 @@ def plot_W50_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1.0
 
     plt.plot(radiation1[0], radiation1[1], 'r', linewidth=2, label = 'jet')
     #plt.plot(radiation5[0], radiation5[1], 'salmon', linewidth=2, label='jet e2')
-    plt.plot(radiation2[0], radiation2[1], 'orange', linewidth=2, label = 'thick from front')
-    plt.plot(radiation3[0], radiation3[1], 'g', linewidth=2, label='thick from downstream')
-    plt.plot(radiation3[0], hessmodel[1], 'salmon', linewidth=2, label='HESS model')
+    #plt.plot(radiation2[0], radiation2[1], 'orange', linewidth=2, label = 'thick from front')
+    #plt.plot(radiation3[0], radiation3[1], 'g', linewidth=2, label='thick from downstream')
+    #plt.plot(radiation3[0], hessmodel[1], 'salmon', linewidth=2, label='HESS model')
     plt.plot(radiation3[0], lhaasomodel[1], 'c', linewidth=2, label = 'LHAASO model')
     #plt.plot(lhaaso[0], lhaaso[1],'b', linewidth=4)
     plt.errorbar(lhaaso[0, :], lhaaso[1, :], yerr = [lhaaso[3, :], lhaaso[2, :]],marker='s',markerfacecolor='b',markeredgecolor='b', markersize = 3.5, uplims = lhaasoLimits, ecolor='b', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label = 'LHAASO')

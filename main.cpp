@@ -2358,8 +2358,8 @@ void evaluateW50comptonThickRegime() {
 	double E0 = 1.6E-1;
 
 	double u = 0.26 * 0.15 * speed_of_light;
-	u = 10.3E8;
-	double outOfJetFactor = 0.1;
+	//u = 10.3E8;
+	double outOfJetFactor = 1.0;
 	concentration1 *= outOfJetFactor*u * pi * size * size*electronToProtonCorrection*norm;
 	concentration2 *= u * pi * size * size * electronToProtonCorrection * norm2;
 
@@ -2370,13 +2370,13 @@ void evaluateW50comptonThickRegime() {
 	RectangularSource* source2 = new RectangularSource(1, 1, 1, fardownstreamDistribution, B0, pi / 2, 0, concentration2, 0, 1, 0, 1, 0, 1, distance);
 
 
-	int Ne = 10000;
+	int Ne = 20000;
 	int Nmu = 100;
 	int Nphi = 4;
 	//RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 2.75 * kBoltzman * 20, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
-	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 20000, 0.1 * kBoltzman * 2.75, 30 * kBoltzman * 20, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
-	RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, me_c2 * 500, 1E10 * me_c2, false, false);
-	RadiationEvaluator* sumEvaluator = new RadiationSumEvaluator(Ne, me_c2 * 500, 1E10 * me_c2, comptonEvaluator, synchrotronEvaluator, false, false);
+	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E11 * me_c2, 20000, 0.1 * kBoltzman * 2.75, 30 * kBoltzman * 2.75, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, me_c2 * 500, 1E11 * me_c2, false, false);
+	RadiationEvaluator* sumEvaluator = new RadiationSumEvaluator(Ne, me_c2 * 500, 1E11 * me_c2, comptonEvaluator, synchrotronEvaluator, false, false);
 
 	sumEvaluator->writeEFEFromSourceToFile("./output/W50thickCompton.dat", source, 1.6E-12, 1.6E4,1000);
 	sumEvaluator->writeEFEFromSourceToFile("./output/W50thickCompton2.dat", source2, 1.6E-12, 1.6E4, 1000);

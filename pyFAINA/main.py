@@ -55,6 +55,10 @@ if __name__ == '__main__':
     #plot_data("../nishina_losses.dat","nishina_losses", 3, 'log', 'log')
     #plot_diffusionConvection("../output/diffusionConvection.dat", "D", 6, yscale = "log", xscale = "symlog")
     plot_data("../output/Bturb.dat", "B", 2, yscale = "linear", xscale = "linear")
+
+    plot_data2("../examples_data/W50/newPeV/electrons.dat", "../examples_data/W50/newdistribution/electrons.dat","electrons", 1, label1 = 'maxE = 5 PeV', label2 = 'maxE = 0.5 PeV', ylim1 = 3E-2, ylim2 = 5E-1)
+    plot_data2("../examples_data/W50/newPeV/protons.dat", "../examples_data/W50/newdistribution/protons.dat",
+               "protons", 1, label1='maxE = 5 PeV', label2='maxE = 0.5 PeV', ylim1 = 1E-10, ylim2 = 1E-6)
     #plot_data2("../output/thinDistribution.dat","../output/thickDistribution.dat","distributions", 1, "thin", "thick", "$p/mc$", "$F(p)p^4$")
     plot_W50_profile("","profile")
     plot_W50_profile_Brinkmann("", "profile_Brinkmann")

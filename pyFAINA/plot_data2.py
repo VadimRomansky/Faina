@@ -2,7 +2,7 @@ from matplotlib import animation
 from pylab import *
 import numpy as np
 
-def plot_data2(filename1, filename2, name, Ncol, label1 = "", label2 = "", xlabel = "", ylabel = ""):
+def plot_data2(filename1, filename2, name, Ncol, ylim1, ylim2, label1 = "", label2 = "", xlabel = "", ylabel = ""):
     plt.rcParams.update({'font.size': 40})
     plt.rcParams['text.usetex'] = True
     plt.rcParams['axes.linewidth'] = 4
@@ -42,12 +42,13 @@ def plot_data2(filename1, filename2, name, Ncol, label1 = "", label2 = "", xlabe
 
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_xlabel(xlabel, fontsize=40, fontweight='bold')
-    ax.set_ylabel(ylabel, fontsize=40, fontweight='bold')
-    ax.legend(fontsize="40")
+    ax.set_xlabel(xlabel, fontsize=20, fontweight='bold')
+    ax.set_ylabel(ylabel, fontsize=20, fontweight='bold')
+    ax.legend(fontsize="20")
 
     #.set_xlim([1E-2, 1E3])
-    #ax.set_ylim([1E-1, 2E3])
+    ax.set_xlim([1E-2, 1E8])
+    ax.set_ylim([ylim1, ylim2])
 
 
     plt.savefig(name + '.png', bbox_inches='tight')
