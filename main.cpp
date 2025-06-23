@@ -3548,8 +3548,8 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 	const char* distributionFileName = "./examples_data/W50/newdistribution/electrons_full.dat";
 	const char* pfileName = "./examples_data/W50/newPeV/p_grid.dat";
 
-	const char* fileName = "./examples_data/W50/newPeV/electrons.dat";
-	const char* protonsFileName = "./examples_data/W50/newPeV/protons.dat";
+	const char* fileName = "./examples_data/W50/newdistribution/electrons.dat";
+	const char* protonsFileName = "./examples_data/W50/newdistribution/protons.dat";
 
 	const char* xfileNameBrinkmann = "./examples_data/W50/Brinkmann2/x_grid.dat";
 	//const char* BfileNameBrinkmann = "./examples_data/W50/B15FEB6E18/Beff.dat";
@@ -3587,9 +3587,12 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 	double concentration2;
 	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massElectron, fileName, frontElectrons, concentration2);
 	//frontElectrons = new MassiveParticleTabulatedIsotropicDistribution(new MassiveParticlePowerLawDistribution(massElectron, 2.0, me_c2), me_c2, 1600, 1000);
+	frontElectrons->writeDistribution("./output/electrons.dat", 1000, massElectron*speed_of_light2, 1.6E-12*1E16);
+
 	MassiveParticleTabulatedIsotropicDistribution* frontProtons;
 	double concentration3;
 	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massProton, protonsFileName, frontProtons, concentration3);
+	frontProtons->writeDistribution("./output/protons.dat", 1000, massElectron * speed_of_light2, 1.6E-12 * 1E16);
 
 	double electronToProtonCorrection = concentration3 * frontProtons->getDistributionArray()[70] / (concentration2 * frontElectrons->getDistributionArray()[70]);
 
@@ -4013,6 +4016,23 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 		}
 	}
 
+	double powerInProtons0 = frontProtons->evaluateKineticEnergyInRange(10000, massProton * speed_of_light * speed_of_light, 10000 * 1.6E-12 * 1E12) * concentration3 * pi * size * size * 10.3E8;
+	double powerInProtons = frontProtons->evaluateKineticEnergyInRange(10000, 50 * 1.6E-12 * 1E12, 10000 * 1.6E-12 * 1E12) * concentration3 * pi * size * size * 10.3E8;
+
+	int electronN = frontElectrons->getN();
+	double* electronEnergyArray = frontElectrons->getEnergyArray();
+	double* electronsArray = frontElectrons->getDistributionArray();
+	double electronP0 = 0;
+	double electronP = 0;
+	for (int i = 1; i < electronN; ++i) {
+		electronP0 = electronP0 + 4*pi*(electronsArray[i]*(electronEnergyArray[i] - massElectron*speed_of_light2) * (electronEnergyArray[i] - electronEnergyArray[i - 1]) * concentration3 * pi * size * size * 10.3E8) / 200.0;
+		if (electronEnergyArray[i] > 50 * 1.6E-12 * 1E12) {
+			electronP = electronP + 4 * pi * (electronsArray[i] * (electronEnergyArray[i] - massElectron * speed_of_light2) * (electronEnergyArray[i] - electronEnergyArray[i - 1]) * concentration3 * pi * size * size * 10.3E8) / 200.0;
+		}
+	}
+
+	double powerInElectrons0 = (frontElectrons->evaluateKineticEnergyInRange(1000, massElectron * speed_of_light * speed_of_light, 10000 * 1.6E-12 * 1E12) * concentration3 * pi * size * size * 10.3E8)/200.0;
+	double powerInElectrons = (frontElectrons->evaluateKineticEnergyInRange(1000, 50 * 1.6E-12 * 1E12, 10000 * 1.6E-12 * 1E12) * concentration3 * pi * size * size * 10.3E8)/200.0;
 	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
 	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.15 * 0.26 * speed_of_light, photonTotalEnergyDensity);
 	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 10.3E8, 10.3E8, photonEnergyDensity);
@@ -4811,11 +4831,11 @@ int main() {
 	//evaluateW50comptonAndSynchrotron2();
 	//evaluateW50comptonAndSynchrotronMCfunctionUpstream();
 	//evaluateW50comptonAndSynchrotronAdvectionfunction();
-	evaluateW50comptonThickRegime();
+	//evaluateW50comptonThickRegime();
 	//evaluateW50comptonAdvectionBigSource();
 	//evaluateW50comptonAndSynchrotronMCwithoutupstream();
 	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream();
-	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
+	evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
 	//evaluateW50comptonDiffusion();
 	//evaluateW50pion();
 

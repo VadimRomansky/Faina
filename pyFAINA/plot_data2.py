@@ -47,7 +47,7 @@ def plot_data2(filename1, filename2, name, Ncol, ylim1, ylim2, label1 = "", labe
     ax.legend(fontsize="20")
 
     #.set_xlim([1E-2, 1E3])
-    ax.set_xlim([1E-2, 1E8])
+    #ax.set_xlim([1E-2, 1E8])
     ax.set_ylim([ylim1, ylim2])
 
 

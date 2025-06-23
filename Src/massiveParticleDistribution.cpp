@@ -18,13 +18,27 @@ double MassiveParticleIsotropicDistribution::distributionNormalized(const double
 double MassiveParticleIsotropicDistribution::evaluateEnergyInRange(int Ne, const double& Emin, const double& Emax)
 {
 	double result = 0;
-	double* energy = new double[Ne];
 	double factor = pow(Emax / Emin, 1.0 / (Ne - 1));
 	
 	double currentE = Emin;
 
 	for (int i = 0; i < Ne; ++i) {
-		result = result + distributionNormalized(currentE) * currentE * currentE * (factor - 1);
+		result = result + 4*pi*distributionNormalized(currentE) * currentE * currentE * (factor - 1);
+		currentE = currentE * factor;
+	}
+
+	return result;
+}
+
+double MassiveParticleIsotropicDistribution::evaluateKineticEnergyInRange(int Ne, const double& Emin, const double& Emax)
+{
+	double result = 0;
+	double factor = pow(Emax / Emin, 1.0 / (Ne - 1));
+
+	double currentE = Emin;
+
+	for (int i = 0; i < Ne; ++i) {
+		result = result + 4*pi*distributionNormalized(currentE) * (currentE - my_mass*speed_of_light2) * currentE * (factor - 1);
 		currentE = currentE * factor;
 	}
 
