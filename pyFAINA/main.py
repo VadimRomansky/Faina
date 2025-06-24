@@ -57,6 +57,8 @@ if __name__ == '__main__':
     plot_data("../output/Bturb.dat", "B", 2, yscale = "linear", xscale = "linear")
 
     plot_data2("../output/electrons.dat","../output/protons.dat", "distributions", 1, label1 = 'electrons', label2 = 'protons', ylim1 = None, ylim2 = None)
+    plot_data2("../examples_data/W50/newPeV/electrons.dat", "../examples_data/W50/newPeV/protons.dat", "distributions_p", 1, label1='electrons',
+               label2='protons', ylim1=None, ylim2=None)
     plot_data2("../examples_data/W50/newPeV/electrons.dat", "../examples_data/W50/newdistribution/electrons.dat","electrons", 1, label1 = 'maxE = 5 PeV', label2 = 'maxE = 0.5 PeV', ylim1 = 3E-2, ylim2 = 5E-1)
     plot_data2("../examples_data/W50/newPeV/protons.dat", "../examples_data/W50/newdistribution/protons.dat",
                "protons", 1, label1='maxE = 5 PeV', label2='maxE = 0.5 PeV', ylim1 = 1E-10, ylim2 = 1E-6)
@@ -85,7 +87,7 @@ if __name__ == '__main__':
     #plot_radiation_EFE("../W50compton.dat", "W50compton")
     #plot_radiation_EFE("../W50synchrotron.dat", "W50synchrotron")
     #plot_radiation_EFE("../W50synchandcompt.dat", "W50synchandcompt")
-    factor = 2E-3
+    factor = 5E-3
     plot_W50_EFE("../output/W50synchandcompt.dat", "W50synchandcompt", factor)
     plot_W50_EFE_highenergy("../output/W50synchandcompt.dat", "W50сompton", factor)
     plot_W50_EFE_highenergy2("../output/W50synchandcompt.dat","../output/W50thickcompton.dat","W50compton2", factor)

@@ -3548,8 +3548,8 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 	const char* distributionFileName = "./examples_data/W50/newdistribution/electrons_full.dat";
 	const char* pfileName = "./examples_data/W50/newPeV/p_grid.dat";
 
-	const char* fileName = "./examples_data/W50/newdistribution/electrons.dat";
-	const char* protonsFileName = "./examples_data/W50/newdistribution/protons.dat";
+	const char* fileName = "./examples_data/W50/newPeV/electrons.dat";
+	const char* protonsFileName = "./examples_data/W50/newPeV/protons.dat";
 
 	const char* xfileNameBrinkmann = "./examples_data/W50/Brinkmann2/x_grid.dat";
 	//const char* BfileNameBrinkmann = "./examples_data/W50/B15FEB6E18/Beff.dat";
@@ -4031,8 +4031,8 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 		}
 	}
 
-	double powerInElectrons0 = (frontElectrons->evaluateKineticEnergyInRange(1000, massElectron * speed_of_light * speed_of_light, 10000 * 1.6E-12 * 1E12) * concentration3 * pi * size * size * 10.3E8)/200.0;
-	double powerInElectrons = (frontElectrons->evaluateKineticEnergyInRange(1000, 50 * 1.6E-12 * 1E12, 10000 * 1.6E-12 * 1E12) * concentration3 * pi * size * size * 10.3E8)/200.0;
+	double powerInElectrons0 = (frontElectrons->evaluateKineticEnergyInRange(10000, massElectron * speed_of_light * speed_of_light, 10000 * 1.6E-12 * 1E12) * concentration2*electronToProtonCorrection * pi * size * size * 10.3E8)/200.0;
+	double powerInElectrons = (frontElectrons->evaluateKineticEnergyInRange(10000, 50 * 1.6E-12 * 1E12, 10000 * 1.6E-12 * 1E12) * concentration2*electronToProtonCorrection * pi * size * size * 10.3E8)/200.0;
 	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
 	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.15 * 0.26 * speed_of_light, photonTotalEnergyDensity);
 	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 10.3E8, 10.3E8, photonEnergyDensity);

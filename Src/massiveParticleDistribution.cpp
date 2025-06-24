@@ -54,7 +54,7 @@ void MassiveParticleIsotropicDistribution::writeDistribution(const char* fileNam
 	}
 	FILE* outFile = fopen(fileName, "w");
 	for (int i = 0; i < Ne; ++i) {
-		fprintf(outFile, "%g %g\n", energy[i], distributionNormalized(energy[i]));
+		fprintf(outFile, "%g %g\n", (energy[i] - my_mass*speed_of_light2)/(massProton*speed_of_light2), distributionNormalized(energy[i]));
 	}
 	fclose(outFile);
 	delete[] energy;
