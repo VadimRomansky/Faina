@@ -962,26 +962,27 @@ void evaluatePionDecay() {
 
 	//Cygnus
 	const double distance = 1400 * parsec;
-	double Emin = massProton * speed_of_light2 + 0.01E9 * 1.6E-12;
+	double Emin = massProton * speed_of_light2;
+	//Emin = 1E15 * 1.6E-12;
 	double Emax = 1E16 * 1.6E-12;
 	double Etrans = 2.2E12 * 1.6E-12;
 
-	MassiveParticleBrokenPowerLawDistribution* protons = new MassiveParticleBrokenPowerLawDistribution(massProton, 2.1, 2.64, Emin, Etrans);
+	//MassiveParticleBrokenPowerLawDistribution* protons = new MassiveParticleBrokenPowerLawDistribution(massProton, 2.1, 2.64, Emin, Etrans);
 	//MassiveParticlePowerLawDistribution* protons = new MassiveParticlePowerLawDistribution(massProton, 2.0, Emin);
-	//MassiveParticlePowerLawCutoffDistribution* protons = new MassiveParticlePowerLawCutoffDistribution(massProton, 2.0, Emin, 1.0, Emax);
+	MassiveParticlePowerLawCutoffDistribution* protons = new MassiveParticlePowerLawCutoffDistribution(massProton, 2.0, Emin, 1.0, 1E15*1.6E-12);
 	//protons->writeDistribution("outputProtons.dat", 200, Emin, Emax);
 	RadiationSourceInCylindrical* source = new SimpleFlatSource(protons, B, theta, 0, protonConcentration, rmax, rmax, distance);
 	double protonAmbientConcentration = 12;
 	PionDecayEvaluator* pionDecayEvaluator = new PionDecayEvaluator(2000, Emin, Emax, protonAmbientConcentration);
 	PionDecayEvaluatorBase* pionDecayEvaluator2 = new PionDecayEvaluatorKelner(2000, Emin, Emax, protonAmbientConcentration);
 
-	int Nnu = 200;
+	int Nnu = 2000;
 	double* E = new double[Nnu];
 	double* F = new double[Nnu];
 	double* F2 = new double[Nnu];
 
-	double Ephmin = 1E9 * 1.6E-12;
-	double Ephmax = 2E14 * 1.6E-12;
+	double Ephmin = 1E5 * 1.6E-12;
+	double Ephmax = 2E15 * 1.6E-12;
 	double factor = pow(Ephmax / Ephmin, 1.0 / (Nnu - 1));
 	E[0] = Ephmin;
 	F[0] = 0;

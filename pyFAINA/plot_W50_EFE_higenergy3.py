@@ -65,6 +65,14 @@ def plot_W50_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1.0
         lhaasomodel[0,i] = radiation3[0,i]
         lhaasomodel[1,i] = radiation3[1,i] + 0.4*radiation2[1,i] + radiation1[1,i]
 
+    lhaasoenergy = 0
+    for i in range(N3):
+        if(lhaasomodel[0,i] > 1E12):
+            lhaasoenergy = lhaasoenergy + lhaasomodel[1,i]*(lhaasomodel[0,i] - lhaasomodel[0,i-1])/lhaasomodel[0,i]
+
+    lhaasoenergy = lhaasoenergy*(4*3.14*(5500*3E18)**2)
+    print(lhaasoenergy)
+
     hessmodel = np.zeros([2,N3])
     for i in range(N3):
         hessmodel[0,i] = radiation3[0,i]
@@ -172,13 +180,13 @@ def plot_W50_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1.0
     #plt.plot(radiation5[0], radiation5[1], 'salmon', linewidth=2, label='jet e2')
     #plt.plot(radiation2[0], radiation2[1], 'orange', linewidth=2, label = 'thick from front')
     #plt.plot(radiation3[0], radiation3[1], 'g', linewidth=2, label='thick from downstream')
-    #plt.plot(radiation3[0], hessmodel[1], 'salmon', linewidth=2, label='HESS model')
+    plt.plot(radiation3[0], hessmodel[1], 'salmon', linewidth=2, label='HESS model')
     plt.plot(radiation3[0], lhaasomodel[1], 'c', linewidth=2, label = 'LHAASO model')
     #plt.plot(lhaaso[0], lhaaso[1],'b', linewidth=4)
     plt.errorbar(lhaaso[0, :], lhaaso[1, :], yerr = [lhaaso[3, :], lhaaso[2, :]],marker='s',markerfacecolor='b',markeredgecolor='b', markersize = 3.5, uplims = lhaasoLimits, ecolor='b', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label = 'LHAASO')
     #plt.errorbar(xmm[0,:], xmm[1, :], yerr = [xmm[3,:], xmm[2, :]], xerr = [xmm[5, :], xmm[4, :]], ecolor = 'g', elinewidth=3, linewidth=0, capsize=5, capthick=3, label = 'XMM')
     #plt.errorbar(fermi[0,:], fermi[1,:], yerr = fermi[4, :], xerr = [fermi[3, :], fermi[2, :]], uplims=fermiLimits, ecolor = 'y', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label = 'Fermi-LAT')
-    #plt.errorbar(hess[0,:], hess[1, :], yerr = [hess[3, :], hess[2, :]], xerr = [hess[5, :], hess[4, :]],marker='s',markerfacecolor='purple',markeredgecolor='purple', markersize = 3.5, uplims = hessLimits, ecolor='purple', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label = "H.E.S.S.")
+    plt.errorbar(hess[0,:], hess[1, :], yerr = [hess[3, :], hess[2, :]], xerr = [hess[5, :], hess[4, :]],marker='s',markerfacecolor='purple',markeredgecolor='purple', markersize = 3.5, uplims = hessLimits, ecolor='purple', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label = "H.E.S.S.")
     ax.legend(fontsize = "10", loc = 'lower left')
     #plt.plot(radiation[0], radiation[2], 'b', linewidth=4)
     #plt.errorbar(cssx1, cssy1, cssError1, ecolor = 'b', elinewidth = 4, linewidth=0, capsize = 5, capthick = 4)

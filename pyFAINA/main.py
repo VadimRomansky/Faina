@@ -54,6 +54,7 @@ if __name__ == '__main__':
     #plot_dummy()
     #plot_data("../nishina_losses.dat","nishina_losses", 3, 'log', 'log')
     #plot_diffusionConvection("../output/diffusionConvection.dat", "D", 6, yscale = "log", xscale = "symlog")
+
     plot_data("../output/Bturb.dat", "B", 2, yscale = "linear", xscale = "linear")
 
     plot_data2("../output/electrons.dat","../output/protons.dat", "distributions", 1, label1 = 'electrons', label2 = 'protons', ylim1 = None, ylim2 = None)
@@ -87,7 +88,7 @@ if __name__ == '__main__':
     #plot_radiation_EFE("../W50compton.dat", "W50compton")
     #plot_radiation_EFE("../W50synchrotron.dat", "W50synchrotron")
     #plot_radiation_EFE("../W50synchandcompt.dat", "W50synchandcompt")
-    factor = 5E-3
+    factor = 2E-3
     plot_W50_EFE("../output/W50synchandcompt.dat", "W50synchandcompt", factor)
     plot_W50_EFE_highenergy("../output/W50synchandcompt.dat", "W50сompton", factor)
     plot_W50_EFE_highenergy2("../output/W50synchandcompt.dat","../output/W50thickcompton.dat","W50compton2", factor)
@@ -99,7 +100,7 @@ if __name__ == '__main__':
     #plot_synchrotron()
     #plot_synchrotron3()
     #plot_bremsstrahlung()
-    #plot_pion()
+    plot_pion()
     #plot_radiation4()
     #plot_radiation3()
     #plot_radiation10()
