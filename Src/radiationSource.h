@@ -340,6 +340,19 @@ public:
 	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
 };
 
+//be careful uses a lot of memory
+class TabulatedDiskSourceInhomogenousDistribution : public TabulatedDiskSource {
+protected:
+    MassiveParticleDistribution**** my_distributions;
+public:
+    TabulatedDiskSourceInhomogenousDistribution(int Nrho, int Nz, int Nphi, MassiveParticleDistribution**** electronDistributions, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& z, const double& distance, const double& velocity = 0, const double& redShift = 0);
+    TabulatedDiskSourceInhomogenousDistribution(int Nrho, int Nz, int Nphi, MassiveParticleDistribution**** electronDistributions, const double& B, const double& theta, const double& phi, const double& concentration , const double& rho, const double& z, const double& distance, const double& velocity = 0, const double& redShift = 0);
+    TabulatedDiskSourceInhomogenousDistribution(int Nrho, int Nz, int Nphi, MassiveParticleDistribution**** electronDistributions, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& z, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift = 0);
+    TabulatedDiskSourceInhomogenousDistribution(int Nrho, int Nz, int Nphi, MassiveParticleDistribution**** electronDistributions, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& z, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift = 0);
+
+    virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
+};
+
 class TabulatedDiskSourceWithSynchAndComptCutoff : public TabulatedDiskSource {
 protected:
 	int my_maxThreads;

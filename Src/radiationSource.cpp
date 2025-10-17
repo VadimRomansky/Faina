@@ -2046,6 +2046,68 @@ MassiveParticleDistribution* TabulatedDiskSource::getParticleDistribution(int ir
 	return my_distribution;
 }
 
+TabulatedDiskSourceInhomogenousDistribution::TabulatedDiskSourceInhomogenousDistribution(int Nrho, int Nz, int Nphi, MassiveParticleDistribution**** electronDistributions, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& z, const double& distance, const double& velocity, const double& redShift) : TabulatedDiskSource(Nrho, Nz, Nphi, NULL, B, theta, phi, concentration, rho, z, distance, velocity, redShift)
+{
+    my_distributions = new MassiveParticleDistribution***[my_Nrho];
+    for (int i = 0; i < my_Nrho; ++i) {
+        my_distributions[i] = new MassiveParticleDistribution**[my_Nz];
+        for (int j = 0; j < my_Nz; ++j) {
+            my_distributions[i][j] = new MassiveParticleDistribution*[my_Nphi];
+            for (int k = 0; k < my_Nphi; ++k) {
+                my_distributions[i][j][k] = electronDistributions[i][j][k];
+            }
+        }
+    }
+}
+
+TabulatedDiskSourceInhomogenousDistribution::TabulatedDiskSourceInhomogenousDistribution(int Nrho, int Nz, int Nphi, MassiveParticleDistribution**** electronDistributions, const double& B, const double& theta, const double& phi, const double& concentration , const double& rho, const double& z, const double& distance, const double& velocity, const double& redShift) : TabulatedDiskSource(Nrho, Nz, Nphi, NULL, B, theta, phi, concentration, rho, z, distance, velocity, redShift)
+{
+    my_distributions = new MassiveParticleDistribution***[my_Nrho];
+    for (int i = 0; i < my_Nrho; ++i) {
+        my_distributions[i] = new MassiveParticleDistribution**[my_Nz];
+        for (int j = 0; j < my_Nz; ++j) {
+            my_distributions[i][j] = new MassiveParticleDistribution*[my_Nphi];
+            for (int k = 0; k < my_Nphi; ++k) {
+                my_distributions[i][j][k] = electronDistributions[i][j][k];
+            }
+        }
+    }
+}
+
+TabulatedDiskSourceInhomogenousDistribution::TabulatedDiskSourceInhomogenousDistribution(int Nrho, int Nz, int Nphi, MassiveParticleDistribution**** electronDistributions, double*** B, double*** theta, double*** phi, double*** concentration, const double& rho, const double& z, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift) : TabulatedDiskSource(Nrho, Nz, Nphi, NULL, B, theta, phi, concentration, rho, z, distance, velocity, vtheta, vphi, redShift)
+{
+    my_distributions = new MassiveParticleDistribution***[my_Nrho];
+    for (int i = 0; i < my_Nrho; ++i) {
+        my_distributions[i] = new MassiveParticleDistribution**[my_Nz];
+        for (int j = 0; j < my_Nz; ++j) {
+            my_distributions[i][j] = new MassiveParticleDistribution*[my_Nphi];
+            for (int k = 0; k < my_Nphi; ++k) {
+                my_distributions[i][j][k] = electronDistributions[i][j][k];
+            }
+        }
+    }
+}
+
+TabulatedDiskSourceInhomogenousDistribution::TabulatedDiskSourceInhomogenousDistribution(int Nrho, int Nz, int Nphi, MassiveParticleDistribution**** electronDistributions, const double& B, const double& theta, const double& phi, const double& concentration, const double& rho, const double& z, const double& distance, double*** velocity, double*** vtheta, double*** vphi, const double& redShift) : TabulatedDiskSource(Nrho, Nz, Nphi, NULL, B, theta, phi, concentration, rho, z, distance, velocity, vtheta, vphi, redShift)
+{
+    my_distributions = new MassiveParticleDistribution***[my_Nrho];
+    for (int i = 0; i < my_Nrho; ++i) {
+        my_distributions[i] = new MassiveParticleDistribution**[my_Nz];
+        for (int j = 0; j < my_Nz; ++j) {
+            my_distributions[i][j] = new MassiveParticleDistribution*[my_Nphi];
+            for (int k = 0; k < my_Nphi; ++k) {
+                my_distributions[i][j][k] = electronDistributions[i][j][k];
+            }
+        }
+    }
+}
+
+MassiveParticleDistribution* TabulatedDiskSourceInhomogenousDistribution::getParticleDistribution(int irho, int iz, int iphi)
+{
+    return my_distributions[irho][iz][iphi];
+}
+
+
 double SphericalLayerSource::evaluateLength(int irho, int iz, int iphi) {
 	double dr = my_rho / my_Nrho;
 	double dz = 2 * my_rho / my_Nz;
