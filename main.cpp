@@ -4169,9 +4169,9 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 
 
 	//double Ephmin = 1.6E-12;
-        double Ephmin = hplank*1E8;
+    double Ephmin = hplank*1E8;
 	double Ephmax = 1.6E4;
-	int Nph = 2000;
+	int Nph = 200;
 	double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
 	double currentE = Ephmin;
 	FILE* outFile = fopen("./output/W50synchandcompt.dat", "w");

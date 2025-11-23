@@ -96,7 +96,7 @@ def plot_W50_EFE(filename, name, factor = 1.0):
     #ax.set_xlim([1E12, 1E16])
     #ax.set_xlim([1E11, 1E15])
     #ax.set_xlim([1E3, 5E4])
-    ax.set_ylim([6E-15, 5E-10])
+    ax.set_ylim([6E-16, 5E-11])
     ax.tick_params(axis='x', size=10, width=4)
     ax.tick_params(axis='y', size=10, width=4)
     ax.minorticks_on()
@@ -107,7 +107,7 @@ def plot_W50_EFE(filename, name, factor = 1.0):
     plt.plot(radiation[0], radiation[1], 'r', linewidth=4)
     #plt.plot(lhaaso[0], lhaaso[1],'b', linewidth=4)
     plt.errorbar(lhaaso[0, :], lhaaso[1, :], yerr = [lhaaso[3, :], lhaaso[2, :]], uplims = lhaasoLimits, ecolor='b', elinewidth=3, linewidth=0, capsize=5, capthick=3, label = 'LHAASO')
-    plt.errorbar(xmm[0,:], xmm[1, :], yerr = [xmm[3,:], xmm[2, :]], xerr = [xmm[5, :], xmm[4, :]], ecolor = 'g', elinewidth=3, linewidth=0, capsize=5, capthick=3, label = 'XMM')
+    #plt.errorbar(xmm[0,:], xmm[1, :], yerr = [xmm[3,:], xmm[2, :]], xerr = [xmm[5, :], xmm[4, :]], ecolor = 'g', elinewidth=3, linewidth=0, capsize=5, capthick=3, label = 'XMM')
     plt.errorbar(fermi[0,:], fermi[1,:], yerr = fermi[4, :], xerr = [fermi[3, :], fermi[2, :]], uplims=fermiLimits, ecolor = 'y', elinewidth=3, linewidth=0, capsize=5, capthick=3, label = 'Fermi-LAT')
     plt.errorbar(hess[0,:], hess[1, :], yerr = [hess[3, :], hess[2, :]], xerr = [hess[5, :], hess[4, :]], uplims = hessLimits, ecolor='purple', elinewidth=3, linewidth=0, capsize=5, capthick=3, label = "H.E.S.S.")
 
@@ -126,8 +126,8 @@ def plot_W50_EFE(filename, name, factor = 1.0):
         currentE = E2[i]*1.6E-12
         F2[i] = B*currentE**(2-1.99)
 
-    plt.plot(E1, F1, linewidth = 4, label = 'XMM')
-    plt.plot(E2, F2, linewidth = 4, label = 'NuSTAR')
+    #plt.plot(E1, F1, linewidth = 4, label = 'XMM')
+    #plt.plot(E2, F2, linewidth = 4, label = 'NuSTAR')
 
     ax.legend(fontsize = "20")
     #plt.plot(radiation[0], radiation[2], 'b', linewidth=4)
