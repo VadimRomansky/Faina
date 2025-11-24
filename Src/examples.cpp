@@ -2255,7 +2255,7 @@ void fitAT2025wpp_2() {
 	double* observedFlux1;
 	double* observedError1;
 	//int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/css_data/coppejans69.txt");
-	int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/AT2025wpp_data/nayana19.dat");
+	int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/AT2025wpp_data/nayana35.dat");
 	for (int i = 0; i < Nenergy1; ++i) {
 		energy1[i] = energy1[i] * hplank * 1E9;
 		observedFlux1[i] = observedFlux1[i] / (hplank * 1E29);
@@ -2267,7 +2267,7 @@ void fitAT2025wpp_2() {
 
 
 
-	double timeMoment = 19 * 24 * 3600;
+	double timeMoment = 35 * 24 * 3600;
 
 
 	//distance to source
@@ -2459,6 +2459,8 @@ void fitAT2025wpp_2() {
 	printf("relative hi^2 = %g\n", error / degreesOfFreedom);
 	fprintf(paramFile, "relative hi^2 = %g\n", error / degreesOfFreedom);
 	double normalDist = (error - degreesOfFreedom) / sqrt(2 * degreesOfFreedom);
+	printf("number of optimized parameters = %d\n", numberOfOptpar);
+	fprintf(paramFile, "number of optimized parameters = %d\n", numberOfOptpar);
 	printf("degrees of freedom = %d\n", degreesOfFreedom);
 	fprintf(paramFile, "degrees of freedom = %d\n", degreesOfFreedom);
 	printf("normal distribution = %g\n", normalDist);
