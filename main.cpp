@@ -4799,6 +4799,7 @@ int main() {
 	//testBessel();
 	//testChevalier();
 	//fitCSS161010_2();
+	fitAT2025wpp_2();
 	//testMatrixInverse();
 	//testGMRES();
 	//testNishinaLosses();
@@ -4818,7 +4819,7 @@ int main() {
 	//evaluateW50comptonAdvectionBigSource();
 	//evaluateW50comptonAndSynchrotronMCwithoutupstream();
 	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream();
-	evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
+	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
 	//evaluateW50comptonDiffusion();
 	//evaluateW50pion();
 

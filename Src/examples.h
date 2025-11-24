@@ -58,6 +58,8 @@ void testChevalier();
 
 void fitCSS161010_2();
 
+void fitAT2025wpp_2();
+
 void testMatrixInverse();
 
 void testGMRES();

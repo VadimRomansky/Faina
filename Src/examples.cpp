@@ -2249,6 +2249,338 @@ void fitCSS161010_2() {
 
 }
 
+void fitAT2025wpp_2() {
+	//observed data at 19, 35 and 50 days after explosion in units erg and cm^-2 s^-2
+	double* energy1;
+	double* observedFlux1;
+	double* observedError1;
+	//int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/css_data/coppejans69.txt");
+	int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/AT2025wpp_data/nayana19.dat");
+	for (int i = 0; i < Nenergy1; ++i) {
+		energy1[i] = energy1[i] * hplank * 1E9;
+		observedFlux1[i] = observedFlux1[i] / (hplank * 1E29);
+		observedError1[i] = observedError1[i] / (hplank * 1E29);
+	}
+
+	printf("finish reading data\n");
+	printLog("finish reading data\n");
+
+
+
+	double timeMoment = 19 * 24 * 3600;
+
+
+	//distance to source
+	const double distance = 411 * 1E6 * parsec;
+
+	//initial parameters of source
+	double electronConcentration = 50;
+	double rmax = timeMoment * 0.75 * speed_of_light;
+	//rmax = 1.0;
+	double B = 0.6;
+	double widthFraction = 0.25;
+	double v = 0.75 * speed_of_light;
+	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
+	//number of optimized parameters
+	const int Nparams = 5;
+	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
+	double minParameters[Nparams] = { 0.1 * rmax, 0.000001, 1, 0.05, 0.1 * speed_of_light };
+	double maxParameters[Nparams] = { timeMoment * 0.8 * speed_of_light, 0.05, 5000, 0.2, 0.8 * speed_of_light };
+	//starting point of optimization and normalization
+	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v };
+	for (int i = 0; i < Nparams; ++i) {
+		vector[i] = vector[i] / maxParameters[i];
+	}
+	//picking parameters to be optimized
+	bool optPar[Nparams] = { true, true, true, true, false };
+
+	int numberOfOptpar = 0;
+	for (int i = 0; i < Nparams; ++i) {
+		if (optPar[i]) {
+			numberOfOptpar++;
+		}
+	}
+
+	int numberOfPoints = Nenergy1;
+
+
+	printf("creating distributions\n");
+	printLog("creating distributions\n");
+
+	//number of different distributions depending on inclination angle, wich will be read from files
+	const int Ndistributions = 10;
+
+	//reading electron distributions from files
+	//ElectronIsotropicDistribution** angleDependentDistributions = ElectronDistributionFactory::readTabulatedIsotropicDistributions("./input/Ee", "./input/Fs", ".dat", 10, ElectronInputType::GAMMA_KIN_FGAMMA, 200);
+	MassiveParticleDistribution** angleDependentDistributions = MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionsAddPowerLawTail(massElectron, "./input/Ee", "./input/Fs", ".dat", 10, DistributionInputType::GAMMA_KIN_FGAMMA, 200, 20 * me_c2, 3.5);
+	//for (int i = 0; i < Ndistributions; ++i) {
+		//rescale distributions to real mp/me relation
+	//	(dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(angleDependentDistributions[i]))->rescaleDistribution(sqrt(18));
+	//}
+	//angleDependentDistributions[9]->writeDistribution("output1.dat", 200, Emin, Emax);
+	//creating radiation source, which does not depend on time
+	//MassiveParticleTabulatedIsotropicDistribution* electronDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_theta0-90/Ee3.dat", "./examples_data/gamma1.5_theta0-90/Fs3.dat", DistributionInputType::GAMMA_KIN_FGAMMA);
+	//MassiveParticleTabulatedIsotropicDistribution* electronDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", DistributionInputType::GAMMA_KIN_FGAMMA);
+
+	printf("distribution 1\n");
+	printLog("distribution 1\n");
+	MassiveParticleTabulatedIsotropicDistribution* electronDistribution1 = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.2_theta0-90/Ee3.dat", "./examples_data/gamma0.2_theta0-90/Fs3.dat", DistributionInputType::GAMMA_KIN_FGAMMA);
+	printf("distribution 2\n");
+	printLog("distribution 2\n");
+	MassiveParticleTabulatedIsotropicDistribution* electronDistribution2 = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.3_theta0-90/Ee3.dat", "./examples_data/gamma0.3_theta0-90/Fs3.dat", DistributionInputType::GAMMA_KIN_FGAMMA);
+	printf("distribution 3\n");
+	printLog("distribution 3\n");
+	MassiveParticleTabulatedIsotropicDistribution* electronDistribution3 = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma0.5_theta0-90/Ee3.dat", "./examples_data/gamma0.5_theta0-90/Fs3.dat", DistributionInputType::GAMMA_KIN_FGAMMA);
+	printf("distribution 4\n");
+	printLog("distribution 4\n");
+	MassiveParticleTabulatedIsotropicDistribution* electronDistribution4 = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", DistributionInputType::GAMMA_KIN_FGAMMA);
+	electronDistribution1->addPowerLaw(10 * me_c2, 3.5);
+	electronDistribution1->rescaleDistribution(1.2);
+	electronDistribution2->addPowerLaw(20 * me_c2, 3.5);
+	electronDistribution2->rescaleDistribution(1.2);
+	electronDistribution3->addPowerLaw(50 * me_c2, 3.5);
+	electronDistribution3->rescaleDistribution(1.2);
+
+	double velocities[4] = { 0.2 * speed_of_light, 0.3 * speed_of_light, 0.5 * speed_of_light, 0.75 * speed_of_light };
+
+	MassiveParticleIsotropicDistribution** distributions = new MassiveParticleIsotropicDistribution * [4];
+	distributions[0] = electronDistribution1;
+	distributions[1] = electronDistribution2;
+	distributions[2] = electronDistribution3;
+	distributions[3] = electronDistribution4;
+
+	//electronDistribution1->writeDistribution("distribution1.dat", 1000, me_c2, 1E9*me_c2);
+	//electronDistribution2->writeDistribution("distribution2.dat", 1000, me_c2, 1E9 * me_c2);
+	//electronDistribution3->writeDistribution("distribution3.dat", 1000, me_c2, 1E9 * me_c2);
+	electronDistribution4->writeDistribution("distribution.dat", 1000, me_c2, 1E9 * me_c2);
+
+
+	printf("creating sources\n");
+	printLog("creating sources\n");
+
+	//MassiveParticleIsotropicDistribution* electronDistribution = new MassiveParticlePowerLawDistribution(massElectron, 3.5, 10*me_c2, electronConcentration);
+	//electronDistribution->rescaleDistribution(1.2);
+	//SimpleFlatSource* source1 = new SimpleFlatSource(electronDistribution, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance);
+	//SimpleFlatSource2* source1 = new SimpleFlatSource2(4, velocities, distributions, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance);
+	int Nrho = 200;
+	int Nz = 400;
+	int Nphi = 1;
+	SphericalLayerSource* source1 = new TabulatedSphericalLayerSource2(4, velocities, distributions, Nrho, Nz, Nphi, B, pi / 2, 0, electronConcentration, rmax, (1.0 - widthFraction) * rmax, distance);
+	//SimpleFlatSource2* source1 = new SimpleFlatSource2(4, velocities, distributions, B, pi / 2, 0, electronConcentration, rmax, widthFraction * rmax, distance);
+	AngleDependentElectronsSphericalSource* angleDependentSource = new AngleDependentElectronsSphericalSource(20, 20, 4, Ndistributions, angleDependentDistributions, B, pi / 2, 0, electronConcentration, rmax, 0.5 * rmax, distance, 0.3 * speed_of_light);
+
+	//number of points per axis in gridEnumOptimizer
+	int Npoints[Nparams] = { 4,4,4,4,4 };
+	//number of iterations in gradient descent optimizer
+	int Niterations = 4;
+	//energies of electrons wich will be used for evaluatig radiation
+	double Emin = me_c2;
+	double Emax = 10000 * me_c2;
+	//creating KPI evaluator
+	LossEvaluator* KPIevaluator = new SpectrumLossEvaluator(energy1, observedFlux1, observedError1, Nenergy1, source1);
+	//creating time dependent synchrotron evaluator
+	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(50, Emin, Emax, true, false);
+	CombinedRadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints, KPIevaluator);
+	SequentCoordinateEnumOptimizer* sequentOptimizer = new SequentCoordinateEnumOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 200, 2, KPIevaluator);
+	//creating time depedent grid enumeration optimizer, which will chose the best starting poin for gradien descent
+	//RadiationOptimizer* gridEnumOptimizer = new GridEnumRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Npoints, KPIevaluator);
+	//gridEnumOptimizer->optimize(vector, optPar, energy, F, Error, Nenergy, Ntimes, times, source);
+	vector[0] = 3e+16 / maxParameters[0];
+	vector[1] = 0.0436792 / maxParameters[1];
+	vector[2] = 2500 / maxParameters[2];
+	vector[3] = 0.1 / maxParameters[3];
+	vector[4] = 0.2 * speed_of_light / maxParameters[4];
+
+	/*combinedOptimizer->outputOneVariableProfile(vector, 100, 0, "error0.dat");
+	//combinedOptimizer->outputOneVariableProfile(vector, 100, 1, "error1.dat");*/
+	//combinedOptimizer->outputOneVariableProfile(vector, 100, 2, "error2.dat");
+	/*combinedOptimizer->outputOneVariableProfile(vector, 100, 3, "error3.dat");
+	combinedOptimizer->outputOneVariableProfile(vector, 100, 4, "error4.dat");
+	combinedOptimizer->outputOneVariableProfile(vector, 100, 5, "error5.dat");
+	combinedOptimizer->outputOneVariableProfile(vector, 100, 6, "error6.dat");
+	combinedOptimizer->outputOneVariableProfile(vector, 100, 7, "error7.dat");
+	combinedOptimizer->outputOneVariableProfile(vector, 100, 8, "error8.dat");*/
+
+	printf("optimization\n");
+	printLog("optimization\n");
+	//creating gradient descent optimizer and optimizing
+	RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
+	//combinedOptimizer->optimize(vector, optPar);
+	sequentOptimizer->optimize(vector, optPar);
+	gradientOptimizer->optimize(vector, optPar);
+	//reset parameters of source to the found values
+	source1->resetParameters(vector, maxParameters);
+	//evaluating final error
+	double error = sequentOptimizer->evaluateOptimizationFunction(vector);
+	//double error = 100000;
+
+	double* uncertainties = sequentOptimizer->evaluateUncertainties(vector, optPar);
+
+	//initializing arrays for evaluationg full spectrum of source with found values
+	printf("evaluationg radiation\n");
+	printLog("evaluationg radiation\n");
+	int Nout = 200;
+	double* Nuout = new double[Nout];
+	double* Fout = new double[Nout];
+
+	double Numin = 1E8;
+	double Numax = 1E12;
+	double factor = pow(Numax / Numin, 1.0 / (Nout - 1));
+	Nuout[0] = Numin;
+	for (int j = 0; j < Nout; ++j) {
+		Fout[j] = 0;
+	}
+
+	for (int i = 1; i < Nout; ++i) {
+		Nuout[i] = Nuout[i - 1] * factor;
+	}
+
+	//evaluating full spectrum at given time moments
+	for (int i = 0; i < Nout; ++i) {
+		Fout[i] = synchrotronEvaluator->evaluateFluxFromSource(hplank * Nuout[i], source1);
+	}
+
+
+	//outputing spectrum
+	FILE* output_GZ_Jansky = fopen("AT2025wpp.dat", "w");
+	for (int i = 0; i < Nout; ++i) {
+		//to GHz and mJansky
+		fprintf(output_GZ_Jansky, "%g", Nuout[i] * 1E-9);
+		fprintf(output_GZ_Jansky, " %g", hplank * Fout[i] * 1E26);
+		fprintf(output_GZ_Jansky, "\n");
+	}
+	fclose(output_GZ_Jansky);
+
+	//outputing parameters
+	FILE* paramFile = fopen("parametersAT2025wpp.dat", "w");
+	printf("hi^2 = %g\n", error);
+	fprintf(paramFile, "hi^2 = %g\n", error);
+	int degreesOfFreedom = numberOfPoints - numberOfOptpar - 1;
+	printf("relative hi^2 = %g\n", error / degreesOfFreedom);
+	fprintf(paramFile, "relative hi^2 = %g\n", error / degreesOfFreedom);
+	double normalDist = (error - degreesOfFreedom) / sqrt(2 * degreesOfFreedom);
+	printf("degrees of freedom = %d\n", degreesOfFreedom);
+	fprintf(paramFile, "degrees of freedom = %d\n", degreesOfFreedom);
+	printf("normal distribution = %g\n", normalDist);
+	fprintf(paramFile, "normal distribution = %g\n", normalDist);
+	printf("parameters at first time moment:\n");
+	fprintf(paramFile, "parameters at first time moment:\n");
+	printf("R = %g\n", vector[0] * maxParameters[0]);
+	fprintf(paramFile, "R = %g\n", vector[0] * maxParameters[0]);
+	printf("sigma R = %g\n", uncertainties[0]);
+	fprintf(paramFile, "sigma R = %g\n", uncertainties[0]);
+	printf("R/ct = %g\n", vector[0] * maxParameters[0] / (speed_of_light * timeMoment));
+	fprintf(paramFile, "R/ct = %g\n", vector[0] * maxParameters[0] / (speed_of_light * timeMoment));
+	printf("sigma R/ct = %g", uncertainties[0] / (speed_of_light * timeMoment));
+	fprintf(paramFile, "sigma R/ct = %g", uncertainties[0] / (speed_of_light * timeMoment));
+	sigma = vector[1] * maxParameters[1];
+	printf("sigma = %g\n", vector[1] * maxParameters[1]);
+	fprintf(paramFile, "sigma = %g\n", vector[1] * maxParameters[1]);
+	printf("sigma sigma = %g\n", uncertainties[1]);
+	fprintf(paramFile, "sigma sigma = %g\n", uncertainties[1]);
+	double n = vector[2] * maxParameters[2];
+	printf("n = %g\n", vector[2] * maxParameters[2]);
+	fprintf(paramFile, "n = %g\n", vector[2] * maxParameters[2]);
+	printf("sigma n = %g\n", uncertainties[2]);
+	fprintf(paramFile, "sigma n = %g\n", uncertainties[2]);
+	printf("width fraction = %g\n", vector[3] * maxParameters[3]);
+	fprintf(paramFile, "width fraction = %g\n", vector[3] * maxParameters[3]);
+	printf("sigma width fraction = %g\n", uncertainties[3]);
+	fprintf(paramFile, "sigma width fraction = %g\n", uncertainties[3]);
+	printf("v/c = %g\n", vector[4] * maxParameters[4] / speed_of_light);
+	fprintf(paramFile, "v/c = %g\n", vector[4] * maxParameters[4] / speed_of_light);
+	printf("sigma v/c = %g\n", uncertainties[5] / speed_of_light);
+	fprintf(paramFile, "sigma v/c = %g\n", uncertainties[5] / speed_of_light);
+	B = sqrt(vector[1] * maxParameters[1] * 4 * pi * massProton * vector[2] * maxParameters[2] * speed_of_light2);
+	double sigmaB = 0.5 * B * (uncertainties[1] / sigma + uncertainties[2] / n);
+	printf("B = %g\n", B);
+	fprintf(paramFile, "B = %g\n", B);
+	printf("sigma B = %g\n", sigmaB);
+	fprintf(paramFile, "sigma B = %g\n", sigmaB);
+	fclose(paramFile);
+
+	printf("evaluating wide-range radiation\n");
+	printLog("evaluating wide-range radiation\n");
+
+
+	Nrho = 2000;
+	Nz = 4000;
+	Nphi = 1;
+
+	double R = vector[0] * maxParameters[0];
+	//B
+	electronConcentration = vector[2] * maxParameters[2];
+	double f = vector[3] * maxParameters[3];
+	double velocity = vector[4] * maxParameters[4];
+	double downstreamV = 0.25 * velocity;
+
+	double totalKineticEnergy = source1->getTotalVolume() * massProton * electronConcentration * 0.5 * speed_of_light2;
+	printf("totalKineticEnergy = %g\n", totalKineticEnergy);
+	printLog("totalKineticEnergy = %g\n", totalKineticEnergy);
+
+	return;
+
+
+	TabulatedSLSourceWithSynchCutoff* source2 = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance, downstreamV, velocity);
+	//TabulatedDiskSource* source2 = new TabulatedDiskSource(1, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance);
+	TabulatedDiskSourceWithSynchAndComptCutoff* source3 = new TabulatedDiskSourceWithSynchAndComptCutoff(1, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, velocity);
+
+	int Ne = 1000;
+	Emin = me_c2;
+	Emax = me_c2 * 2E9;
+
+	electronDistribution4->writeDistribution("distribution.dat", Ne, Emin, Emax);
+
+	MassiveParticleIsotropicDistribution* distribution1 = dynamic_cast<MassiveParticleIsotropicDistribution*>(source2->getParticleDistribution(Nrho - 1, Nz / 2, 0));
+	distribution1->writeDistribution("distribution1.dat", Ne, Emin, Emax);
+	MassiveParticleIsotropicDistribution* distribution2 = dynamic_cast<MassiveParticleIsotropicDistribution*>(source3->getParticleDistribution(0, Nz - 1, 0));
+	distribution2->writeDistribution("distribution2.dat", Ne, Emin, Emax);
+	MassiveParticleIsotropicDistribution* distribution3 = dynamic_cast<MassiveParticleIsotropicDistribution*>(source2->getParticleDistribution(0, Nz - 10, 0));
+	distribution3->writeDistribution("distribution3.dat", Ne, Emin, Emax);
+	MassiveParticleIsotropicDistribution* distribution4 = dynamic_cast<MassiveParticleIsotropicDistribution*>(source3->getParticleDistribution(0, Nz - 10, 0));
+	distribution4->writeDistribution("distribution4.dat", Ne, Emin, Emax);
+
+	SynchrotronEvaluator* evaluator2 = new SynchrotronEvaluator(Ne, Emin, Emax, true, false);
+
+	double kevFlux = evaluator2->evaluateTotalFluxInEnergyRange(0.3 * keV, 10 * keV, 100, source2);
+
+	double mevFlux = evaluator2->evaluateTotalFluxInEnergyRange(0.1 * MeV, 3 * MeV, 100, source2);
+
+	double kevFluxDisk = evaluator2->evaluateTotalFluxInEnergyRange(0.3 * keV, 10 * keV, 100, source3);
+
+	double mevFluxDisk = evaluator2->evaluateTotalFluxInEnergyRange(0.1 * MeV, 3 * MeV, 100, source3);
+
+	printf("keV flux = %g, luminosity = %g\n", kevFlux, kevFlux * 4 * pi * distance * distance);
+	printLog("keV flux = %g, luminosity = %g\n", kevFlux, kevFlux * 4 * pi * distance * distance);
+
+	printf("MeV flux = %g, luminocity = %g\n", mevFlux, mevFlux * 4 * pi * distance * distance);
+	printLog("MeV flux = %g, luminocity = %g\n", mevFlux, mevFlux * 4 * pi * distance * distance);
+
+	printf("keV flux disk= %g, luminosity = %g\n", kevFluxDisk, kevFluxDisk * 4 * pi * distance * distance);
+	printLog("keV flux disk= %g, luminosity = %g\n", kevFluxDisk, kevFluxDisk * 4 * pi * distance * distance);
+
+	printf("MeV flux disk= %g, luminocity = %g\n", mevFluxDisk, mevFluxDisk * 4 * pi * distance * distance);
+	printLog("MeV flux disk= %g, luminocity = %g\n", mevFluxDisk, mevFluxDisk * 4 * pi * distance * distance);
+
+	evaluator2->writeFluxFromSourceToFile("wideRangeSynch.dat", source2, 1E8 * hplank, 200 * MeV, 500);
+	evaluator2->writeFluxFromSourceToFile("wideRangeSynchDisk.dat", source3, 1E8 * hplank, 200 * MeV, 500);
+
+	//deleting arrays
+
+	delete[] Fout;
+	delete[] Nuout;
+
+	for (int i = 0; i < Ndistributions; ++i) {
+		delete angleDependentDistributions[i];
+	}
+	delete[] angleDependentDistributions;
+	delete angleDependentSource;
+	delete synchrotronEvaluator;
+	//delete gridEnumOptimizer;
+	//delete gradientOptimizer;
+
+}
+
 void testMatrixInverse()
 {
 	int N = 2;
