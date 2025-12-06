@@ -2255,11 +2255,11 @@ void fitAT2025wpp_2() {
 	double* observedFlux1;
 	double* observedError1;
 	//int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/css_data/coppejans69.txt");
-	int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/AT2025wpp_data/nayana35.dat");
+	int Nenergy1 = readRadiationFromFile(energy1, observedFlux1, observedError1, "./examples_data/AT2025wpp_data/nayana78.dat");
 	for (int i = 0; i < Nenergy1; ++i) {
 		energy1[i] = energy1[i] * hplank * 1E9;
-		observedFlux1[i] = observedFlux1[i] / (hplank * 1E29);
-		observedError1[i] = observedError1[i] / (hplank * 1E29);
+		observedFlux1[i] = observedFlux1[i] / (hplank * 1E26);
+		observedError1[i] = observedError1[i] / (hplank * 1E26);
 	}
 
 	printf("finish reading data\n");
@@ -2267,7 +2267,7 @@ void fitAT2025wpp_2() {
 
 
 
-	double timeMoment = 35 * 24 * 3600;
+	double timeMoment = 78 * 24 * 3600;
 
 
 	//distance to source
@@ -2278,21 +2278,21 @@ void fitAT2025wpp_2() {
 	double rmax = timeMoment * 0.75 * speed_of_light;
 	//rmax = 1.0;
 	double B = 0.6;
-	double widthFraction = 0.25;
+	double widthFraction = 0.5;
 	double v = 0.75 * speed_of_light;
 	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
 	//number of optimized parameters
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
-	double minParameters[Nparams] = { 0.1 * rmax, 0.000001, 1, 0.05, 0.1 * speed_of_light };
-	double maxParameters[Nparams] = { timeMoment * 0.8 * speed_of_light, 0.05, 5000, 0.2, 0.8 * speed_of_light };
+	double minParameters[Nparams] = { 0.1 * rmax, 0.000001, 1, 0.5, 0.1 * speed_of_light };
+	double maxParameters[Nparams] = { timeMoment * 0.8 * speed_of_light, 1.0, 5000, 0.5, 0.8 * speed_of_light };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v };
 	for (int i = 0; i < Nparams; ++i) {
 		vector[i] = vector[i] / maxParameters[i];
 	}
 	//picking parameters to be optimized
-	bool optPar[Nparams] = { true, true, true, true, false };
+	bool optPar[Nparams] = { true, true, true, false, false };
 
 	int numberOfOptpar = 0;
 	for (int i = 0; i < Nparams; ++i) {

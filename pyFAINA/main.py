@@ -55,17 +55,17 @@ if __name__ == '__main__':
     #plot_data("../nishina_losses.dat","nishina_losses", 3, 'log', 'log')
     #plot_diffusionConvection("../output/diffusionConvection.dat", "D", 6, yscale = "log", xscale = "symlog")
 
-    plot_data("../output/Bturb.dat", "B", 2, yscale = "linear", xscale = "linear")
+    #plot_data("../output/Bturb.dat", "B", 2, yscale = "linear", xscale = "linear")
 
-    plot_data2("../output/electrons.dat","../output/protons.dat", "distributions", 1, label1 = 'electrons', label2 = 'protons', ylim1 = None, ylim2 = None)
-    plot_data2("../examples_data/W50/newPeV/electrons.dat", "../examples_data/W50/newPeV/protons.dat", "distributions_p", 1, label1='electrons',
-               label2='protons', ylim1=None, ylim2=None)
-    plot_data2("../examples_data/W50/newPeV/electrons.dat", "../examples_data/W50/newdistribution/electrons.dat","electrons", 1, label1 = 'maxE = 5 PeV', label2 = 'maxE = 0.5 PeV', ylim1 = 3E-2, ylim2 = 5E-1)
-    plot_data2("../examples_data/W50/newPeV/protons.dat", "../examples_data/W50/newdistribution/protons.dat",
-               "protons", 1, label1='maxE = 5 PeV', label2='maxE = 0.5 PeV', ylim1 = 1E-10, ylim2 = 1E-6)
+    #plot_data2("../output/electrons.dat","../output/protons.dat", "distributions", 1, label1 = 'electrons', label2 = 'protons', ylim1 = None, ylim2 = None)
+    #plot_data2("../examples_data/W50/newPeV/electrons.dat", "../examples_data/W50/newPeV/protons.dat", "distributions_p", 1, label1='electrons',
+    #           label2='protons', ylim1=None, ylim2=None)
+    #plot_data2("../examples_data/W50/newPeV/electrons.dat", "../examples_data/W50/newdistribution/electrons.dat","electrons", 1, label1 = 'maxE = 5 PeV', label2 = 'maxE = 0.5 PeV', ylim1 = 3E-2, ylim2 = 5E-1)
+    #plot_data2("../examples_data/W50/newPeV/protons.dat", "../examples_data/W50/newdistribution/protons.dat",
+    #           "protons", 1, label1='maxE = 5 PeV', label2='maxE = 0.5 PeV', ylim1 = 1E-10, ylim2 = 1E-6)
     #plot_data2("../output/thinDistribution.dat","../output/thickDistribution.dat","distributions", 1, "thin", "thick", "$p/mc$", "$F(p)p^4$")
-    plot_W50_profile("","profile")
-    plot_W50_profile_Brinkmann("", "profile_Brinkmann")
+    #plot_W50_profile("","profile")
+    #plot_W50_profile_Brinkmann("", "profile_Brinkmann")
     #plot_W50_compton2("../output/W50comptonBigSource2.dat","../output/W50thickCompton.dat","W50compton",1,"numerical","thick","E eV", "$EF(E)~erg~cm^{-2} s^{-1}$")
     #plot_W50_compton3("../output/W50comptonBigSource.dat","../output/W50comptonBigSource2.dat","../output/W50thickCompton.dat","W50compton3",1,"numerical", "numerical thicker","thick","E eV", "$EF(E)~erg~cm^{-2} s^{-1}$")
     #plot_data3("../output/distributionRight.dat", "../output/distributionMiddle.dat", "../output/distributionLeft.dat", "distributions", 1)
@@ -88,19 +88,19 @@ if __name__ == '__main__':
     #plot_radiation_EFE("../W50compton.dat", "W50compton")
     #plot_radiation_EFE("../W50synchrotron.dat", "W50synchrotron")
     #plot_radiation_EFE("../W50synchandcompt.dat", "W50synchandcompt")
-    factor = 5E-3
-    plot_W50_EFE("../output/W50synchandcompt.dat", "W50synchandcompt", factor)
-    plot_W50_EFE_highenergy("../output/W50synchandcompt.dat", "W50сompton", factor)
-    plot_W50_EFE_highenergy2("../output/W50synchandcompt.dat","../output/W50thickcompton.dat","W50compton2", factor)
-    plot_W50_EFE_synchrotron("../output/W50synchandcompt.dat", "W50synch", factor)
+    #factor = 5E-3
+    #plot_W50_EFE("../output/W50synchandcompt.dat", "W50synchandcompt", factor)
+    #plot_W50_EFE_highenergy("../output/W50synchandcompt.dat", "W50сompton", factor)
+    #plot_W50_EFE_highenergy2("../output/W50synchandcompt.dat","../output/W50thickcompton.dat","W50compton2", factor)
+    #plot_W50_EFE_synchrotron("../output/W50synchandcompt.dat", "W50synch", factor)
     #plot_W50_EFE_highenergy3("../output/W50synchandcompt.dat","../output/W50thickcompton.dat","../output/W50thickcompton2.dat", "W50compton3", factor)
     #plot_radiation_EFE("../W50synchandcompt2.dat", "W50synchandcompt2")
     #plot_radiation_EFE("../output/W50highenergy.dat", "W50highenergy", 1E12, 1E16)
     #plot_radiation_EFE("../output/W50synchandcompt.dat", "W50kev", 1000, 200000, 2E-12, 2E-10)
-    #plot_synchrotron()
+    plot_synchrotron()
     #plot_synchrotron3()
     #plot_bremsstrahlung()
-    plot_pion()
+    #plot_pion()
     #plot_radiation4()
     #plot_radiation3()
     #plot_radiation10()
