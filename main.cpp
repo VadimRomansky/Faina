@@ -5335,7 +5335,7 @@ int main() {
 	//evaluateComptonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
-	evaluateAT2025wpp();
+	//evaluateAT2025wpp();
 	//fitTimeDependentCSS161010();
     //evaluatePionDecay();
 	//evaluateBremsstrahlung();
@@ -5355,6 +5355,8 @@ int main() {
 	//testMatrixInverse();
 	//testGMRES();
 	//testNishinaLosses();
+	//testNishinaLosses2();
+	testNishinaSpectrum();
 
 	//evaluateFluxSNRtoWind();
 	//evaluateComtonFromWind();

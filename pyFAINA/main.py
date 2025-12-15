@@ -52,7 +52,9 @@ if __name__ == '__main__':
     plt.rcParams['image.cmap'] = 'jet'
     #plt.rcParams['image.cmap'] = 'hot'
     #plot_dummy()
-    #plot_data("../nishina_losses.dat","nishina_losses", 3, 'log', 'log')
+    plot_data("../nishina_losses.dat","nishina_losses", 3, 'log', 'log', 'initial photon energy', 'emission power')
+    plot_data("../nishina_losses2.dat", "nishina_losses2", 3, 'log', 'log', 'initial electron energy', 'emission power')
+    plot_data("../nishina_spectrum.dat", "nishina_spectrum", 5, 'log', 'log', 'E', 'EF(E)')
     #plot_diffusionConvection("../output/diffusionConvection.dat", "D", 6, yscale = "log", xscale = "symlog")
 
     #plot_data("../output/Bturb.dat", "B", 2, yscale = "linear", xscale = "linear")
@@ -97,7 +99,7 @@ if __name__ == '__main__':
     #plot_radiation_EFE("../W50synchandcompt2.dat", "W50synchandcompt2")
     #plot_radiation_EFE("../output/W50highenergy.dat", "W50highenergy", 1E12, 1E16)
     #plot_radiation_EFE("../output/W50synchandcompt.dat", "W50kev", 1000, 200000, 2E-12, 2E-10)
-    plot_synchrotron()
+    #plot_synchrotron()
     #plot_synchrotron3()
     #plot_bremsstrahlung()
     #plot_pion()

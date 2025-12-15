@@ -66,5 +66,9 @@ void testGMRES();
 
 void testNishinaLosses();
 
+void testNishinaLosses2();
+
+void testNishinaSpectrum();
+
 
 #endif
