@@ -1128,6 +1128,10 @@ void RectangularSourceWithSynchAndComptCutoffFromRight::updateLB2()
 					l = 0;
 				}
 				my_LB2[irho][iz][iphi] = prev_LB2 + (my_B[irho][iz][iphi] * my_B[irho][iz][iphi] + my_photonEnergyDensity * 8 * pi) * l/my_downstreamVelocity[irho][iz][iphi];
+				if (checkNaNorInfinity(my_LB2[irho][iz][iphi])) {
+					printf("LB2 = NaN\n");
+					exit(0);
+				}
 				//my_LB2[irho][iz][iphi] = prev_LB2 + (my_B[irho][iz][iphi] * my_B[irho][iz][iphi]) * l;
 			}
 		}
@@ -1227,7 +1231,7 @@ RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAnd
 	write3dArrayToFile(my_LB2, my_Nx, my_Nz, my_Ny, "LB2.dat");
 }*/
 
-RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAndComptCutoffFromRight(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity1, const double& downstreamVelocity2, const double& photonEnergyDensity, const double& velocity, const double& redShift) : RectangularSource(Nx, xgrid, Ny, Nz, electronDistribution, B, theta, phi, concentration, minY, maxY, minZ, maxZ, distance, velocity, redShift)
+RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAndComptCutoffFromRight(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity1, const double& photonEnergyDensity, const double& velocity, const double& redShift) : RectangularSource(Nx, xgrid, Ny, Nz, electronDistribution, B, theta, phi, concentration, minY, maxY, minZ, maxZ, distance, velocity, redShift)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
@@ -1246,8 +1250,8 @@ RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAnd
 		for (int k = 0; k < my_Nz; ++k) {
 			my_downstreamVelocity[i][k] = new double[my_Ny];
 			for (int j = 0; j < my_Ny; ++j) {
-				my_downstreamVelocity[i][k][j] = downstreamVelocity1 + (downstreamVelocity2 - downstreamVelocity1)*(my_xgrid[i] - my_xgrid[my_Nx-1])/(my_xgrid[0] - my_xgrid[my_Nx - 1]);
-				my_concentration[i][k][j] = my_concentration[my_Nx - 1][k][j] * downstreamVelocity1 / my_downstreamVelocity[i][k][j];
+				my_downstreamVelocity[i][k][j] = downstreamVelocity1;// +(downstreamVelocity2 - downstreamVelocity1) * (my_xgrid[i] - my_xgrid[my_Nx - 1]) / (my_xgrid[0] - my_xgrid[my_Nx - 1]);
+				//my_concentration[i][k][j] = my_concentration[my_Nx - 1][k][j] * downstreamVelocity1 / my_downstreamVelocity[i][k][j];
 			}
 		}
 	}

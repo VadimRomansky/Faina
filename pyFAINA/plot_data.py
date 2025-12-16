@@ -2,9 +2,9 @@ from matplotlib import animation
 from pylab import *
 import numpy as np
 
-def plot_data(filename, name, Ncol, xscale = 'linear', yscale = 'linear', xlabel = '', ylabel = ''):
+def plot_data(filename, name, Ncol, xscale = 'linear', yscale = 'linear', xlabel = '', ylabel = '', legendList = None):
     plt.rcParams.update({'font.size': 40})
-    plt.rcParams['text.usetex'] = True
+    #plt.rcParams['text.usetex'] = True
     plt.rcParams['axes.linewidth'] = 1
 
     f1 = plt.figure(figsize=[10, 10])
@@ -25,9 +25,10 @@ def plot_data(filename, name, Ncol, xscale = 'linear', yscale = 'linear', xlabel
 
     ax.set_xscale(xscale)
     ax.set_yscale(yscale)
-    ax.set_xlabel(xlabel, fontsize=40,fontweight='bold')
-    ax.set_ylabel(ylabel, fontsize=40,fontweight='bold')
+    ax.set_xlabel(xlabel, fontsize=30,fontweight='bold')
+    ax.set_ylabel(ylabel, fontsize=30,fontweight='bold')
 
-    ax.legend([r'Jones','Klein-Nishina', r'Piran'], fontsize="30")
+    if(legendList != None):
+        ax.legend(legendList, fontsize="30")
 
     plt.savefig(name + '.png', bbox_inches='tight')

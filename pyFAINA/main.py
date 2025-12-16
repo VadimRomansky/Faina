@@ -47,14 +47,16 @@ from plot_rectangular_image import plot_rectangular_image
 from plot_rectangular_image_with_axis import plot_rectangular_image_with_axis
 from plot_synchrotron import plot_synchrotron
 from plot_synchrotron3 import plot_synchrotron3
+from plot_thick_regime import plot_thick_regime
 
 if __name__ == '__main__':
     plt.rcParams['image.cmap'] = 'jet'
     #plt.rcParams['image.cmap'] = 'hot'
     #plot_dummy()
-    plot_data("../nishina_losses.dat","nishina_losses", 3, 'log', 'log', 'initial photon energy', 'emission power')
-    plot_data("../nishina_losses2.dat", "nishina_losses2", 3, 'log', 'log', 'initial electron energy', 'emission power')
-    plot_data("../nishina_spectrum.dat", "nishina_spectrum", 5, 'log', 'log', 'E', 'EF(E)')
+    plot_data("../nishina_losses.dat","nishina_losses", 3, 'log', 'linear', 'initial photon energy [eV]', 'emission power',['Jones','Klein-Nishina','Piran'])
+    plot_data("../nishina_losses2.dat", "nishina_losses2", 3, 'log', 'log', 'initial electron energy [eV]', 'emission power',['Jones','Klein-Nishina','Piran'])
+    plot_data("../nishina_spectrum.dat", "nishina_spectrum", 6, 'log', 'log', 'E  [eV]', 'EF(E) [erg/cm^2 s]', ['gamma = 1E6', 'gamma = 1E7', 'gamma = 1E8', 'gamma = 1E9', 'gamma = 1E10', 'gamma = 1E11'])
+    plot_thick_regime();
     #plot_diffusionConvection("../output/diffusionConvection.dat", "D", 6, yscale = "log", xscale = "symlog")
 
     #plot_data("../output/Bturb.dat", "B", 2, yscale = "linear", xscale = "linear")

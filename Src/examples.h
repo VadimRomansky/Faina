@@ -70,5 +70,7 @@ void testNishinaLosses2();
 
 void testNishinaSpectrum();
 
+void testBigSource();
+
 
 #endif

@@ -5332,7 +5332,7 @@ int main() {
 	resetLog();
 	srand(time(NULL));
 	//evaluateSimpleSynchrotron();
-	//evaluateComptonWithPowerLawDistribution();
+	evaluateComptonWithPowerLawDistribution();
 	//fitCSS161010withPowerLawDistribition();
 	//fitCSS161010withTabulatedDistributions();
 	//evaluateAT2025wpp();
@@ -5354,9 +5354,10 @@ int main() {
 	//fitAT2025wpp_2();
 	//testMatrixInverse();
 	//testGMRES();
-	//testNishinaLosses();
-	//testNishinaLosses2();
+	testNishinaLosses();
+	testNishinaLosses2();
 	testNishinaSpectrum();
+	//testBigSource();
 
 	//evaluateFluxSNRtoWind();
 	//evaluateComtonFromWind();

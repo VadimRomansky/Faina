@@ -38,8 +38,8 @@ void evaluateComptonWithPowerLawDistribution() {
 	//double rmax = 2E14;
 	double electronConcentration = 1.9;
 	double B = 0.052;
-	double rmax = 3.5E17;
-	double fraction = 0.5 * 4 / 3;
+	double rmax = 1E16;
+	double fraction = 1.0;
 	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
 
 	//SN2009bb
@@ -51,8 +51,8 @@ void evaluateComptonWithPowerLawDistribution() {
 	//const double distance = 1.0;
 
 	//double Emin = 652.317 * me_c2 * 1;
-	double Emin = 1000*me_c2;
-	double Emax = 1E8 * me_c2;
+	double Emin = me_c2;
+	double Emax = 1E17 * 1.6E-12;
 	int Ne = 400;
 	int Nmu = 20;
 	int Nphi = 10;
@@ -60,11 +60,30 @@ void evaluateComptonWithPowerLawDistribution() {
 
 	int Nph = 100;
 
+	//initializing electrons distribution
+	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin);
+
+
+	RadiationSourceInCylindrical* source = new SimpleFlatSource(electrons, B, theta, 0, electronConcentration, rmax, fraction * rmax, distance);
+
 	double T = 11000;
 	//initializing mean galactic photon field
 	double luminosity = 510000 * 4 * 1E33;
 	double rsun = 7.5E10;
 	double rstar = rsun * sqrt(510000.0 / pow(T / 5772, 4));
+
+	T = 2.7;
+
+	PhotonPlankDistribution* photons = PhotonPlankDistribution::getCMBradiation();
+
+
+	double Ephmin = 0.1 * T * kBoltzman;
+	double Ephmax = 10 * T * kBoltzman;
+	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photons, photons->getConcentration(), ComptonSolverType::ISOTROPIC_JONES);
+
+	comptonEvaluator->writeEFEFromSourceToFile("./outputCompton.dat", source, 1.6E-12, 1E16*1.6E-12, 500);
+
+	return;
 	
 	PhotonPlankDirectedDistribution* photonDistribution1 = new PhotonPlankDirectedDistribution(T, sqr(rstar / (4*rmax)), 0, 0, 0.24);
 	double photonConcentration1 = photonDistribution1->getConcentration();
@@ -82,14 +101,7 @@ void evaluateComptonWithPowerLawDistribution() {
 	double photonConcentration7 = photonDistribution7->getConcentration();
 	PhotonPlankDistribution* photonDistribution8 = new PhotonPlankDistribution(T, 1.0);
 	double photonConcentration8 = photonDistribution8->getConcentration();
-	//initializing electrons distribution
-	MassiveParticlePowerLawDistribution* electrons = new MassiveParticlePowerLawDistribution(massElectron, index, Emin);
 
-
-	RadiationSourceInCylindrical* source = new SimpleFlatSource(electrons, B, theta, 0, electronConcentration, rmax, fraction*rmax, distance);
-
-	double Ephmin = 0.1 * T * kBoltzman;
-	double Ephmax = 10 * T * kBoltzman;
 	InverseComptonEvaluator* comptonEvaluator1 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDistribution1, photonConcentration1, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
 	InverseComptonEvaluator* comptonEvaluator2 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDistribution2, photonConcentration2, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
 	InverseComptonEvaluator* comptonEvaluator3 = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photonDistribution3, photonConcentration3, ComptonSolverType::ANISOTROPIC_KLEIN_NISHINA);
@@ -2799,14 +2811,14 @@ void testNishinaLosses() {
 		PhotonMonoenergeticDistribution* photons = new PhotonMonoenergeticDistribution(Eph, 0.01 * Eph);
 		double photonConcentration = 1.0/Eph;
 		double photonEnergyDensity = photonConcentration * photons->getMeanEnergy();
-		InverseComptonEvaluator* evaluator = new InverseComptonEvaluator(200, 10, 4, Ee - halfEe, Ee + halfEe, 50, 0.999 * Eph, 1.001 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
-		InverseComptonEvaluator* evaluator2 = new InverseComptonEvaluator(200, 50, 4, Ee - halfEe, Ee + halfEe, 50, 0.999 * Eph, 1.001 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+		InverseComptonEvaluator* evaluator = new InverseComptonEvaluator(10, 500, 4, Ee - halfEe, Ee + halfEe, 50, 0.999 * Eph, 1.001 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+		InverseComptonEvaluator* evaluator2 = new InverseComptonEvaluator(10, 500, 4, Ee - halfEe, Ee + halfEe, 50, 0.999 * Eph, 1.001 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
 
-		L[i] = evaluator->evaluateTotalFluxInEnergyRange(0.01 * Eph, 2 * Ee, 1000, source) * 4 * pi * distance * distance;
+		L[i] = evaluator->evaluateTotalFluxInEnergyRange(0.01 * Eph, 2 * Ee, 200, source) * 4 * pi * distance * distance;
 		L2[i] = volume * concentration * (4.0 / 3.0) * speed_of_light * sigmaT * gamma * gamma * photonEnergyDensity / pow(1.0 + 4 * gamma * Eph / me_c2, 3.0 / 2.0);
 		L3[i] = volume * concentration * (4.0 / 3.0) * speed_of_light * sigmaT * gamma * gamma * photonEnergyDensity / pow(1.0 + 4 * pi * gamma * Eph / me_c2, 3.0 / 2.0);
 
-		L1[i] = evaluator2->evaluateTotalFluxInEnergyRange(0.01 * Eph, 2 * Ee, 1000, source) * 4 * pi * distance * distance;
+		L1[i] = evaluator2->evaluateTotalFluxInEnergyRange(0.01 * Eph, 2 * Ee, 200, source) * 4 * pi * distance * distance;
 
 		Eph = Eph * factor;
 
@@ -2830,9 +2842,9 @@ void testNishinaLosses2() {
 	double concentration = 1;
 	double B = 1.0;
 
-	int Nee = 50;
+	int Nee = 70;
 	double minEe = 1E5*me_c2;
-	double maxEe = 1E11*me_c2;
+	double maxEe = 1E12*me_c2;
 	double factor = pow(maxEe / minEe, 1.0 / (Nee - 1.0));
 	double E = minEe;
 
@@ -2860,14 +2872,14 @@ void testNishinaLosses2() {
 
 		double Eph = 2.8 * kBoltzman * 2.7;
 		
-		InverseComptonEvaluator* evaluator = new InverseComptonEvaluator(200, 10, 4, Ee - halfEe, Ee + halfEe, 50, 0.1 * Eph, 10 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
-		InverseComptonEvaluator* evaluator2 = new InverseComptonEvaluator(200, 50, 4, Ee - halfEe, Ee + halfEe, 50, 0.1 * Eph, 10 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+		InverseComptonEvaluator* evaluator = new InverseComptonEvaluator(10, 500, 4, Ee - halfEe, Ee + halfEe, 50, 0.1 * Eph, 10 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+		InverseComptonEvaluator* evaluator2 = new InverseComptonEvaluator(10, 500, 4, Ee - halfEe, Ee + halfEe, 50, 0.1 * Eph, 10 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
 
-		L[i] = evaluator->evaluateTotalFluxInEnergyRange(0.1 * Eph, 2 * Ee, 1000, source) * 4 * pi * distance * distance;
+		L[i] = evaluator->evaluateTotalFluxInEnergyRange(0.1 * Eph, 2 * Ee, 200, source) * 4 * pi * distance * distance;
 		L2[i] = volume * concentration * (4.0 / 3.0) * speed_of_light * sigmaT * gamma * gamma * photonEnergyDensity / pow(1.0 + 4 * gamma * Eph / me_c2, 3.0 / 2.0);
 		L3[i] = volume * concentration * (4.0 / 3.0) * speed_of_light * sigmaT * gamma * gamma * photonEnergyDensity / pow(1.0 + 4 * pi * gamma * Eph / me_c2, 3.0 / 2.0);
 
-		L1[i] = evaluator2->evaluateTotalFluxInEnergyRange(0.1 * Eph, 2 * Ee, 1000, source) * 4 * pi * distance * distance;
+		L1[i] = evaluator2->evaluateTotalFluxInEnergyRange(0.1 * Eph, 2 * Ee, 200, source) * 4 * pi * distance * distance;
 
 		Ee = Ee * factor;
 
@@ -2893,7 +2905,7 @@ void testNishinaSpectrum() {
 	double concentration = 1;
 	double B = 1.0;
 
-	int Nee = 5;
+	int Nee = 6;
 	double minEe = 1E5 * me_c2;
 	double maxEe = 511*1E12*1.6E-12;
 	double factor = pow(maxEe / minEe, 1.0 / (Nee - 1.0));
@@ -2904,10 +2916,16 @@ void testNishinaSpectrum() {
 		Ee[i] = E;
 		E = E * factor;
 	}
+	Ee[0] = 1E6 * me_c2;
+	Ee[1] = 1E7 * me_c2;
+	Ee[2] = 1E8 * me_c2;
+	Ee[3] = 1E9 * me_c2;
+	Ee[4] = 1E10 * me_c2;
+	Ee[5] = 1E11 * me_c2;
 
 	int Nph = 1000;
-	double minEph = 0.1 * kBoltzman * 2.7;
-	double maxEph = maxEe;
+	double minEph = 10000 * kBoltzman * 2.7;
+	double maxEph = 1.5*Ee[Nee-1];
 	factor = pow(maxEph / minEph, 1.0 / (Nph - 1.0));
 
 	double* Eph = new double[Nph];
@@ -2945,8 +2963,8 @@ void testNishinaSpectrum() {
 		double gamma = Ee[i] / me_c2;
 		MassiveParticleMonoenergeticDistribution* electrons = new MassiveParticleMonoenergeticDistribution(massElectron, Ee[i], halfEe);
 		sources[i] = new SimpleFlatSource(electrons, B, pi / 2, 0, concentration, size, size, distance);
-		evaluators1[i] = new InverseComptonEvaluator(200, 10, 4, Ee[i] - halfEe, Ee[i] + halfEe, 50, 0.1 * kBoltzman*2.7, 2*kBoltzman*5000, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
-		evaluators2[i] = new InverseComptonEvaluator(200, 50, 4, Ee[i] - halfEe, Ee[i] + halfEe, 50, 0.1 * kBoltzman*2.7, 2*kBoltzman*5000, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+		evaluators1[i] = new InverseComptonEvaluator(10, 500, 4, Ee[i] - halfEe, Ee[i] + halfEe, 50, 0.1 * kBoltzman*2.7, 2*kBoltzman*5000, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+		evaluators2[i] = new InverseComptonEvaluator(10, 500, 4, Ee[i] - halfEe, Ee[i] + halfEe, 50, 0.1 * kBoltzman*2.7, 2*kBoltzman*5000, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
 	}
 
 	for (int i = 0; i < Nph; ++i) {
@@ -2954,7 +2972,7 @@ void testNishinaSpectrum() {
 		
 		for (int j = 0; j < Nee; ++j) {
 			L[j][i] = Eph[i]*evaluators1[j]->evaluateFluxFromSource(Eph[i], sources[j]);
-			//L2[j][i] = Eph[i]*evaluators2[j]->evaluateFluxFromSource(Eph[i], sources[j]);
+			L2[j][i] = Eph[i]*evaluators2[j]->evaluateFluxFromSource(Eph[i], sources[j]);
 		}
 	}
 
@@ -2970,4 +2988,157 @@ void testNishinaSpectrum() {
 		fprintf(outFile, "\n");
 	}
 	fclose(outFile);
+}
+
+void testBigSource() {
+	double distance = (18000 / 3.26) * parsec;
+
+	double* energy;
+	double* xgrid;
+	double* concentration;
+	double** distributions;
+
+	int Nenergy;
+	int Nx;
+
+	const char* xfileName = "./examples_data/W50/newdistribution/x_grid.dat";
+
+	Nx = 0;
+	FILE* xfile = fopen(xfileName, "r");
+	while (!feof(xfile)) {
+		double a;
+		fscanf(xfile, "%lf", &a);
+		Nx = Nx + 1;
+	}
+	fclose(xfile);
+	Nx = Nx - 1;
+	double* xgrid1 = new double[Nx];
+	xfile = fopen(xfileName, "r");
+	for (int i = 0; i < Nx; ++i) {
+		fscanf(xfile, "%lf", &xgrid1[i]);
+	}
+	fclose(xfile);
+	int zeroIndex = 0;
+	for (int i = 0; i < Nx; ++i) {
+		if (xgrid1[i] >= 0) {
+			zeroIndex = i;
+			break;
+		}
+	}
+
+	Nx = Nx - zeroIndex;
+
+	xgrid = new double[Nx];
+	for (int i = 0; i < Nx; ++i) {
+		xgrid[Nx - i - 1] = 1000*xgrid1[i + zeroIndex];
+	}
+
+	double secondToRadian = pi / (180 * 3600);
+	double headMinSec = 0;
+	double headMaxSec = 12 * 15;
+	double coneMinSec = headMaxSec;
+	double coneMaxSec = 26 * 15;
+
+	double headMinX = -headMinSec * secondToRadian * distance;
+	double headMaxX = -headMaxSec * secondToRadian * distance;
+	double coneMinX = -coneMinSec * secondToRadian * distance;
+	double coneMaxX = -coneMaxSec * secondToRadian * distance;
+
+	double size = 0.5 * fabs(headMaxX);
+	double B0 = 3E-7;
+	double magneticEnergyDensity = B0 * B0 / (8 * pi);
+
+	//RadiationSourceInCylindrical* downstreamSource = new SimpleFlatSource(upstreamElectrons, downstreamB, pi / 2, 0, concentration, size, size, distance);
+	PhotonPlankDistribution* photons = PhotonPlankDistribution::getCMBradiation();
+	PhotonPlankDistribution* photonsIR = new PhotonPlankDistribution(140, 0.8 / 1800000);
+	double photonIRconcentration = photonsIR->getConcentration();
+	double photonIRenergyDensity = photonIRconcentration * photonsIR->getMeanEnergy();
+	double photonConcentration = photons->getConcentration();
+	double photonEnergyDensity = photonConcentration * photons->getMeanEnergy();
+	PhotonMultiPlankDistribution* photonsTotal = new PhotonMultiPlankDistribution(2.725, 1.0, 140, 0.8 / 1800000);
+	//PhotonMultiPlankDistribution* photonsTotal = PhotonMultiPlankDistribution::getGalacticField();
+
+	double photonTotalConcentration = photonsTotal->getConcentration();
+	double photonTotalEnergyDensity = photonTotalConcentration * photonsTotal->getMeanEnergy();
+
+	int Nz = 1;
+	int Ny = 1;
+
+
+	for (int i = 0; i < Nx; ++i) {
+		xgrid[i] = -xgrid[i];
+	}
+	const char* fileName = "./examples_data/W50/newdistribution/electrons.dat";
+
+	MassiveParticleTabulatedIsotropicDistribution* electrons1;
+	double concentration1;
+	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massElectron, fileName, electrons1, concentration1);
+
+	double*** B = new double** [Nx];
+	double*** Btheta = new double** [Nx];
+	double*** Bphi = new double** [Nx];
+	double*** concentrationArray = new double** [Nx];
+	for (int i = 0; i < Nx; ++i) {
+		B[i] = new double* [Ny];
+		Btheta[i] = new double* [Ny];
+		Bphi[i] = new double* [Ny];
+		concentrationArray[i] = new double* [Ny];
+		for (int j = 0; j < Ny; ++j) {
+			B[i][j] = new double[Nz];
+			Btheta[i][j] = new double[Nz];
+			Bphi[i][j] = new double[Nz];
+			concentrationArray[i][j] = new double[Nz];
+			for (int k = 0; k < Nz; ++k) {
+				B[i][j][k] = B0;
+				Btheta[i][j][k] = pi / 2;
+				Bphi[i][j][k] = 0;
+				concentrationArray[i][j][k] = concentration1;
+			}
+		}
+	}
+
+	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
+	double u = 0.25 * 0.2 * speed_of_light;
+	RectangularSourceWithSynchAndComptCutoffFromRight* source = new RectangularSourceWithSynchAndComptCutoffFromRight(Nx, xgrid, Ny, Nz, electrons1, B, Btheta, Bphi, concentrationArray, 0, size, 0, pi * size, distance, u, photonTotalEnergyDensity);
+	//RectangularSourceInhomogenousDistribution* downstreamSource = new RectangularSourceInhomogenousDistribution(Nx, downstreamXgrid, Ny, Nz, electrons2, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
+	//RectangularSource* downstreamSource = new RectangularSource(1, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, downstreamXgrid[0], downstreamXgrid[Nx - 1], 0, size, 0, pi * size, distance);
+	MassiveParticleIsotropicDistribution* distributionRight = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(Nx - 1, 0, 0));
+	distributionRight->writeDistribution("./output/distributionRight.dat", 200, me_c2, 1E10 * me_c2);
+	MassiveParticleIsotropicDistribution* distributionMiddle = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(Nx - 2, 0, 0));
+	distributionMiddle->writeDistribution("./output/distributionMiddle.dat", 200, me_c2, 1E10 * me_c2);
+	MassiveParticleIsotropicDistribution* distributionLeft = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(Nx / 2, 0, 0));
+	distributionLeft->writeDistribution("./output/distributionLeft.dat", 200, me_c2, 1E10 * me_c2);
+
+	int Ne = 1000;
+	int Nmu = 100;
+	int Nphi = 4;
+	//RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 2.75 * kBoltzman * 20, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 1000, 0.1 * kBoltzman * 2.75, 140 * kBoltzman * 20, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
+
+	comptonEvaluator->writeEFEFromSourceToFile("./testBigSource.dat", source, 1.6E-10, 1.6E4, 500);
+
+
+
+	//frontElectrons->writeDistribution("./output/thinDistribution.dat", 2000, me_c2, 1E10 * me_c2);
+
+	double norm = 0;
+	electrons1->transformToThickRegime(photonTotalEnergyDensity + magneticEnergyDensity, norm);
+
+	double E0 = 1.6E-1;
+	concentration1 *= u * pi * size * size * norm;
+
+	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
+	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(Nx, downstreamXgrid, Ny, Nz, upstreamElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.25 * 0.2 * speed_of_light, photonTotalEnergyDensity);
+	//RectangularSourceInhomogenousDistribution* downstreamSource = new RectangularSourceInhomogenousDistribution(Nx, downstreamXgrid, Ny, Nz, electrons2, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
+	RectangularSource* source1 = new RectangularSource(1, 1, 1, electrons1, B0, pi / 2, 0, concentration1, 0, 1, 0, 1, 0, 1, distance);
+
+
+	//RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 2.75 * kBoltzman * 20, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	//RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, me_c2 * 500, 1E10 * me_c2, false, false);
+	//RadiationEvaluator* sumEvaluator = new RadiationSumEvaluator(Ne, me_c2 * 500, 1E10 * me_c2, comptonEvaluator, synchrotronEvaluator, false, false);
+
+	comptonEvaluator->writeEFEFromSourceToFile("./thickCompton.dat", source1, 1.6E-12, 1.6E4, 500);
+
+	return;
+
 }
