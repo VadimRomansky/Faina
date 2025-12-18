@@ -2792,8 +2792,8 @@ void testNishinaLosses() {
 	double volume = source->getTotalVolume();
 
 	int Neph = 50;
-	double minEph = kBoltzman*2.725;
-	double maxEph = 1E5*minEph;
+	double minEph = 0.01*kBoltzman*2.725;
+	double maxEph = 1E6*minEph;
 	double factor = pow(maxEph / minEph, 1.0 / (Neph - 1.0));
 	double Eph = minEph;
 
@@ -2811,19 +2811,26 @@ void testNishinaLosses() {
 		PhotonMonoenergeticDistribution* photons = new PhotonMonoenergeticDistribution(Eph, 0.01 * Eph);
 		double photonConcentration = 1.0/Eph;
 		double photonEnergyDensity = photonConcentration * photons->getMeanEnergy();
-		InverseComptonEvaluator* evaluator = new InverseComptonEvaluator(10, 500, 4, Ee - halfEe, Ee + halfEe, 50, 0.999 * Eph, 1.001 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
-		InverseComptonEvaluator* evaluator2 = new InverseComptonEvaluator(10, 500, 4, Ee - halfEe, Ee + halfEe, 50, 0.999 * Eph, 1.001 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+		double dEph = 0.01 * Eph;
+		InverseComptonEvaluator* evaluator = new InverseComptonEvaluator(100, 50, 4, Ee - halfEe, Ee + halfEe, 100, Eph - dEph, Eph+dEph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+		//InverseComptonEvaluator* evaluator1 = new InverseComptonEvaluator(100, 50, 4, Ee - halfEe, Ee + halfEe, 50, Eph - dEph, Eph + dEph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+		//InverseComptonEvaluator* evaluator2 = new InverseComptonEvaluator(100, 50, 4, Ee - halfEe, Ee + halfEe, 200, Eph - dEph, Eph + dEph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+		//InverseComptonEvaluator* evaluator3 = new InverseComptonEvaluator(10, 50, 4, Ee - halfEe, Ee + halfEe, 500, Eph - dEph, Eph + dEph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+
+		//InverseComptonEvaluator* evaluator1 = new InverseComptonEvaluator(10, 10, 4, Ee - halfEe, Ee + halfEe, 10, Eph - dEph, Eph+dEph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
 
 		L[i] = evaluator->evaluateTotalFluxInEnergyRange(0.01 * Eph, 2 * Ee, 200, source) * 4 * pi * distance * distance;
-		L2[i] = volume * concentration * (4.0 / 3.0) * speed_of_light * sigmaT * gamma * gamma * photonEnergyDensity / pow(1.0 + 4 * gamma * Eph / me_c2, 3.0 / 2.0);
+		L1[i] = volume * concentration * (4.0 / 3.0) * speed_of_light * sigmaT * gamma * gamma * photonEnergyDensity / pow(1.0 + 4 * gamma * Eph / me_c2, 3.0 / 2.0);
 		L3[i] = volume * concentration * (4.0 / 3.0) * speed_of_light * sigmaT * gamma * gamma * photonEnergyDensity / pow(1.0 + 4 * pi * gamma * Eph / me_c2, 3.0 / 2.0);
 
-		L1[i] = evaluator2->evaluateTotalFluxInEnergyRange(0.01 * Eph, 2 * Ee, 200, source) * 4 * pi * distance * distance;
+		//L2[i] = evaluator1->evaluateTotalFluxInEnergyRange(0.01 * Eph, 2 * Ee, 200, source) * 4 * pi * distance * distance;
+		//L2[i] = evaluator2->evaluateTotalFluxInEnergyRange(0.01 * Eph, 2 * Ee, 200, source) * 4 * pi * distance * distance;
+		//L3[i] = evaluator3->evaluateTotalFluxInEnergyRange(0.01 * Eph, 2 * Ee, 200, source) * 4 * pi * distance * distance;
 
 		Eph = Eph * factor;
 
 		delete evaluator;
-		delete evaluator2;
+		//delete evaluator1;
 		delete photons;
 	}
 
@@ -2844,7 +2851,7 @@ void testNishinaLosses2() {
 
 	int Nee = 70;
 	double minEe = 1E5*me_c2;
-	double maxEe = 1E12*me_c2;
+	double maxEe = 1E9*me_c2;
 	double factor = pow(maxEe / minEe, 1.0 / (Nee - 1.0));
 	double E = minEe;
 
@@ -2872,14 +2879,14 @@ void testNishinaLosses2() {
 
 		double Eph = 2.8 * kBoltzman * 2.7;
 		
-		InverseComptonEvaluator* evaluator = new InverseComptonEvaluator(10, 500, 4, Ee - halfEe, Ee + halfEe, 50, 0.1 * Eph, 10 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
-		InverseComptonEvaluator* evaluator2 = new InverseComptonEvaluator(10, 500, 4, Ee - halfEe, Ee + halfEe, 50, 0.1 * Eph, 10 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+		InverseComptonEvaluator* evaluator = new InverseComptonEvaluator(10, 100, 4, Ee - halfEe, Ee + halfEe, 50, 0.1 * Eph, 10 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+		//InverseComptonEvaluator* evaluator2 = new InverseComptonEvaluator(10, 100, 4, Ee - halfEe, Ee + halfEe, 50, 0.1 * Eph, 10 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
 
 		L[i] = evaluator->evaluateTotalFluxInEnergyRange(0.1 * Eph, 2 * Ee, 200, source) * 4 * pi * distance * distance;
-		L2[i] = volume * concentration * (4.0 / 3.0) * speed_of_light * sigmaT * gamma * gamma * photonEnergyDensity / pow(1.0 + 4 * gamma * Eph / me_c2, 3.0 / 2.0);
+		L1[i] = volume * concentration * (4.0 / 3.0) * speed_of_light * sigmaT * gamma * gamma * photonEnergyDensity / pow(1.0 + 4 * gamma * Eph / me_c2, 3.0 / 2.0);
 		L3[i] = volume * concentration * (4.0 / 3.0) * speed_of_light * sigmaT * gamma * gamma * photonEnergyDensity / pow(1.0 + 4 * pi * gamma * Eph / me_c2, 3.0 / 2.0);
 
-		L1[i] = evaluator2->evaluateTotalFluxInEnergyRange(0.1 * Eph, 2 * Ee, 200, source) * 4 * pi * distance * distance;
+		//L1[i] = evaluator2->evaluateTotalFluxInEnergyRange(0.1 * Eph, 2 * Ee, 200, source) * 4 * pi * distance * distance;
 
 		Ee = Ee * factor;
 
@@ -2887,7 +2894,7 @@ void testNishinaLosses2() {
 		delete electrons;
 
 		delete evaluator;
-		delete evaluator2;
+		//delete evaluator2;
 	}
 
 	Ee = minEe;
@@ -2963,8 +2970,8 @@ void testNishinaSpectrum() {
 		double gamma = Ee[i] / me_c2;
 		MassiveParticleMonoenergeticDistribution* electrons = new MassiveParticleMonoenergeticDistribution(massElectron, Ee[i], halfEe);
 		sources[i] = new SimpleFlatSource(electrons, B, pi / 2, 0, concentration, size, size, distance);
-		evaluators1[i] = new InverseComptonEvaluator(10, 500, 4, Ee[i] - halfEe, Ee[i] + halfEe, 50, 0.1 * kBoltzman*2.7, 2*kBoltzman*5000, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
-		evaluators2[i] = new InverseComptonEvaluator(10, 500, 4, Ee[i] - halfEe, Ee[i] + halfEe, 50, 0.1 * kBoltzman*2.7, 2*kBoltzman*5000, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+		evaluators1[i] = new InverseComptonEvaluator(10, 100, 4, Ee[i] - halfEe, Ee[i] + halfEe, 50, 0.1 * kBoltzman*2.7, 2*kBoltzman*5000, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+		evaluators2[i] = new InverseComptonEvaluator(10, 100, 4, Ee[i] - halfEe, Ee[i] + halfEe, 50, 0.1 * kBoltzman*2.7, 2*kBoltzman*5000, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
 	}
 
 	for (int i = 0; i < Nph; ++i) {
@@ -2972,7 +2979,7 @@ void testNishinaSpectrum() {
 		
 		for (int j = 0; j < Nee; ++j) {
 			L[j][i] = Eph[i]*evaluators1[j]->evaluateFluxFromSource(Eph[i], sources[j]);
-			L2[j][i] = Eph[i]*evaluators2[j]->evaluateFluxFromSource(Eph[i], sources[j]);
+			//L2[j][i] = Eph[i]*evaluators2[j]->evaluateFluxFromSource(Eph[i], sources[j]);
 		}
 	}
 
