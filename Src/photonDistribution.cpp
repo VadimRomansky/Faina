@@ -168,7 +168,12 @@ double PhotonMultiPlankDistribution::distributionNormalized(const double& energy
 	double result = 0;
 	for (int i = 0; i < my_Nplank; ++i) {
 		double theta = energy / (kBoltzman * my_temperatures[i]);
-		result += my_A[i] * (2 * energy * energy / cube(hplank * speed_of_light)) / (exp(theta) - 1.0);
+		if (theta < 1E-12) {
+			result += my_A[i] * (2 * kBoltzman * my_temperatures[i] * energy / cube(hplank * speed_of_light)) / my_concentration;
+		}
+		else {
+			result += my_A[i] * (2 * energy * energy / cube(hplank * speed_of_light)) / (exp(theta) - 1.0);
+		}
 	}
 
 	return result/my_concentration;

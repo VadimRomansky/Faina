@@ -53,10 +53,10 @@ if __name__ == '__main__':
     plt.rcParams['image.cmap'] = 'jet'
     #plt.rcParams['image.cmap'] = 'hot'
     #plot_dummy()
-    plot_data("../nishina_losses.dat","nishina_losses", 2, 'log', 'log', 'initial photon energy [eV]', 'emission power',['Jones','Piran'])
-    plot_data("../nishina_losses2.dat", "nishina_losses2", 2, 'log', 'log', 'initial electron energy [eV]', 'emission power',['Jones','Piran'])
-    plot_data("../nishina_spectrum.dat", "nishina_spectrum", 4, 'log', 'log', 'E  [eV]', 'EF(E) [erg/cm^2 s]', ['E = 500 GeV', 'E = 5 TeV', 'E = 50 TeV', 'E = 500 TeV', 'gamma = 1E10', 'gamma = 1E11'])
-    plot_thick_regime()
+    #plot_data("../nishina_losses.dat","nishina_losses", 2, 'log', 'log', 'initial photon energy [eV]', 'emission power',['Jones','Piran'])
+    #plot_data("../nishina_losses2.dat", "nishina_losses2", 3, 'log', 'log', 'initial electron energy [eV]', 'emission power',['Jones','Piran', 'LHAASO'])
+    plot_data("../nishina_spectrum.dat", "nishina_spectrum", 12, 'log', 'log', 'E  [eV]', 'EF(E) [erg/cm^2 s]', ['E = 500 GeV', 'E = 5 TeV', 'E = 50 TeV', 'E = 500 TeV', 'E = 5 PeV', 'E = 50 Pev', 'E = 500 GeV', 'E = 5 TeV', 'E = 50 TeV', 'E = 500 TeV', 'E = 5 PeV', 'E = 50 Pev'])
+    #plot_thick_regime()
     #plot_diffusionConvection("../output/diffusionConvection.dat", "D", 6, yscale = "log", xscale = "symlog")
 
     #plot_data("../output/Bturb.dat", "B", 2, yscale = "linear", xscale = "linear")

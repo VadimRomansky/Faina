@@ -183,6 +183,51 @@ void evaluateComptonWithPowerLawDistribution() {
 	delete comptonEvaluator10;
 }
 
+// example 1. Evaluating inverse compton flux of powerlaw distributed electrons on CMB radiation
+void evaluateComptonOneParticle() {
+	double theta = pi / 2;
+	//double rmax = 2E14;
+	double electronConcentration = 1.9;
+	double B = 0.052;
+	double rmax = 1E16;
+	double fraction = 1.0;
+	double sigma = B * B / (4 * pi * massProton * electronConcentration * speed_of_light2);
+
+	//SN2009bb
+	//const double distance = 40*3.08*1.0E24;
+	//AT2018
+	//const double distance = 60*3.08*1.0E24;
+	//CSS161010
+	const double distance = 150 * 1000000 * parsec;
+	//const double distance = 1.0;
+
+	int Ne = 8;
+	int Nmu = 500;
+	int Nphi = 4;
+	double index = 2.0;
+
+	int Nph = 100;
+
+	double Ee = 1E10 * me_c2;
+	double Tph = 10000.0;
+	double Eph = kBoltzman * Tph;
+	double dEe = 0.1 * Ee;
+	double dEph = 0.1 * Eph;
+
+	//initializing electrons distribution
+	MassiveParticleMonoenergeticDistribution* electrons = new MassiveParticleMonoenergeticDistribution(massElectron, Ee, dEe);
+
+
+	RadiationSourceInCylindrical* source = new SimpleFlatSource(electrons, B, theta, 0, electronConcentration, rmax, fraction * rmax, distance);
+
+	PhotonMonoenergeticDistribution* photons = new PhotonMonoenergeticDistribution(Eph, dEph);
+	double photonConcentration = 1.0;
+
+	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Ee - dEe, Ee + dEe, Nph, Eph - dEph, Eph + dEph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+
+	comptonEvaluator->writeEFEFromSourceToFile("./outputCompton.dat", source, 1E6*1.6E-12, 1E16 * 1.6E-12, 100);
+}
+
 //example 2. Fitting observed synchrotron radio fluxes from CSS1601010 at one time moment with simple flat disk source and powerlaw distribution
 void fitCSS161010withPowerLawDistribition() {
 	//initial parameters of the source
@@ -2784,7 +2829,7 @@ void testNishinaLosses() {
 	double size = 1E16;
 	double concentration = 1;
 	double B = 1.0;
-	double Ee = me_c2 * 1E9;
+	double Ee = me_c2 * 1E12;
 	double halfEe = me_c2 * 10;
 	double gamma = Ee / me_c2;
 	MassiveParticleMonoenergeticDistribution* electrons = new MassiveParticleMonoenergeticDistribution(massElectron, Ee, halfEe);
@@ -2793,7 +2838,7 @@ void testNishinaLosses() {
 
 	int Neph = 50;
 	double minEph = 0.01*kBoltzman*2.725;
-	double maxEph = 1E6*minEph;
+	double maxEph = 1E10*minEph;
 	double factor = pow(maxEph / minEph, 1.0 / (Neph - 1.0));
 	double Eph = minEph;
 
@@ -2817,13 +2862,13 @@ void testNishinaLosses() {
 		//InverseComptonEvaluator* evaluator2 = new InverseComptonEvaluator(100, 50, 4, Ee - halfEe, Ee + halfEe, 200, Eph - dEph, Eph + dEph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
 		//InverseComptonEvaluator* evaluator3 = new InverseComptonEvaluator(10, 50, 4, Ee - halfEe, Ee + halfEe, 500, Eph - dEph, Eph + dEph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
 
-		//InverseComptonEvaluator* evaluator1 = new InverseComptonEvaluator(10, 10, 4, Ee - halfEe, Ee + halfEe, 10, Eph - dEph, Eph+dEph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
+		InverseComptonEvaluator* evaluator1 = new InverseComptonEvaluator(10, 10, 4, Ee - halfEe, Ee + halfEe, 10, Eph - dEph, Eph+dEph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
 
 		L[i] = evaluator->evaluateTotalFluxInEnergyRange(0.01 * Eph, 2 * Ee, 200, source) * 4 * pi * distance * distance;
 		L1[i] = volume * concentration * (4.0 / 3.0) * speed_of_light * sigmaT * gamma * gamma * photonEnergyDensity / pow(1.0 + 4 * gamma * Eph / me_c2, 3.0 / 2.0);
 		L3[i] = volume * concentration * (4.0 / 3.0) * speed_of_light * sigmaT * gamma * gamma * photonEnergyDensity / pow(1.0 + 4 * pi * gamma * Eph / me_c2, 3.0 / 2.0);
 
-		//L2[i] = evaluator1->evaluateTotalFluxInEnergyRange(0.01 * Eph, 2 * Ee, 200, source) * 4 * pi * distance * distance;
+		L2[i] = evaluator1->evaluateTotalFluxInEnergyRange(0.01 * Eph, 2 * Ee, 200, source) * 4 * pi * distance * distance;
 		//L2[i] = evaluator2->evaluateTotalFluxInEnergyRange(0.01 * Eph, 2 * Ee, 200, source) * 4 * pi * distance * distance;
 		//L3[i] = evaluator3->evaluateTotalFluxInEnergyRange(0.01 * Eph, 2 * Ee, 200, source) * 4 * pi * distance * distance;
 
@@ -2851,7 +2896,7 @@ void testNishinaLosses2() {
 
 	int Nee = 70;
 	double minEe = 1E5*me_c2;
-	double maxEe = 1E9*me_c2;
+	double maxEe = 1E12*me_c2;
 	double factor = pow(maxEe / minEe, 1.0 / (Nee - 1.0));
 	double E = minEe;
 
@@ -2882,9 +2927,10 @@ void testNishinaLosses2() {
 		InverseComptonEvaluator* evaluator = new InverseComptonEvaluator(10, 100, 4, Ee - halfEe, Ee + halfEe, 50, 0.1 * Eph, 10 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
 		//InverseComptonEvaluator* evaluator2 = new InverseComptonEvaluator(10, 100, 4, Ee - halfEe, Ee + halfEe, 50, 0.1 * Eph, 10 * Eph, photons, photonConcentration, ComptonSolverType::ISOTROPIC_KLEIN_NISHINA);
 
-		L[i] = evaluator->evaluateTotalFluxInEnergyRange(0.1 * Eph, 2 * Ee, 200, source) * 4 * pi * distance * distance;
+		L[i] = evaluator->evaluateTotalFluxInEnergyRange(0.1 * Eph, 2 * Ee, 2000, source) * 4 * pi * distance * distance;
+		//L[i] = evaluator->evaluateTotalFluxInEnergyRangeOneParticle(0.1 * Eph, 2 * Ee, 20000, Ee, Eph) * 4 * pi * distance * distance;
 		L1[i] = volume * concentration * (4.0 / 3.0) * speed_of_light * sigmaT * gamma * gamma * photonEnergyDensity / pow(1.0 + 4 * gamma * Eph / me_c2, 3.0 / 2.0);
-		L3[i] = volume * concentration * (4.0 / 3.0) * speed_of_light * sigmaT * gamma * gamma * photonEnergyDensity / pow(1.0 + 4 * pi * gamma * Eph / me_c2, 3.0 / 2.0);
+		L2[i] = volume * concentration * (4.0 / 3.0) * speed_of_light * sigmaT * gamma * gamma * photonEnergyDensity / pow(1.0 + pow(4 * pi * gamma * Eph / me_c2, 0.6), 1.9/0.6);
 
 		//L1[i] = evaluator2->evaluateTotalFluxInEnergyRange(0.1 * Eph, 2 * Ee, 200, source) * 4 * pi * distance * distance;
 
@@ -2923,12 +2969,12 @@ void testNishinaSpectrum() {
 		Ee[i] = E;
 		E = E * factor;
 	}
-	Ee[0] = 1E6 * me_c2;
-	Ee[1] = 1E7 * me_c2;
-	Ee[2] = 1E8 * me_c2;
-	Ee[3] = 1E9 * me_c2;
-	Ee[4] = 1E10 * me_c2;
-	Ee[5] = 1E11 * me_c2;
+	Ee[0] = 1E8 * me_c2;
+	Ee[1] = 1E9 * me_c2;
+	Ee[2] = 1E10 * me_c2;
+	Ee[3] = 1E11 * me_c2;
+	Ee[4] = 1E12 * me_c2;
+	Ee[5] = 1E13 * me_c2;
 
 	int Nph = 1000;
 	double minEph = 10000 * kBoltzman * 2.7;
@@ -2958,6 +3004,7 @@ void testNishinaSpectrum() {
 	double sigmaT = 8 * pi * r2 / 3.0;
 
 	PhotonMultiPlankDistribution* photons = PhotonMultiPlankDistribution::getGalacticField();
+	//PhotonPlankDistribution* photons = new PhotonPlankDistribution(10000, 1.0);
 	double photonConcentration = photons->getConcentration();
 	double photonEnergyDensity = photonConcentration * photons->getMeanEnergy();
 
@@ -2979,7 +3026,7 @@ void testNishinaSpectrum() {
 		
 		for (int j = 0; j < Nee; ++j) {
 			L[j][i] = Eph[i]*evaluators1[j]->evaluateFluxFromSource(Eph[i], sources[j]);
-			//L2[j][i] = Eph[i]*evaluators2[j]->evaluateFluxFromSource(Eph[i], sources[j]);
+			L2[j][i] = Eph[i]*evaluators2[j]->evaluateFluxFromSource(Eph[i], sources[j]);
 		}
 	}
 

@@ -5,7 +5,7 @@ clear;
 %data = importdata('../anisotropicCompton.dat');
 %data = importdata('../differentialFlux.dat');
 %data = importdata('../bremsstrahlung.dat');
-data = importdata('../outputSynch.dat');
+data = importdata('../outputCompton.dat');
 %data7 = importdata('../output7.dat');
 
 N = size(data,1);
@@ -58,7 +58,7 @@ hplank = 6.626E-27;
 %ratio = data(1,2)/data(1,3);
 
 %loglog(data(1:N,1)/1.6E-12,data(1:N,2),'red','LineWidth',2,'Marker','+');
-loglog(data(1:N,1)/1.6E-12, radiation(1:N),'red','LineWidth',2,'Marker','+');
+loglog(data(1:N,1)/1.6E-12, radiation(1:N),'red','LineWidth',2);
 %loglog(data(1:N,1),data(1:N,3),'blue','LineWidth',2,'Marker','+');
 %loglog(data7(1:N7,1)/(1.6*10^-9), data7(1:N7,2),'blue','LineWidth',2,'Marker','+');
 %loglog(data(1:N,1)/(1.6*10^-9),Fpa(1:N),'green','LineWidth',2);

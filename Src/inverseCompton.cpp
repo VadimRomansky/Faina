@@ -340,6 +340,75 @@ double InverseComptonEvaluator::evaluateComptonEmissivityJonesIsotropic(const do
 	return I;
 }
 
+double InverseComptonEvaluator::evaluateComptonEmissivityJonesOneParticle(const double& photonFinalEnergy, const double& Ee, const double& Eph) {
+
+	double m = massElectron;
+	double m_c2 = m * speed_of_light2;
+	double r2 = sqr(electron_charge * electron_charge / m_c2);
+
+	double I = 0;
+
+	double electronInitialGamma = Ee / m_c2;
+	if (electronInitialGamma < photonFinalEnergy / m_c2) {
+		return 0;
+	}
+	double electronInitialBeta = sqrt(1.0 - 1.0 / (electronInitialGamma * electronInitialGamma));
+
+
+	if (electronInitialGamma > photonFinalEnergy / (m_c2)) {
+		//if (electronInitialGamma < 0.1 * m_c2 / (4 * photonFinalEnergy)) {
+
+		//} else {
+		double G = 4 * electronInitialGamma * Eph / (m_c2);
+		double q = (photonFinalEnergy / (m_c2)) / ((electronInitialGamma - photonFinalEnergy / (m_c2)) * G);
+		if (q <= 1.0) {
+			double sigma = 2 * pi * r2 * (2 * q * log(q) + 1 + q - 2 * q * q + 0.5 * q * q * (1 - q) * G * G / (1 + q * G)) / (electronInitialGamma * electronInitialGamma * Eph / m_c2);
+			//divide by energy to get number of photons
+			//I += electronDistribution->distribution(electronInitialEnergy) * volume * sigma * photonDistribution->distribution(photonInitialEnergy)  * speed_of_light * electronInitialBeta * delectronEnergy * dphotonInitialEnergy / (massElectron * speed_of_light2);
+			I += photonFinalEnergy * 4 * pi * sigma * speed_of_light * electronInitialBeta / m_c2;
+			if (I < 0) {
+				omp_set_lock(&my_lock);
+				printf("evaluateComptonFluxJonesIsotropic\n");
+				printLog("evaluateComptonFluxJonesIsotropic\n");
+				printf("I < 0\n");
+				printLog("I < 0\n");
+				printf("sigma = %g\n", sigma);
+				printLog("sigma = %g\n", sigma);
+				printf("photonFinalEnergy = %g\n", photonFinalEnergy);
+				printLog("photonFinalEnergy = %g\n", photonFinalEnergy);
+				printf("electronInitialEnergy = %g\n", Ee);
+				printLog("electronInitialEnergy = %g\n", Ee);
+				printf("photon initial energy = %g\n", Eph);
+				printLog("photon initial energy = %g\n", Eph);
+				printf("electron initial beta = %g\n", electronInitialBeta);
+				printLog("electron initial beta = %g\n", electronInitialBeta);
+				omp_unset_lock(&my_lock);
+				exit(0);
+			}
+
+			if (I != I) {
+				omp_set_lock(&my_lock);
+				printf("I = NaN\n");
+				printLog("I = NaN\n");
+				printf("sigma = %g\n", sigma);
+				printLog("sigma = %g\n", sigma);
+				printf("photonFinalEnergy = %g\n", photonFinalEnergy);
+				printLog("photonFinalEnergy = %g\n", photonFinalEnergy);
+				printf("electronInitialEnergy = %g\n", Ee);
+				printLog("electronInitialEnergy = %g\n", Ee);
+				printf("photon initial energy = %g\n", Eph);
+				printLog("photon initial energy = %g\n", Eph);
+				printf("electron initial beta = %g\n", electronInitialBeta);
+				printLog("electron initial beta = %g\n", electronInitialBeta);
+				omp_unset_lock(&my_lock);
+				exit(0);
+			}
+		}
+	}
+
+	return I;
+}
+
 //uses primed integration and formula 4.30
 double InverseComptonEvaluator::evaluateComptonFluxKleinNishinaIsotropic(const double& photonFinalEnergy, PhotonDistribution* photonDistribution, MassiveParticleDistribution* electronDistribution, const double& photonConcentration, const double& electronConcentration) {
 	MassiveParticleIsotropicDistribution* isotropicElectronDistribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(electronDistribution);
@@ -697,10 +766,10 @@ double InverseComptonEvaluator::evaluateComptonEmissivityKleinNishinaIsotropic2(
 
 	double I = 0;
 
-	double* cosThetaLeft = new double[my_Nmu];
+	//double* cosThetaLeft = new double[my_Nmu];
 	double* theta = new double[my_Nmu];
 	double* cosTheta = new double[my_Nmu];
-	double* dcosTheta = new double[my_Nmu];
+	//double* dcosTheta = new double[my_Nmu];
 
 	double Emin = my_Emin;
 	if (Emin < electronDistribution->minEnergy()) {
@@ -738,17 +807,17 @@ double InverseComptonEvaluator::evaluateComptonEmissivityKleinNishinaIsotropic2(
 		//double thetamin = min(0.1 * m_c2 / photonFinalEnergy, pi / (2 * my_Nmu));
 		double dlogtheta = log((pi + (1 - fraction) * thetamin) / (thetamin)) / (my_Nmu - 2);
 
-		cosThetaLeft[0] = 1.0;
+		//cosThetaLeft[0] = 1.0;
 		theta[0] = 0;
 		cosTheta[0] = cos(theta[0]);
 		for (int i = 1; i < my_Nmu; ++i) {
 			theta[i] = thetamin * exp(dlogtheta * (i - 1)) - (1 - fraction) * thetamin;
 			cosTheta[i] = cos(theta[i]);
-			cosThetaLeft[i] = (cosTheta[i] + cosTheta[i - 1]) / 2.0;
+			//cosThetaLeft[i] = (cosTheta[i] + cosTheta[i - 1]) / 2.0;
 		}
 		for (int i = 0; i < my_Nmu - 1; ++i) {
-			dcosTheta[i] = -(cosThetaLeft[i + 1] - cosThetaLeft[i]);
-			dcosTheta[i] = versin(theta[i + 1]) - versin(theta[i]);
+			//dcosTheta[i] = -(cosThetaLeft[i + 1] - cosThetaLeft[i]);
+			//dcosTheta[i] = versin(theta[i + 1]) - versin(theta[i]);
 			/*if (theta[i] < 1E-7) {
 				if (i == 0) {
 					dcosTheta[i] = sin(0.5 * (theta[i] + theta[i + 1])) * (theta[i + 1] - theta[i]);
@@ -760,7 +829,7 @@ double InverseComptonEvaluator::evaluateComptonEmissivityKleinNishinaIsotropic2(
 		}
 		//theta[my_Nmu - 1] = pi;
 		theta[my_Nmu - 1] = (pi + theta[my_Nmu - 2]) / 2;
-		dcosTheta[my_Nmu - 1] = 1.0 + cosThetaLeft[my_Nmu - 1];
+		//dcosTheta[my_Nmu - 1] = 1.0 + cosThetaLeft[my_Nmu - 1];
 
 		double delectronEnergy;
 		//double electronInitialDelta = 0.5 / (electronInitialGamma * electronInitialGamma) + 0.125/(electronInitialGamma*electronInitialGamma*electronInitialGamma*electronInitialGamma); //diff from 1 for large gamma
@@ -947,8 +1016,8 @@ double InverseComptonEvaluator::evaluateComptonEmissivityKleinNishinaIsotropic2(
 
 	delete[] cosTheta;
 	delete[] theta;
-	delete[] cosThetaLeft;
-	delete[] dcosTheta;
+	//delete[] cosThetaLeft;
+	//delete[] dcosTheta;
 
 	return I;
 }
@@ -1855,6 +1924,20 @@ double InverseComptonEvaluator::evaluateTotalFluxInEnergyRangeAnisotropic(const 
 		printf("%d\n", i);
 		double dE = currentE * (factor - 1.0);
 		flux += evaluateFluxFromSourceAnisotropic(currentE, photonFinalTheta, photonFinalPhi, photonDistribution, photonConcentration, source, solverType) * dE;
+		currentE = currentE * factor;
+	}
+	return flux;
+}
+
+double InverseComptonEvaluator::evaluateTotalFluxInEnergyRangeOneParticle(const double& Ephmin, const double& Ephmax, int Nph, const double& Ee, const double& Eph)
+{
+	double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+	double currentE = Ephmin;
+	double flux = 0;
+	for (int i = 0; i < Nph; ++i) {
+		printf("%d\n", i);
+		double dE = currentE * (factor - 1.0);
+		flux += evaluateComptonEmissivityJonesOneParticle(currentE, Ee, Eph) * dE;
 		currentE = currentE * factor;
 	}
 	return flux;

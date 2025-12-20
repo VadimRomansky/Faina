@@ -3,7 +3,7 @@ clear;
 %radiation = importdata('../css161010.dat');
 
 %compton = importdata('../outputCompt.dat');
-radiation = importdata('../outputSynch1.dat');
+radiation = importdata('../outputCompton.dat');
 %radiation3 = importdata('../outputSynch3.dat');
 
 %radiationObserved = importdata('../examples_data/css_data/coppejans99.txt');
