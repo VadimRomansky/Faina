@@ -1488,8 +1488,8 @@ void evaluateSynchrotronInWideRange() {
 	int Nphi = 1;
 
 
-	//TabulatedDiskSourceWithSynchCutoff* downstreamSource = new TabulatedDiskSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution, downstreamB, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, velocity);
-	TabulatedSLSourceWithSynchCutoff* source = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance, downstreamV, velocity);
+	TabulatedDiskSourceWithSynchAndComptCutoff* source = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, Nphi, electronDistribution, B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, 0, velocity);
+	//TabulatedSLSourceWithSynchCutoff* source = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance, downstreamV, velocity);
 
 	int Ne = 5000;
 	double Emin = me_c2;
@@ -1502,6 +1502,52 @@ void evaluateSynchrotronInWideRange() {
 
 	printf("keV flux = %g, luminosity = %g\n", kevFlux, kevFlux * 4 * pi * distance * distance);
 	printLog("keV flux = %g, luminosity = %g\n", kevFlux, kevFlux * 4 * pi * distance * distance);
+
+	printf("MeV flux = %g, luminocity = %g\n", mevFlux, mevFlux * 4 * pi * distance * distance);
+	printLog("MeV flux = %g, luminocity = %g\n", mevFlux, mevFlux * 4 * pi * distance * distance);
+
+	evaluator->writeFluxFromSourceToFile("wideRangeSynch.dat", source, 1E8 * hplank, 20 * MeV, 2000);
+}
+
+void evaluateSynchrotronInWideRangeAT2024wpp() {
+	double R = 2.28784E17;
+	double B = 0.601848;
+	double f = 0.1;
+	double electronConcentration = 48.0628;
+	double distance = 411 * 1000000 * parsec;
+
+	double velocity = 0.677527 * speed_of_light;
+	double downstreamV = 0.25 * velocity;
+
+	MassiveParticleTabulatedIsotropicDistribution* electronDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", DistributionInputType::GAMMA_KIN_FGAMMA);
+
+	int Nrho = 1;
+	int Nz = 5000;
+	int Nphi = 1;
+
+
+	TabulatedDiskSourceWithSynchAndComptCutoff* source = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, Nphi, electronDistribution, B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, 0, velocity);
+	//TabulatedSLSourceWithSynchCutoff* source = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance, downstreamV, velocity);
+
+	int Ne = 5000;
+	double Emin = me_c2;
+	double Emax = me_c2 * 1E8;
+	SynchrotronEvaluator* evaluator = new SynchrotronEvaluator(Ne, Emin, Emax, true, false);
+
+	double kevFlux1 = evaluator->evaluateTotalFluxInEnergyRange(0.3 * keV, 10 * keV, 100, source);
+	double kevFlux2 = evaluator->evaluateTotalFluxInEnergyRange(0.3 * keV, 30 * keV, 300, source);
+	double kevFlux3 = evaluator->evaluateTotalFluxInEnergyRange(20 * keV, 200 * keV, 100, source);
+
+	double mevFlux = evaluator->evaluateTotalFluxInEnergyRange(0.1 * MeV, 3 * MeV, 100, source);
+
+	printf("keV flux 0.3-10= %g, luminosity = %g\n", kevFlux1, kevFlux1 * 4 * pi * distance * distance);
+	printLog("keV flux 0.3-10= %g, luminosity = %g\n", kevFlux1, kevFlux1 * 4 * pi * distance * distance);
+
+	printf("keV flux 0.3-30= %g, luminosity = %g\n", kevFlux2, kevFlux2 * 4 * pi * distance * distance);
+	printLog("keV flux 0.3-30= %g, luminosity = %g\n", kevFlux2, kevFlux2 * 4 * pi * distance * distance);
+
+	printf("keV flux 20-200= %g, luminosity = %g\n", kevFlux3, kevFlux3 * 4 * pi * distance * distance);
+	printLog("keV flux 20-200= %g, luminosity = %g\n", kevFlux3, kevFlux3 * 4 * pi * distance * distance);
 
 	printf("MeV flux = %g, luminocity = %g\n", mevFlux, mevFlux * 4 * pi * distance * distance);
 	printLog("MeV flux = %g, luminocity = %g\n", mevFlux, mevFlux * 4 * pi * distance * distance);
@@ -5351,13 +5397,14 @@ int main() {
 	//testVersin();
 	//testBessel();
 	//testChevalier();
+	fitCSS161010();
 	//fitCSS161010_2();
 	//fitAT2025wpp_2();
 	//testMatrixInverse();
 	//testGMRES();
 	//testNishinaLosses();
 	//testNishinaLosses2();
-	testNishinaSpectrum();
+	//testNishinaSpectrum();
 	//testBigSource();
 
 	//evaluateFluxSNRtoWind();
@@ -5365,6 +5412,7 @@ int main() {
 	//evaluateTychoProfile();
 	//fitTychoProfile();
 	//evaluateSynchrotronInWideRange();
+	//evaluateSynchrotronInWideRangeAT2024wpp();
 	//evaluateW50bemsstrahlung();
 	//evaluateW50synchrotron();
 	//evaluateW50comptonAndSynchrotron();
