@@ -2011,7 +2011,7 @@ void fitCSS161010() {
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 0.6 * rmax, 0.000001, 1, 0.05, 0.5 * speed_of_light };
-	double maxParameters[Nparams] = { timeMoment * 0.8 * speed_of_light, 0.05, 200, 0.2, 0.8 * speed_of_light };
+	double maxParameters[Nparams] = { timeMoment * 0.8 * speed_of_light, 0.05, 500, 0.2, 0.8 * speed_of_light };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v };
 	for (int i = 0; i < Nparams; ++i) {
@@ -2046,8 +2046,9 @@ void fitCSS161010() {
 
 
 	MassiveParticleTabulatedIsotropicDistribution* electronDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", DistributionInputType::GAMMA_KIN_FGAMMA);
-	//electronDistribution1->addPowerLaw(10 * me_c2, 3.5);
-	//electronDistribution1->rescaleDistribution(1.2);
+	//MassiveParticleTabulatedIsotropicDistribution* electronDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_theta0-90/Ee3.dat", "./examples_data/gamma1.5_theta0-90/Fs3.dat", DistributionInputType::GAMMA_KIN_FGAMMA);
+	//electronDistribution->addPowerLaw(10 * me_c2, 3.5);
+	//electronDistribution->rescaleDistribution(1.2);
 
 
 	electronDistribution->writeDistribution("distributionCSS161010.dat", 1000, me_c2, 1E9 * me_c2);
@@ -2056,19 +2057,19 @@ void fitCSS161010() {
 	printf("creating sources\n");
 	printLog("creating sources\n");
 
-	SimpleFlatSource* source1 = new SimpleFlatSource(electronDistribution, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance);
+	SimpleFlatSource* source1 = new SimpleFlatSource(electronDistribution, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance, 0.75*0.75*speed_of_light);
 
 	//number of points per axis in gridEnumOptimizer
-	int Npoints[Nparams] = { 4,4,4,4,4 };
+	int Npoints[Nparams] = { 4,40,40,4,4 };
 	//number of iterations in gradient descent optimizer
 	int Niterations = 4;
 	//energies of electrons wich will be used for evaluatig radiation
 	double Emin = me_c2;
 	double Emax = 10000 * me_c2;
 	//creating KPI evaluator
-	LossEvaluator* KPIevaluator = new SpectrumLossEvaluator(energy1, observedFlux1, observedError1, Nenergy1, angleDependentSource);
+	LossEvaluator* KPIevaluator = new SpectrumLossEvaluator(energy1, observedFlux1, observedError1, Nenergy1, source1);
 	//creating time dependent synchrotron evaluator
-	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(50, Emin, Emax, true, false);
+	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(200, Emin, Emax, true, false);
 	CombinedRadiationOptimizer* combinedOptimizer = new CombinedRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, Npoints, KPIevaluator);
 	SequentCoordinateEnumOptimizer* sequentOptimizer = new SequentCoordinateEnumOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, 200, 2, KPIevaluator);
 	//creating time depedent grid enumeration optimizer, which will chose the best starting poin for gradien descent
@@ -2094,8 +2095,8 @@ void fitCSS161010() {
 	printf("optimization\n");
 	printLog("optimization\n");
 	//creating gradient descent optimizer and optimizing
-	RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
-	//combinedOptimizer->optimize(vector, optPar);
+	//RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
+	combinedOptimizer->optimize(vector, optPar);
 	//sequentOptimizer->optimize(vector, optPar);
 	//gradientOptimizer->optimize(vector, optPar);
 	//reset parameters of source to the found values
@@ -2127,7 +2128,8 @@ void fitCSS161010() {
 
 	//evaluating full spectrum at given time moments
 	for (int i = 0; i < Nout; ++i) {
-		Fout[i] = synchrotronEvaluator->evaluateFluxFromSource(hplank * Nuout[i], angleDependentSource);
+		//Fout[i] = synchrotronEvaluator->evaluateFluxFromSource(hplank * Nuout[i], angleDependentSource);
+		Fout[i] = synchrotronEvaluator->evaluateFluxFromSource(hplank * Nuout[i], source1);
 	}
 
 
@@ -2192,9 +2194,10 @@ void fitCSS161010() {
 	printf("evaluating wide-range radiation\n");
 	printLog("evaluating wide-range radiation\n");
 
+	//return;
 
 	Nrho = 1;
-	Nz = 4000;
+	Nz = 10000;
 	Nphi = 1;
 
 	double R = vector[0] * maxParameters[0];
@@ -2212,7 +2215,7 @@ void fitCSS161010() {
 
 	//TabulatedSLSourceWithSynchCutoff* source2 = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance, downstreamV, velocity);
 	//TabulatedDiskSource* source2 = new TabulatedDiskSource(1, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance);
-	TabulatedDiskSourceWithSynchAndComptCutoff* source3 = new TabulatedDiskSourceWithSynchAndComptCutoff(1, Nz, Nphi, electronDistribution, B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, 0, velocity);
+	TabulatedDiskSourceWithSynchAndComptCutoff* source3 = new TabulatedDiskSourceWithSynchAndComptCutoff(1, Nz, Nphi, electronDistribution, 0.3*B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, 0, velocity);
 
 	int Ne = 1000;
 	Emin = me_c2;
@@ -2224,9 +2227,9 @@ void fitCSS161010() {
 
 	//double mevFlux = evaluator2->evaluateTotalFluxInEnergyRange(0.1 * MeV, 3 * MeV, 100, source2);
 
-	double kevFluxDisk = evaluator2->evaluateTotalFluxInEnergyRange(0.3 * keV, 10 * keV, 100, source3);
+	double kevFluxDisk = evaluator2->evaluateTotalFluxInEnergyRange(0.3 * keV, 10 * keV, 200, source3);
 
-	double mevFluxDisk = evaluator2->evaluateTotalFluxInEnergyRange(0.1 * MeV, 3 * MeV, 100, source3);
+	double mevFluxDisk = evaluator2->evaluateTotalFluxInEnergyRange(0.1 * MeV, 3 * MeV, 200, source3);
 
 	//printf("keV flux = %g, luminosity = %g\n", kevFlux, kevFlux * 4 * pi * distance * distance);
 	//printLog("keV flux = %g, luminosity = %g\n", kevFlux, kevFlux * 4 * pi * distance * distance);
@@ -2241,7 +2244,7 @@ void fitCSS161010() {
 	printLog("MeV flux disk= %g, luminocity = %g\n", mevFluxDisk, mevFluxDisk * 4 * pi * distance * distance);
 
 	//evaluator2->writeFluxFromSourceToFile("wideRangeSynch.dat", source2, 1E8 * hplank, 200 * MeV, 500);
-	evaluator2->writeFluxFromSourceToFile("wideRangeSynchDisk.dat", source3, 1E8 * hplank, 200 * MeV, 500);
+	//evaluator2->writeFluxFromSourceToFile("wideRangeSynchDisk.dat", source3, 1E8 * hplank, 200 * MeV, 500);
 
 	//deleting arrays
 
