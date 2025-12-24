@@ -2045,7 +2045,7 @@ void fitCSS161010() {
 
 
 
-	MassiveParticleTabulatedIsotropicDistribution* electronDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", DistributionInputType::GAMMA_KIN_FGAMMA);
+	MassiveParticleTabulatedIsotropicDistribution* electronDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./matlab/Ee3.dat", "./matlab/Fs3.dat", DistributionInputType::GAMMA_KIN_FGAMMA);
 	//MassiveParticleTabulatedIsotropicDistribution* electronDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_theta0-90/Ee3.dat", "./examples_data/gamma1.5_theta0-90/Fs3.dat", DistributionInputType::GAMMA_KIN_FGAMMA);
 	//electronDistribution->addPowerLaw(10 * me_c2, 3.5);
 	//electronDistribution->rescaleDistribution(1.2);
@@ -2060,7 +2060,7 @@ void fitCSS161010() {
 	SimpleFlatSource* source1 = new SimpleFlatSource(electronDistribution, B, pi/2, 0, electronConcentration, rmax, widthFraction*rmax, distance, 0.75*0.75*speed_of_light);
 
 	//number of points per axis in gridEnumOptimizer
-	int Npoints[Nparams] = { 4,40,40,4,4 };
+	int Npoints[Nparams] = { 4,10,10,4,4 };
 	//number of iterations in gradient descent optimizer
 	int Niterations = 4;
 	//energies of electrons wich will be used for evaluatig radiation
@@ -2197,7 +2197,7 @@ void fitCSS161010() {
 	//return;
 
 	Nrho = 1;
-	Nz = 10000;
+	Nz = 5000;
 	Nphi = 1;
 
 	double R = vector[0] * maxParameters[0];
@@ -2214,8 +2214,8 @@ void fitCSS161010() {
 	//return;
 
 	//TabulatedSLSourceWithSynchCutoff* source2 = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance, downstreamV, velocity);
-	//TabulatedDiskSource* source2 = new TabulatedDiskSource(1, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance);
-	TabulatedDiskSourceWithSynchAndComptCutoff* source3 = new TabulatedDiskSourceWithSynchAndComptCutoff(1, Nz, Nphi, electronDistribution, 0.3*B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, 0, velocity);
+	//TabulatedDiskSource* source3 = new TabulatedDiskSource(1, Nz, Nphi, electronDistribution, B, pi / 2, 0, electronConcentration, R, f * R, distance);
+	TabulatedDiskSourceWithSynchAndComptCutoff* source3 = new TabulatedDiskSourceWithSynchAndComptCutoff(1, Nz, Nphi, electronDistribution, B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, 0, velocity);
 
 	int Ne = 1000;
 	Emin = me_c2;
@@ -2243,7 +2243,7 @@ void fitCSS161010() {
 	printf("MeV flux disk= %g, luminocity = %g\n", mevFluxDisk, mevFluxDisk * 4 * pi * distance * distance);
 	printLog("MeV flux disk= %g, luminocity = %g\n", mevFluxDisk, mevFluxDisk * 4 * pi * distance * distance);
 
-	//evaluator2->writeFluxFromSourceToFile("wideRangeSynch.dat", source2, 1E8 * hplank, 200 * MeV, 500);
+	evaluator2->writeFluxFromSourceToFile("wideRangeSynch.dat", source3, 1E8 * hplank, 200 * MeV, 500);
 	//evaluator2->writeFluxFromSourceToFile("wideRangeSynchDisk.dat", source3, 1E8 * hplank, 200 * MeV, 500);
 
 	//deleting arrays

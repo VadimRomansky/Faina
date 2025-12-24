@@ -55,7 +55,7 @@ if __name__ == '__main__':
     #plot_dummy()
     #plot_data("../nishina_losses.dat","nishina_losses", 2, 'log', 'log', 'initial photon energy [eV]', 'emission power',['Jones','Piran'])
     #plot_data("../nishina_losses2.dat", "nishina_losses2", 3, 'log', 'log', 'initial electron energy [eV]', 'emission power',['Jones','Piran', 'LHAASO'])
-    plot_data("../nishina_spectrum.dat", "nishina_spectrum", 12, 'log', 'log', 'E  [eV]', 'EF(E) [erg/cm^2 s]', ['E = 500 GeV', 'E = 5 TeV', 'E = 50 TeV', 'E = 500 TeV', 'E = 5 PeV', 'E = 50 Pev', 'E = 500 GeV', 'E = 5 TeV', 'E = 50 TeV', 'E = 500 TeV', 'E = 5 PeV', 'E = 50 Pev'])
+    #plot_data("../nishina_spectrum.dat", "nishina_spectrum", 12, 'log', 'log', 'E  [eV]', 'EF(E) [erg/cm^2 s]', ['E = 500 GeV', 'E = 5 TeV', 'E = 50 TeV', 'E = 500 TeV', 'E = 5 PeV', 'E = 50 Pev', 'E = 500 GeV', 'E = 5 TeV', 'E = 50 TeV', 'E = 500 TeV', 'E = 5 PeV', 'E = 50 Pev'])
     #plot_thick_regime()
     #plot_diffusionConvection("../output/diffusionConvection.dat", "D", 6, yscale = "log", xscale = "symlog")
 
@@ -109,7 +109,7 @@ if __name__ == '__main__':
     #plot_radiation3()
     #plot_radiation10()
     #plot_compton_radiation()
-    #plot_long_radiation()
+    plot_long_radiation()
     #plot_radiation2()
     #plot_error_profile(1,2)
     #plot_mask()

@@ -113,7 +113,7 @@ xlabel ('E/m_p c^2');
 ylabel ('F_{E} E^2');
 
 
-plot(E1(1:N1)/(mp*c*c), FEE1(1:N1),'red','LineWidth',2);
+plot(E1(1:N1)/(mp*c*c), 1000000*FEE1(1:N1),'red','LineWidth',2);
 plot(E2(1:N2)/(mp*c*c), FEE2(1:N2),'green','LineWidth',2);
 plot(E3(1:N3)/(mp*c*c), FEE3(1:N3),'blue','LineWidth',2);
 

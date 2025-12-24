@@ -3761,7 +3761,7 @@ MassiveParticleDistribution* TabulatedSLSourceWithSynchCutoff::getParticleDistri
 void TabulatedDiskSourceWithSynchAndComptCutoff::updateLB2()
 {
 	double drho = my_rho / my_Nrho;
-	double dz = 2 * my_rho / my_Nz;
+	double dz = my_z / my_Nz;
 	for (int iz = my_Nz - 1; iz > 0; iz = iz - 1) {
 		for (int irho = 0; irho < my_Nrho; ++irho) {
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
