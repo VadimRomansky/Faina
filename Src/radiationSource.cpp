@@ -1316,17 +1316,18 @@ MassiveParticleDistribution* RectangularSourceWithSynchAndComptCutoffFromRight::
 		//my_localDistribution->addExponentialCutoff(Ecut);
 		double lossRate = (4.0 / 9.0) * electron_charge * electron_charge * electron_charge * electron_charge * (LB2) / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
 		double time = 1.0;
+
 		//double k = lossRate / my_downstreamVelocity;
 		//printf("disk lossRate = %g\n", lossRate);
 		//printf("disk time = %g\n", time);
 
-		//my_localDistribution[numthread]->transformToLosses(lossRate, time);
-		for (int i = irho; i < my_Nx - 1; ++i) {
+		my_localDistribution[numthread]->transformToLosses(lossRate, time);
+		/*for (int i = irho; i < my_Nx - 1; ++i) {
 			lossRate = (4.0 / 9.0) * electron_charge * electron_charge * electron_charge * electron_charge * (my_LB2[my_Nx - 2 - i + irho][iz][iphi] - my_LB2[my_Nx - 1 - i + irho][iz][iphi]) / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
 			my_localDistribution[numthread]->transformToLosses(lossRate, time);
 			double factor = pow(my_downstreamVelocity[my_Nx - 1 - i + irho][iz][iphi] / my_downstreamVelocity[my_Nx - 2 - i + irho][iz][iphi], 1.0 / 3.0);
 			my_localDistribution[numthread]->rescaleDistribution(factor);
-		}
+		}*/
 		//my_localDistribution[numthread]->transformToLosses2(k, my_z - z1, my_z - z2);
 	}
 	return my_localDistribution[numthread];
@@ -3762,7 +3763,7 @@ void TabulatedDiskSourceWithSynchAndComptCutoff::updateLB2()
 {
 	double drho = my_rho / my_Nrho;
 	double dz = my_z / my_Nz;
-	for (int iz = my_Nz - 1; iz > 0; iz = iz - 1) {
+	for (int iz = my_Nz - 1; iz >= 0; iz = iz - 1) {
 		for (int irho = 0; irho < my_Nrho; ++irho) {
 			for (int iphi = 0; iphi < my_Nphi; ++iphi) {
 				double prev_LB2 = 0;

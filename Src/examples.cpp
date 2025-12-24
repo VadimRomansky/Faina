@@ -2045,8 +2045,9 @@ void fitCSS161010() {
 
 
 
-	MassiveParticleTabulatedIsotropicDistribution* electronDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./matlab/Ee3.dat", "./matlab/Fs3.dat", DistributionInputType::GAMMA_KIN_FGAMMA);
+	//MassiveParticleTabulatedIsotropicDistribution* electronDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./matlab/Ee3.dat", "./matlab/Fs3.dat", DistributionInputType::GAMMA_KIN_FGAMMA);
 	//MassiveParticleTabulatedIsotropicDistribution* electronDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_theta0-90/Ee3.dat", "./examples_data/gamma1.5_theta0-90/Fs3.dat", DistributionInputType::GAMMA_KIN_FGAMMA);
+	MassiveParticleTabulatedIsotropicDistribution* electronDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, "./examples_data/gamma1.5_combined_cutoff/Ee3.dat", "./examples_data/gamma1.5_combined_cutoff/Fs3.dat", DistributionInputType::GAMMA_KIN_FGAMMA);
 	//electronDistribution->addPowerLaw(10 * me_c2, 3.5);
 	//electronDistribution->rescaleDistribution(1.2);
 
@@ -2197,7 +2198,7 @@ void fitCSS161010() {
 	//return;
 
 	Nrho = 1;
-	Nz = 5000;
+	Nz = 10000;
 	Nphi = 1;
 
 	double R = vector[0] * maxParameters[0];
@@ -2214,10 +2215,11 @@ void fitCSS161010() {
 	//return;
 
 	//TabulatedSLSourceWithSynchCutoff* source2 = new TabulatedSLSourceWithSynchCutoff(Nrho, Nz, Nphi, electronDistribution4, B, pi / 2, 0, electronConcentration, R, (1.0 - f) * R, distance, downstreamV, velocity);
-	//TabulatedDiskSource* source3 = new TabulatedDiskSource(1, Nz, Nphi, electronDistribution, B, pi / 2, 0, electronConcentration, R, f * R, distance);
+	//TabulatedDiskSource* source3 = new TabulatedDiskSource(1, 1, 1, electronDistribution, B, pi / 2, 0, electronConcentration, R, f * R, distance);
 	TabulatedDiskSourceWithSynchAndComptCutoff* source3 = new TabulatedDiskSourceWithSynchAndComptCutoff(1, Nz, Nphi, electronDistribution, B, pi / 2, 0, electronConcentration, R, f * R, distance, downstreamV, 0, velocity);
+	//RectangularSourceWithSynchAndComptCutoffFromRight* source3 = new RectangularSourceWithSynchAndComptCutoffFromRight(Nz, 1, 1, electronDistribution, B, pi / 2, 0, electronConcentration,0, f*R, 0, R, 0, R, distance, downstreamV, 0, velocity);
 
-	int Ne = 1000;
+	int Ne = 100;
 	Emin = me_c2;
 	Emax = me_c2 * 2E9;
 
@@ -2227,7 +2229,7 @@ void fitCSS161010() {
 
 	//double mevFlux = evaluator2->evaluateTotalFluxInEnergyRange(0.1 * MeV, 3 * MeV, 100, source2);
 
-	double kevFluxDisk = evaluator2->evaluateTotalFluxInEnergyRange(0.3 * keV, 10 * keV, 200, source3);
+	double kevFluxDisk = evaluator2->evaluateTotalFluxInEnergyRange(0.3 * keV, 10 * keV, 400, source3);
 
 	double mevFluxDisk = evaluator2->evaluateTotalFluxInEnergyRange(0.1 * MeV, 3 * MeV, 200, source3);
 
@@ -2243,7 +2245,7 @@ void fitCSS161010() {
 	printf("MeV flux disk= %g, luminocity = %g\n", mevFluxDisk, mevFluxDisk * 4 * pi * distance * distance);
 	printLog("MeV flux disk= %g, luminocity = %g\n", mevFluxDisk, mevFluxDisk * 4 * pi * distance * distance);
 
-	evaluator2->writeFluxFromSourceToFile("wideRangeSynch.dat", source3, 1E8 * hplank, 200 * MeV, 500);
+	evaluator2->writeFluxFromSourceToFile("wideRangeSynch.dat", source3, 1E8 * hplank, 20000 * MeV, 500);
 	//evaluator2->writeFluxFromSourceToFile("wideRangeSynchDisk.dat", source3, 1E8 * hplank, 200 * MeV, 500);
 
 	//deleting arrays
