@@ -2011,7 +2011,7 @@ void fitCSS161010() {
 	const int Nparams = 5;
 	//min and max parameters, which defind the region to find minimum. also max parameters are used for normalization of units
 	double minParameters[Nparams] = { 0.6 * rmax, 0.000001, 1, 0.05, 0.5 * speed_of_light };
-	double maxParameters[Nparams] = { timeMoment * 0.8 * speed_of_light, 0.05, 500, 0.2, 0.8 * speed_of_light };
+	double maxParameters[Nparams] = { timeMoment * 0.8 * speed_of_light, 0.1, 500, 0.2, 0.8 * speed_of_light };
 	//starting point of optimization and normalization
 	double vector[Nparams] = { rmax, sigma, electronConcentration, widthFraction, v };
 	for (int i = 0; i < Nparams; ++i) {
@@ -2096,10 +2096,10 @@ void fitCSS161010() {
 	printf("optimization\n");
 	printLog("optimization\n");
 	//creating gradient descent optimizer and optimizing
-	//RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
-	combinedOptimizer->optimize(vector, optPar);
+	RadiationOptimizer* gradientOptimizer = new GradientDescentRadiationOptimizer(synchrotronEvaluator, minParameters, maxParameters, Nparams, Niterations, KPIevaluator);
+	//combinedOptimizer->optimize(vector, optPar);
 	//sequentOptimizer->optimize(vector, optPar);
-	//gradientOptimizer->optimize(vector, optPar);
+	gradientOptimizer->optimize(vector, optPar);
 	//reset parameters of source to the found values
 	source1->resetParameters(vector, maxParameters);
 	//evaluating final error

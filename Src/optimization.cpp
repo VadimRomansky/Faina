@@ -153,8 +153,8 @@ double* RadiationOptimizer::evaluateUncertainties(double* vector, bool* optpar)
 		if (optpar[i]) {
 			double rho = covariationMatrix[i][i];
 			if (rho < 0) {
-				printf("dispersion < 0\n");
-				printLog("dispersion < 0\n");
+				printf("dispersion < 0, i = %d\n", i);
+				printLog("dispersion < 0, i = %d\n", i);
 				uncertainties[i] = 0;
 			}
 			else {
@@ -661,6 +661,18 @@ void GradientDescentRadiationOptimizer::gradientStep(int iterationNumber, const 
 }
 
 void GradientDescentRadiationOptimizer::optimize(double* vector, bool* optPar) {
+	for (int i = 0; i < my_Nparams; ++i) {
+		if (vector[i] < my_minParameters[i] / my_maxParameters[i]) {
+			printf("vector[%d] = %g < min boundary = %g\n", i, vector[i], my_minParameters[i] / my_maxParameters[i]);
+			printLog("vector[%d] = %g < min boundary = %g\n", i, vector[i], my_minParameters[i] / my_maxParameters[i]);
+		}
+
+		if (vector[i] > 1.0) {
+			printf("vector[%d] = %g > 1.0\n", i, vector[i]);
+			printLog("vector[%d] = %g > 1.0\n", i, vector[i]);
+		}
+	}
+
 	int Npar = 0;
 	for (int i = 0; i < my_Nparams; ++i) {
 		if (optPar[i]) {
@@ -825,6 +837,18 @@ GridEnumRadiationOptimizer::~GridEnumRadiationOptimizer()
 
 void GridEnumRadiationOptimizer::optimize(double* vector, bool* optPar)
 {
+	for (int i = 0; i < my_Nparams; ++i) {
+		if (vector[i] < my_minParameters[i] / my_maxParameters[i]) {
+			printf("vector[%d] = %g < min boundary = %g\n", i, vector[i], my_minParameters[i] / my_maxParameters[i]);
+			printLog("vector[%d] = %g < min boundary = %g\n", i, vector[i], my_minParameters[i] / my_maxParameters[i]);
+		}
+
+		if (vector[i] > 1.0) {
+			printf("vector[%d] = %g > 1.0\n", i, vector[i]);
+			printLog("vector[%d] = %g > 1.0\n", i, vector[i]);
+		}
+	}
+
 	double* tempVector = new double[my_Nparams];
 
 	for (int i = 0; i < my_Nparams; ++i) {
@@ -1130,6 +1154,18 @@ CombinedRadiationOptimizer::~CombinedRadiationOptimizer()
 
 void CombinedRadiationOptimizer::optimize(double* vector, bool* optPar)
 {
+	for (int i = 0; i < my_Nparams; ++i) {
+		if (vector[i] < my_minParameters[i] / my_maxParameters[i]) {
+			printf("vector[%d] = %g < min boundary = %g\n", i, vector[i], my_minParameters[i] / my_maxParameters[i]);
+			printLog("vector[%d] = %g < min boundary = %g\n", i, vector[i], my_minParameters[i] / my_maxParameters[i]);
+		}
+
+		if (vector[i] > 1.0) {
+			printf("vector[%d] = %g > 1.0\n", i, vector[i]);
+			printLog("vector[%d] = %g > 1.0\n", i, vector[i]);
+		}
+	}
+
 	my_EnumOptimizer->optimize(vector, optPar);
 	my_GradientOptimzer->optimize(vector, optPar);
 }
@@ -1146,6 +1182,18 @@ SequentCoordinateEnumOptimizer::~SequentCoordinateEnumOptimizer()
 
 void SequentCoordinateEnumOptimizer::optimize(double* vector, bool* optPar)
 {
+	for (int i = 0; i < my_Nparams; ++i) {
+		if (vector[i] < my_minParameters[i] / my_maxParameters[i]) {
+			printf("vector[%d] = %g < min boundary = %g\n", i, vector[i], my_minParameters[i] / my_maxParameters[i]);
+			printLog("vector[%d] = %g < min boundary = %g\n", i, vector[i], my_minParameters[i] / my_maxParameters[i]);
+		}
+
+		if (vector[i] > 1.0) {
+			printf("vector[%d] = %g > 1.0\n", i, vector[i]);
+			printLog("vector[%d] = %g > 1.0\n", i, vector[i]);
+		}
+	}
+
 	double* tempVector = new double[my_Nparams];
 
 	double currentF = evaluateOptimizationFunction(vector);
