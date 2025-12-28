@@ -9,6 +9,7 @@ from plot_W50_EFE_higenergy3 import plot_W50_EFE_highenergy3
 from plot_W50_EFE_synchrotron import plot_W50_EFE_synchrotron
 from plot_W50_compton2 import plot_W50_compton2
 from plot_W50_compton3 import plot_W50_compton3
+from plot_W50_pions import plot_W50_pions
 from plot_W50_profile import plot_W50_profile
 from plot_W50_profile_Brinkmann import plot_W50_profile_Brinkmann
 from plot_array3d import plot_array3d
@@ -98,6 +99,7 @@ if __name__ == '__main__':
     #plot_W50_EFE_highenergy2("../output/W50synchandcompt.dat","../output/W50thickcompton.dat","W50compton2", factor)
     #plot_W50_EFE_synchrotron("../output/W50synchandcompt.dat", "W50synch", factor)
     #plot_W50_EFE_highenergy3("../output/W50synchandcompt.dat","../output/W50thickcompton.dat","../output/W50thickcompton2.dat", "W50compton3", factor)
+    plot_W50_pions("../W50pion.dat")
     #plot_radiation_EFE("../W50synchandcompt2.dat", "W50synchandcompt2")
     #plot_radiation_EFE("../output/W50highenergy.dat", "W50highenergy", 1E12, 1E16)
     #plot_radiation_EFE("../output/W50synchandcompt.dat", "W50kev", 1000, 200000, 2E-12, 2E-10)
@@ -109,17 +111,17 @@ if __name__ == '__main__':
     #plot_radiation3()
     #plot_radiation10()
     #plot_compton_radiation()
-    plot_long_radiation()
+    #plot_long_radiation()
     #plot_radiation2()
     #plot_error_profile(1,2)
     #plot_mask()
-    #plot_image("../image.dat", "image")
+    #plot_image("../W50pionImageTeV.dat", "pionimage")
     #plot_image("../image1.dat", "image1")
     #plot_rectangular_image("../W50bremsstrahlungImageeV.dat","W50bremsstrahlungeV", -2.4688e+20, 2.4688e+20, 0, 1.2344e+20)
     #plot_rectangular_image("../W50bremsstrahlungImageKeV.dat", "W50bremsstrahlungKeV", -2.4688e+20, 2.4688e+20, 0, 1.2344e+20)
     #plot_rectangular_image("../W50bremsstrahlungImageMeV.dat", "W50bremsstrahlungMeV", -2.4688e+20, 2.4688e+20, 0, 1.2344e+20)
     #plot_rectangular_image("../W50pionImageGeV.dat", "W50pionGeV", -2.4688e+20, 2.4688e+20, 0, 1.2344e+20)
-    #plot_rectangular_image("../W50pionImageTeV.dat", "W50pionTeV", -2.4688e+20, 2.4688e+20, 0, 1.2344e+20)
+    plot_rectangular_image("../W50pionImageTeV.dat", "W50pionTeV", -3.2e+20, 3.2e+20, -1.5e+20, 1.5e+20)
     #plot_rectangular_image("../W50pionImagePeV.dat", "W50pionPeV", -2.4688e+20, 2.4688e+20, 0, 1.2344e+20)
     #plot_rectangular_image("../W50scImageeV.dat", "W50sceV", 0, 5E20, 1E18, 2E18, aspect = 'auto')
     #plot_rectangular_image("../W50scImageKeV.dat", "W50scKeV", 0, 5E20, 1E18, 2E18, aspect = 'auto')

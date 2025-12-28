@@ -3,89 +3,15 @@ from matplotlib import animation
 from pylab import *
 import numpy as np
 
-def plot_W50_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1.0):
-    pionFile1 = open("../W50pion.dat", 'r')
+def plot_W50_pions(filename1, name = 'W50pion'):
+    pionFile1 = open(filename1, 'r')
     pionlines1 = pionFile1.readlines()
     Npion = len(pionlines1)
     radiationPion = np.zeros([2,Npion])
     for i in range(Npion):
         s = pionlines1[i].split()
         radiationPion[0,i] = float(s[0])
-        radiationPion[1,i] = factor*float(s[1])
-
-    radiationFile1 = open(filename1,'r')
-    lines1 = radiationFile1.readlines()
-    N1 = len(lines1)
-
-    radiation1 = np.zeros([2,N1])
-    radiation5 = np.zeros([2, N1])
-    for i in range(N1):
-        s = lines1[i].split()
-        radiation1[0,i] = float(s[0])
-        radiation1[1,i] = factor*float(s[1])
-        radiation5[0, i] = float(s[0])
-        radiation5[1, i] = factor * float(s[4])
-        #radiation[2,i] = float(s[2])
-
-    for i in range(int(0.9*N1),N1):
-        radiation1[1,i] = 0.5*(radiation1[1,i-1] + radiation1[1,i])
-    for i in range(int(0.9*N1),N1):
-        radiation1[1,i] = 0.5*(radiation1[1,i-1] + radiation1[1,i])
-    #for i in range(int(0.8*N1),N1):
-    #    radiation1[1,i] = 0.5*(radiation1[1,i-1] + radiation1[1,i])
-
-    radiationFile2 = open(filename2,'r')
-    lines2 = radiationFile2.readlines()
-    N2 = len(lines2)
-
-    radiation2 = np.zeros([2,N2])
-    for i in range(N2):
-        s = lines2[i].split()
-        radiation2[0,i] = float(s[0])
-        radiation2[1,i] = factor*float(s[1])
-
-    for i in range(int(0.9*N2),N2):
-        radiation2[1,i] = 0.5*(radiation2[1,i-1] + radiation2[1,i])
-    for i in range(int(0.9*N2),N2):
-        radiation2[1,i] = 0.5*(radiation2[1,i-1] + radiation2[1,i])
-
-    radiationFile3 = open(filename3, 'r')
-    lines3 = radiationFile3.readlines()
-    N3 = len(lines3)
-
-    radiation3 = np.zeros([2,N3])
-    for i in range(N3):
-        s = lines3[i].split()
-        radiation3[0, i] = float(s[0])
-        radiation3[1, i] = factor * float(s[1])
-
-    for i in range(int(0.9*N3),N3):
-        radiation3[1,i] = 0.5*(radiation3[1,i-1] + radiation3[1,i])
-    for i in range(int(0.9*N3),N3):
-        radiation3[1,i] = 0.5*(radiation3[1,i-1] + radiation3[1,i])
-
-    radiation4 = np.zeros([2,N3])
-    for i in range(N3):
-        radiation4[0, i] = radiation3[0, i]
-        radiation4[1, i] = radiation3[1, i] + radiation2[1, i] + radiation1[1,i]
-
-    lhaasomodel = np.zeros([2, N3])
-    for i in range(N3):
-        lhaasomodel[0,i] = radiation3[0,i]
-        lhaasomodel[1,i] = radiation3[1,i] + 0.4*radiation2[1,i] + radiation1[1,i]
-
-    lhaasoenergy = 0
-    for i in range(N3):
-        if(lhaasomodel[0,i] > 1E12):
-            lhaasoenergy = lhaasoenergy + lhaasomodel[1,i]*(lhaasomodel[0,i] - lhaasomodel[0,i-1])/lhaasomodel[0,i]
-
-    lhaasoenergy = lhaasoenergy*(4*3.14*(5500*3E18)**2)
-    print(lhaasoenergy)
-
-    hessmodel = np.zeros([2,N3])
-    for i in range(N3):
-        hessmodel[0,i] = radiation3[0,i]
-        hessmodel[1,i] = 0.3*radiation2[1,i] + radiation1[1,i]
+        radiationPion[1,i] = float(s[1])
 
     lhaasoFile = open("../examples_data/W50/LHAASO.dat",'r')
     lhaasoLines = lhaasoFile.readlines()
@@ -173,7 +99,7 @@ def plot_W50_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1.0
     #ax.set_xlim([100, 1E15])
     ax.set_xlim([5E10, 1E15])
     #ax.set_xlim([1E3, 5E4])
-    ax.set_ylim([2E-15, 5E-12])
+    ax.set_ylim([2E-16, 5E-12])
     ax.tick_params(axis='x', size=5, width=1)
     ax.tick_params(axis='y', size=5, width=1)
     ax.minorticks_on()
@@ -185,12 +111,6 @@ def plot_W50_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1.0
     #plt.xticks([1E3, 2E3, 3E3, 4E3, 5E3, 6E3, 7E3, 8E3, 9E3, 1E4, 2E4, 3E4, 4E4, 5E4])
     plt.yticks([2E-15, 3E-15, 4E-15, 5E-15, 6E-15, 7E-15, 8E-15, 9E-15, 1E-14, 2E-14, 3E-14, 4E-14, 5E-14, 6E-14, 7E-14, 8E-14, 9E-14, 1E-13, 2E-13, 3E-13, 4E-13, 5E-13, 6E-13, 7E-13, 8E-13, 9E-13, 1E-12, 2E-12, 3E-12, 4E-12, 5E-12])
 
-    plt.plot(radiation1[0], radiation1[1], 'r', linewidth=2, label = 'jet')
-    #plt.plot(radiation5[0], radiation5[1], 'salmon', linewidth=2, label='jet e2')
-    #plt.plot(radiation2[0], radiation2[1], 'orange', linewidth=2, label = 'thick from front')
-    #plt.plot(radiation3[0], radiation3[1], 'g', linewidth=2, label='thick from downstream')
-    plt.plot(radiation3[0], hessmodel[1], 'salmon', linewidth=2, label='HESS model')
-    plt.plot(radiation3[0], lhaasomodel[1], 'c', linewidth=2, label = 'LHAASO model')
     plt.plot(radiationPion[0], radiationPion[1], 'orange', linewidth = 2, label = 'pion')
     #plt.plot(lhaaso[0], lhaaso[1],'b', linewidth=4)
     plt.errorbar(lhaaso[0, :], lhaaso[1, :], yerr = [lhaaso[3, :], lhaaso[2, :]],marker='s',markerfacecolor='b',markeredgecolor='b', markersize = 3.5, uplims = lhaasoLimits, ecolor='b', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label = 'LHAASO')

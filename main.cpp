@@ -5246,8 +5246,8 @@ double* getDiffusionCoefficient(double* energy, const int Ne) {
 void evaluateW50pion() {
 	double distance = (18000 / 3.26) * parsec;
 
-	const char* concentrationFileName = "../PLUTO/Tools/pyPLUTO/density.dat";
-	const char* BFileName = "../PLUTO/Tools/pyPLUTO/B.dat";
+	const char* concentrationFileName = "./examples_data/W50/density.dat";
+	const char* BFileName = "./examples_data/W50/B.dat";
 
 	FILE* concentrationFile = fopen(concentrationFileName, "r");
 	int Nx, Ny, Nz;
@@ -5257,13 +5257,18 @@ void evaluateW50pion() {
 	fscanf(concentrationFile, "%lf %lf %lf", &minZ, &minX, &minY);
 	fscanf(concentrationFile, "%lf %lf %lf", &maxZ, &maxX, &maxY);
 
-	minZ = -maxZ;
-	minY = 0;
+	//minZ = -maxZ;
+	//minY = 0;
 	//minY = -maxZ;
-	maxY = maxZ;
+	//maxY = maxZ;
 
-	Nx = 200;
-	Nz = 100;
+	minY = minX / 2;
+	maxY = maxX / 2;
+	minZ = minY;
+	maxZ = maxY;
+
+	Nx = 100;
+	Nz = 50;
 	Ny = 50;
 
 	double dx = (maxX - minX) / Nx;
@@ -5356,10 +5361,10 @@ void evaluateW50pion() {
 	double averageConcentration = Nprotons / ((maxX - minX) * (maxY - minY) * (maxZ - minZ));
 
 	//hack - ambient and cr concentrations participate as multiplication so we use namb = 1 ncr = ncr*namb
-	for (int i = 0; i < Nx; ++i) {
+	/*for (int i = 0; i < Nx; ++i) {
 		for (int j = 0; j < Nz; ++j) {
 			for (int k = 0; k < Ny; ++k) {
-				/*double* d1 = (dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(distributions[i][j][k]))->getDistributionArray();
+				double* d1 = (dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(distributions[i][j][k]))->getDistributionArray();
 				double* d2 = (dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(distributions2[i][j][k]))->getDistributionArray();
 				for (int l = 0; l < Ne; ++l) {
 					d1[l] = concentration[i][j][k]*d1[l] + concentration2[i][j][k]*d2[l];
@@ -5374,19 +5379,19 @@ void evaluateW50pion() {
 				delete[] d2;
 
 				concentration[i][j][k] = concentration[i][j][k] + concentration2[i][j][k];
-				concentration[i][j][k] = concentration[i][j][k] * ambientConcentration[i][j][k];*/
+				concentration[i][j][k] = concentration[i][j][k] * ambientConcentration[i][j][k];
 			}
 		}
-	}
+	}*/
 
 	//hack swap ambient and acelerated concentration
 
 	//RectangularSourceInhomogenousDistribution* source = new RectangularSourceInhomogenousDistribution(Nx, Ny, Nz, protons, B, Btheta, Bphi, ambientConcentration, minX, maxX, minY, maxY, minZ, maxZ, distance);
 	RectangularSource* source = new RectangularSource(Nx, Ny, Nz, protons, B, Btheta, Bphi, ambientConcentration, minX, maxX, minY, maxY, minZ, maxZ, distance);
 
-	PionDecayEvaluatorKelner* evaluator = new PionDecayEvaluatorKelner(1000, massProton * speed_of_light2, 1E8 * massProton * speed_of_light2, averageConcentration);
+	PionDecayEvaluatorKelner* evaluator = new PionDecayEvaluatorKelner(200, massProton * speed_of_light2, 1E8 * massProton * speed_of_light2, averageConcentration);
 
-	evaluator->writeEFEFromSourceToFile("W50pion.dat", source, 1.6E-12, 1.6E4, 1000);
+	evaluator->writeEFEFromSourceToFile("W50pion.dat", source, 1.6E-12, 1.6E4, 200);
 
 	printf("start writing image\n");
 	evaluator->writeImageFromSourceToFile("W50pionImageGeV.dat", source, 1.6E-3, 1.6E-2, 20);

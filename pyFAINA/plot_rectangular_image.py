@@ -38,7 +38,7 @@ def plot_rectangular_image(filename, name, minX, maxX, minY, maxY, aspect = 'equ
                     radiation2[i][j] = 2*maxradiation
         minradiation = 1E-3*maxradiation
 
-    minradiation = 1E-4 * maxradiation
+    #minradiation = 1E-4 * maxradiation
         #for i in range(Nx):
             #for j in range(Ny):
                 #if(radiation[i][j] == 0):
