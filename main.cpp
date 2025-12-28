@@ -5270,7 +5270,7 @@ void evaluateW50pion() {
 	double dy = (maxY - minY) / Ny;
 	double dz = (maxZ - minZ) / Nz;
 
-	double time = 30000 * pi * 1E7;
+	double time = 100000 * pi * 1E7;
 	int Nt = 100;
 
 	double*** B;
@@ -5294,29 +5294,29 @@ void evaluateW50pion() {
 		}
 	}
 
-	const char* protonsFileName = "./examples_data/W50/protons.dat";
+	const char* protonsFileName = "./examples_data/W50/newdistribution/protons.dat";
 
 	MassiveParticleTabulatedIsotropicDistribution* protons;
-	double sourceConcentration;
-	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massProton, protonsFileName, protons, sourceConcentration);
+	double concentration1;
+	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massProton, protonsFileName, protons, concentration1);
 
 
-	int Ne = protons->getN();
-	double* energy = protons->getEnergyArray();
-	double* sourceDistribution = protons->getDistributionArray();
+	//int Ne = protons->getN();
+	//double* energy = protons->getEnergyArray();
+	//double* sourceDistribution = protons->getDistributionArray();
 
-	MassiveParticleDistribution**** distributions;
-	double*** concentration;
+	//MassiveParticleDistribution**** distributions;
+	//double*** concentration;
 
-	MassiveParticleDistribution**** distributions2;
-	double*** concentration2;
+	//MassiveParticleDistribution**** distributions2;
+	//double*** concentration2;
 
-	double* D = getDiffusionCoefficient(energy, Ne);
+	//double* D = getDiffusionCoefficient(energy, Ne);
 
-	RadiationSourceFactory::createRectangularSourceArraysFromDiffusion(massProton, energy, sourceDistribution, Ne, D, Nx, Ny, Nz, minX, maxX, minY, maxY, minZ, maxZ, time, Nt, sourceCoordinates, sourcePower, distributions, concentration);
-	RadiationSourceFactory::createRectangularSourceArraysFromDiffusion(massProton, energy, sourceDistribution, Ne, D, Nx, Ny, Nz, minX, maxX, minY, maxY, minZ, maxZ, time, Nt, sourceCoordinates2, sourcePower, distributions2, concentration2);
+	//RadiationSourceFactory::createRectangularSourceArraysFromDiffusion(massProton, energy, sourceDistribution, Ne, D, Nx, Ny, Nz, minX, maxX, minY, maxY, minZ, maxZ, time, Nt, sourceCoordinates, sourcePower, distributions, concentration);
+	//RadiationSourceFactory::createRectangularSourceArraysFromDiffusion(massProton, energy, sourceDistribution, Ne, D, Nx, Ny, Nz, minX, maxX, minY, maxY, minZ, maxZ, time, Nt, sourceCoordinates2, sourcePower, distributions2, concentration2);
 
-	FILE* concentrationFile2 = fopen("concentration.dat", "w");
+	/*FILE* concentrationFile2 = fopen("concentration.dat", "w");
 	for (int i = 0; i < Nx; ++i) {
 		for (int j = 0; j < Nz; ++j) {
 			for (int k = 0; k < Ny; ++k) {
@@ -5336,13 +5336,30 @@ void evaluateW50pion() {
 			}
 		}
 	}
-	fclose(distributionFile2);
+	fclose(distributionFile2);*/
+
+	double secondToRadian = pi / (180 * 3600);
+	double headMinSec = 0;
+	double headMaxSec = 12 * 15;
+	double coneMinSec = headMaxSec;
+	double coneMaxSec = 26 * 15;
+
+	double headMinX = -headMinSec * secondToRadian * distance;
+	double headMaxX = -headMaxSec * secondToRadian * distance;
+	double coneMinX = -coneMinSec * secondToRadian * distance;
+	double coneMaxX = -coneMaxSec * secondToRadian * distance;
+
+	double size = fabs(headMaxX);
+
+	double u = 0.26 * 0.15 * speed_of_light;
+	double Nprotons = 2 * time * concentration1 * u * pi * size * size;
+	double averageConcentration = Nprotons / ((maxX - minX) * (maxY - minY) * (maxZ - minZ));
 
 	//hack - ambient and cr concentrations participate as multiplication so we use namb = 1 ncr = ncr*namb
 	for (int i = 0; i < Nx; ++i) {
 		for (int j = 0; j < Nz; ++j) {
 			for (int k = 0; k < Ny; ++k) {
-				double* d1 = (dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(distributions[i][j][k]))->getDistributionArray();
+				/*double* d1 = (dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(distributions[i][j][k]))->getDistributionArray();
 				double* d2 = (dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(distributions2[i][j][k]))->getDistributionArray();
 				for (int l = 0; l < Ne; ++l) {
 					d1[l] = concentration[i][j][k]*d1[l] + concentration2[i][j][k]*d2[l];
@@ -5357,16 +5374,19 @@ void evaluateW50pion() {
 				delete[] d2;
 
 				concentration[i][j][k] = concentration[i][j][k] + concentration2[i][j][k];
-				concentration[i][j][k] = concentration[i][j][k] * ambientConcentration[i][j][k];
+				concentration[i][j][k] = concentration[i][j][k] * ambientConcentration[i][j][k];*/
 			}
 		}
 	}
 
-	RectangularSourceInhomogenousDistribution* source = new RectangularSourceInhomogenousDistribution(Nx, Ny, Nz, distributions, B, Btheta, Bphi, concentration, minX, maxX, minY, maxY, minZ, maxZ, distance);
+	//hack swap ambient and acelerated concentration
 
-	PionDecayEvaluatorKelner* evaluator = new PionDecayEvaluatorKelner(1000, massProton * speed_of_light2, 1E8 * massProton * speed_of_light2, 1.0);
+	//RectangularSourceInhomogenousDistribution* source = new RectangularSourceInhomogenousDistribution(Nx, Ny, Nz, protons, B, Btheta, Bphi, ambientConcentration, minX, maxX, minY, maxY, minZ, maxZ, distance);
+	RectangularSource* source = new RectangularSource(Nx, Ny, Nz, protons, B, Btheta, Bphi, ambientConcentration, minX, maxX, minY, maxY, minZ, maxZ, distance);
 
-	//evaluator->writeEFEFromSourceToFile("W50pion.dat", downstreamSource, 1.6E-7, 1.6E4, 500);
+	PionDecayEvaluatorKelner* evaluator = new PionDecayEvaluatorKelner(1000, massProton * speed_of_light2, 1E8 * massProton * speed_of_light2, averageConcentration);
+
+	evaluator->writeEFEFromSourceToFile("W50pion.dat", source, 1.6E-12, 1.6E4, 1000);
 
 	printf("start writing image\n");
 	evaluator->writeImageFromSourceToFile("W50pionImageGeV.dat", source, 1.6E-3, 1.6E-2, 20);
@@ -5397,7 +5417,8 @@ int main() {
 	//testVersin();
 	//testBessel();
 	//testChevalier();
-	fitCSS161010();
+	//fitCSS161010();
+	//fitAT2025wpp();
 	//fitCSS161010_2();
 	//fitAT2025wpp_2();
 	//testMatrixInverse();
@@ -5425,7 +5446,7 @@ int main() {
 	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream();
 	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
 	//evaluateW50comptonDiffusion();
-	//evaluateW50pion();
+	evaluateW50pion();
 
 	return 0;
 }
