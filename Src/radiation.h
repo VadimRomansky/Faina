@@ -50,6 +50,10 @@ public:
     void writeImageFromSourceAtEToFile(const double& photonFinalEnergy, const char* fileName, RadiationSource* source);
 
     void writeImageFromSourceInRangeToFile(const double& photonEmin, const double& photonEmax, int N, const char* fileName, RadiationSource* source);
+
+    virtual void initLock();
+
+    virtual void destroyLock();
 };
 
 class RadiationSumEvaluator : public RadiationEvaluator {
@@ -66,6 +70,10 @@ public:
     virtual double evaluateFluxFromSourceAtPoint(const double& photonFinalEnergy, RadiationSource* source, int ii, int jj);
     virtual double evaluateEmissivity(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source);
     virtual double evaluateAbsorption(const double& photonFinalEnergy, int ix1, int iz, int ix2, RadiationSource* source);
+
+    virtual void initLock();
+
+    virtual void destroyLock();
 };
 
 #endif // RADIATION_H

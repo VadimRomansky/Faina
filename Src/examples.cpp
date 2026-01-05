@@ -56,7 +56,7 @@ void evaluateComptonWithPowerLawDistribution() {
 	int Ne = 400;
 	int Nmu = 20;
 	int Nphi = 10;
-	double index =2.0;
+	double index =3;
 
 	int Nph = 100;
 
@@ -80,8 +80,10 @@ void evaluateComptonWithPowerLawDistribution() {
 	double Ephmin = 0.1 * T * kBoltzman;
 	double Ephmax = 10 * T * kBoltzman;
 	InverseComptonEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, Emin, Emax, Nph, Ephmin, Ephmax, photons, photons->getConcentration(), ComptonSolverType::ISOTROPIC_JONES);
+	SynchrotronEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, Emin, Emax, false, false);
 
-	comptonEvaluator->writeEFEFromSourceToFile("./outputCompton.dat", source, 1.6E-12, 1E16*1.6E-12, 500);
+	comptonEvaluator->writeEFEFromSourceToFile("./outputCompton.dat", source, 1.6E-12, 1E17*1.6E-12, 500);
+	synchrotronEvaluator->writeEFEFromSourceToFile("./outputSynch.dat", source, 1.6E-12, 1E17*1.6E-12, 500);
 
 	return;
 	

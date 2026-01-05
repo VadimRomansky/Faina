@@ -834,16 +834,45 @@ void MassiveParticleTabulatedIsotropicDistribution::setToZeroAboveE(const double
 
 void MassiveParticleTabulatedIsotropicDistribution::transformToLosses(const double& lossRate, const double& time)
 {
-	for (int i = 0; i < my_Ne; ++i) {
+	/*for (int i = 0; i < my_Ne; ++i) {
 		//double factor = (my_energy[i] - my_mass * speed_of_light2) * lossRate * time;
+		double prevE = my_kineticEnergy[i];
 		double factor = my_kineticEnergy[i] * lossRate * time;
-		my_kineticEnergy[i] = my_kineticEnergy[i] / (1 + factor);
+		//my_kineticEnergy[i] = my_kineticEnergy[i] / (1.0 + factor);
+		my_kineticEnergy[i] = (1.0 / (lossRate * time)) * (1.0 - 1.0 / (1.0 + factor));
 		my_energy[i] = my_kineticEnergy[i] + my_mass * speed_of_light2;
-		my_distribution[i] = my_distribution[i] * sqr(1 + factor);
+		my_distribution[i] = my_distribution[i] * sqr(1.0 + factor);
 		if (my_distribution[i] != my_distribution[i]) {
 			printf("distribution = NaN in transformToLosses\n");
 			printLog("distribution = NaN in transformToLosses\n");
 			exit(0);
+		}
+		if (i > 0) {
+			if (my_kineticEnergy[i] < my_kineticEnergy[i - 1]) {
+				printf("kinetic energy[i] < kinetic energy[i-1]\n");
+				printLog("kinetic enrgy[i] < kinetic energy[i-1]\n");
+				exit(0);
+			}
+		}
+	}
+	normalizeDistribution();*/
+	for (int i = 0; i < my_Ne; ++i) {
+		//double factor = (my_energy[i] - my_mass * speed_of_light2) * lossRate * time;
+		double factor = my_kineticEnergy[i] * lossRate * time;
+		my_kineticEnergy[i] = my_kineticEnergy[i] / (1.0 + factor);
+		my_energy[i] = my_kineticEnergy[i] + my_mass * speed_of_light2;
+		my_distribution[i] = my_distribution[i] * sqr(1.0 + factor);
+		if (my_distribution[i] != my_distribution[i]) {
+			printf("distribution = NaN in transformToLosses\n");
+			printLog("distribution = NaN in transformToLosses\n");
+			exit(0);
+		}
+		if (i > 0) {
+			if (my_kineticEnergy[i] < my_kineticEnergy[i - 1]) {
+				printf("kinetic energy[i] < kinetic energy[i-1]\n");
+				printLog("kinetic enrgy[i] < kinetic energy[i-1]\n");
+				exit(0);
+			}
 		}
 	}
 	normalizeDistribution();

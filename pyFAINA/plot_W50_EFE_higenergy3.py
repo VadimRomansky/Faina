@@ -18,13 +18,13 @@ def plot_W50_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1.0
     N1 = len(lines1)
 
     radiation1 = np.zeros([2,N1])
-    radiation5 = np.zeros([2, N1])
+    #radiation5 = np.zeros([2, N1])
     for i in range(N1):
         s = lines1[i].split()
         radiation1[0,i] = float(s[0])
         radiation1[1,i] = factor*float(s[1])
-        radiation5[0, i] = float(s[0])
-        radiation5[1, i] = factor * float(s[4])
+        #radiation5[0, i] = float(s[0])
+        #radiation5[1, i] = factor * float(s[4])
         #radiation[2,i] = float(s[2])
 
     for i in range(int(0.9*N1),N1):
@@ -173,7 +173,7 @@ def plot_W50_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1.0
     #ax.set_xlim([100, 1E15])
     ax.set_xlim([5E10, 1E15])
     #ax.set_xlim([1E3, 5E4])
-    ax.set_ylim([2E-15, 5E-12])
+    ax.set_ylim([2E-15, 5E-10])
     ax.tick_params(axis='x', size=5, width=1)
     ax.tick_params(axis='y', size=5, width=1)
     ax.minorticks_on()

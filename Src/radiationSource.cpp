@@ -1231,7 +1231,7 @@ RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAnd
 	write3dArrayToFile(my_LB2, my_Nx, my_Nz, my_Ny, "LB2.dat");
 }*/
 
-RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAndComptCutoffFromRight(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity1, const double& photonEnergyDensity, const double& velocity, const double& redShift) : RectangularSource(Nx, xgrid, Ny, Nz, electronDistribution, B, theta, phi, concentration, minY, maxY, minZ, maxZ, distance, velocity, redShift)
+RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAndComptCutoffFromRight(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity1, const double& downstreamVelocity2, const double& photonEnergyDensity, const double& velocity, const double& redShift) : RectangularSource(Nx, xgrid, Ny, Nz, electronDistribution, B, theta, phi, concentration, minY, maxY, minZ, maxZ, distance, velocity, redShift)
 {
 	my_cutoffDistribution = dynamic_cast<MassiveParticleTabulatedIsotropicDistribution*>(electronDistribution);
 	if (my_cutoffDistribution == NULL) {
@@ -1250,8 +1250,9 @@ RectangularSourceWithSynchAndComptCutoffFromRight::RectangularSourceWithSynchAnd
 		for (int k = 0; k < my_Nz; ++k) {
 			my_downstreamVelocity[i][k] = new double[my_Ny];
 			for (int j = 0; j < my_Ny; ++j) {
-				my_downstreamVelocity[i][k][j] = downstreamVelocity1;// +(downstreamVelocity2 - downstreamVelocity1) * (my_xgrid[i] - my_xgrid[my_Nx - 1]) / (my_xgrid[0] - my_xgrid[my_Nx - 1]);
-				//my_concentration[i][k][j] = my_concentration[my_Nx - 1][k][j] * downstreamVelocity1 / my_downstreamVelocity[i][k][j];
+				my_downstreamVelocity[i][k][j] = downstreamVelocity1 +(downstreamVelocity2 - downstreamVelocity1) * (my_xgrid[i] - my_xgrid[my_Nx - 1]) / (my_xgrid[0] - my_xgrid[my_Nx - 1]);
+				my_concentration[i][k][j] = my_concentration[my_Nx - 1][k][j] * downstreamVelocity1 / my_downstreamVelocity[i][k][j];
+				//my_downstreamVelocity[i][k][j] = downstreamVelocity1;
 			}
 		}
 	}
@@ -1321,13 +1322,12 @@ MassiveParticleDistribution* RectangularSourceWithSynchAndComptCutoffFromRight::
 		//printf("disk lossRate = %g\n", lossRate);
 		//printf("disk time = %g\n", time);
 
-		my_localDistribution[numthread]->transformToLosses(lossRate, time);
-		/*for (int i = irho; i < my_Nx - 1; ++i) {
+		for (int i = irho; i < my_Nx - 1; ++i) {
 			lossRate = (4.0 / 9.0) * electron_charge * electron_charge * electron_charge * electron_charge * (my_LB2[my_Nx - 2 - i + irho][iz][iphi] - my_LB2[my_Nx - 1 - i + irho][iz][iphi]) / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
 			my_localDistribution[numthread]->transformToLosses(lossRate, time);
 			double factor = pow(my_downstreamVelocity[my_Nx - 1 - i + irho][iz][iphi] / my_downstreamVelocity[my_Nx - 2 - i + irho][iz][iphi], 1.0 / 3.0);
 			my_localDistribution[numthread]->rescaleDistribution(factor);
-		}*/
+		}
 		//my_localDistribution[numthread]->transformToLosses2(k, my_z - z1, my_z - z2);
 	}
 	return my_localDistribution[numthread];

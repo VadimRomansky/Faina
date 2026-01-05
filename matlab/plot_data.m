@@ -1,11 +1,11 @@
 clear;
 
-%data = importdata('../output4.dat');
+data = importdata('../output/thickDistribution.dat');
 %data = importdata('../distribution.dat');
 %data = importdata('../anisotropicCompton.dat');
 %data = importdata('../differentialFlux.dat');
 %data = importdata('../bremsstrahlung.dat');
-data = importdata('../outputCompton.dat');
+%data = importdata('../outputCompton.dat');
 %data7 = importdata('../output7.dat');
 
 N = size(data,1);
@@ -18,7 +18,7 @@ N = size(data,1);
 
 radiation(1:N)=0;
 for i = 1:N,
-    radiation(i) = data(i,1)*data(i,2);
+    radiation(i) = data(i,2);
 end
 
 set(0,'DefaultAxesFontSize',14,'DefaultAxesFontName','Times New Roman');

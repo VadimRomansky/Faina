@@ -373,6 +373,16 @@ void RadiationEvaluator::writeImageFromSourceInRangeToFile(const double& photonE
     delete[] image;
 }
 
+void RadiationEvaluator::initLock()
+{
+    omp_init_lock(&my_lock);
+}
+
+void RadiationEvaluator::destroyLock()
+{
+    omp_destroy_lock(&my_lock);
+}
+
 RadiationSumEvaluator::RadiationSumEvaluator(int Ne, const double& Emin, const double& Emax, RadiationEvaluator* evaluator1, RadiationEvaluator* evaluator2, bool absorption, bool doppler) : RadiationEvaluator(Ne, Emin, Emax, absorption, doppler) {
     my_Nevaluators = 2;
     my_Evaluators = new RadiationEvaluator*[my_Nevaluators];
@@ -434,4 +444,20 @@ double RadiationSumEvaluator::evaluateAbsorption(const double& photonFinalEnergy
         result += my_Evaluators[i]->evaluateAbsorption(photonFinalEnergy, ix1, iz, ix2, source);
     }
     return result;
+}
+
+void RadiationSumEvaluator::initLock()
+{
+    RadiationEvaluator::initLock();
+    for (int i = 0; i < my_Nevaluators; ++i) {
+        my_Evaluators[i]->initLock();
+    }
+}
+
+void RadiationSumEvaluator::destroyLock()
+{
+    RadiationEvaluator::destroyLock();
+    for (int i = 0; i < my_Nevaluators; ++i) {
+        my_Evaluators[i]->destroyLock();
+    }
 }
