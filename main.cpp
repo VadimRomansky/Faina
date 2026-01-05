@@ -2897,10 +2897,10 @@ void evaluateW50comptonThickRegime() {
 	double photonTotalConcentration = photonsTotal->getConcentration();
 	double photonTotalEnergyDensity = photonTotalConcentration * photonsTotal->getMeanEnergy();
 
-	const char* fileName = "./examples_data/W50/newPeV/electrons.dat";
-	const char* farFileName = "./examples_data/W50/newPeV/fardownstreamelectrons.dat";
-	const char* farUpFileName = "./examples_data/W50/newPeV/farupstreamelectrons.dat";
-	const char* protonsFileName = "./examples_data/W50/newPeV/protons.dat";
+	const char* fileName = "./examples_data/W50/B15FEB6/electrons.dat";
+	const char* farFileName = "./examples_data/W50/B15FEB6/fardownstreamelectrons.dat";
+	const char* farUpFileName = "./examples_data/W50/B15FEB6/farupstreamelectrons.dat";
+	const char* protonsFileName = "./examples_data/W50/B15FEB6/protons.dat";
 
 
 
@@ -3084,7 +3084,7 @@ void evaluateW50comptonAdvectionBigSource() {
 	}
 
 	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
-	RectangularSourceWithSynchAndComptCutoffFromRight* source = new RectangularSourceWithSynchAndComptCutoffFromRight(Nx, xgrid, Ny, Nz, electrons2, B, Btheta, Bphi, concentrationArray, 0, size, 0, pi * size, distance, 0.25 * 0.2 * speed_of_light, photonTotalEnergyDensity);
+	RectangularSourceWithSynchAndComptCutoffFromRight* source = new RectangularSourceWithSynchAndComptCutoffFromRight(Nx, xgrid, Ny, Nz, electrons2, B, Btheta, Bphi, concentrationArray, 0, size, 0, pi * size, distance, 0.25 * 0.2 * speed_of_light, 0.25 * 0.2 * speed_of_light, photonTotalEnergyDensity);
 	//RectangularSourceInhomogenousDistribution* downstreamSource = new RectangularSourceInhomogenousDistribution(Nx, downstreamXgrid, Ny, Nz, electrons2, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
 	//RectangularSource* downstreamSource = new RectangularSource(1, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, downstreamXgrid[0], downstreamXgrid[Nx - 1], 0, size, 0, pi * size, distance);
 	MassiveParticleIsotropicDistribution* distributionRight = dynamic_cast<MassiveParticleIsotropicDistribution*>(source->getParticleDistribution(Nx - 1, 0, 0));
@@ -4139,14 +4139,14 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 	double coneMinX = -coneMinSec * secondToRadian * distance;
 	double coneMaxX = -coneMaxSec * secondToRadian * distance;
 
-	const char* xfileName = "./examples_data/W50/newPeV/x_grid.dat";
+	const char* xfileName = "./examples_data/W50/B15FEB6/x_grid.dat";
 	const char* BfileName = "./examples_data/W50/B15FEB6/Beff.dat";
 
 	const char* distributionFileName = "./examples_data/W50/newdistribution/electrons_full.dat";
-	const char* pfileName = "./examples_data/W50/newPeV/p_grid.dat";
+	const char* pfileName = "./examples_data/W50/B15FEB6/p_grid.dat";
 
-	const char* fileName = "./examples_data/W50/newPeV/electrons.dat";
-	const char* protonsFileName = "./examples_data/W50/newPeV/protons.dat";
+	const char* fileName = "./examples_data/W50/B15FEB6/electrons.dat";
+	const char* protonsFileName = "./examples_data/W50/B15FEB6/protons.dat";
 
 	const char* xfileNameBrinkmann = "./examples_data/W50/Brinkmann2/x_grid.dat";
 	//const char* BfileNameBrinkmann = "./examples_data/W50/B15FEB6E18/Beff.dat";
@@ -4746,7 +4746,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 	fclose(outDiffusionConvectionFile);*/
 
 
-	int Ne = 10;
+	int Ne = 100;
 	int Nmu = 100;
 	int Nphi = 4;
 	//RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 30 * kBoltzman * 20, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
@@ -5264,9 +5264,9 @@ void evaluateW50pion() {
 	minZ = minY;
 	maxZ = maxY;
 
-	Nx = 100;
-	Nz = 50;
-	Ny = 50;
+	Nx = 160;
+	Nz = 80;
+	Ny = 80;
 
 	double dx = (maxX - minX) / Nx;
 	double dy = (maxY - minY) / Ny;
@@ -5289,14 +5289,14 @@ void evaluateW50pion() {
 			for (int k = 0; k < Ny; ++k) {
 				double y = minY + (k + 0.5) * dy;
 				double r = sqrt(x * x + y * y + z * z);
-				if (r < 0.9E19) {
+				if (r < 0.5E19) {
 					ambientConcentration[i][j][k] = 0.0;
 				}
 			}
 		}
 	}
 
-	const char* protonsFileName = "./examples_data/W50/newdistribution/protons.dat";
+	const char* protonsFileName = "./examples_data/W50/B15FEB6/protons.dat";
 
 	MassiveParticleTabulatedIsotropicDistribution* protons;
 	double concentration1;
@@ -5446,9 +5446,9 @@ int main() {
 	//evaluateW50comptonAdvectionBigSource();
 	//evaluateW50comptonAndSynchrotronMCwithoutupstream();
 	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream();
-	evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
+	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
 	//evaluateW50comptonDiffusion();
-	//evaluateW50pion();
+	evaluateW50pion();
 
 	return 0;
 }
