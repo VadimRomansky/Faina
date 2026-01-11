@@ -11,7 +11,7 @@ def plot_W50_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1.0
     for i in range(Npion):
         s = pionlines1[i].split()
         radiationPion[0,i] = float(s[0])
-        radiationPion[1,i] = factor*float(s[1])
+        radiationPion[1,i] = float(s[1])
 
     radiationFile1 = open(filename1,'r')
     lines1 = radiationFile1.readlines()
@@ -173,7 +173,7 @@ def plot_W50_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1.0
     #ax.set_xlim([100, 1E15])
     ax.set_xlim([5E10, 1E15])
     #ax.set_xlim([1E3, 5E4])
-    ax.set_ylim([2E-17, 5E-12])
+    ax.set_ylim([2E-16, 5E-12])
     ax.tick_params(axis='x', size=5, width=1)
     ax.tick_params(axis='y', size=5, width=1)
     ax.minorticks_on()
