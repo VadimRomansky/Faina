@@ -6,8 +6,8 @@ kB = 1.38*10^-16;
 c =3*10^10;
 m=mp;
 
-E1 = importdata('../examples_data/gamma0.5_PICMC/PIC/Ee3.dat');
-F1 = importdata('../examples_data/gamma0.5_PICMC/PIC/Fs3.dat');
+E1 = importdata('../examples_data/gamma0.66_PICMC/PICnew/Ee3.dat');
+F1 = importdata('../examples_data/gamma0.66_PICMC/PICnew/Fs3.dat');
 N1 = size(E1,2);
 dE1(1:N1)=0;
 FEE1(1:N1)=0;
@@ -53,9 +53,9 @@ end;
 %MC_F = importdata('../examples_data/Grafik_u0_03_B0_003/GLE_pdf_sf8.dat');
 %MC_F2 = importdata('../examples_data/Grafik_u0_03_B0_000003/GLE_pdf_sf8.dat');
 %MC_F3 = importdata('../examples_data/Grafik_u0_03_B0_000003/GLE_pdf_sf8.dat');
-MC_F = importdata('../examples_data/gamma0.5_PICMC/MC0.6/GLE_pdf_sf.dat');
-MC_F2 = importdata('../examples_data/gamma0.5_PICMC/MC0.6/GLE_pdf_sf.dat');
-MC_F3 = importdata('../examples_data/gamma0.5_PICMC/MC0.6/GLE_pdf_sf.dat');
+MC_F = importdata('../examples_data/gamma0.66_PICMC/MC0.75/GLE_pdf_pf_306.dat');
+MC_F2 = importdata('../examples_data/gamma0.66_PICMC/MC0.75/GLE_pdf_pf_306.dat');
+MC_F3 = importdata('../examples_data/gamma0.66_PICMC/MC0.75/GLE_pdf_pf_306.dat');
 N2 = size(MC_F,1);
 
 
@@ -70,12 +70,12 @@ dE2(1,1)=0;
 dE2(1,2)=0;
 dE2(1,3)=0;
 for i = 1:N2,
-    %P2(i,1)=(10^MC_F(i,1))*mp*c;
-    %P2(i,2)=(10^MC_F2(i,1))*mp*c;
-    %P2(i,3)=(10^MC_F3(i,1))*mp*c;
-    P2(i,1)=MC_F(i,1)*mp*c;
-    P2(i,2)=MC_F2(i,1)*mp*c;
-    P2(i,3)=MC_F3(i,1)*mp*c;
+    P2(i,1)=(10^MC_F(i,1))*mp*c;
+    P2(i,2)=(10^MC_F2(i,1))*mp*c;
+    P2(i,3)=(10^MC_F3(i,1))*mp*c;
+    %P2(i,1)=MC_F(i,1)*mp*c;
+    %P2(i,2)=MC_F2(i,1)*mp*c;
+    %P2(i,3)=MC_F3(i,1)*mp*c;
     F2(i,1) = MC_F(i,2);
     F2(i,2) = MC_F2(i,2);
     F2(i,3) = MC_F3(i,2);
@@ -258,10 +258,10 @@ ylabel ('F_{E}');
 
 plot(E1(1:N1)/(m*c*c)-1, F1(1:N1),'red','LineWidth',2);
 plot(E1(1:N1)/(m*c*c)-1, Fjuttner(1:N1),'--','Color','magenta','LineWidth',2);
-plot(E1(1:N1)/(m*c*c)-1, Fpa1(1:N1),':','Color', 'green', 'LineWidth',4);
-plot(E1(1:N1)/(m*c*c)-1, Fpa2(1:N1),'-.','Color', '#FFA500', 'LineWidth',4);
+%plot(E1(1:N1)/(m*c*c)-1, Fpa1(1:N1),':','Color', 'green', 'LineWidth',4);
+%plot(E1(1:N1)/(m*c*c)-1, Fpa2(1:N1),'-.','Color', '#FFA500', 'LineWidth',4);
 plot(E2(1:N2,3)/(m*c*c)-1, F2(1:N2,3),'blue','LineWidth',2);
 plot(E2(1:N2)/(m*c*c)-1, Fjuttner2(1:N2),'--','Color','cyan','LineWidth',2);
-plot(E2(1:N2)/(m*c*c)-1, Fpa3(1:N2),':','Color','#000080','LineWidth',4);
-legend('PIC','T=6.6E11', 'p=-2.09','p=-2.37', 'Monte-Carlo','T=1.1E12','p=-2.12','Location','southwest');
+%plot(E2(1:N2)/(m*c*c)-1, Fpa3(1:N2),':','Color','#000080','LineWidth',4);
+%legend('PIC','T=6.6E11', 'p=-2.09','p=-2.37', 'Monte-Carlo','T=1.1E12','p=-2.12','Location','southwest');
 grid;
