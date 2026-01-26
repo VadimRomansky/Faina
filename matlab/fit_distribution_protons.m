@@ -6,8 +6,8 @@ kB = 1.38*10^-16;
 c =3*10^10;
 m=mp;
 
-E1 = importdata('../examples_data/gamma0.5_PICMC/PIC/Ee3.dat');
-F1 = importdata('../examples_data/gamma0.5_PICMC/PIC/Fs3.dat');
+E1 = importdata('../examples_data/gamma0.66_PICMC/PICnew/Ee3.dat');
+F1 = importdata('../examples_data/gamma0.66_PICMC/PICnew/Fs3.dat');
 N1 = size(E1,2);
 dE1(1:N1)=0;
 FEE1(1:N1)=0;
@@ -53,9 +53,9 @@ end;
 %MC_F = importdata('../examples_data/Grafik_u0_03_B0_003/GLE_pdf_sf8.dat');
 %MC_F2 = importdata('../examples_data/Grafik_u0_03_B0_000003/GLE_pdf_sf8.dat');
 %MC_F3 = importdata('../examples_data/Grafik_u0_03_B0_000003/GLE_pdf_sf8.dat');
-MC_F = importdata('../examples_data/gamma0.5_PICMC/MC0.6/GLE_pdf_sf.dat');
-MC_F2 = importdata('../examples_data/gamma0.5_PICMC/MC0.6/GLE_pdf_sf.dat');
-MC_F3 = importdata('../examples_data/gamma0.5_PICMC/MC0.6/GLE_pdf_sf.dat');
+MC_F = importdata('../examples_data/gamma0.66_PICMC/MC0.75/GLE_pdf_pf_306.dat');
+MC_F2 = importdata('../examples_data/gamma0.66_PICMC/MC0.75/GLE_pdf_pf_306.dat');
+MC_F3 = importdata('../examples_data/gamma0.66_PICMC/MC0.75/GLE_pdf_pf_306.dat');
 N2 = size(MC_F,1);
 
 
@@ -70,12 +70,12 @@ dE2(1,1)=0;
 dE2(1,2)=0;
 dE2(1,3)=0;
 for i = 1:N2,
-    %P2(i,1)=(10^MC_F(i,1))*mp*c;
-    %P2(i,2)=(10^MC_F2(i,1))*mp*c;
-    %P2(i,3)=(10^MC_F3(i,1))*mp*c;
-    P2(i,1)=MC_F(i,1)*mp*c;
-    P2(i,2)=MC_F2(i,1)*mp*c;
-    P2(i,3)=MC_F3(i,1)*mp*c;
+    P2(i,1)=(10^MC_F(i,1))*mp*c;
+    P2(i,2)=(10^MC_F2(i,1))*mp*c;
+    P2(i,3)=(10^MC_F3(i,1))*mp*c;
+    %P2(i,1)=MC_F(i,1)*mp*c;
+    %P2(i,2)=MC_F2(i,1)*mp*c;
+    %P2(i,3)=MC_F3(i,1)*mp*c;
     F2(i,1) = MC_F(i,2);
     F2(i,2) = MC_F2(i,2);
     F2(i,3) = MC_F3(i,2);
