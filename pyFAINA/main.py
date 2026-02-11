@@ -2,6 +2,7 @@ from matplotlib import animation
 from pylab import *
 import numpy as np
 
+from plot_V4641_EFE_higenergy3 import plot_V4641_EFE_highenergy3
 from plot_W50_EFE import plot_W50_EFE
 from plot_W50_EFE_higenergy import plot_W50_EFE_highenergy
 from plot_W50_EFE_higenergy2 import plot_W50_EFE_highenergy2
@@ -49,6 +50,7 @@ from plot_rectangular_image_with_axis import plot_rectangular_image_with_axis
 from plot_synchrotron import plot_synchrotron
 from plot_synchrotron3 import plot_synchrotron3
 from plot_thick_regime import plot_thick_regime
+
 
 if __name__ == '__main__':
     plt.rcParams['image.cmap'] = 'jet'
@@ -98,9 +100,9 @@ if __name__ == '__main__':
     #plot_W50_EFE_highenergy("../output/W50synchandcompt.dat", "W50сompton", factor)
     #plot_W50_EFE_highenergy2("../output/W50synchandcompt.dat","../output/W50thickcompton.dat","W50compton2", factor)
     #plot_W50_EFE_synchrotron("../output/W50synchandcompt.dat", "W50synch", factor)
-    plot_W50_EFE_highenergy3("../output/W50synchandcompt.dat","../output/W50thickcompton.dat","../output/W50thickcompton2.dat", "W50compton3", factor)
-    plot_W50_EFE_highenergy3("../../tempFaina/Faina/output/W50synchandcompt.dat","../../tempFaina/Faina/output/W50thickcompton.dat","../../tempFaina/Faina/output/W50thickcompton2.dat", "W50compton4", factor)
-    plot_W50_pions("../W50pion.dat")
+    #plot_W50_EFE_highenergy3("../output/W50synchandcompt.dat","../output/W50thickcompton.dat","../output/W50thickcompton2.dat", "W50compton3", factor)
+    plot_V4641_EFE_highenergy3("../output/V4641synchandcompt.dat","../output/V4641thickcompton.dat","../output/V4641thickcompton2.dat", "V4641compton3", factor)
+    #plot_W50_pions("../W50pion.dat")
     #plot_radiation_EFE("../W50synchandcompt2.dat", "W50synchandcompt2")
     #plot_radiation_EFE("../output/W50highenergy.dat", "W50highenergy", 1E12, 1E16)
     #plot_radiation_EFE("../output/W50synchandcompt.dat", "W50kev", 1000, 200000, 2E-12, 2E-10)
@@ -122,7 +124,7 @@ if __name__ == '__main__':
     #plot_rectangular_image("../W50bremsstrahlungImageKeV.dat", "W50bremsstrahlungKeV", -2.4688e+20, 2.4688e+20, 0, 1.2344e+20)
     #plot_rectangular_image("../W50bremsstrahlungImageMeV.dat", "W50bremsstrahlungMeV", -2.4688e+20, 2.4688e+20, 0, 1.2344e+20)
     #plot_rectangular_image("../W50pionImageGeV.dat", "W50pionGeV", -2.4688e+20, 2.4688e+20, 0, 1.2344e+20)
-    plot_rectangular_image("../W50pionImageTeV.dat", "W50pionTeV", -3.2e+20, 3.2e+20, -1.5e+20, 1.5e+20)
+    #plot_rectangular_image("../W50pionImageTeV.dat", "W50pionTeV", -3.2e+20, 3.2e+20, -1.5e+20, 1.5e+20)
     #plot_rectangular_image("../W50pionImagePeV.dat", "W50pionPeV", -2.4688e+20, 2.4688e+20, 0, 1.2344e+20)
     #plot_rectangular_image("../W50scImageeV.dat", "W50sceV", 0, 5E20, 1E18, 2E18, aspect = 'auto')
     #plot_rectangular_image("../W50scImageKeV.dat", "W50scKeV", 0, 5E20, 1E18, 2E18, aspect = 'auto')
