@@ -5570,7 +5570,8 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunction() {
 	int Nediff = frontElectrons->getN();
 	double* energyGrid = frontElectrons->getEnergyArray();
 	double* frontDistribution = frontElectrons->getDistributionArray();
-	double electronToProtonCorrection = 0.003;
+	//from SS433
+	double electronToProtonCorrection = 1.18E-8;
 	for (int i = 0; i < Nediff; ++i) {
 		frontDistribution[i] = frontDistribution[i] * concentration2 * electronToProtonCorrection;
 	}
@@ -5772,9 +5773,9 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunction() {
 	//sumEvaluator->writeEFEFromSourceToFile("./output/W50synchandcompt.dat", downstreamSource, 1.6E-12, 1.6E4, 1000);
 
 
-	double Ephmin = 1.6E-12;
+	double Ephmin = 1.6E-18;
 	double Ephmax = 1.6E4;
-	int Nph = 200;
+	int Nph = 400;
 	double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
 	double currentE = Ephmin;
 	FILE* outFile = fopen("./output/V4641synchandcompt.dat", "w");
@@ -5797,9 +5798,6 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunction() {
 	}
 	fclose(outFile);
 
-	Ephmin = 10 * 1000 * 1.6E-12;
-	Ephmax = 20 * 1000 * 1.6E-12;
-	Nph = 20;
 
 	return;
 }
@@ -5852,8 +5850,8 @@ void evaluateV4641comptonThickRegime() {
 	double concentration1;
 	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massElectron, fileName, electrons1, concentration1);
 
-
-	double electronToProtonCorrection = 0.003;
+	//from SS433
+	double electronToProtonCorrection = 1.18E-8;
 
 	MassiveParticleTabulatedIsotropicDistribution* fardownstreamDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, farFileName, DistributionInputType::ENERGY_FE);
 	//frontElectrons->writeDistribution("./output/thinDistribution.dat", 2000, me_c2, 1E10 * me_c2);
@@ -5910,8 +5908,8 @@ void evaluateV4641comptonThickRegime() {
 	RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, me_c2 * 500, 1E11 * me_c2, false, false);
 	RadiationEvaluator* sumEvaluator = new RadiationSumEvaluator(Ne, me_c2 * 500, 1E11 * me_c2, comptonEvaluator, synchrotronEvaluator, false, false);
 
-	sumEvaluator->writeEFEFromSourceToFile("./output/V4641thickCompton.dat", source, 1.6E-12, 1.6E4, 200);
-	sumEvaluator->writeEFEFromSourceToFile("./output/V4641thickCompton2.dat", source2, 1.6E-12, 1.6E4, 200);
+	sumEvaluator->writeEFEFromSourceToFile("./output/V4641thickCompton.dat", source, 1.6E-18, 1.6E4, 400);
+	sumEvaluator->writeEFEFromSourceToFile("./output/V4641thickCompton2.dat", source2, 1.6E-18, 1.6E4, 400);
 
 	return;
 }

@@ -3,6 +3,7 @@ from pylab import *
 import numpy as np
 
 from plot_V4641_EFE_higenergy3 import plot_V4641_EFE_highenergy3
+from plot_V4641_EFE_long import plot_V4641_EFE_long
 from plot_W50_EFE import plot_W50_EFE
 from plot_W50_EFE_higenergy import plot_W50_EFE_highenergy
 from plot_W50_EFE_higenergy2 import plot_W50_EFE_highenergy2
@@ -101,7 +102,8 @@ if __name__ == '__main__':
     #plot_W50_EFE_highenergy2("../output/W50synchandcompt.dat","../output/W50thickcompton.dat","W50compton2", factor)
     #plot_W50_EFE_synchrotron("../output/W50synchandcompt.dat", "W50synch", factor)
     #plot_W50_EFE_highenergy3("../output/W50synchandcompt.dat","../output/W50thickcompton.dat","../output/W50thickcompton2.dat", "W50compton3", factor)
-    plot_V4641_EFE_highenergy3("../output/V4641synchandcompt.dat","../output/V4641thickcompton.dat","../output/V4641thickcompton2.dat", "V4641compton3", factor)
+    plot_V4641_EFE_highenergy3("../output/V4641synchandcompt.dat","../output/V4641thickcompton.dat","../output/V4641thickcompton2.dat", "V4641compton", factor)
+    plot_V4641_EFE_long("../output/V4641synchandcompt.dat","../output/V4641thickcompton.dat","../output/V4641thickcompton2.dat", "V4641long", factor)
     #plot_W50_pions("../W50pion.dat")
     #plot_radiation_EFE("../W50synchandcompt2.dat", "W50synchandcompt2")
     #plot_radiation_EFE("../output/W50highenergy.dat", "W50highenergy", 1E12, 1E16)

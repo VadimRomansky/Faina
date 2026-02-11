@@ -3,7 +3,7 @@ from matplotlib import animation
 from pylab import *
 import numpy as np
 
-def plot_V4641_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1.0):
+def plot_V4641_EFE_long(filename1, filename2, filename3, name, factor = 1.0):
     pionFile1 = open("../W50pion.dat", 'r')
     pionlines1 = pionFile1.readlines()
     Npion = len(pionlines1)
@@ -126,7 +126,7 @@ def plot_V4641_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1
         hawc[0, i] = float(s[0])*1E12
         hawc[1, i] = float(s[1])*1E12*(1.6*1E-12)
         hawc[2, i] = float(s[2])*1E12*(1.6*1E-12)
-        hawc[3, i] = -float(s[3])*1E12*(1.6*1E-12)
+        hawc[3, i] = float(s[3])*1E12*(1.6*1E-12)
         hawcLimits[i] = False
 
     #fermiFile = open("../examples_data/W50/Fermi.dat", 'r')
@@ -193,19 +193,19 @@ def plot_V4641_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1
     ax.set_yscale("log")
     ax.set_xscale("log")
     #ax.set_xlim([100, 1E15])
-    ax.set_xlim([5E10, 1E15])
+    #ax.set_xlim([5E10, 1E15])
     #ax.set_xlim([1E3, 5E4])
-    ax.set_ylim([2E-16, 5E-12])
+    #ax.set_ylim([2E-16, 5E-12])
     ax.tick_params(axis='x', size=5, width=1)
     ax.tick_params(axis='y', size=5, width=1)
     ax.minorticks_on()
     #plt.xticks([1E9, 2E9, 3E9, 4E9, 5E9, 6E9, 7E9, 8E9, 9E9, 1E10, 2E10, 3E10, 4E10, 5E10, 6E10, 7E10, 8E10, 9E10, 1E11,2E11, 3E11, 4E11,5E11, 6E11, 7E11, 8E11, 9E11,1E12,2E12, 3E12, 4E12,5E12, 6E12, 7E12, 8E12, 9E12,1E13,2E13, 3E13, 4E13,5E13,6E13,7E13,8E13,9E13,1E14,2E14,3E14,4E14,5E14,6E14,7E14,8E14,9E14,1E15])
-    plt.xticks(
-        [5E10, 6E10, 7E10, 8E10, 9E10, 1E11, 2E11,
-         3E11, 4E11, 5E11, 6E11, 7E11, 8E11, 9E11, 1E12, 2E12, 3E12, 4E12, 5E12, 6E12, 7E12, 8E12, 9E12, 1E13, 2E13,
-         3E13, 4E13, 5E13, 6E13, 7E13, 8E13, 9E13, 1E14, 2E14, 3E14, 4E14, 5E14, 6E14, 7E14, 8E14, 9E14, 1E15])
+    #plt.xticks(
+    #    [5E10, 6E10, 7E10, 8E10, 9E10, 1E11, 2E11,
+   #      3E11, 4E11, 5E11, 6E11, 7E11, 8E11, 9E11, 1E12, 2E12, 3E12, 4E12, 5E12, 6E12, 7E12, 8E12, 9E12, 1E13, 2E13,
+   #      3E13, 4E13, 5E13, 6E13, 7E13, 8E13, 9E13, 1E14, 2E14, 3E14, 4E14, 5E14, 6E14, 7E14, 8E14, 9E14, 1E15])
     #plt.xticks([1E3, 2E3, 3E3, 4E3, 5E3, 6E3, 7E3, 8E3, 9E3, 1E4, 2E4, 3E4, 4E4, 5E4])
-    plt.yticks([2E-16, 3E-16, 4E-16, 5E-16, 6E-16, 7E-16, 8E-16, 9E-16, 1E-15, 2E-15, 3E-15, 4E-15, 5E-15, 6E-15, 7E-15, 8E-15, 9E-15, 1E-14, 2E-14, 3E-14, 4E-14, 5E-14, 6E-14, 7E-14, 8E-14, 9E-14, 1E-13, 2E-13, 3E-13, 4E-13, 5E-13, 6E-13, 7E-13, 8E-13, 9E-13, 1E-12, 2E-12, 3E-12, 4E-12, 5E-12])
+    #plt.yticks([2E-16, 3E-16, 4E-16, 5E-16, 6E-16, 7E-16, 8E-16, 9E-16, 1E-15, 2E-15, 3E-15, 4E-15, 5E-15, 6E-15, 7E-15, 8E-15, 9E-15, 1E-14, 2E-14, 3E-14, 4E-14, 5E-14, 6E-14, 7E-14, 8E-14, 9E-14, 1E-13, 2E-13, 3E-13, 4E-13, 5E-13, 6E-13, 7E-13, 8E-13, 9E-13, 1E-12, 2E-12, 3E-12, 4E-12, 5E-12])
 
     plt.plot(radiation1[0], radiation1[1], 'r', linewidth=2, label = 'jet')
     plt.plot(radiation2[0], radiation2[1], 'orange', linewidth=2, label = 'thick from front')
@@ -214,12 +214,12 @@ def plot_V4641_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1
     #plt.plot(radiation3[0], lhaasomodel[1], 'c', linewidth=2, label = 'LHAASO model')
     #plt.plot(radiationPion[0], radiationPion[1], 'orange', linewidth = 2, label = 'pion')
 
-    #plt.errorbar(meerkat[0, :], meerkat[1, :], yerr=[meerkat[3, :], meerkat[2, :]], marker='s',
-    #             markerfacecolor='purple', markeredgecolor='purple', markersize=3.5, uplims=meerkatLimits,
-    #             ecolor='purple', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="MeerKAT")
-    #plt.errorbar(xrism[0, :], xrism[1, :], yerr=[xrism[3, :], xrism[2, :]], marker='s',
-    #             markerfacecolor='purple', markeredgecolor='purple', markersize=3.5, uplims=xrismLimits,
-    #             ecolor='purple', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="XRISM")
+    plt.errorbar(meerkat[0, :], meerkat[1, :], yerr=[meerkat[3, :], meerkat[2, :]], marker='s',
+                 markerfacecolor='green', markeredgecolor='green', markersize=3.5, uplims=meerkatLimits,
+                 ecolor='green', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="MeerKAT")
+    plt.errorbar(xrism[0, :], xrism[1, :], yerr=[xrism[3, :], xrism[2, :]], marker='s',
+                 markerfacecolor='c', markeredgecolor='c', markersize=3.5, uplims=xrismLimits,
+                 ecolor='c', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="XRISM")
     plt.errorbar(hess[0, :], hess[1, :], yerr=[hess[3, :], hess[2, :]], marker='s', markerfacecolor='b',
                  markeredgecolor='b', markersize=3.5, uplims=hessLimits, ecolor='b', elinewidth=1.5, linewidth=0,
                  capsize=2.5, capthick=1.5, label='HESS')
