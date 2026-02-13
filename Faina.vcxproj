@@ -147,6 +147,8 @@
     <ClCompile Include="Src\radiationSourceFactory.cpp" />
     <ClCompile Include="Src\synchrotron.cpp" />
     <ClCompile Include="Src\util.cpp" />
+    <ClCompile Include="V4641.cpp" />
+    <ClCompile Include="W50.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\bremsstrahlung.h" />
@@ -169,6 +171,8 @@
     <ClInclude Include="Src\radiationSourceFactory.h" />
     <ClInclude Include="Src\synchrotron.h" />
     <ClInclude Include="Src\util.h" />
+    <ClInclude Include="V4641.h" />
+    <ClInclude Include="W50.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

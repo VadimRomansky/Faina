@@ -754,3 +754,177 @@ double** inverseMatrix(double** matrix, int N)
 
     return rightPart;
 }
+
+double* getUvarovBpar(int Nx, double minX, double maxX, double L0) {
+    double A0 = 41.0755 * 1E-6;
+    double A1 = 9.27296;
+    double A2 = 1.41262;
+    double A3 = 3.26888;
+    double A4 = 1.88243;
+    double A5 = 0.0767564;
+    double A6 = 0.00540849;
+    double UNIT_LENGTH = L0;
+    double* B = new double[Nx];
+    double dx = (maxX - minX) / Nx;
+    for (int i = 0; i < Nx; ++i) {
+        double x = minX + (i + 0.5) * dx;
+        double l = (maxX - x) / UNIT_LENGTH + 2;
+        //downstreamB[i] = (A0 / (1 + pow(sqr((l - A3) / A1), A2))) * (1.0 / (1 + A6 * exp(-sqr((l - A4) / A5))));
+        B[i] = A0 / (pow(1.0 + sqr((l - A3) / A1), A2)) / (1.0 + A6 * exp(-(l - A4) / A5));
+        if (B[i] < 1E-6) {
+            B[i] = 1E-6;
+        }
+    }
+
+    return B;
+}
+
+double* getUvarovBper(int Nx, double minX, double maxX, double L0) {
+    double A0 = 2 * 98.3917 * 1E-6;
+    double A1 = 30.533;
+    double A2 = 2.33138;
+    double A3 = -23.2141;
+    double A4 = 18.847;
+    double A5 = 1.05756;
+    double A6 = 0.695847;
+    double UNIT_LENGTH = L0;
+    double* B = new double[Nx];
+    double dx = (maxX - minX) / Nx;
+    for (int i = 0; i < Nx; ++i) {
+        double x = minX + (i + 0.5) * dx;
+        double l = (maxX - x) / UNIT_LENGTH + 2;
+        //downstreamB[i] = A0 / (1 + pow(sqr((l - A3) / A1), A2) + A4 * exp(-sqr((l - A5) / A6)));
+        B[i] = (A0 / (pow(1.0 + sqr((l - A3) / A1), A2)) + A4 * exp(-sqr((l - A5) / A6)));
+        if (B[i] < 1E-5) {
+            B[i] = 1E-5;
+        }
+    }
+
+    return B;
+}
+
+double* getUvarovBpar2(int Nx, double* xgrid, double L0, double factor) {
+    factor = factor * 1E-6;
+    double A0 = 41.0755 * factor;
+    double A1 = 9.27296;
+    double A2 = 1.41262;
+    double A3 = 3.26888;
+    double A4 = 1.88243;
+    double A5 = 0.0767564;
+    double A6 = 0.00540849;
+    double UNIT_LENGTH = L0;
+    double* B = new double[Nx];
+    for (int i = 0; i < Nx; ++i) {
+        double x = xgrid[i];
+        double shockx = 1.5;
+        double l = x / UNIT_LENGTH + shockx;
+        if (l >= shockx) {
+            //downstreamB[i] = (A0 / (1 + pow(sqr((l - A3) / A1), A2))) * (1.0 / (1 + A6 * exp(-sqr((l - A4) / A5))));
+            //downstreamB[i] = A0 / (pow(1.0 + sqr((l - A3) / A1), A2)) / (1.0 + A6 * exp(-(l - A4) / A5));
+            B[i] = A0 / (pow(1.0 + sqr((l - A3) / A1), A2)) / (1.0 + A6 * exp(-(l - A4) / A5));
+            if (B[i] < 1E-6) {
+                B[i] = 1E-6;
+            }
+        }
+        else {
+            B[i] = 1E-6;
+        }
+    }
+
+    return B;
+}
+
+double* getUvarovBper2(int Nx, double* xgrid, double L0, double factor) {
+    factor = factor * 1E-6;
+    double A0 = 98.3917 * factor;
+    double A1 = 30.533;
+    double A2 = 2.33138;
+    double A3 = -23.2141;
+    double A4 = 18.847 * factor;
+    double A5 = 1.05756;
+    double A6 = 0.695847;
+    double UNIT_LENGTH = L0;
+    double* B = new double[Nx];
+    for (int i = 0; i < Nx; ++i) {
+        double x = xgrid[i];
+        double shockx = 1.5;
+        double l = x / UNIT_LENGTH + shockx;
+        if (l >= shockx) {
+            //downstreamB[i] = A0 / (1 + pow(sqr((l - A3) / A1), A2) + A4 * exp(-sqr((l - A5) / A6)));
+            //downstreamB[i] = A0 / (pow(1.0 + sqr((l - A3) / A1), A2) + A4 * exp(-sqr((l - A5) / A6)));
+            B[i] = (A0 / (pow(1.0 + sqr((l - A3) / A1), A2)) + A4 * exp(-sqr((l - A5) / A6)));
+            //downstreamB[i] = (A0 / ((pow(1.0 + sqr((l - A3) / A1), A2)) + A4 * exp(-sqr((l - A5) / A6))));
+            if (B[i] < 1E-6) {
+                B[i] = 1E-6;
+            }
+        }
+        else {
+            B[i] = 1E-6;
+        }
+    }
+
+    return B;
+}
+
+double* getUvarovBpar2new(int Nx, double* xgrid, double L0, double factor) {
+    factor = factor * 1E-6;
+    double A0 = 7.66093 * factor;
+    double A1 = 9.7218;
+    double A2 = 2.14722;
+    double A3 = 2.01985;
+    double A4 = 1.9744;
+    double A5 = 0.0736655;
+    double A6 = 0.232626;
+    double UNIT_LENGTH = L0;
+    double* B = new double[Nx];
+    for (int i = 0; i < Nx; ++i) {
+        double x = xgrid[i];
+        double shockx = 1.94;
+        double l = x / UNIT_LENGTH + shockx;
+        if (l >= shockx) {
+            //downstreamB[i] = (A0 / (1 + pow(sqr((l - A3) / A1), A2))) * (1.0 / (1 + A6 * exp(-sqr((l - A4) / A5))));
+            //downstreamB[i] = A0 / (pow(1.0 + sqr((l - A3) / A1), A2)) / (1.0 + A6 * exp(-(l - A4) / A5));
+            B[i] = A0 / (pow(1.0 + sqr((l - A3) / A1), A2)) / (1.0 + A6 * exp(-(l - A4) / A5));
+            if (B[i] < 1E-6) {
+                B[i] = 1E-6;
+            }
+        }
+        else {
+            B[i] = 1E-6;
+        }
+    }
+
+    return B;
+}
+
+double* getUvarovBper2new(int Nx, double* xgrid, double L0, double factor) {
+    factor = factor * 1E-6;
+    double A0 = 5.26842 * factor;
+    double A1 = 1.05181;
+    double A2 = 0.319873;
+    double A3 = 2.87845;
+    double A4 = 21.0461 * factor;
+    double A5 = 0.042243;
+    double A6 = 1.21898;
+    double UNIT_LENGTH = L0;
+    double* B = new double[Nx];
+    for (int i = 0; i < Nx; ++i) {
+        double x = xgrid[i];
+        double shockx = 1.94;
+        double l = x / UNIT_LENGTH + shockx;
+        if (l >= shockx) {
+            //downstreamB[i] = A0 / (1 + pow(sqr((l - A3) / A1), A2) + A4 * exp(-sqr((l - A5) / A6)));
+            //downstreamB[i] = A0 / (pow(1.0 + sqr((l - A3) / A1), A2) + A4 * exp(-sqr((l - A5) / A6)));
+            B[i] = (A0 / (pow(1.0 + sqr((l - A3) / A1), A2)) + A4 * exp(-sqr((l - A5) / A6)));
+            //downstreamB[i] = (A0 / ((pow(1.0 + sqr((l - A3) / A1), A2)) + A4 * exp(-sqr((l - A5) / A6))));
+            if (B[i] < 1E-6) {
+                B[i] = 1E-6;
+            }
+        }
+        else {
+            B[i] = 1E-6;
+        }
+    }
+
+    return B;
+}

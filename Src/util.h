@@ -37,4 +37,16 @@ void beschb(double x, double* gam1, double* gam2, double* gampl, double* gammi);
 void bessik(double x, double xnu, double* ri, double* rk, double* rip, double* rkp);
 
 double** inverseMatrix(double** matrix, int N);
+
+double* getUvarovBpar(int Nx, double minX, double maxX, double L0);
+
+double* getUvarovBper(int Nx, double minX, double maxX, double L0);
+
+double* getUvarovBpar2(int Nx, double* xgrid, double L0, double factor);
+
+double* getUvarovBper2(int Nx, double* xgrid, double L0, double factor);
+
+double* getUvarovBpar2new(int Nx, double* xgrid, double L0, double factor);
+
+double* getUvarovBper2new(int Nx, double* xgrid, double L0, double factor);
 #endif
