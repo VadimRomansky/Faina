@@ -508,7 +508,7 @@ MassiveParticleTabulatedIsotropicDistribution::MassiveParticleTabulatedIsotropic
 
 	for (int i = 0; i < my_Ne; ++i) {
 		my_energy[i] = distribution.my_energy[i];
-		my_kineticEnergy[i] = my_energy[i] - my_mass * speed_of_light2;
+		my_kineticEnergy[i] = distribution.my_kineticEnergy[i];
 		my_distribution[i] = distribution.my_distribution[i];
 	}
 

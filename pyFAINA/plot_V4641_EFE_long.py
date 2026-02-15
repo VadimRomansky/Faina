@@ -22,7 +22,7 @@ def plot_V4641_EFE_long(filename1, filename2, filename3, name, factor = 1.0):
     for i in range(N1):
         s = lines1[i].split()
         radiation1[0,i] = float(s[0])
-        radiation1[1,i] = factor*float(s[1])
+        radiation1[1,i] = 8*factor*float(s[1])
         #radiation5[0, i] = float(s[0])
         #radiation5[1, i] = factor * float(s[4])
         #radiation[2,i] = float(s[2])
