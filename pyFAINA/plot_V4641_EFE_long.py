@@ -22,7 +22,7 @@ def plot_V4641_EFE_long(filename1, filename2, filename3, name, factor = 1.0):
     for i in range(N1):
         s = lines1[i].split()
         radiation1[0,i] = float(s[0])
-        radiation1[1,i] = 8*factor*float(s[1])
+        radiation1[1,i] = factor*float(s[1])
         #radiation5[0, i] = float(s[0])
         #radiation5[1, i] = factor * float(s[4])
         #radiation[2,i] = float(s[2])
@@ -208,8 +208,8 @@ def plot_V4641_EFE_long(filename1, filename2, filename3, name, factor = 1.0):
     #plt.yticks([2E-16, 3E-16, 4E-16, 5E-16, 6E-16, 7E-16, 8E-16, 9E-16, 1E-15, 2E-15, 3E-15, 4E-15, 5E-15, 6E-15, 7E-15, 8E-15, 9E-15, 1E-14, 2E-14, 3E-14, 4E-14, 5E-14, 6E-14, 7E-14, 8E-14, 9E-14, 1E-13, 2E-13, 3E-13, 4E-13, 5E-13, 6E-13, 7E-13, 8E-13, 9E-13, 1E-12, 2E-12, 3E-12, 4E-12, 5E-12])
 
     plt.plot(radiation1[0], radiation1[1], 'r', linewidth=2, label = 'jet')
-    plt.plot(radiation2[0], radiation2[1], 'orange', linewidth=2, label = 'thick from front')
-    plt.plot(radiation3[0], radiation3[1], 'salmon', linewidth=2, label='thick from downstream')
+    #plt.plot(radiation2[0], radiation2[1], 'orange', linewidth=2, label = 'thick from front')
+    #plt.plot(radiation3[0], radiation3[1], 'salmon', linewidth=2, label='thick from downstream')
     #plt.plot(radiation3[0], hessmodel[1], 'salmon', linewidth=2, label='HESS model')
     #plt.plot(radiation3[0], lhaasomodel[1], 'c', linewidth=2, label = 'LHAASO model')
     #plt.plot(radiationPion[0], radiationPion[1], 'orange', linewidth = 2, label = 'pion')

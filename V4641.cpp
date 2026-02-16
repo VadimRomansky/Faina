@@ -563,11 +563,11 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	double coneMinX = -coneMinSec * secondToRadian * distance;
 	double coneMaxX = -coneMaxSec * secondToRadian * distance;
 
-	const char* xfileName = "./examples_data/V4641/x_grid.dat";
-	const char* BfileName = "./examples_data/V4641/Beff.dat";
+	const char* xfileName = "./examples_data/V4641/B1FEB6/x_grid.dat";
+	const char* BfileName = "./examples_data/V4641/B1FEB6/Beff.dat";
 
 
-	const char* fileName = "./examples_data/W50/V4641/B1FEB6/electrons.dat";
+	const char* fileName = "./examples_data/V4641/B1FEB6/electrons.dat";
 	const char* protonsFileName = "./examples_data/V4641/B1FEB6/protons.dat";
 
 
@@ -641,7 +641,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	downstreamXgrid = new double[downstreamNx];
 	double* downstreamB1 = new double[downstreamNx];
 	for (int i = 0; i < downstreamNx; ++i) {
-		downstreamXgrid[downstreamNx - i - 1] = xgrid1[i + zeroIndex];
+		downstreamXgrid[downstreamNx - i - 1] = -xgrid1[i + zeroIndex];
 		downstreamB1[downstreamNx - 1 - i] = Beff[i + zeroIndex];
 	}
 
@@ -814,7 +814,15 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	}
 	fclose(concentrationFile);
 
-	RectangularSourceInhomogenousDistribution* downstreamSource2 = new RectangularSourceInhomogenousDistribution(downstreamNx, xgrid1, 1, 1, distributions2, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
+	for (int i = 0; i < downstreamNx; ++i) {
+		for (int j = 0; j < Nz; ++j) {
+			for (int k = 0; k < Ny; ++k) {
+				downstreamB[i][j][k] = B0;
+			}
+		}
+	}
+
+	RectangularSourceInhomogenousDistribution* downstreamSource2 = new RectangularSourceInhomogenousDistribution(downstreamNx, downstreamXgrid, Ny, Nz, distributions2, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
 
 
 	int Ne = 100;
@@ -834,12 +842,12 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	//sumEvaluator->writeEFEFromSourceToFile("./output/W50synchandcompt.dat", downstreamSource, 1.6E-12, 1.6E4, 1000);
 
 
-	double Ephmin = 1.6E-12;
+	double Ephmin = 1.6E-18;
 	double Ephmax = 1.6E4;
-	int Nph = 200;
+	int Nph = 400;
 	double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
 	double currentE = Ephmin;
-	FILE* outFile = fopen("./output/W50synchandcompt.dat", "w");
+	FILE* outFile = fopen("./output/V4641synchandcompt.dat", "w");
 	for (int i = 0; i < Nph; ++i) {
 		//omp_set_lock(&my_lock);
 		printf("writeEFEFromSourceToFile iph = %d\n", i);

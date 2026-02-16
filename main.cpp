@@ -1611,7 +1611,7 @@ int main() {
 	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
 	//evaluateW50comptonDiffusion();
 	//evaluateW50pion();
-	evaluateV4641comptonAndSynchrotronAdvectionfunction();
+	//evaluateV4641comptonAndSynchrotronAdvectionfunction();
 	//evaluateV4641comptonThickRegime();
 	evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB();
 
