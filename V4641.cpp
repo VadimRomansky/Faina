@@ -195,7 +195,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunction() {
 	double* energyGrid = frontElectrons->getEnergyArray();
 	double* frontDistribution = frontElectrons->getDistributionArray();
 	//from SS433
-	double electronToProtonCorrection = 1.18E-8;
+	double electronToProtonCorrection = 1.24E-8;
 	for (int i = 0; i < Nediff; ++i) {
 		frontDistribution[i] = frontDistribution[i] * concentration2 * electronToProtonCorrection;
 	}
@@ -464,8 +464,8 @@ void evaluateV4641comptonThickRegime() {
 	double photonTotalConcentration = photonsTotal->getConcentration();
 	double photonTotalEnergyDensity = photonTotalConcentration * photonsTotal->getMeanEnergy();
 
-	const char* fileName = "./examples_data/V4641/electrons.dat";
-	const char* farFileName = "./examples_data/V4641/fardownstreamelectrons.dat";
+	const char* fileName = "./examples_data/V4641/B1FEB6/electrons.dat";
+	const char* farFileName = "./examples_data/V4641/B1FEB6/fardownstreamelectrons.dat";
 
 
 
@@ -475,7 +475,7 @@ void evaluateV4641comptonThickRegime() {
 	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massElectron, fileName, electrons1, concentration1);
 
 	//from SS433
-	double electronToProtonCorrection = 1.18E-8;
+	double electronToProtonCorrection = 1.24E-8;
 
 	MassiveParticleTabulatedIsotropicDistribution* fardownstreamDistribution = new MassiveParticleTabulatedIsotropicDistribution(massElectron, farFileName, DistributionInputType::ENERGY_FE);
 	//frontElectrons->writeDistribution("./output/thinDistribution.dat", 2000, me_c2, 1E10 * me_c2);
@@ -606,6 +606,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	FILE* Bfile = fopen(BfileName, "r");
 	for (int i = 0; i < Nx; ++i) {
 		fscanf(Bfile, "%lf", &Beff[i]);
+		Beff[i] = 3E-6;
 	}
 	fclose(Bfile);
 
