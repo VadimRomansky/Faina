@@ -563,12 +563,12 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	double coneMinX = -coneMinSec * secondToRadian * distance;
 	double coneMaxX = -coneMaxSec * secondToRadian * distance;
 
-	const char* xfileName = "./examples_data/V4641/B1FEB6/x_grid.dat";
-	const char* BfileName = "./examples_data/V4641/B1FEB6/Beff.dat";
+	const char* xfileName = "./examples_data/V4641/B7FEB8/x_grid.dat";
+	const char* BfileName = "./examples_data/V4641/B7FEB8/Beff.dat";
 
 
-	const char* fileName = "./examples_data/V4641/B1FEB6/electrons.dat";
-	const char* protonsFileName = "./examples_data/V4641/B1FEB6/protons.dat";
+	const char* fileName = "./examples_data/V4641/B7FEB8/electrons.dat";
+	const char* protonsFileName = "./examples_data/V4641/B7FEB8/protons.dat";
 
 
 	Nx = 0;
@@ -606,7 +606,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	FILE* Bfile = fopen(BfileName, "r");
 	for (int i = 0; i < Nx; ++i) {
 		fscanf(Bfile, "%lf", &Beff[i]);
-		Beff[i] = 3E-6;
+		//Beff[i] = 3E-6;
 	}
 	fclose(Bfile);
 
@@ -642,7 +642,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	downstreamXgrid = new double[downstreamNx];
 	double* downstreamB1 = new double[downstreamNx];
 	for (int i = 0; i < downstreamNx; ++i) {
-		downstreamXgrid[downstreamNx - i - 1] = -xgrid1[i + zeroIndex];
+		downstreamXgrid[downstreamNx - i - 1] = xgrid1[i + zeroIndex];
 		downstreamB1[downstreamNx - 1 - i] = Beff[i + zeroIndex];
 	}
 
@@ -668,16 +668,16 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	int Nz = 1;
 	int Ny = 1;
 
-	/*double L0 = 0.3E18;
-	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 0.25);
-	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 0.25);
+	double L0 = 0.3E18;
+	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 0.1);
+	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 0.1);
 	//double* Bpar = getUvarovBpar2new(downstreamNx, downstreamXgrid, L0, 0.6);
 	//double* Bper = getUvarovBper2new(downstreamNx, downstreamXgrid, L0, 0.4);
 	double L1 = 3E19;
 	//double* Bpar1 = getUvarovBpar2(downstreamNx, downstreamXgrid, L1, 0.125);
 	//double* Bper1 = getUvarovBper2(downstreamNx, downstreamXgrid, L1, 0.125);
-	double* Bpar1 = getUvarovBpar2new(downstreamNx, downstreamXgrid, L1, 0.5);
-	double* Bper1 = getUvarovBper2new(downstreamNx, downstreamXgrid, L1, 0.5);
+	//double* Bpar1 = getUvarovBpar2new(downstreamNx, downstreamXgrid, L1, 0.125);
+	//double* Bper1 = getUvarovBper2new(downstreamNx, downstreamXgrid, L1, 0.125);
 
 
 	for (int i = 0; i < downstreamNx; ++i) {
@@ -685,7 +685,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	}
 
 
-	double minField = 8.0E-6;
+	double minField = 1.0E-6;
 	double sinField = 0.0 * minField;
 
 	int minFieldIndex = 0;
@@ -698,7 +698,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	for (int i = 0; i < minFieldIndex; ++i) {
 		Bpar[i] = Bpar[minFieldIndex];
 		Bper[i] = Bper[minFieldIndex];
-	}*/
+	}
 
 
 
@@ -717,13 +717,32 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 			downstreamBphi[i][j] = new double[Ny];
 			downstreamConcentrationArray[i][j] = new double[Ny];
 			for (int k = 0; k < Ny; ++k) {
-				downstreamB[i][j][k] = downstreamB1[i];
+				/*downstreamB[i][j][k] = downstreamB1[i];
 				downstreamBtheta[i][j][k] = pi / 2;
 				downstreamBphi[i][j][k] = 0;
+				downstreamConcentrationArray[i][j][k] = 1.0;*/
+
+				downstreamB[i][j][k] = sqrt(Bpar[i] * Bpar[i] + 2 * Bper[i] * Bper[i]);
+				downstreamB1[i] = downstreamB[i][j][k];
+				//downstreamB[i][j][k] = 2E-5;
+				//par - x, per - y and z
+				downstreamBtheta[i][j][k] = atan2(sqrt(Bpar[i] * Bpar[i] + Bper[i] * Bper[i]), Bper[i]);
+				//downstreamBtheta[i][j][k] = pi / 2;
+				downstreamBphi[i][j][k] = atan2(Bpar[i], Bper[i]);
 				downstreamConcentrationArray[i][j][k] = 1.0;
 			}
 		}
 	}
+
+	FILE* BoutputFile = fopen("./output/Bturb.dat", "w");
+
+	for (int i = 0; i < downstreamNx; ++i) {
+		//fprintf(Bfile, "%g %g %g\n", -downstreamXgrid[i]/L0 + 1.5, Bpar[i], Bper[i]);
+		fprintf(BoutputFile, "%g %g %g %g\n", downstreamXgrid[i], Bpar[i], Bper[i], downstreamB1[i]);
+		//fprintf(BoutputFile, "%g %g %g\n", downstreamXgrid[i], 0.0, downstreamB[i][0][0]);
+	}
+
+	fclose(BoutputFile);
 
 
 

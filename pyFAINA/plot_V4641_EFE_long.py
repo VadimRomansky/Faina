@@ -126,7 +126,7 @@ def plot_V4641_EFE_long(filename1, filename2, filename3, name, factor = 1.0):
         hawc[0, i] = float(s[0])*1E12
         hawc[1, i] = float(s[1])*1E12*(1.6*1E-12)
         hawc[2, i] = float(s[2])*1E12*(1.6*1E-12)
-        hawc[3, i] = float(s[3])*1E12*(1.6*1E-12)
+        hawc[3, i] = -float(s[3])*1E12*(1.6*1E-12)
         hawcLimits[i] = False
 
     #fermiFile = open("../examples_data/W50/Fermi.dat", 'r')
