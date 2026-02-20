@@ -140,7 +140,7 @@ def plot_V4641_EFE_highenergy(filename1, name, factor = 1.0):
     ax.set_yscale("log")
     ax.set_xscale("log")
     #ax.set_xlim([100, 1E15])
-    ax.set_xlim([5E10, 1E15])
+    ax.set_xlim([5E10, 1E16])
     #ax.set_xlim([1E3, 5E4])
     ax.set_ylim([2E-14, 5E-13])
     ax.tick_params(axis='x', size=5, width=1)
@@ -150,7 +150,7 @@ def plot_V4641_EFE_highenergy(filename1, name, factor = 1.0):
     plt.xticks(
         [5E10, 6E10, 7E10, 8E10, 9E10, 1E11, 2E11,
          3E11, 4E11, 5E11, 6E11, 7E11, 8E11, 9E11, 1E12, 2E12, 3E12, 4E12, 5E12, 6E12, 7E12, 8E12, 9E12, 1E13, 2E13,
-         3E13, 4E13, 5E13, 6E13, 7E13, 8E13, 9E13, 1E14, 2E14, 3E14, 4E14, 5E14, 6E14, 7E14, 8E14, 9E14, 1E15])
+         3E13, 4E13, 5E13, 6E13, 7E13, 8E13, 9E13, 1E14, 2E14, 3E14, 4E14, 5E14, 6E14, 7E14, 8E14, 9E14, 1E15, 2E15, 3E15, 4E15, 5E15, 6E15, 7E15, 8E15, 9E15, 1E16])
     #plt.xticks([1E3, 2E3, 3E3, 4E3, 5E3, 6E3, 7E3, 8E3, 9E3, 1E4, 2E4, 3E4, 4E4, 5E4])
     plt.yticks([2E-14, 3E-14, 4E-14, 5E-14, 6E-14, 7E-14, 8E-14, 9E-14, 1E-13, 2E-13, 3E-13, 4E-13, 5E-13, 6E-13, 7E-13, 8E-13, 9E-13, 1E-12, 2E-12, 3E-12, 4E-12, 5E-12, 6E-12, 7E-12, 8E-12, 9E-12, 1E-11, 2E-11, 3E-11, 4E-11, 5E-11])
 

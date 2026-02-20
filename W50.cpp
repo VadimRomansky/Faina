@@ -543,8 +543,8 @@ void evaluateW50comptonAndSynchrotronMCfunctionUpstream() {
 	int Ny = 1;
 
 	double L0 = 0.5E18;
-	double* Bpar1 = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 0.25);
-	double* Bper1 = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 0.25);
+	double* Bpar1 = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 15);
+	double* Bper1 = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 15);
 
 	for (int i = 0; i < downstreamNx; ++i) {
 		if (sqrt(Bpar1[i] * Bpar1[i] + 2 * Bper1[i] * Bper1[i]) < 1E-5) {
@@ -874,8 +874,8 @@ void evaluateW50comptonAndSynchrotronAdvectionfunction() {
 	int Ny = 1;
 
 	double L0 = 1E18;
-	double* Bpar = getUvarovBpar2(Nx, xgrid, L0, 0.25);
-	double* Bper = getUvarovBper2(Nx, xgrid, L0, 0.25);
+	double* Bpar = getUvarovBpar2(Nx, xgrid, L0, 15);
+	double* Bper = getUvarovBper2(Nx, xgrid, L0, 15);
 	double*** B = new double** [Nx];
 	double*** Btheta = new double** [Nx];
 	double*** Bphi = new double** [Nx];
@@ -1822,15 +1822,15 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream() {
 	int Ny = 1;
 
 	double L0 = 0.3E18;
-	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 0.125);
-	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 0.125);
+	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 7.5);
+	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 7.5);
 	//double* Bpar = getUvarovBpar2new(downstreamNx, downstreamXgrid, L0, 0.6);
 	//double* Bper = getUvarovBper2new(downstreamNx, downstreamXgrid, L0, 0.4);
 	double L1 = 3E19;
 	//double* Bpar1 = getUvarovBpar2(downstreamNx, downstreamXgrid, L1, 0.125);
 	//double* Bper1 = getUvarovBper2(downstreamNx, downstreamXgrid, L1, 0.125);
-	double* Bpar1 = getUvarovBpar2new(downstreamNx, downstreamXgrid, L1, 0.5);
-	double* Bper1 = getUvarovBper2new(downstreamNx, downstreamXgrid, L1, 0.5);
+	double* Bpar1 = getUvarovBpar2new(downstreamNx, downstreamXgrid, L1, 15);
+	double* Bper1 = getUvarovBper2new(downstreamNx, downstreamXgrid, L1, 15);
 
 	for (int i = 0; i < downstreamNx; ++i) {
 		Bpar[i] = Bpar[i] + Bpar1[i];
@@ -2613,8 +2613,8 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 	}*/
 
 	double L0Brinkmann = 2.0E18;
-	double* BparBrinkmann = getUvarovBpar2(downstreamNxBrinkmann, downstreamXgridBrinkmann, L0Brinkmann, 9.3 / 60.0);
-	double* BperBrinkmann = getUvarovBper2(downstreamNxBrinkmann, downstreamXgridBrinkmann, L0Brinkmann, 9.3 / 60.0);
+	double* BparBrinkmann = getUvarovBpar2(downstreamNxBrinkmann, downstreamXgridBrinkmann, L0Brinkmann, 9.3);
+	double* BperBrinkmann = getUvarovBper2(downstreamNxBrinkmann, downstreamXgridBrinkmann, L0Brinkmann, 9.3);
 
 	/*for (int i = 0; i < downstreamNxBrinkmann; ++i) {
 		BparBrinkmann[i] = 30E-6;

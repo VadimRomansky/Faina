@@ -784,7 +784,7 @@ double* getUvarovBper(int Nx, double minX, double maxX, double L0) {
     double A1 = 30.533;
     double A2 = 2.33138;
     double A3 = -23.2141;
-    double A4 = 18.847;
+    double A4 = 18.847 * 1E-6;
     double A5 = 1.05756;
     double A6 = 0.695847;
     double UNIT_LENGTH = L0;
@@ -804,7 +804,7 @@ double* getUvarovBper(int Nx, double minX, double maxX, double L0) {
 }
 
 double* getUvarovBpar2(int Nx, double* xgrid, double L0, double factor) {
-    factor = factor * 1E-6;
+    factor = factor * 1E-6/ 64.5738;
     double A0 = 41.0755 * factor;
     double A1 = 9.27296;
     double A2 = 1.41262;
@@ -835,7 +835,7 @@ double* getUvarovBpar2(int Nx, double* xgrid, double L0, double factor) {
 }
 
 double* getUvarovBper2(int Nx, double* xgrid, double L0, double factor) {
-    factor = factor * 1E-6;
+    factor = factor * 1E-6 / 64.5738;
     double A0 = 98.3917 * factor;
     double A1 = 30.533;
     double A2 = 2.33138;
@@ -867,7 +867,7 @@ double* getUvarovBper2(int Nx, double* xgrid, double L0, double factor) {
 }
 
 double* getUvarovBpar2new(int Nx, double* xgrid, double L0, double factor) {
-    factor = factor * 1E-6;
+    factor = factor * 1E-6 / 64.5738;
     double A0 = 7.66093 * factor;
     double A1 = 9.7218;
     double A2 = 2.14722;
@@ -898,7 +898,7 @@ double* getUvarovBpar2new(int Nx, double* xgrid, double L0, double factor) {
 }
 
 double* getUvarovBper2new(int Nx, double* xgrid, double L0, double factor) {
-    factor = factor * 1E-6;
+    factor = factor * 1E-6 / 64.5738;
     double A0 = 5.26842 * factor;
     double A1 = 1.05181;
     double A2 = 0.319873;
