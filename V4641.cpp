@@ -563,12 +563,12 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	double coneMinX = -coneMinSec * secondToRadian * distance;
 	double coneMaxX = -coneMaxSec * secondToRadian * distance;
 
-	const char* xfileName = "./examples_data/V4641/B1FEB6/x_grid.dat";
-	const char* BfileName = "./examples_data/V4641/B1FEB6/Beff.dat";
+	const char* xfileName = "./examples_data/V4641/B7FEB8/x_grid.dat";
+	const char* BfileName = "./examples_data/V4641/B7FEB8/Beff.dat";
 
 
-	const char* fileName = "./examples_data/V4641/B1FEB6/electrons.dat";
-	const char* protonsFileName = "./examples_data/V4641/B1FEB6/protons.dat";
+	const char* fileName = "./examples_data/V4641/B7FEB8/electrons.dat";
+	const char* protonsFileName = "./examples_data/V4641/B7FEB8/protons.dat";
 
 
 	Nx = 0;
@@ -669,8 +669,8 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	int Ny = 1;
 
 	double L0 = 0.3E18;
-	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 14.5);
-	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 14.5);
+	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 6.5);
+	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 6.5);
 	//double* Bpar = getUvarovBpar2new(downstreamNx, downstreamXgrid, L0, 0.6);
 	//double* Bper = getUvarovBper2new(downstreamNx, downstreamXgrid, L0, 0.4);
 	double L1 = 3E19;
@@ -794,7 +794,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 
 
 	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
-	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.15 * 0.26 * speed_of_light, photonTotalEnergyDensity);
+	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.15 * 0.2 * speed_of_light, photonTotalEnergyDensity);
 	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 10.3E8, 10.3E8, photonEnergyDensity);
 	
 
