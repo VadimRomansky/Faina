@@ -792,10 +792,10 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	}
 
 
-
+	double downstreamVelocity = 10.3E8;
 	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
 	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.15 * 0.2 * speed_of_light, photonTotalEnergyDensity);
-	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 10.3E8, 10.3E8, photonEnergyDensity);
+	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, downstreamVelocity, downstreamVelocity, photonEnergyDensity);
 	
 
 	MassiveParticleDistribution**** distributions2 = new MassiveParticleDistribution ***[downstreamNx];
@@ -838,6 +838,18 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 		for (int j = 0; j < Nz; ++j) {
 			for (int k = 0; k < Ny; ++k) {
 				downstreamB[i][j][k] = B0;
+			}
+		}
+	}
+
+	double timeOf = 300 * 3.14E7;
+
+	for (int i = 0; i < downstreamNx; ++i) {
+		if (downstreamXgrid[i] > -timeOf * downstreamVelocity) {
+			for (int j = 0; j < Nz; ++j) {
+				for (int k = 0; k < Ny; ++k) {
+					downstreamConcentrationArray[i][j][k] = 0;
+				}
 			}
 		}
 	}

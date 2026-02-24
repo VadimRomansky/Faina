@@ -172,6 +172,11 @@ def plot_V4641_EFE_long(filename1, filename2, filename3, name, factor = 1.0):
         xrism[3, i] = xrism[1, i] - float(s[3])
         xrismLimits[i] = False
 
+    erosita = np.zeros([2,1])
+    erosita[0,0] = 4000
+    erosita[1,0] = 2E-12
+    erositalimits = np.zeros([1])
+    erositalimits[0] = True
 
 
     plt.rcParams.update({'font.size': 15})
@@ -217,9 +222,12 @@ def plot_V4641_EFE_long(filename1, filename2, filename3, name, factor = 1.0):
     plt.errorbar(meerkat[0, :], meerkat[1, :], yerr=[meerkat[3, :], meerkat[2, :]], marker='s',
                  markerfacecolor='green', markeredgecolor='green', markersize=3.5, uplims=meerkatLimits,
                  ecolor='green', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="MeerKAT")
-    plt.errorbar(xrism[0, :], xrism[1, :], yerr=[xrism[3, :], xrism[2, :]], marker='s',
-                 markerfacecolor='c', markeredgecolor='c', markersize=3.5, uplims=xrismLimits,
-                 ecolor='c', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="XRISM")
+    #plt.errorbar(xrism[0, :], xrism[1, :], yerr=[xrism[3, :], xrism[2, :]], marker='s',
+    #             markerfacecolor='c', markeredgecolor='c', markersize=3.5, uplims=xrismLimits,
+    #             ecolor='c', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="XRISM")
+    plt.errorbar(erosita[0, :], erosita[1, :] , marker='s',
+                 markerfacecolor='c', markeredgecolor='c', markersize=3.5, uplims=erositalimits,
+                 ecolor='c', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="e-ROSITA")
     plt.errorbar(hess[0, :], hess[1, :], yerr=[hess[3, :], hess[2, :]], marker='s', markerfacecolor='b',
                  markeredgecolor='b', markersize=3.5, uplims=hessLimits, ecolor='b', elinewidth=1.5, linewidth=0,
                  capsize=2.5, capthick=1.5, label='HESS')
