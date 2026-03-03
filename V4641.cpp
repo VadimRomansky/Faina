@@ -563,6 +563,9 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	double coneMinX = -coneMinSec * secondToRadian * distance;
 	double coneMaxX = -coneMaxSec * secondToRadian * distance;
 
+	//double size = 0.5 * fabs(headMaxX);
+	double size = 1.5E19;
+
 	const char* xfileName = "./examples_data/V4641/B7FEB8/x_grid.dat";
 	const char* BfileName = "./examples_data/V4641/B7FEB8/Beff.dat";
 
@@ -617,7 +620,11 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 			break;
 		}
 	}
-	double downstreamSize = 1E20;
+
+	double downstreamVelocity = 10.3E8;
+	double timeSource = 10000 * 3.14E7;
+	//double downstreamSize = 1E20;
+	double downstreamSize = downstreamVelocity*timeSource;
 	double upstreamSize = 1.6E20;
 	int maxIndex = Nx - 1;
 	for (int i = 0; i < Nx; ++i) {
@@ -648,8 +655,6 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 
 	
 	
-
-	double size = 0.5 * fabs(headMaxX);
 	double B0 = 1E-6;
 
 	//RadiationSourceInCylindrical* downstreamSource = new SimpleFlatSource(upstreamElectrons, downstreamB, pi / 2, 0, concentration, size, size, distance);
@@ -791,8 +796,6 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 		}
 	}
 
-
-	double downstreamVelocity = 10.3E8;
 	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
 	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.15 * 0.2 * speed_of_light, photonTotalEnergyDensity);
 	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, downstreamVelocity, downstreamVelocity, photonEnergyDensity);
@@ -844,7 +847,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 
 	double timeOf = 300 * 3.14E7;
 
-	for (int i = 0; i < downstreamNx; ++i) {
+	/*for (int i = 0; i < downstreamNx; ++i) {
 		if (downstreamXgrid[i] > -timeOf * downstreamVelocity) {
 			for (int j = 0; j < Nz; ++j) {
 				for (int k = 0; k < Ny; ++k) {
@@ -852,7 +855,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 				}
 			}
 		}
-	}
+	}*/
 
 	RectangularSourceInhomogenousDistribution* downstreamSource2 = new RectangularSourceInhomogenousDistribution(downstreamNx, downstreamXgrid, Ny, Nz, distributions2, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
 	//RectangularSource* downstreamSource2 = new RectangularSource(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);

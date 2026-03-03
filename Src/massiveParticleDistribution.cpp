@@ -859,6 +859,9 @@ void MassiveParticleTabulatedIsotropicDistribution::transformToLosses(const doub
 	for (int i = 0; i < my_Ne; ++i) {
 		//double factor = (my_energy[i] - my_mass * speed_of_light2) * lossRate * time;
 		double factor = my_kineticEnergy[i] * lossRate * time;
+		if (factor > 0.5) {
+			printf("warnig: factor > 0.5 in transform distribution\n");
+		}
 		my_kineticEnergy[i] = my_kineticEnergy[i] / (1.0 + factor);
 		my_energy[i] = my_kineticEnergy[i] + my_mass * speed_of_light2;
 		my_distribution[i] = my_distribution[i] * sqr(1.0 + factor);
