@@ -822,8 +822,8 @@ double* getUvarovBpar2(int Nx, double* xgrid, double L0, double factor) {
             //downstreamB[i] = (A0 / (1 + pow(sqr((l - A3) / A1), A2))) * (1.0 / (1 + A6 * exp(-sqr((l - A4) / A5))));
             //downstreamB[i] = A0 / (pow(1.0 + sqr((l - A3) / A1), A2)) / (1.0 + A6 * exp(-(l - A4) / A5));
             B[i] = A0 / (pow(1.0 + sqr((l - A3) / A1), A2)) / (1.0 + A6 * exp(-(l - A4) / A5));
-            if (B[i] < 1E-6) {
-                B[i] = 1E-6;
+            if (B[i] < 1E-6/sqrt(2.0)) {
+                B[i] = 1E-6/sqrt(2.0);
             }
         }
         else {
@@ -854,8 +854,8 @@ double* getUvarovBper2(int Nx, double* xgrid, double L0, double factor) {
             //downstreamB[i] = A0 / (pow(1.0 + sqr((l - A3) / A1), A2) + A4 * exp(-sqr((l - A5) / A6)));
             B[i] = (A0 / (pow(1.0 + sqr((l - A3) / A1), A2)) + A4 * exp(-sqr((l - A5) / A6)));
             //downstreamB[i] = (A0 / ((pow(1.0 + sqr((l - A3) / A1), A2)) + A4 * exp(-sqr((l - A5) / A6))));
-            if (B[i] < 1E-6) {
-                B[i] = 1E-6;
+            if (B[i] < 1E-6/sqrt(2.0)) {
+                B[i] = 1E-6 / sqrt(2.0);
             }
         }
         else {

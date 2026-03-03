@@ -74,13 +74,14 @@ def plot_V4641_EFE_long(filename1, filename2, filename3, name, factor = 1.0):
         lhaasomodel[0,i] = radiation3[0,i]
         lhaasomodel[1,i] = radiation3[1,i] + 0.4*radiation2[1,i] + radiation1[1,i]
 
-    lhaasoenergy = 0
-    for i in range(N3):
-        if(lhaasomodel[0,i] > 1E12):
-            lhaasoenergy = lhaasoenergy + lhaasomodel[1,i]*(lhaasomodel[0,i] - lhaasomodel[0,i-1])/lhaasomodel[0,i]
+    erositaEnergy = 0
+    for i in range(N1):
+        if((radiation1[0,i] > 500) and (radiation1[0,i] < 8000)):
+            erositaEnergy = erositaEnergy + radiation1[1,i]*(radiation1[0,i] - radiation1[0,i-1])/radiation1[0,i]
 
-    lhaasoenergy = lhaasoenergy*(4*3.14*(5500*3E18)**2)
-    print(lhaasoenergy)
+    erositaFlux = erositaEnergy
+    erositaEnergy = erositaEnergy*(4*3.14*(5500*3E18)**2)
+    print('flux 0.5-8 kev = ', erositaFlux)
 
     hessmodel = np.zeros([2,N3])
     for i in range(N3):
