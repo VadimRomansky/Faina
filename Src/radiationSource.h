@@ -188,7 +188,7 @@ protected:
 	MassiveParticleTabulatedIsotropicDistribution* my_cutoffDistribution;
 	MassiveParticleTabulatedIsotropicDistribution** my_localDistribution;
 	double*** my_LB2;
-	void updateLB2();
+	virtual void updateLB2();
 public:
 	RectangularSourceWithSynchAndComptCutoffFromRight(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minX, const double& maxX, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, const double& photonEnergyDensity = 0, const double& velocity = 0, const double& redShift = 0);
 	RectangularSourceWithSynchAndComptCutoffFromRight(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& minX, const double& maxX, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, const double& photonEnergyDensity = 0, const double& velocity = 0, const double& redShift = 0);
@@ -197,6 +197,25 @@ public:
 	virtual ~RectangularSourceWithSynchAndComptCutoffFromRight();
 
 	virtual void resetParameters(const double* parameters, const double* normalizationUnits);
+	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
+};
+
+class RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay : public RectangularSourceWithSynchAndComptCutoffFromRight {
+protected:
+	double my_minB;
+	double my_time;
+	double my_tau;
+	double* my_timeArray;
+	virtual double getB(int irho, int iz, int iphi, double time);
+	//virtual void updateLB2();
+public:
+	RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minX, const double& maxX, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, double time, double tau, double minB, const double& photonEnergyDensity = 0, const double& velocity = 0, const double& redShift = 0);
+	RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& minX, const double& maxX, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, double time, double tau, double minB, const double& photonEnergyDensity = 0, const double& velocity = 0, const double& redShift = 0);
+	RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity1, const double& downstreamVelocity2, double time, double tau, double minB, const double& photonEnergyDensity = 0, const double& velocity = 0, const double& redShift = 0);
+	virtual ~RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay();
+	virtual double getB(int irho, int iz, int iphi);
+	virtual double getConcentration(int irho, int iz, int iphi);
+	//virtual void resetParameters(const double* parameters, const double* normalizationUnits);
 	virtual MassiveParticleDistribution* getParticleDistribution(int irho, int iz, int iphi);
 };
 

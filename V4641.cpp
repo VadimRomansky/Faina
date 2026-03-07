@@ -566,12 +566,12 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	//double size = 0.5 * fabs(headMaxX);
 	double size = 1.5E19;
 
-	const char* xfileName = "./examples_data/V4641/B7FEB8/x_grid.dat";
-	const char* BfileName = "./examples_data/V4641/B7FEB8/Beff.dat";
+	const char* xfileName = "./examples_data/V4641/B7FEB4/x_grid.dat";
+	const char* BfileName = "./examples_data/V4641/B7FEB4/Beff.dat";
 
 
-	const char* fileName = "./examples_data/V4641/B7FEB8/electrons.dat";
-	const char* protonsFileName = "./examples_data/V4641/B7FEB8/protons.dat";
+	const char* fileName = "./examples_data/V4641/B7FEB4/electrons.dat";
+	const char* protonsFileName = "./examples_data/V4641/B7FEB4/protons.dat";
 
 
 	Nx = 0;
@@ -674,8 +674,8 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	int Ny = 1;
 
 	double L0 = 0.3E18;
-	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 6.5);
-	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 6.5);
+	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 9.0);
+	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 9.0);
 	//double* Bpar = getUvarovBpar2new(downstreamNx, downstreamXgrid, L0, 0.6);
 	//double* Bper = getUvarovBper2new(downstreamNx, downstreamXgrid, L0, 0.4);
 	double L1 = 3E19;
@@ -798,7 +798,9 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 
 	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
 	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.15 * 0.2 * speed_of_light, photonTotalEnergyDensity);
-	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, downstreamVelocity, downstreamVelocity, photonEnergyDensity);
+	
+	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, downstreamVelocity, downstreamVelocity, photonEnergyDensity);
+	RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, downstreamVelocity, downstreamVelocity, 300*3.14E7, 200*3.14E7, 1E-6, photonEnergyDensity);
 	
 
 	MassiveParticleDistribution**** distributions2 = new MassiveParticleDistribution ***[downstreamNx];
@@ -894,7 +896,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 		int j;
 #pragma omp parallel for private(j) shared(currentE, downstreamSource, downstreamXgrid, downstreamNx) reduction(+:flux1)
 		for (j = 0; j < downstreamNx; ++j) {
-			double flux = sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, downstreamSource2, j, 0);
+			double flux = sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, downstreamSource, j, 0);
 			flux1 += flux;
 		}
 

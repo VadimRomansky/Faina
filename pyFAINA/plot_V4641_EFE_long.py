@@ -201,7 +201,7 @@ def plot_V4641_EFE_long(filename1, filename2, filename3, name, factor = 1.0):
     #ax.set_xlim([100, 1E15])
     #ax.set_xlim([5E10, 1E15])
     #ax.set_xlim([1E3, 5E4])
-    #ax.set_ylim([2E-16, 5E-12])
+    ax.set_ylim([1E-16, 4E-11])
     ax.tick_params(axis='x', size=5, width=1)
     ax.tick_params(axis='y', size=5, width=1)
     ax.minorticks_on()
@@ -236,7 +236,7 @@ def plot_V4641_EFE_long(filename1, filename2, filename3, name, factor = 1.0):
                  markeredgecolor='purple', markersize=3.5, uplims=hawcLimits, ecolor='purple', elinewidth=1.5, linewidth=0,
                  capsize=2.5, capthick=1.5, label='HAWC')
     plt.errorbar(lhaaso[0, :], lhaaso[1, :], yerr = [lhaaso[3, :], lhaaso[2, :]],marker='s',markerfacecolor='magenta',markeredgecolor='magenta', markersize = 3.5, uplims = lhaasoLimits, ecolor='magenta', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label = 'LHAASO')
-    ax.legend(fontsize = "10", loc = 'lower left')
+    ax.legend(fontsize = "10", loc = 'upper left')
     #plt.plot(radiation[0], radiation[2], 'b', linewidth=4)
     #plt.errorbar(cssx1, cssy1, cssError1, ecolor = 'b', elinewidth = 4, linewidth=0, capsize = 5, capthick = 4)
     #ax.legend([r'BremsstrahlungThermalEvaluator', r'BremsstrahlungEbaluator'], fontsize="20")

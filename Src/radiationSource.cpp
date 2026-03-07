@@ -5110,3 +5110,123 @@ double RadiationSourceInCartesian::getX2(int ix2)
 {
 	return getY(ix2);
 }
+
+double RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay::getB(int irho, int iz, int iphi, double time)
+{
+	if (time < 0) {
+		printf("warning time < 0 in getB\n");
+		printLog("warning time < 0 in getB\n");
+		time = 0;
+	}
+	double B0 = my_B[irho][iz][iphi];
+	B0 = B0 / (1 + time / my_tau);
+	if (B0 < my_minB) {
+		B0 = my_minB;
+	}
+	return B0;
+}
+
+double RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay::getB(int irho, int iz, int iphi)
+{
+	return getB(irho, iz, iphi, my_time);
+}
+
+double RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay::getConcentration(int irho, int iz, int iphi)
+{
+	if (my_timeArray[irho] < my_time) {
+		return 0.0;
+	}
+	else {
+		return my_concentration[irho][iz][iphi];
+	}
+}
+
+RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay::RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minX, const double& maxX, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, double time, double tau, double minB, const double& photonEnergyDensity, const double& velocity, const double& redShift) : RectangularSourceWithSynchAndComptCutoffFromRight(Nx, Ny, Nz, electronDistribution, B, theta, phi, concentration, minX, maxX, minY, maxY, minZ, maxZ, distance, downstreamVelocity, photonEnergyDensity, velocity, redShift)
+{
+	my_time = time;
+	my_tau = tau;
+	my_minB = minB;
+
+	my_timeArray = new double[my_Nx];
+	for (int i = 0; i < my_Nx; ++i) {
+		my_timeArray[i] = 0;
+	}
+	for (int i = 1; i < my_Nx; ++i) {
+		my_timeArray[my_Nx - 1 - i] = my_timeArray[my_Nx - i] + fabs((getX(my_Nx - 1 - i) - getX(my_Nx - i)) / my_downstreamVelocity[my_Nx - i][0][0]);
+	}
+
+	updateLB2();
+}
+
+RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay::RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& minX, const double& maxX, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, double time, double tau, double minB, const double& photonEnergyDensity, const double& velocity, const double& redShift) : RectangularSourceWithSynchAndComptCutoffFromRight(Nx, Ny, Nz, electronDistribution, B, theta, phi, concentration, minX, maxX, minY, maxY, minZ, maxZ, distance, downstreamVelocity, photonEnergyDensity, velocity, redShift)
+{
+	my_time = time;
+	my_tau = tau;
+	my_minB = minB;
+
+	my_timeArray = new double[my_Nx];
+	for (int i = 0; i < my_Nx; ++i) {
+		my_timeArray[i] = 0;
+	}
+	for (int i = 1; i < my_Nx; ++i) {
+		my_timeArray[my_Nx - 1 - i] = my_timeArray[my_Nx - i] + fabs((getX(my_Nx - 1 - i) - getX(my_Nx - i)) / my_downstreamVelocity[my_Nx - i][0][0]);
+	}
+
+	updateLB2();
+}
+
+RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay::RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay(int Nx, double* xgrid, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity1, const double& downstreamVelocity2, double time, double tau, double minB, const double& photonEnergyDensity, const double& velocity, const double& redShift) : RectangularSourceWithSynchAndComptCutoffFromRight(Nx, xgrid, Ny, Nz, electronDistribution, B, theta, phi, concentration, minY, maxY, minZ, maxZ, distance, downstreamVelocity1, downstreamVelocity2, photonEnergyDensity, velocity, redShift)
+{
+	my_time = time;
+	my_tau = tau;
+	my_minB = minB;
+
+	my_timeArray = new double[my_Nx];
+	for (int i = 0; i < my_Nx; ++i) {
+		my_timeArray[i] = 0;
+	}
+	for (int i = 1; i < my_Nx; ++i) {
+		my_timeArray[my_Nx - 1 - i] = my_timeArray[my_Nx - i] + fabs((getX(my_Nx - 1 - i) - getX(my_Nx - i)) / my_downstreamVelocity[my_Nx - i][0][0]);
+	}
+
+	updateLB2();
+}
+
+RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay::~RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay()
+{
+	delete[] my_timeArray;
+}
+
+MassiveParticleDistribution* RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay::getParticleDistribution(int irho, int iz, int iphi)
+{
+	int numthread = omp_get_thread_num();
+	if (my_localDistribution[numthread] != NULL) {
+		delete my_localDistribution[numthread];
+		my_localDistribution[numthread] = NULL;
+	}
+	my_localDistribution[numthread] = new MassiveParticleTabulatedIsotropicDistribution(*my_cutoffDistribution);
+
+
+	double l = my_maxX - getX(irho);
+
+
+	if (l > 0) {
+		double mass = my_cutoffDistribution->getMass();
+
+
+		for (int i = irho; i < my_Nx - 1; ++i) {
+			double dl = fabs(getX(my_Nx - 2 - i + irho) - getX(my_Nx - 1 - i + irho));
+			double localTime = my_time - my_timeArray[my_Nx - 2 - i + irho];
+			if (localTime < 0) {
+				localTime = 0;
+			}
+			//double lossRate = (4.0 / 9.0) * electron_charge * electron_charge * electron_charge * electron_charge * (LB2) / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
+			double lossRate = (4.0 / 9.0) * electron_charge * electron_charge * electron_charge * electron_charge * (dl*(sqr(getB(my_Nx-1-i+irho, iz, iphi, localTime)) + my_photonEnergyDensity * 8 * pi)/my_downstreamVelocity[my_Nx-1-i+irho][iz][iphi]) / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
+			double time = 1.0;
+			my_localDistribution[numthread]->transformToLosses(lossRate, time);
+			double factor = pow(my_downstreamVelocity[my_Nx - 1 - i + irho][iz][iphi] / my_downstreamVelocity[my_Nx - 2 - i + irho][iz][iphi], 1.0 / 3.0);
+			my_localDistribution[numthread]->rescaleDistribution(factor);
+		}
+	}
+	return my_localDistribution[numthread];
+}
