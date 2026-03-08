@@ -5,6 +5,7 @@ import numpy as np
 from plot_V4641_EFE_higenergy import plot_V4641_EFE_highenergy
 from plot_V4641_EFE_higenergy3 import plot_V4641_EFE_highenergy3
 from plot_V4641_EFE_long import plot_V4641_EFE_long
+from plot_V4641_EFE_long2 import plot_V4641_EFE_long2
 from plot_W50_EFE import plot_W50_EFE
 from plot_W50_EFE_higenergy import plot_W50_EFE_highenergy
 from plot_W50_EFE_higenergy2 import plot_W50_EFE_highenergy2
@@ -66,6 +67,7 @@ if __name__ == '__main__':
 
     #plot_data("../output/Bturb.dat", "B", 2, yscale = "linear", xscale = "linear")
 
+    plot_data2("../forward.dat", "../backward.dat", "distributions", 1, label1 = 'forward', label2 = 'backward', ylim1 = None, ylim2 = None)
     #plot_data2("../output/electrons.dat","../output/protons.dat", "distributions", 1, label1 = 'electrons', label2 = 'protons', ylim1 = None, ylim2 = None)
     #plot_data2("../examples_data/W50/newPeV/electrons.dat", "../examples_data/W50/newPeV/protons.dat", "distributions_p", 1, label1='electrons',
     #           label2='protons', ylim1=None, ylim2=None)
@@ -97,7 +99,8 @@ if __name__ == '__main__':
     #plot_radiation_EFE("../W50compton.dat", "W50compton")
     #plot_radiation_EFE("../W50synchrotron.dat", "W50synchrotron")
     #plot_radiation_EFE("../W50synchandcompt.dat", "W50synchandcompt")
-    factor =5*5E-3
+    factor =2.5*2*5E-3
+    factor2 = 5E-4
     #plot_W50_EFE("../output/W50synchandcompt.dat", "W50synchandcompt", factor)
     #plot_W50_EFE_highenergy("../output/W50synchandcompt.dat", "W50сompton", factor)
     #plot_W50_EFE_highenergy2("../output/W50synchandcompt.dat","../output/W50thickcompton.dat","W50compton2", factor)
@@ -107,7 +110,8 @@ if __name__ == '__main__':
 
     #plot_V4641_EFE_highenergy3("../output/V4641synchandcompt.dat","../output/V4641thickcompton.dat","../output/V4641thickcompton2.dat", "V4641compton", factor)
     plot_V4641_EFE_highenergy("../output/V4641synchandcompt.dat", "V4641compton", factor)
-    plot_V4641_EFE_long("../output/V4641synchandcompt.dat","../output/V4641thickcompton.dat","../output/V4641thickcompton2.dat", "V4641long", factor)
+    plot_V4641_EFE_long("../output/V4641synchandcompt.dat", "V4641long", factor)
+    plot_V4641_EFE_long2("../output/V4641synchandcompt.dat", "../output/V4641wind.dat", "V4641long2", factor, factor2)
 
     #plot_radiation_EFE("../W50synchandcompt2.dat", "W50synchandcompt2")
     #plot_radiation_EFE("../output/W50highenergy.dat", "W50highenergy", 1E12, 1E16)
