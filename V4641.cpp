@@ -938,15 +938,15 @@ void evaluateV4641comptonAndSynchrotronWind()
 	//const char* BfileNameF = "./examples_data/V4641/ForwardWind/Beff.dat";
 
 
-	const char* fileNameF = "./examples_data/V4641/ForwardWind/protons.dat";
-	const char* protonsFileNameF = "./examples_data/V4641/ForwardWind/electrons.dat";
+	const char* fileNameF = "./examples_data/V4641/ForwardWind/electrons.dat";
+	const char* protonsFileNameF = "./examples_data/V4641/ForwardWind/protons.dat";
 	const char* xfileNameF = "./examples_data/V4641/ForwardWind/x_grid.dat";
 
 	//const char* BfileNameT = "./examples_data/V4641/TerminationWind/Beff.dat";
 
 
 	const char* fileNameT = "./examples_data/V4641/TerminationWind/protons.dat";
-	const char* protonsFileNameT = "./examples_data/V4641/TerminationWind/electrons.dat";
+	const char* protonsFileNameT = "./examples_data/V4641/TerminationWind/protons.dat";
 	const char* xfileNameT = "./examples_data/V4641/TerminationWind/x_grid.dat";
 	
 
@@ -1060,10 +1060,11 @@ void evaluateV4641comptonAndSynchrotronWind()
 	frontElectronsF->writeDistribution("forward.dat", 200, me_c2, 1E10 * me_c2);
 	frontElectronsT->writeDistribution("backward.dat", 200, me_c2, 1E10 * me_c2);
 
-	double electronToProtonCorrectionT = concentration3T * frontProtonsT->getDistributionArray()[70] / (concentration2T * frontElectronsT->getDistributionArray()[70]);
+	double electronToProtonCorrectionF = frontProtonsF->getDistributionArray()[70] / (frontElectronsF->getDistributionArray()[70]);
+	double electronToProtonCorrectionT = frontProtonsT->getDistributionArray()[70] / (frontElectronsT->getDistributionArray()[70]);
 
-	double concentration0F = 4 * 2E-3;
-	double concentration0T = 2E-3;
+	double concentration0F = 4 * 2E-3*electronToProtonCorrectionF;
+	double concentration0T = 2E-3 * electronToProtonCorrectionT; //fake electrons
 
 
 
@@ -1129,7 +1130,7 @@ void evaluateV4641comptonAndSynchrotronWind()
 	double downstreamVelocityT = 300000000.0 / 4.0;
 
 	RectangularSourceWithSynchAndComptCutoffFromRight* forwardSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNxF, downstreamXgridF, Ny, Nz, frontElectronsF, downstreamBF, downstreamBthetaF, downstreamBphiF, downstreamConcentrationArrayF, 0, 4*rForward, 0, pi * rForward, distance, downstreamVelocityF, downstreamVelocityF, photonEnergyDensity);
-	RectangularSourceWithSynchAndComptCutoffFromRight* backwardSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNxT, downstreamXgridT, Ny, Nz, frontElectronsT, downstreamBT, downstreamBthetaT, downstreamBphiT, downstreamConcentrationArrayT, 0, 4*rTermination, 0, pi * rTermination, distance, downstreamVelocityT, downstreamVelocityT, photonEnergyDensity);
+	RectangularSourceWithSynchAndComptCutoffFromRight* backwardSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNxT, downstreamXgridT, Ny, Nz, frontElectronsF, downstreamBT, downstreamBthetaT, downstreamBphiT, downstreamConcentrationArrayT, 0, 4*rTermination, 0, pi * rTermination, distance, downstreamVelocityT, downstreamVelocityT, photonEnergyDensity);
 
 	//DiskSource* forwardSource = new SimpleFlatSource(frontElectronsT, B0, pi / 2, 0, concentration0F, rForward, sizeForward, distance);
 	//DiskSource* backwardSource = new SimpleFlatSource(frontElectronsT, B0, pi / 2, 0, concentration0T, rTermination, sizeTermination, distance);
