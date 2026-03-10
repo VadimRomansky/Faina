@@ -1608,12 +1608,12 @@ int main() {
 	//evaluateW50comptonAdvectionBigSource();
 	//evaluateW50comptonAndSynchrotronMCwithoutupstream();
 	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream();
-	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
+	evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
 	//evaluateW50comptonDiffusion();
 	//evaluateW50pion();
 	//evaluateV4641comptonAndSynchrotronAdvectionfunction();
 	//evaluateV4641comptonThickRegime();
-	//evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB();
+	evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB();
 	evaluateV4641comptonAndSynchrotronWind();
 
 	return 0;

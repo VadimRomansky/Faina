@@ -29,6 +29,7 @@ public:
 
     };
 	double distributionNormalized(const double& energy, const double& mu, const double& phi);
+	double evaluateDistributionInRange(int Ne, const double& Emin, const double& Emax);
 	double evaluateEnergyInRange(int Ne, const double& Emin, const double& Emax);
 	double evaluateKineticEnergyInRange(int Ne, const double& Emin, const double& Emax);
 

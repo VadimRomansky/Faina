@@ -603,7 +603,33 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	double concentration3;
 	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massProton, protonsFileName, frontProtons, concentration3);
 
-	double electronToProtonCorrection = concentration3 * frontProtons->getDistributionArray()[70] / (concentration2 * frontElectrons->getDistributionArray()[70]);
+	//double electronToProtonCorrection = concentration3 * frontProtons->getDistributionArray()[70] / (concentration2 * frontElectrons->getDistributionArray()[70]);
+
+	int Ne = frontElectrons->getN();
+	double* electronDistributionArray = frontElectrons->getDistributionArray();
+	double* electronEnergy = frontElectrons->getEnergyArray();
+
+	int leftBound = 0;
+	double leftEnergy;
+	for (int i = 0; i < Ne; ++i) {
+		if (electronDistributionArray[i] > 0) {
+			leftBound = i + 1;
+			leftEnergy = electronEnergy[i + 1];
+			break;
+		}
+	}
+	int rightBound = Ne - 1;
+	double rightEnergy;
+	for (int i = Ne - 1; i >= 0; --i) {
+		if (electronDistributionArray[i] > 0) {
+			rightBound = i - 1;
+			rightEnergy = electronEnergy[i - 1];
+			break;
+		}
+	}
+
+	double electronToProtonCorrection = frontProtons->evaluateDistributionInRange(200, leftEnergy, rightEnergy)*concentration3/concentration2;
+
 
 	double* Beff = new double[Nx];
 	FILE* Bfile = fopen(BfileName, "r");
@@ -863,7 +889,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	//RectangularSource* downstreamSource2 = new RectangularSource(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
 
 
-	int Ne = 100;
+	Ne = 100;
 	int Nmu = 100;
 	int Nphi = 4;
 	//RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 30 * kBoltzman * 20, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
@@ -1060,11 +1086,59 @@ void evaluateV4641comptonAndSynchrotronWind()
 	frontElectronsF->writeDistribution("forward.dat", 200, me_c2, 1E10 * me_c2);
 	frontElectronsT->writeDistribution("backward.dat", 200, me_c2, 1E10 * me_c2);
 
-	double electronToProtonCorrectionF = frontProtonsF->getDistributionArray()[70] / (frontElectronsF->getDistributionArray()[70]);
-	double electronToProtonCorrectionT = frontProtonsT->getDistributionArray()[70] / (frontElectronsT->getDistributionArray()[70]);
+	int Ne = frontElectronsF->getN();
+	double* electronDistributionArrayF = frontElectronsF->getDistributionArray();
+	double* electronEnergyF = frontElectronsF->getEnergyArray();
+
+	int leftBoundF = 0;
+	double leftEnergyF;
+	for (int i = 0; i < Ne; ++i) {
+		if (electronDistributionArrayF[i] > 0) {
+			leftBoundF = i + 1;
+			leftEnergyF = electronEnergyF[i + 1];
+			break;
+		}
+	}
+	int rightBoundF = Ne - 1;
+	double rightEnergyF;
+	for (int i = Ne - 1; i >= 0; --i) {
+		if (electronDistributionArrayF[i] > 0) {
+			rightBoundF = i - 3;
+			rightEnergyF = electronEnergyF[i - 3];
+			break;
+		}
+	}
+
+	Ne = frontElectronsT->getN();
+	double* electronDistributionArrayT = frontElectronsT->getDistributionArray();
+	double* electronEnergyT = frontElectronsT->getEnergyArray();
+
+	int leftBoundT = 0;
+	double leftEnergyT;
+	for (int i = 0; i < Ne; ++i) {
+		if (electronDistributionArrayT[i] > 0) {
+			leftBoundT = i + 1;
+			leftEnergyT = electronEnergyT[i + 1];
+			break;
+		}
+	}
+	int rightBoundT = Ne - 1;
+	double rightEnergyT;
+	for (int i = Ne - 1; i >= 0; --i) {
+		if (electronDistributionArrayF[i] > 0) {
+			rightBoundT = i - 3;
+			rightEnergyT = electronEnergyF[i - 3];
+			break;
+		}
+	}
+
+	//double electronToProtonCorrectionF = frontProtonsF->getDistributionArray()[70] / (frontElectronsF->getDistributionArray()[70]);
+	double electronToProtonCorrectionF = frontProtonsF->evaluateDistributionInRange(200, leftEnergyF, rightEnergyF);
+	//double electronToProtonCorrectionT = frontProtonsT->getDistributionArray()[70] / (frontElectronsT->getDistributionArray()[70]);
+	double electronToProtonCorrectionT = frontProtonsT->evaluateDistributionInRange(200, leftEnergyT,rightEnergyT);
 
 	double concentration0F = 4 * 2E-3*electronToProtonCorrectionF;
-	double concentration0T = 2E-3 * electronToProtonCorrectionT; //fake electrons
+	double concentration0T = 2E-3 * electronToProtonCorrectionT;
 
 
 
@@ -1130,12 +1204,12 @@ void evaluateV4641comptonAndSynchrotronWind()
 	double downstreamVelocityT = 300000000.0 / 4.0;
 
 	RectangularSourceWithSynchAndComptCutoffFromRight* forwardSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNxF, downstreamXgridF, Ny, Nz, frontElectronsF, downstreamBF, downstreamBthetaF, downstreamBphiF, downstreamConcentrationArrayF, 0, 4*rForward, 0, pi * rForward, distance, downstreamVelocityF, downstreamVelocityF, photonEnergyDensity);
-	RectangularSourceWithSynchAndComptCutoffFromRight* backwardSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNxT, downstreamXgridT, Ny, Nz, frontElectronsF, downstreamBT, downstreamBthetaT, downstreamBphiT, downstreamConcentrationArrayT, 0, 4*rTermination, 0, pi * rTermination, distance, downstreamVelocityT, downstreamVelocityT, photonEnergyDensity);
+	RectangularSourceWithSynchAndComptCutoffFromRight* backwardSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNxT, downstreamXgridT, Ny, Nz, frontElectronsT, downstreamBT, downstreamBthetaT, downstreamBphiT, downstreamConcentrationArrayT, 0, 4*rTermination, 0, pi * rTermination, distance, downstreamVelocityT, downstreamVelocityT, photonEnergyDensity);
 
 	//DiskSource* forwardSource = new SimpleFlatSource(frontElectronsT, B0, pi / 2, 0, concentration0F, rForward, sizeForward, distance);
 	//DiskSource* backwardSource = new SimpleFlatSource(frontElectronsT, B0, pi / 2, 0, concentration0T, rTermination, sizeTermination, distance);
 
-	int Ne = 100;
+	Ne = 100;
 	int Nmu = 100;
 	int Nphi = 4;
 	//RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 30 * kBoltzman * 20, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);

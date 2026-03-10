@@ -2479,7 +2479,33 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 	double concentration3;
 	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massProton, protonsFileName, frontProtons, concentration3);
 
-	double electronToProtonCorrection = concentration3 * frontProtons->getDistributionArray()[70] / (concentration2 * frontElectrons->getDistributionArray()[70]);
+	//double electronToProtonCorrection = concentration3 * frontProtons->getDistributionArray()[70] / (concentration2 * frontElectrons->getDistributionArray()[70]);
+
+	int Ne = frontElectrons->getN();
+	double* electronDistributionArray = frontElectrons->getDistributionArray();
+	double* electronEnergy = frontElectrons->getEnergyArray();
+
+	int leftBound = 0;
+	double leftEnergy;
+	for (int i = 0; i < Ne; ++i) {
+		if (electronDistributionArray[i] > 0) {
+			leftBound = i + 1;
+			leftEnergy = electronEnergy[i + 1];
+			break;
+		}
+	}
+	int rightBound = Ne - 1;
+	double rightEnergy;
+	for (int i = Ne - 1; i >= 0; --i) {
+		if (electronDistributionArray[i] > 0) {
+			rightBound = i - 1;
+			rightEnergy = electronEnergy[i - 1];
+			break;
+		}
+	}
+
+	double electronToProtonCorrection = frontProtons->evaluateDistributionInRange(200, leftEnergy, rightEnergy) * concentration3 / concentration2;
+
 
 	MassiveParticleTabulatedIsotropicDistribution* frontElectronsBrinkmann;
 	double concentration2Brinkmann;
@@ -2597,15 +2623,15 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 	int Ny = 1;
 
 	double L0 = 0.3E18;
-	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 0.25);
-	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 0.25);
+	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 8);
+	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 8);
 	//double* Bpar = getUvarovBpar2new(downstreamNx, downstreamXgrid, L0, 0.6);
 	//double* Bper = getUvarovBper2new(downstreamNx, downstreamXgrid, L0, 0.4);
 	double L1 = 3E19;
 	//double* Bpar1 = getUvarovBpar2(downstreamNx, downstreamXgrid, L1, 0.125);
 	//double* Bper1 = getUvarovBper2(downstreamNx, downstreamXgrid, L1, 0.125);
-	double* Bpar1 = getUvarovBpar2new(downstreamNx, downstreamXgrid, L1, 0.5);
-	double* Bper1 = getUvarovBper2new(downstreamNx, downstreamXgrid, L1, 0.5);
+	double* Bpar1 = getUvarovBpar2new(downstreamNx, downstreamXgrid, L1, 15);
+	double* Bper1 = getUvarovBper2new(downstreamNx, downstreamXgrid, L1, 15);
 
 	/*for (int i = 0; i < downstreamNx; ++i) {
 		Bpar[i] = Bpar[i] + Bpar1[i];
@@ -3037,7 +3063,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 	fclose(outDiffusionConvectionFile);*/
 
 
-	int Ne = 100;
+	Ne = 100;
 	int Nmu = 100;
 	int Nphi = 4;
 	//RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 30 * kBoltzman * 20, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);

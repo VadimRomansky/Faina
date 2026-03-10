@@ -15,6 +15,21 @@ double MassiveParticleIsotropicDistribution::distributionNormalized(const double
 	return distributionNormalized(energy);
 }
 
+double MassiveParticleIsotropicDistribution::evaluateDistributionInRange(int Ne, const double& Emin, const double& Emax)
+{
+	double result = 0;
+	double factor = pow(Emax / Emin, 1.0 / (Ne - 1));
+
+	double currentE = Emin;
+
+	for (int i = 0; i < Ne; ++i) {
+		result = result + 4 * pi * distributionNormalized(currentE) * currentE * (factor - 1);
+		currentE = currentE * factor;
+	}
+
+	return result;
+}
+
 double MassiveParticleIsotropicDistribution::evaluateEnergyInRange(int Ne, const double& Emin, const double& Emax)
 {
 	double result = 0;
