@@ -2623,15 +2623,15 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 	int Ny = 1;
 
 	double L0 = 0.3E18;
-	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 8);
-	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 8);
+	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 15);
+	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 15);
 	//double* Bpar = getUvarovBpar2new(downstreamNx, downstreamXgrid, L0, 0.6);
 	//double* Bper = getUvarovBper2new(downstreamNx, downstreamXgrid, L0, 0.4);
 	double L1 = 3E19;
 	//double* Bpar1 = getUvarovBpar2(downstreamNx, downstreamXgrid, L1, 0.125);
 	//double* Bper1 = getUvarovBper2(downstreamNx, downstreamXgrid, L1, 0.125);
-	double* Bpar1 = getUvarovBpar2new(downstreamNx, downstreamXgrid, L1, 15);
-	double* Bper1 = getUvarovBper2new(downstreamNx, downstreamXgrid, L1, 15);
+	//double* Bpar1 = getUvarovBpar2new(downstreamNx, downstreamXgrid, L1, 15);
+	//double* Bper1 = getUvarovBper2new(downstreamNx, downstreamXgrid, L1, 15);
 
 	/*for (int i = 0; i < downstreamNx; ++i) {
 		Bpar[i] = Bpar[i] + Bpar1[i];
@@ -2657,6 +2657,19 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 
 	double minField = 8.0E-6;
 	double sinField = 0.0 * minField;
+
+	FILE* BoutputFile1 = fopen("./output/BturbW501.dat", "w");
+
+	for (int i = 0; i < downstreamNx; ++i) {
+		//fprintf(Bfile, "%g %g %g\n", -downstreamXgrid[i]/L0 + 1.5, Bpar[i], Bper[i]);
+		fprintf(BoutputFile1, "%g %g %g %g\n", downstreamXgrid[i], Bpar[i], Bper[i], sqrt(Bpar[i]*Bpar[i] + 2*Bper[i]*Bper[i]));
+		//fprintf(BoutputFile, "%g %g %g\n", downstreamXgrid[i], 0.0, downstreamB[i][0][0]);
+	}
+	/*for (int i = 0; i < upstreamNx; ++i) {
+		fprintf(BoutputFile, "%g %g %g\n", upstreamXgrid[i], 0.0, upstreamB[i][0][0] / sqrt(2.0));
+	}*/
+
+	fclose(BoutputFile1);
 
 	int minFieldIndex = 0;
 	for (int i = 1; i < downstreamNx; ++i) {
@@ -2792,16 +2805,16 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 		}
 	}*/
 
-	FILE* BoutputFile = fopen("./output/Bturb.dat", "w");
+	FILE* BoutputFile = fopen("./output/BturbW50.dat", "w");
 
 	for (int i = 0; i < downstreamNx; ++i) {
 		//fprintf(Bfile, "%g %g %g\n", -downstreamXgrid[i]/L0 + 1.5, Bpar[i], Bper[i]);
-		fprintf(BoutputFile, "%g %g %g\n", downstreamXgrid[i], Bpar[i], Bper[i]);
+		fprintf(BoutputFile, "%g %g %g %g\n", downstreamXgrid[i], Bpar[i], Bper[i], sqrt(Bpar[i] * Bpar[i] + 2 * Bper[i] * Bper[i]));
 		//fprintf(BoutputFile, "%g %g %g\n", downstreamXgrid[i], 0.0, downstreamB[i][0][0]);
 	}
-	for (int i = 0; i < upstreamNx; ++i) {
+	/*for (int i = 0; i < upstreamNx; ++i) {
 		fprintf(BoutputFile, "%g %g %g\n", upstreamXgrid[i], 0.0, upstreamB[i][0][0] / sqrt(2.0));
-	}
+	}*/
 
 	fclose(BoutputFile);
 

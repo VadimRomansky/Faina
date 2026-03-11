@@ -719,6 +719,8 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	double minField = 1.0E-6;
 	double sinField = 0.0 * minField;
 
+
+
 	int minFieldIndex = 0;
 	for (int i = 1; i < downstreamNx; ++i) {
 		if (sqrt(Bpar[downstreamNx - i - 1] * Bpar[downstreamNx - i - 1] + 2 * Bper[downstreamNx - i - 1] * Bper[downstreamNx - i - 1]) < minField) {

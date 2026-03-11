@@ -10,7 +10,7 @@ def plot_W50_profile(filename, name):
     xmmdata = np.loadtxt("../examples_data/W50/profileXMM.dat")
     nustardata = np.loadtxt("../examples_data/W50/profileNuSTAR.dat")
 
-    Bturb = np.loadtxt("../output/Bturb.dat")
+    Bturb = np.loadtxt("../output/BturbW50.dat")
     Bturb = Bturb.T
 
     Nxmm = xmmdata.shape[0]

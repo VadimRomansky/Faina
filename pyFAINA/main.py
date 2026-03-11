@@ -75,10 +75,6 @@ if __name__ == '__main__':
     #plot_data2("../examples_data/W50/newPeV/protons.dat", "../examples_data/W50/newdistribution/protons.dat",
     #           "protons", 1, label1='maxE = 5 PeV', label2='maxE = 0.5 PeV', ylim1 = 1E-10, ylim2 = 1E-6)
     #plot_data2("../output/thinDistribution.dat","../output/thickDistribution.dat","distributions", 1, "thin", "thick", "$p/mc$", "$F(p)p^4$")
-    plot_W50_profile("","profile")
-    #plot_W50_profile_Brinkmann("", "profile_Brinkmann")
-    #plot_W50_compton2("../output/W50comptonBigSource2.dat","../output/W50thickCompton.dat","W50compton",1,"numerical","thick","E eV", "$EF(E)~erg~cm^{-2} s^{-1}$")
-    #plot_W50_compton3("../output/W50comptonBigSource.dat","../output/W50comptonBigSource2.dat","../output/W50thickCompton.dat","W50compton3",1,"numerical", "numerical thicker","thick","E eV", "$EF(E)~erg~cm^{-2} s^{-1}$")
     #plot_data3("../output/distributionRight.dat", "../output/distributionMiddle.dat", "../output/distributionLeft.dat", "distributions", 1)
     #plot_data3("../W501.dat","../W502.dat","../W503.dat", "W50",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", r'$E~eV$', r'$EF(E)~erg~cm^{-2} s^{-1}$')
     #plot_data4("../W501.dat","../W502.dat","../W503.dat", "../W504.dat", "W50_multi",1, "MC function B profile", "MC function B 20mkG", "3*advection function B 20 mkG", "MC function above 10 TeV B 20 mkG", r'$E~eV$', r'$EF(E)~erg~cm^{-2} s^{-1}$')
@@ -107,6 +103,10 @@ if __name__ == '__main__':
     plot_W50_EFE_synchrotron("../output/W50synchandcompt.dat", "W50synch", factor)
     #plot_W50_EFE_highenergy3("../output/W50synchandcompt.dat","../output/W50thickcompton.dat","../output/W50thickcompton2.dat", "W50compton3", factor)
     # plot_W50_pions("../W50pion.dat")
+    plot_W50_profile("", "profile")
+    # plot_W50_profile_Brinkmann("", "profile_Brinkmann")
+    # plot_W50_compton2("../output/W50comptonBigSource2.dat","../output/W50thickCompton.dat","W50compton",1,"numerical","thick","E eV", "$EF(E)~erg~cm^{-2} s^{-1}$")
+    # plot_W50_compton3("../output/W50comptonBigSource.dat","../output/W50comptonBigSource2.dat","../output/W50thickCompton.dat","W50compton3",1,"numerical", "numerical thicker","thick","E eV", "$EF(E)~erg~cm^{-2} s^{-1}$")
 
     #plot_V4641_EFE_highenergy3("../output/V4641synchandcompt.dat","../output/V4641thickcompton.dat","../output/V4641thickcompton2.dat", "V4641compton", factor)
     plot_V4641_EFE_highenergy("../output/V4641synchandcompt.dat", "V4641compton", factor)
