@@ -2623,8 +2623,8 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 	int Ny = 1;
 
 	double L0 = 0.3E18;
-	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 15);
-	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 15);
+	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 16);
+	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 16);
 	//double* Bpar = getUvarovBpar2new(downstreamNx, downstreamXgrid, L0, 0.6);
 	//double* Bper = getUvarovBper2new(downstreamNx, downstreamXgrid, L0, 0.4);
 	double L1 = 3E19;

@@ -973,7 +973,7 @@ void evaluateV4641comptonAndSynchrotronWind()
 	//const char* BfileNameT = "./examples_data/V4641/TerminationWind/Beff.dat";
 
 
-	const char* fileNameT = "./examples_data/V4641/TerminationWind/protons.dat";
+	const char* fileNameT = "./examples_data/V4641/TerminationWind/electrons.dat";
 	const char* protonsFileNameT = "./examples_data/V4641/TerminationWind/protons.dat";
 	const char* xfileNameT = "./examples_data/V4641/TerminationWind/x_grid.dat";
 	
@@ -1127,9 +1127,9 @@ void evaluateV4641comptonAndSynchrotronWind()
 	int rightBoundT = Ne - 1;
 	double rightEnergyT;
 	for (int i = Ne - 1; i >= 0; --i) {
-		if (electronDistributionArrayF[i] > 0) {
+		if (electronDistributionArrayT[i] > 0) {
 			rightBoundT = i - 1;
-			rightEnergyT = electronEnergyF[i - 1] - me_c2 + massProton * speed_of_light2;
+			rightEnergyT = electronEnergyT[i - 1] - me_c2 + massProton * speed_of_light2;
 			break;
 		}
 	}

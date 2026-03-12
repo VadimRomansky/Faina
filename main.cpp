@@ -1560,11 +1560,13 @@ void evaluateSynchrotronInWideRangeAT2024wpp() {
 
 void testElectronDistribution() {
 
-	const char* electronsFileName = "./examples_data/V4641/B7FEB4/electrons.dat";
+	//const char* electronsFileName = "./examples_data/V4641/B7FEB4/electrons.dat";
 	//const char* electronsFileName = "./examples_data/V4641/ForwardWind/electrons.dat";
+	const char* electronsFileName = "./examples_data/V4641/TerminationWind/electrons.dat";
 	//const char* electronsFileName = "./examples_data/W50/B15FEB6/electrons.dat";
-	const char* protonsFileName = "./examples_data/V4641/B7FEB4/protons.dat";
-	//const char* protonsFileName = "./examples_dataV4641/ForwardWind/protons.dat";
+	//const char* protonsFileName = "./examples_data/V4641/B7FEB4/protons.dat";
+	//const char* protonsFileName = "./examples_data/V4641/ForwardWind/protons.dat";
+	const char* protonsFileName = "./examples_data/V4641/TerminationWind/protons.dat";
 	//const char* protonsFileName = "./examples_data/W50/B15FEB6/protons.dat";
 
 	MassiveParticleTabulatedIsotropicDistribution* frontElectrons;
@@ -1700,12 +1702,12 @@ int main() {
 	//evaluateW50comptonAdvectionBigSource();
 	//evaluateW50comptonAndSynchrotronMCwithoutupstream();
 	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream();
-	evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
+	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
 	//evaluateW50comptonDiffusion();
 	//evaluateW50pion();
 	//evaluateV4641comptonAndSynchrotronAdvectionfunction();
 	//evaluateV4641comptonThickRegime();
-	evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB();
+	//evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB();
 	evaluateV4641comptonAndSynchrotronWind();
 
 	return 0;
