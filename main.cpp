@@ -1621,17 +1621,31 @@ void testElectronDistribution() {
 	double* protonEnergies = frontProtons->getEnergyArray();
 	double* protonDistribution = frontProtons->getDistributionArray();
 
+	double mp_c2 = massProton * speed_of_light2;
+
 	FILE* electrons = fopen("electrons.dat", "w");
 	for (int i = 0; i < Nee; ++i) {
-		fprintf(electrons, "%g %g\n", electronEnergies[i], electronConcentration1*electronDistribution[i]);
+		fprintf(electrons, "%g %g\n", electronEnergies[i]/mp_c2, electronConcentration1*electronDistribution[i]);
 	}
 	fclose(electrons);
 
 	FILE* protons = fopen("protons.dat", "w");
 	for (int i = 0; i < Nep; ++i) {
-		fprintf(protons, "%g %g\n", protonEnergies[i], protonConcentration0*protonDistribution[i]);
+		fprintf(protons, "%g %g\n", protonEnergies[i]/mp_c2, protonConcentration0*protonDistribution[i]);
 	}
 	fclose(protons);
+
+	FILE* electrons1 = fopen("electrons1.dat", "w");
+	for (int i = 0; i < Nee; ++i) {
+		fprintf(electrons1, "%g %g\n", (electronEnergies[i] - me_c2)/mp_c2, electronConcentration1 * electronDistribution[i]);
+	}
+	fclose(electrons1);
+
+	FILE* protons1 = fopen("protons1.dat", "w");
+	for (int i = 0; i < Nep; ++i) {
+		fprintf(protons1, "%g %g\n", (protonEnergies[i] - massProton*speed_of_light2)/mp_c2, protonConcentration0 * protonDistribution[i]);
+	}
+	fclose(protons1);
 }
 
 int main() {
@@ -1668,6 +1682,8 @@ int main() {
 	//testNishinaSpectrum();
 	//testBigSource();
 
+	testElectronDistribution();
+
 	//evaluateFluxSNRtoWind();
 	//evaluateComtonFromWind();
 	//evaluateTychoProfile();
@@ -1684,15 +1700,13 @@ int main() {
 	//evaluateW50comptonAdvectionBigSource();
 	//evaluateW50comptonAndSynchrotronMCwithoutupstream();
 	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream();
-	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
+	evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
 	//evaluateW50comptonDiffusion();
 	//evaluateW50pion();
 	//evaluateV4641comptonAndSynchrotronAdvectionfunction();
 	//evaluateV4641comptonThickRegime();
-	//evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB();
-	//evaluateV4641comptonAndSynchrotronWind();
-
-	testElectronDistribution();
+	evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB();
+	evaluateV4641comptonAndSynchrotronWind();
 
 	return 0;
 }
