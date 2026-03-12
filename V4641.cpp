@@ -613,8 +613,8 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	double leftEnergy;
 	for (int i = 0; i < Ne; ++i) {
 		if (electronDistributionArray[i] > 0) {
-			leftBound = i + 1;
-			leftEnergy = electronEnergy[i + 1];
+			leftBound = i;
+			leftEnergy = electronEnergy[i] - me_c2 + massProton * speed_of_light2;
 			break;
 		}
 	}
@@ -623,7 +623,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	for (int i = Ne - 1; i >= 0; --i) {
 		if (electronDistributionArray[i] > 0) {
 			rightBound = i - 1;
-			rightEnergy = electronEnergy[i - 1];
+			rightEnergy = electronEnergy[i - 1] - me_c2 + massProton * speed_of_light2;
 			break;
 		}
 	}
@@ -1096,8 +1096,8 @@ void evaluateV4641comptonAndSynchrotronWind()
 	double leftEnergyF;
 	for (int i = 0; i < Ne; ++i) {
 		if (electronDistributionArrayF[i] > 0) {
-			leftBoundF = i + 1;
-			leftEnergyF = electronEnergyF[i + 1];
+			leftBoundF = i;
+			leftEnergyF = electronEnergyF[i] - me_c2 + massProton * speed_of_light2;
 			break;
 		}
 	}
@@ -1105,8 +1105,8 @@ void evaluateV4641comptonAndSynchrotronWind()
 	double rightEnergyF;
 	for (int i = Ne - 1; i >= 0; --i) {
 		if (electronDistributionArrayF[i] > 0) {
-			rightBoundF = i - 3;
-			rightEnergyF = electronEnergyF[i - 3];
+			rightBoundF = i - 1;
+			rightEnergyF = electronEnergyF[i - 1] - me_c2 + massProton * speed_of_light2;
 			break;
 		}
 	}
@@ -1119,8 +1119,8 @@ void evaluateV4641comptonAndSynchrotronWind()
 	double leftEnergyT;
 	for (int i = 0; i < Ne; ++i) {
 		if (electronDistributionArrayT[i] > 0) {
-			leftBoundT = i + 1;
-			leftEnergyT = electronEnergyT[i + 1];
+			leftBoundT = i;
+			leftEnergyT = electronEnergyT[i] - me_c2 + massProton * speed_of_light2;
 			break;
 		}
 	}
@@ -1128,8 +1128,8 @@ void evaluateV4641comptonAndSynchrotronWind()
 	double rightEnergyT;
 	for (int i = Ne - 1; i >= 0; --i) {
 		if (electronDistributionArrayF[i] > 0) {
-			rightBoundT = i - 3;
-			rightEnergyT = electronEnergyF[i - 3];
+			rightBoundT = i - 1;
+			rightEnergyT = electronEnergyF[i - 1] - me_c2 + massProton * speed_of_light2;
 			break;
 		}
 	}

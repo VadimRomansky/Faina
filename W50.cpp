@@ -2489,8 +2489,8 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 	double leftEnergy;
 	for (int i = 0; i < Ne; ++i) {
 		if (electronDistributionArray[i] > 0) {
-			leftBound = i + 1;
-			leftEnergy = electronEnergy[i + 1];
+			leftBound = i;
+			leftEnergy = electronEnergy[i] - me_c2 + massProton * speed_of_light2;
 			break;
 		}
 	}
@@ -2499,7 +2499,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 	for (int i = Ne - 1; i >= 0; --i) {
 		if (electronDistributionArray[i] > 0) {
 			rightBound = i - 1;
-			rightEnergy = electronEnergy[i - 1];
+			rightEnergy = electronEnergy[i - 1] - me_c2 + massProton * speed_of_light2;
 			break;
 		}
 	}

@@ -1558,6 +1558,82 @@ void evaluateSynchrotronInWideRangeAT2024wpp() {
 	evaluator->writeFluxFromSourceToFile("wideRangeSynch.dat", source, 1E8 * hplank, 20 * MeV, 2000);
 }
 
+void testElectronDistribution() {
+
+	const char* electronsFileName = "./examples_data/V4641/B7FEB4/electrons.dat";
+	//const char* electronsFileName = "./examples_data/V4641/ForwardWind/electrons.dat";
+	//const char* electronsFileName = "./examples_data/W50/B15FEB6/electrons.dat";
+	const char* protonsFileName = "./examples_data/V4641/B7FEB4/protons.dat";
+	//const char* protonsFileName = "./examples_dataV4641/ForwardWind/protons.dat";
+	//const char* protonsFileName = "./examples_data/W50/B15FEB6/protons.dat";
+
+	MassiveParticleTabulatedIsotropicDistribution* frontElectrons;
+	double electronConcentration0;
+	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massElectron, electronsFileName, frontElectrons, electronConcentration0);
+	//frontElectrons = new MassiveParticleTabulatedIsotropicDistribution(new MassiveParticlePowerLawDistribution(massElectron, 2.0, me_c2), me_c2, 1600, 1000);
+	MassiveParticleTabulatedIsotropicDistribution* frontProtons;
+	double protonConcentration0;
+	MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massProton, protonsFileName, frontProtons, protonConcentration0);
+
+	printf("electron read concentration = %g\n", electronConcentration0);
+	printf("proton read concentration = %g\n", protonConcentration0);
+
+	int Ne = frontElectrons->getN();
+	double* electronDistributionArray = frontElectrons->getDistributionArray();
+	double* electronEnergy = frontElectrons->getEnergyArray();
+
+	int leftBound = 0;
+	double leftEnergy;
+	for (int i = 0; i < Ne; ++i) {
+		if (electronDistributionArray[i] > 0) {
+			leftBound = i ;
+			leftEnergy = electronEnergy[i] - me_c2 + massProton * speed_of_light2;
+			break;
+		}
+	}
+	int rightBound = Ne - 1;
+	double rightEnergy;
+	for (int i = Ne - 1; i >= 0; --i) {
+		if (electronDistributionArray[i] > 0) {
+			rightBound = i - 3;
+			rightEnergy = electronEnergy[i - 3] - me_c2 + massProton * speed_of_light2;
+			break;
+		}
+	}
+
+	double protonFraction = frontProtons->evaluateDistributionInRange(1000, leftEnergy, rightEnergy);
+
+	printf("protonFraction = %g\n", protonFraction);
+
+	double electronConcentration1 = protonFraction * protonConcentration0;
+
+	printf("electron concentration = %g\n", electronConcentration1);
+
+	double electronConcentrationOld = electronConcentration0*protonConcentration0* frontProtons->getDistributionArray()[70] / (electronConcentration0 * frontElectrons->getDistributionArray()[70]);
+
+	printf("electron old concentration = %g\n", electronConcentrationOld);
+
+	int Nee = frontElectrons->getN();
+	double* electronEnergies = frontElectrons->getEnergyArray();
+	double* electronDistribution = frontElectrons->getDistributionArray();
+
+	int Nep = frontProtons->getN();
+	double* protonEnergies = frontProtons->getEnergyArray();
+	double* protonDistribution = frontProtons->getDistributionArray();
+
+	FILE* electrons = fopen("electrons.dat", "w");
+	for (int i = 0; i < Nee; ++i) {
+		fprintf(electrons, "%g %g\n", electronEnergies[i], electronConcentration1*electronDistribution[i]);
+	}
+	fclose(electrons);
+
+	FILE* protons = fopen("protons.dat", "w");
+	for (int i = 0; i < Nep; ++i) {
+		fprintf(protons, "%g %g\n", protonEnergies[i], protonConcentration0*protonDistribution[i]);
+	}
+	fclose(protons);
+}
+
 int main() {
 	resetLog();
 	srand(time(NULL));
@@ -1608,13 +1684,15 @@ int main() {
 	//evaluateW50comptonAdvectionBigSource();
 	//evaluateW50comptonAndSynchrotronMCwithoutupstream();
 	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithUpstream();
-	evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
+	//evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann();
 	//evaluateW50comptonDiffusion();
 	//evaluateW50pion();
 	//evaluateV4641comptonAndSynchrotronAdvectionfunction();
 	//evaluateV4641comptonThickRegime();
-	evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB();
-	evaluateV4641comptonAndSynchrotronWind();
+	//evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB();
+	//evaluateV4641comptonAndSynchrotronWind();
+
+	testElectronDistribution();
 
 	return 0;
 }
