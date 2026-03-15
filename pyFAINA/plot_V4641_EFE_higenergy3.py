@@ -207,9 +207,9 @@ def plot_V4641_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1
     #plt.xticks([1E3, 2E3, 3E3, 4E3, 5E3, 6E3, 7E3, 8E3, 9E3, 1E4, 2E4, 3E4, 4E4, 5E4])
     plt.yticks([2E-16, 3E-16, 4E-16, 5E-16, 6E-16, 7E-16, 8E-16, 9E-16, 1E-15, 2E-15, 3E-15, 4E-15, 5E-15, 6E-15, 7E-15, 8E-15, 9E-15, 1E-14, 2E-14, 3E-14, 4E-14, 5E-14, 6E-14, 7E-14, 8E-14, 9E-14, 1E-13, 2E-13, 3E-13, 4E-13, 5E-13, 6E-13, 7E-13, 8E-13, 9E-13, 1E-12, 2E-12, 3E-12, 4E-12, 5E-12])
 
-    plt.plot(radiation1[0], radiation1[1], 'r', linewidth=2, label = 'jet')
-    plt.plot(radiation2[0], radiation2[1], 'orange', linewidth=2, label = 'thick from front')
-    plt.plot(radiation3[0], radiation3[1], 'salmon', linewidth=2, label='thick from downstream')
+    plt.plot(radiation1[0], radiation1[1], 'r', linewidth=2, label = '3000 years')
+    plt.plot(radiation2[0], radiation2[1], 'orange', linewidth=2, label = '300 years')
+    plt.plot(radiation3[0], radiation3[1], 'salmon', linewidth=2, label='no field decay')
     #plt.plot(radiation3[0], hessmodel[1], 'salmon', linewidth=2, label='HESS model')
     #plt.plot(radiation3[0], lhaasomodel[1], 'c', linewidth=2, label = 'LHAASO model')
     #plt.plot(radiationPion[0], radiationPion[1], 'orange', linewidth = 2, label = 'pion')
@@ -220,14 +220,17 @@ def plot_V4641_EFE_highenergy3(filename1, filename2, filename3, name, factor = 1
     #plt.errorbar(xrism[0, :], xrism[1, :], yerr=[xrism[3, :], xrism[2, :]], marker='s',
     #             markerfacecolor='purple', markeredgecolor='purple', markersize=3.5, uplims=xrismLimits,
     #             ecolor='purple', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="XRISM")
-    plt.errorbar(hess[0, :], hess[1, :], yerr=[hess[3, :], hess[2, :]], marker='s', markerfacecolor='b',
-                 markeredgecolor='b', markersize=3.5, uplims=hessLimits, ecolor='b', elinewidth=1.5, linewidth=0,
-                 capsize=2.5, capthick=1.5, label='HESS')
-    plt.errorbar(hawc[0, :], hawc[1, :], yerr=[hawc[3, :], hawc[2, :]], marker='s', markerfacecolor='purple',
-                 markeredgecolor='purple', markersize=3.5, uplims=hawcLimits, ecolor='purple', elinewidth=1.5, linewidth=0,
-                 capsize=2.5, capthick=1.5, label='HAWC')
-    plt.errorbar(lhaaso[0, :], lhaaso[1, :], yerr = [lhaaso[3, :], lhaaso[2, :]],marker='s',markerfacecolor='magenta',markeredgecolor='magenta', markersize = 3.5, uplims = lhaasoLimits, ecolor='magenta', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label = 'LHAASO')
-    ax.legend(fontsize = "10", loc = 'lower left')
+
+    #plt.errorbar(hess[0, :], hess[1, :], yerr=[hess[3, :], hess[2, :]], marker='s', markerfacecolor='b',
+    #             markeredgecolor='b', markersize=3.5, uplims=hessLimits, ecolor='b', elinewidth=1.5, linewidth=0,
+    #             capsize=2.5, capthick=1.5, label='HESS')
+
+    #plt.errorbar(hawc[0, :], hawc[1, :], yerr=[hawc[3, :], hawc[2, :]], marker='s', markerfacecolor='purple',
+    #             markeredgecolor='purple', markersize=3.5, uplims=hawcLimits, ecolor='purple', elinewidth=1.5, linewidth=0,
+    #             capsize=2.5, capthick=1.5, label='HAWC')
+
+    #plt.errorbar(lhaaso[0, :], lhaaso[1, :], yerr = [lhaaso[3, :], lhaaso[2, :]],marker='s',markerfacecolor='magenta',markeredgecolor='magenta', markersize = 3.5, uplims = lhaasoLimits, ecolor='magenta', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label = 'LHAASO')
+    ax.legend(fontsize = "10", loc = 'upper left')
     #plt.plot(radiation[0], radiation[2], 'b', linewidth=4)
     #plt.errorbar(cssx1, cssy1, cssError1, ecolor = 'b', elinewidth = 4, linewidth=0, capsize = 5, capthick = 4)
     #ax.legend([r'BremsstrahlungThermalEvaluator', r'BremsstrahlungEbaluator'], fontsize="20")

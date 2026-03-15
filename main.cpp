@@ -1684,7 +1684,7 @@ int main() {
 	//testNishinaSpectrum();
 	//testBigSource();
 
-	testElectronDistribution();
+	//testElectronDistribution();
 
 	//evaluateFluxSNRtoWind();
 	//evaluateComtonFromWind();
@@ -1707,8 +1707,8 @@ int main() {
 	//evaluateW50pion();
 	//evaluateV4641comptonAndSynchrotronAdvectionfunction();
 	//evaluateV4641comptonThickRegime();
-	//evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB();
-	evaluateV4641comptonAndSynchrotronWind();
+	evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB();
+	//evaluateV4641comptonAndSynchrotronWind();
 
 	return 0;
 }
