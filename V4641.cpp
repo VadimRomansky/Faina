@@ -566,12 +566,12 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	//double size = 0.5 * fabs(headMaxX);
 	double size = 1.5E19;
 
-	const char* xfileName = "./examples_data/V4641/B9FEB8/x_grid.dat";
-	const char* BfileName = "./examples_data/V4641/B9FEB8/Beff.dat";
+	const char* xfileName = "./examples_data/V4641/B9FEB8_2/x_grid.dat";
+	const char* BfileName = "./examples_data/V4641/B9FEB8_2/Beff.dat";
 
 
-	const char* fileName = "./examples_data/V4641/B9FEB8/electrons.dat";
-	const char* protonsFileName = "./examples_data/V4641/B9FEB8/protons.dat";
+	const char* fileName = "./examples_data/V4641/B9FEB8_2/electrons.dat";
+	const char* protonsFileName = "./examples_data/V4641/B9FEB8_2/protons.dat";
 
 
 	Nx = 0;
@@ -628,7 +628,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 		}
 	}
 
-	double electronToProtonCorrection = frontProtons->evaluateDistributionInRange(200, leftEnergy, rightEnergy)*concentration3/concentration2;
+	double electronToProtonCorrection = frontProtons->evaluateDistributionInRange(200, leftEnergy, rightEnergy);
 
 
 	double* Beff = new double[Nx];
@@ -792,14 +792,14 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	}*/
 
 
-	int Nediff = frontElectrons->getN();
+	/*int Nediff = frontElectrons->getN();
 	double* energyGrid = frontElectrons->getEnergyArray();
 	double* frontDistribution = frontElectrons->getDistributionArray();
 	for (int i = 0; i < Nediff; ++i) {
-		frontDistribution[i] = frontDistribution[i] * concentration2 * electronToProtonCorrection;
+		frontDistribution[i] = frontDistribution[i] * concentration3 * electronToProtonCorrection;
 	}
 	double norm1 = 4 * pi * MassiveParticleDistributionFactory::evaluateNorm(energyGrid, frontDistribution, Nediff);
-	double** diffDistributions = NULL;
+	double** diffDistributions = NULL;*/
 	double Uph[1];
 	double Eph[1];
 	Uph[0] = photonEnergyDensity;
@@ -819,7 +819,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	for (int i = 0; i < downstreamNx; ++i) {
 		for (int j = 0; j < Nz; ++j) {
 			for (int k = 0; k < Ny; ++k) {
-				downstreamConcentrationArray[i][j][k] = concentration2 * electronToProtonCorrection;
+				downstreamConcentrationArray[i][j][k] = concentration3 * electronToProtonCorrection;
 			}
 		}
 	}
@@ -833,7 +833,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, downstreamVelocity, downstreamVelocity, timeOf, 200*3.14E7, 1E-6, photonEnergyDensity);
 	
 
-	MassiveParticleDistribution**** distributions2 = new MassiveParticleDistribution ***[downstreamNx];
+	/*MassiveParticleDistribution**** distributions2 = new MassiveParticleDistribution * **[downstreamNx];
 
 
 	for (int i = 0; i < downstreamNx; ++i) {
@@ -861,7 +861,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 			p = p * factorp;
 		}
 	}
-	fclose(outDistributionFile);
+	fclose(outDistributionFile);*/
 
 	FILE* concentrationFile = fopen("./output/concentration.dat", "w");
 	for (int i = 0; i < downstreamNx; ++i) {
@@ -887,7 +887,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 		}
 	}*/
 
-	RectangularSourceInhomogenousDistribution* downstreamSource2 = new RectangularSourceInhomogenousDistribution(downstreamNx, downstreamXgrid, Ny, Nz, distributions2, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
+	//RectangularSourceInhomogenousDistribution* downstreamSource2 = new RectangularSourceInhomogenousDistribution(downstreamNx, downstreamXgrid, Ny, Nz, distributions2, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
 	//RectangularSource* downstreamSource2 = new RectangularSource(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
 
 

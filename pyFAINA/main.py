@@ -69,6 +69,8 @@ if __name__ == '__main__':
     #plot_data("../output/Bturb.dat", "B", 2, yscale = "linear", xscale = "linear")
 
     plot_data2("../forward.dat", "../backward.dat", "distributions0", 1, label1 = 'forward', label2 = 'backward', ylim1 = None, ylim2 = None)
+    plot_data2("../examples_data/V4641/B7FEB4/protons.dat", "../examples_data/V4641/B9FEB8/protons.dat", "protons", 1, label1 = 'B7', label2 = '9', ylim1 = None, ylim2 = None)
+    plot_data2("../examples_data/V4641/B7FEB4/electrons.dat", "../examples_data/V4641/B9FEB8/electrons.dat", "electrons", 1, label1 = 'B7', label2 = '9', ylim1 = None, ylim2 = None)
     plot_data2("../electrons.dat", "../protons.dat", "distributions", 1, label1 = 'electrons', label2 = 'protons', ylim1 = 1E-22, ylim2 = 1)
     plot_data2("../electrons1.dat", "../protons1.dat", "distributions1", 1, label1 = 'electrons', label2 = 'protons', ylim1 = 1E-22, ylim2 = 1)
     #plot_data2("../output/electrons.dat","../output/protons.dat", "distributions", 1, label1 = 'electrons', label2 = 'protons', ylim1 = None, ylim2 = None)
@@ -98,7 +100,7 @@ if __name__ == '__main__':
     #plot_radiation_EFE("../W50compton.dat", "W50compton")
     #plot_radiation_EFE("../W50synchrotron.dat", "W50synchrotron")
     #plot_radiation_EFE("../W50synchandcompt.dat", "W50synchandcompt")
-    factor =2.5*2*8E-3
+    factor =(1.7/1.5)**2*2*1E-2
     factor2 = 1E-3
     factorW50 = 8E-3
     plot_W50_EFE("../output/W50synchandcompt.dat", "W50synchandcompt", factorW50)
