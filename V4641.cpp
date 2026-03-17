@@ -566,12 +566,12 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	//double size = 0.5 * fabs(headMaxX);
 	double size = 1.5E19;
 
-	const char* xfileName = "./examples_data/V4641/B9FEB8_2/x_grid.dat";
-	const char* BfileName = "./examples_data/V4641/B9FEB8_2/Beff.dat";
+	const char* xfileName = "./examples_data/V4641/B14FEB6/x_grid.dat";
+	const char* BfileName = "./examples_data/V4641/B14FEB6/Beff.dat";
 
 
-	const char* fileName = "./examples_data/V4641/B9FEB8_2/electrons.dat";
-	const char* protonsFileName = "./examples_data/V4641/B9FEB8_2/protons.dat";
+	const char* fileName = "./examples_data/V4641/B14FEB6/electrons.dat";
+	const char* protonsFileName = "./examples_data/V4641/B14FEB6/protons.dat";
 
 
 	Nx = 0;
@@ -648,7 +648,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	}
 
 	double downstreamVelocity = 10.3E8;
-	double timeSource = 12000 * 3.14E7;
+	double timeSource = 6000 * 3.14E7;
 	//double downstreamSize = 1E20;
 	double downstreamSize = downstreamVelocity*timeSource;
 	double upstreamSize = 1.6E20;
@@ -700,8 +700,8 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	int Ny = 1;
 
 	double L0 = 0.3E18;
-	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 9.0);
-	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 9.0);
+	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 14.0);
+	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 14.0);
 	//double* Bpar = getUvarovBpar2new(downstreamNx, downstreamXgrid, L0, 0.6);
 	//double* Bper = getUvarovBper2new(downstreamNx, downstreamXgrid, L0, 0.4);
 	double L1 = 3E19;

@@ -71,8 +71,8 @@ if __name__ == '__main__':
     plot_data2("../forward.dat", "../backward.dat", "distributions0", 1, label1 = 'forward', label2 = 'backward', ylim1 = None, ylim2 = None)
     plot_data2("../examples_data/V4641/B7FEB4/protons.dat", "../examples_data/V4641/B9FEB8/protons.dat", "protons", 1, label1 = 'B7', label2 = '9', ylim1 = None, ylim2 = None)
     plot_data2("../examples_data/V4641/B7FEB4/electrons.dat", "../examples_data/V4641/B9FEB8/electrons.dat", "electrons", 1, label1 = 'B7', label2 = '9', ylim1 = None, ylim2 = None)
-    plot_data2("../electrons.dat", "../protons.dat", "distributions", 1, label1 = 'electrons', label2 = 'protons', ylim1 = 1E-22, ylim2 = 1)
-    plot_data2("../electrons1.dat", "../protons1.dat", "distributions1", 1, label1 = 'electrons', label2 = 'protons', ylim1 = 1E-22, ylim2 = 1)
+    #plot_data2("../electrons.dat", "../protons.dat", "distributions", 1, label1 = 'electrons', label2 = 'protons', ylim1 = 1E-22, ylim2 = 1)
+    #plot_data2("../electrons1.dat", "../protons1.dat", "distributions1", 1, label1 = 'electrons', label2 = 'protons', ylim1 = 1E-22, ylim2 = 1)
     #plot_data2("../output/electrons.dat","../output/protons.dat", "distributions", 1, label1 = 'electrons', label2 = 'protons', ylim1 = None, ylim2 = None)
     #plot_data2("../examples_data/W50/newPeV/electrons.dat", "../examples_data/W50/newPeV/protons.dat", "distributions_p", 1, label1='electrons',
     #           label2='protons', ylim1=None, ylim2=None)
