@@ -207,7 +207,13 @@ protected:
 	double my_tau;
 	double* my_timeArray;
 	virtual double getB(int irho, int iz, int iphi, double time);
+
+	int my_Nt;
+	double* my_field;
+	double* my_timeDecay;
+	const char* my_file = "./examples_data/V4641/Magn_energy.dat";
 	//virtual void updateLB2();
+	void readFieldDecay();
 public:
 	RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minX, const double& maxX, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, double time, double tau, double minB, const double& photonEnergyDensity = 0, const double& velocity = 0, const double& redShift = 0);
 	RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, const double& B, const double& theta, const double& phi, const double& concentration, const double& minX, const double& maxX, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, double time, double tau, double minB, const double& photonEnergyDensity = 0, const double& velocity = 0, const double& redShift = 0);

@@ -5119,7 +5119,18 @@ double RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay::getB(int irh
 		time = 0;
 	}
 	double B0 = my_B[irho][iz][iphi];
-	B0 = B0 / (1 + time / my_tau);
+	if (time >= my_timeDecay[my_Nt - 1]) {
+		B0 = B0 * my_field[my_Nt-2]*sqrt(my_timeDecay[my_Nt - 1] / time);
+	}
+	else {
+		for (int i = 1; i < my_Nt; ++i) {
+			if (time < my_timeDecay[i]) {
+				B0 = B0 * my_field[i - 1];
+				break;
+			}
+		}
+	}
+	//B0 = B0 / (1 + time / my_tau);
 	if (B0 < my_minB) {
 		B0 = my_minB;
 	}
@@ -5141,6 +5152,31 @@ double RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay::getConcentra
 	}
 }
 
+void RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay::readFieldDecay()
+{
+	my_Nt = 0;
+	FILE* xfile = fopen(my_file, "r");
+	while (!feof(xfile)) {
+		double a, b;
+		fscanf(xfile, "%lf %lf", &a, &b);
+		my_Nt = my_Nt + 1;
+	}
+	fclose(xfile);
+	my_Nt = my_Nt - 1;
+	my_field = new double[my_Nt];
+	my_timeDecay = new double[my_Nt];
+	xfile = fopen(my_file, "r");
+	for (int i = 0; i < my_Nt; ++i) {
+		fscanf(xfile, "%lf %lf", &my_timeDecay[i], &my_field[i]);
+	}
+	fclose(xfile);
+
+	for (int i = 1; i < my_Nt; ++i) {
+		my_field[i] = sqrt(my_field[i] / my_field[0]);
+	}
+	my_field[0] = 1.0;
+}
+
 RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay::RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay(int Nx, int Ny, int Nz, MassiveParticleDistribution* electronDistribution, double*** B, double*** theta, double*** phi, double*** concentration, const double& minX, const double& maxX, const double& minY, const double& maxY, const double& minZ, const double& maxZ, const double& distance, const double& downstreamVelocity, double time, double tau, double minB, const double& photonEnergyDensity, const double& velocity, const double& redShift) : RectangularSourceWithSynchAndComptCutoffFromRight(Nx, Ny, Nz, electronDistribution, B, theta, phi, concentration, minX, maxX, minY, maxY, minZ, maxZ, distance, downstreamVelocity, photonEnergyDensity, velocity, redShift)
 {
 	my_time = time;
@@ -5154,6 +5190,8 @@ RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay::RectangularSourceWi
 	for (int i = 1; i < my_Nx; ++i) {
 		my_timeArray[my_Nx - 1 - i] = my_timeArray[my_Nx - i] + fabs((getX(my_Nx - 1 - i) - getX(my_Nx - i)) / my_downstreamVelocity[my_Nx - i][0][0]);
 	}
+
+	readFieldDecay();
 
 	updateLB2();
 }
@@ -5172,6 +5210,8 @@ RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay::RectangularSourceWi
 		my_timeArray[my_Nx - 1 - i] = my_timeArray[my_Nx - i] + fabs((getX(my_Nx - 1 - i) - getX(my_Nx - i)) / my_downstreamVelocity[my_Nx - i][0][0]);
 	}
 
+	readFieldDecay();
+
 	updateLB2();
 }
 
@@ -5188,6 +5228,8 @@ RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay::RectangularSourceWi
 	for (int i = 1; i < my_Nx; ++i) {
 		my_timeArray[my_Nx - 1 - i] = my_timeArray[my_Nx - i] + fabs((getX(my_Nx - 1 - i) - getX(my_Nx - i)) / my_downstreamVelocity[my_Nx - i][0][0]);
 	}
+
+	readFieldDecay();
 
 	updateLB2();
 }
