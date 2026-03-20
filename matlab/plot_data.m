@@ -7,7 +7,7 @@ clear;
 %data = importdata('../bremsstrahlung.dat');
 %data = importdata('../outputCompton.dat');
 %data7 = importdata('../output7.dat');
-data = importdata('../examples_data/V4641/Magn_energy.dat');
+data = importdata('../examples_data/V4641/Magn_energy1.dat');
 
 N = size(data,1);
 %N7 = size(data7,1);
@@ -36,8 +36,8 @@ ylabel ('E F_{E} erg cm^{-2} s^{-1}');
 mc2 = (9.1*10^-28) * (3*10^10)^2;
 hplank = 6.626E-27;
 
-startPower =35;
-endPower = 48;
+startPower =30;
+endPower = 45;
 Fpa(1:N) = 0;
 
 Fpa(startPower) = data(startPower,1);

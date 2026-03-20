@@ -5120,7 +5120,7 @@ double RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay::getB(int irh
 	}
 	double B0 = my_B[irho][iz][iphi];
 	if (time >= my_timeDecay[my_Nt - 1]) {
-		B0 = B0 * my_field[my_Nt-2]*sqrt(my_timeDecay[my_Nt - 1] / time);
+		B0 = B0 * my_field[my_Nt-2]*pow(my_timeDecay[my_Nt - 1] / time, 0.33);
 	}
 	else {
 		for (int i = 1; i < my_Nt; ++i) {

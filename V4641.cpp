@@ -648,7 +648,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	}
 
 	double downstreamVelocity = 10.3E8;
-	double timeSource = 6000 * 3.14E7;
+	double timeSource = 12000 * 3.14E7;
 	//double downstreamSize = 1E20;
 	double downstreamSize = downstreamVelocity*timeSource;
 	double upstreamSize = 1.6E20;
@@ -824,7 +824,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 		}
 	}
 
-	double timeOf = 300 * 3.14E7;
+	double timeOf = 3000 * 3.14E7;
 
 	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
 	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.15 * 0.2 * speed_of_light, photonTotalEnergyDensity);

@@ -211,7 +211,7 @@ protected:
 	int my_Nt;
 	double* my_field;
 	double* my_timeDecay;
-	const char* my_file = "./examples_data/V4641/Magn_energy.dat";
+	const char* my_file = "./examples_data/V4641/Magn_energy1.dat";
 	//virtual void updateLB2();
 	void readFieldDecay();
 public:
