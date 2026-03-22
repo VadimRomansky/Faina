@@ -5171,6 +5171,10 @@ void RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay::readFieldDecay
 	}
 	fclose(xfile);
 
+	for (int i = 0; i < my_Nt; ++i) {
+		my_timeDecay[i] *= 3.14E7;
+	}
+
 	for (int i = 1; i < my_Nt; ++i) {
 		my_field[i] = sqrt(my_field[i] / my_field[0]);
 	}
@@ -5263,11 +5267,12 @@ MassiveParticleDistribution* RectangularSourceWithSynchAndComptCutoffFromRightFi
 				localTime = 0;
 			}
 			//double lossRate = (4.0 / 9.0) * electron_charge * electron_charge * electron_charge * electron_charge * (LB2) / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
-			double lossRate = (4.0 / 9.0) * electron_charge * electron_charge * electron_charge * electron_charge * (dl*(sqr(getB(my_Nx-1-i+irho, iz, iphi, localTime)) + my_photonEnergyDensity * 8 * pi)/my_downstreamVelocity[my_Nx-1-i+irho][iz][iphi]) / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
+			double B = getB(my_Nx - 1 - i + irho, iz, iphi, localTime);
+			double lossRate = (4.0 / 9.0) * electron_charge * electron_charge * electron_charge * electron_charge * (dl*(sqr(B) + my_photonEnergyDensity * 8 * pi)/my_downstreamVelocity[my_Nx-1-i+irho][iz][iphi]) / (mass * mass * mass * mass * pow(speed_of_light, 7.0));
 			double time = 1.0;
 			my_localDistribution[numthread]->transformToLosses(lossRate, time);
-			double factor = pow(my_downstreamVelocity[my_Nx - 1 - i + irho][iz][iphi] / my_downstreamVelocity[my_Nx - 2 - i + irho][iz][iphi], 1.0 / 3.0);
-			my_localDistribution[numthread]->rescaleDistribution(factor);
+			//double factor = pow(my_downstreamVelocity[my_Nx - 1 - i + irho][iz][iphi] / my_downstreamVelocity[my_Nx - 2 - i + irho][iz][iphi], 1.0 / 3.0);
+			//my_localDistribution[numthread]->rescaleDistribution(factor);
 		}
 	}
 	return my_localDistribution[numthread];

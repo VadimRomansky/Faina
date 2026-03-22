@@ -27,10 +27,10 @@ def plot_V4641_EFE_highenergy(filename1, name, factor = 1.0):
         #radiation5[1, i] = factor * float(s[4])
         #radiation[2,i] = float(s[2])
 
-    for i in range(int(0.9*N1),N1):
-        radiation1[1,i] = 0.5*(radiation1[1,i-1] + radiation1[1,i])
-    for i in range(int(0.9*N1),N1):
-        radiation1[1,i] = 0.5*(radiation1[1,i-1] + radiation1[1,i])
+    #for i in range(int(0.9*N1),N1):
+    #    radiation1[1,i] = 0.5*(radiation1[1,i-1] + radiation1[1,i])
+    #for i in range(int(0.9*N1),N1):
+    #    radiation1[1,i] = 0.5*(radiation1[1,i-1] + radiation1[1,i])
     #for i in range(int(0.8*N1),N1):
     #    radiation1[1,i] = 0.5*(radiation1[1,i-1] + radiation1[1,i])
 

@@ -566,12 +566,12 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	//double size = 0.5 * fabs(headMaxX);
 	double size = 1.5E19;
 
-	const char* xfileName = "./examples_data/V4641/B14FEB6/x_grid.dat";
-	const char* BfileName = "./examples_data/V4641/B14FEB6/Beff.dat";
+	const char* xfileName = "./examples_data/V4641/B10FEB8v03/x_grid.dat";
+	const char* BfileName = "./examples_data/V4641/B10FEB8v03/Beff.dat";
 
 
-	const char* fileName = "./examples_data/V4641/B14FEB6/electrons.dat";
-	const char* protonsFileName = "./examples_data/V4641/B14FEB6/protons.dat";
+	const char* fileName = "./examples_data/V4641/B10FEB8v03/electrons.dat";
+	const char* protonsFileName = "./examples_data/V4641/B10FEB8v03/protons.dat";
 
 
 	Nx = 0;
@@ -647,8 +647,8 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 		}
 	}
 
-	double downstreamVelocity = 10.3E8;
-	double timeSource = 12000 * 3.14E7;
+	double downstreamVelocity = 16.3E8;
+	double timeSource = 10000 * 3.14E7;
 	//double downstreamSize = 1E20;
 	double downstreamSize = downstreamVelocity*timeSource;
 	double upstreamSize = 1.6E20;
@@ -700,8 +700,8 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	int Ny = 1;
 
 	double L0 = 0.3E18;
-	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 14.0);
-	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 14.0);
+	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 10.0);
+	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 10.0);
 	//double* Bpar = getUvarovBpar2new(downstreamNx, downstreamXgrid, L0, 0.6);
 	//double* Bper = getUvarovBper2new(downstreamNx, downstreamXgrid, L0, 0.4);
 	double L1 = 3E19;
@@ -824,7 +824,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 		}
 	}
 
-	double timeOf = 3000 * 3.14E7;
+	double timeOf = 200 * 3.14E7;
 
 	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
 	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.15 * 0.2 * speed_of_light, photonTotalEnergyDensity);
@@ -894,8 +894,8 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	Ne = 100;
 	int Nmu = 100;
 	int Nphi = 4;
-	//RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 30 * kBoltzman * 20, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
-	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 200, 0.1 * kBoltzman * 2.75, 30 * kBoltzman * 20, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 200, 0.1 * kBoltzman * 2.75, 30 * kBoltzman * 20, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	//RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 200, 0.1 * kBoltzman * 2.75, 30 * kBoltzman * 20, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
 
 	//comptonEvaluator->writeEFEFromSourceToFile("W50compton.dat", downstreamSource, 1.6E-10, 1.6E3, 2000);
 
