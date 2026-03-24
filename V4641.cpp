@@ -1307,8 +1307,6 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionWithUpstream()
 	}
 	fclose(xfile);
 
-	double* xgrid1;
-
 	double* concentration1;
 	double** distributions1;
 
