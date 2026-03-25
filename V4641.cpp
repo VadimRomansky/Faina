@@ -648,7 +648,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	}
 
 	double downstreamVelocity = 16.3E8;
-	double timeSource = 10000 * 3.14E7;
+	double timeSource = 5000 * 3.14E7;
 	//double downstreamSize = 1E20;
 	double downstreamSize = downstreamVelocity*timeSource;
 	double upstreamSize = 1.6E20;
