@@ -70,9 +70,9 @@ if __name__ == '__main__':
 
     #plot_data("../output/Bturb.dat", "B", 2, yscale = "linear", xscale = "linear")
 
-    plot_data2("../forward.dat", "../backward.dat", "distributions0", 1, label1 = 'forward', label2 = 'backward', ylim1 = None, ylim2 = None)
-    plot_data2("../examples_data/V4641/B7FEB4/protons.dat", "../examples_data/V4641/B9FEB8/protons.dat", "protons", 1, label1 = 'B7', label2 = '9', ylim1 = None, ylim2 = None)
-    plot_data2("../examples_data/V4641/B7FEB4/electrons.dat", "../examples_data/V4641/B9FEB8/electrons.dat", "electrons", 1, label1 = 'B7', label2 = '9', ylim1 = None, ylim2 = None)
+    #plot_data2("../forward.dat", "../backward.dat", "distributions0", 1, label1 = 'forward', label2 = 'backward', ylim1 = None, ylim2 = None)
+    #plot_data2("../examples_data/V4641/B7FEB4/protons.dat", "../examples_data/V4641/B9FEB8/protons.dat", "protons", 1, label1 = 'B7', label2 = '9', ylim1 = None, ylim2 = None)
+    #plot_data2("../examples_data/V4641/B7FEB4/electrons.dat", "../examples_data/V4641/B9FEB8/electrons.dat", "electrons", 1, label1 = 'B7', label2 = '9', ylim1 = None, ylim2 = None)
     #plot_data2("../electrons.dat", "../protons.dat", "distributions", 1, label1 = 'electrons', label2 = 'protons', ylim1 = 1E-22, ylim2 = 1)
     #plot_data2("../electrons1.dat", "../protons1.dat", "distributions1", 1, label1 = 'electrons', label2 = 'protons', ylim1 = 1E-22, ylim2 = 1)
     #plot_data2("../output/electrons.dat","../output/protons.dat", "distributions", 1, label1 = 'electrons', label2 = 'protons', ylim1 = None, ylim2 = None)
@@ -119,11 +119,11 @@ if __name__ == '__main__':
     #plot_V4641_EFE_highenergy3("../output/V4641synchandcompt.dat","../output/V4641thickcompton.dat","../output/V4641thickcompton2.dat", "V4641compton", factor)
     #plot_V4641_EFE_highenergy3("../output/V4641synchandcompt3000.dat","../output/V4641synchandcompt300.dat","../output/V4641synchandcompt0.dat", "V4641compton3", factor)
     plot_V4641_EFE_highenergy("../output/V4641synchandcompt.dat", "V4641compton", factor)
-    plot_V4641_EFE_highenergy5("../output/V4641synchandcompt0.dat", "../output/V4641synchandcompt200.dat","../output/V4641synchandcompt500.dat","../output/V4641synchandcompt1000.dat","../output/V4641synchandcompt3000.dat", "V4641compton5", factor)
+    #plot_V4641_EFE_highenergy5("../output/V4641synchandcompt0.dat", "../output/V4641synchandcompt200.dat","../output/V4641synchandcompt500.dat","../output/V4641synchandcompt1000.dat","../output/V4641synchandcompt3000.dat", "V4641compton5", factor)
     plot_V4641_EFE_long("../output/V4641synchandcompt.dat", "V4641long", factor)
-    plot_V4641_EFE_long2("../output/V4641synchandcompt.dat", "../output/V4641wind.dat", "V4641long2", factor, factor2)
+    #plot_V4641_EFE_long2("../output/V4641synchandcompt.dat", "../output/V4641wind.dat", "V4641long2", factor, factor2)
     #plot_V4641_EFE_long3("../output/V4641synchandcompt300.dat", "../output/V4641synchandcompt3000.dat","../output/V4641synchandcompt0.dat", "V4641long3", factor)
-    plot_V4641_EFE_long5("../output/V4641synchandcompt0.dat", "../output/V4641synchandcompt200.dat", "../output/V4641synchandcompt500.dat", "../output/V4641synchandcompt1000.dat", "../output/V4641synchandcompt3000.dat", "V4641long5", factor)
+    #plot_V4641_EFE_long5("../output/V4641synchandcompt0.dat", "../output/V4641synchandcompt200.dat", "../output/V4641synchandcompt500.dat", "../output/V4641synchandcompt1000.dat", "../output/V4641synchandcompt3000.dat", "V4641long5", factor)
 
     #plot_radiation_EFE("../W50synchandcompt2.dat", "W50synchandcompt2")
     #plot_radiation_EFE("../output/W50highenergy.dat", "W50highenergy", 1E12, 1E16)
