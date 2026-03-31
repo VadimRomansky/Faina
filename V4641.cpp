@@ -1151,11 +1151,12 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 		//double flux1 = sumEvaluator->evaluateFluxFromSource(currentE, downstreamSource);
 		double flux1 = 0;
 		int j;
-#pragma omp parallel for private(j) shared(currentE, downstreamSource, downstreamXgrid, downstreamNx) reduction(+:flux1)
-		for (j = 0; j < downstreamNx; ++j) {
-			double flux = sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, downstreamSource, j, 0);
-			flux1 += flux;
-		}
+//#pragma omp parallel for private(j) shared(currentE, downstreamSource, downstreamXgrid, downstreamNx) reduction(+:flux1)
+//		for (j = 0; j < downstreamNx; ++j) {
+//			double flux = sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, downstreamSource, j, 0);
+//			flux1 += flux;
+//		}
+		flux1 = sumEvaluator->evaluateFluxFromSource(currentE, downstreamSource);
 
 		fprintf(outFile, "%g %g %g %g %g\n", currentE / 1.6E-12, currentE * flux1, 0, 0, 0);
 		currentE = currentE * factor;
@@ -1272,7 +1273,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionWithUpstream()
 	double upstreamSize = 1.6E20;
 	int maxIndex = Nx - 1;
 	for (int i = 0; i < Nx; ++i) {
-		if (xgrid1[i] >= 1E20) {
+		if (xgrid1[i] >= downstreamSize) {
 			maxIndex = i;
 			break;
 		}

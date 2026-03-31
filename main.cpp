@@ -1707,9 +1707,9 @@ int main() {
 	//evaluateW50pion();
 	//evaluateV4641comptonAndSynchrotronAdvectionfunction();
 	//evaluateV4641comptonThickRegime();
-    evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB();
+    //evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB();
 	//evaluateV4641comptonAndSynchrotronWind();
-	//evaluateV4641comptonAndSynchrotronAdvectionfunctionWithUpstream();
+	evaluateV4641comptonAndSynchrotronAdvectionfunctionWithUpstream();
 
 	return 0;
 }
