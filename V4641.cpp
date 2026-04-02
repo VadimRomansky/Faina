@@ -556,11 +556,11 @@ void evaluateV4641comptonAndSynchrotronWind()
 
 
 	//4 for quasispherical?
-	double sizeForward = 4E19;
-	double sizeTermination = 4E19;
+	double sizeForward = 2E19;
+	double sizeTermination = 2E19;
 
-	double rForward = 1E20;
-	double rTermination = 1E20;
+	double rForward = 8E19;
+	double rTermination = 4E19;
 
 	double B0 = 4E-6;
 
@@ -989,7 +989,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 
 
 
-	double B0 = 1E-6;
+	double B0 = 1E-8;
 
 	//RadiationSourceInCylindrical* downstreamSource = new SimpleFlatSource(upstreamElectrons, downstreamB, pi / 2, 0, concentration, size, size, distance);
 	PhotonPlankDistribution* photons = PhotonPlankDistribution::getCMBradiation();
@@ -1007,7 +1007,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	int Nz = 1;
 	int Ny = 1;
 
-	double L0 = 0.3E18;
+	double L0 = 0.1E18;
 	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 10.0);
 	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 10.0);
 
@@ -1025,7 +1025,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	int minFieldIndex = 0;
 	for (int i = 1; i < downstreamNx; ++i) {
 		if (sqrt(Bpar[downstreamNx - i - 1] * Bpar[downstreamNx - i - 1] + 2 * Bper[downstreamNx - i - 1] * Bper[downstreamNx - i - 1]) < minField) {
-			minFieldIndex = downstreamNx - i;
+			minFieldIndex = downstreamNx - i - 1;
 			break;
 		}
 	}
@@ -1086,7 +1086,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 		}
 	}
 
-	double timeOf = 200 * 3.14E7;
+	double timeOf = 0 * 3.14E7;
 
 	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, downstreamVelocity, downstreamVelocity, photonEnergyDensity);
 	RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, downstreamVelocity, downstreamVelocity, timeOf, 200 * 3.14E7, 1E-6, photonEnergyDensity);
@@ -1162,6 +1162,39 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 		currentE = currentE * factor;
 	}
 	fclose(outFile);
+
+	double* profileChandra = new double[downstreamNx];
+	int irho;
+
+	Ephmin = 0.1 * 1000 * 1.6E-12;
+	Ephmax = 10 * 1000 * 1.6E-12;
+	Nph = 20;
+	omp_lock_t lock;
+	omp_init_lock(&lock);
+#pragma omp parallel for private(irho) shared(Ephmin, Ephmax, downstreamSource, downstreamNx, sumEvaluator, Nph, profileXMM, lock)
+	for (irho = 0; irho < downstreamNx; ++irho) {
+		omp_set_lock(&lock);
+		printf("evaluating profile irho = %d\n", irho);
+		printLog("evaluating profile irho = %d\n", irho);
+		omp_unset_lock(&lock);
+		double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+		double currentE = Ephmin;
+		double localFlux = 0;
+		double s = downstreamSource->getCrossSectionArea(irho, 0);
+		double d = downstreamSource->getDistance();
+		for (int ie = 0; ie < Nph; ++ie) {
+			double dE = currentE * (factor - 1.0);
+			localFlux += (1.0 / currentE) * sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, downstreamSource, irho, 0) * dE * d * d / s;
+			currentE = currentE * factor;
+		}
+		profileChandra[irho] = localFlux;
+	}
+
+	FILE* chandraFile = fopen("./output/chandraprofile.dat", "w");
+	for (int i = 0; i < downstreamNx; ++i) {
+		fprintf(chandraFile, "%g %g\n", downstreamXgrid[i], profileChandra[i]);
+	}
+	fclose(chandraFile);
 
 
 	return;
@@ -1492,5 +1525,57 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionWithUpstream()
 	fclose(outFile);
 
 
+	double* profileChandra = new double[downstreamNx + upstreamNx];
+	int irho;
 
+	Ephmin = 0.1 * 1000 * 1.6E-12;
+	Ephmax = 10 * 1000 * 1.6E-12;
+	Nph = 20;
+	omp_lock_t lock;
+	omp_init_lock(&lock);
+#pragma omp parallel for private(irho) shared(Ephmin, Ephmax, downstreamSource, downstreamNx, sumEvaluator, Nph, profileXMM, lock)
+	for (irho = 0; irho < downstreamNx; ++irho) {
+		omp_set_lock(&lock);
+		printf("evaluating profile irho = %d\n", irho);
+		printLog("evaluating profile irho = %d\n", irho);
+		omp_unset_lock(&lock);
+		double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+		double currentE = Ephmin;
+		double localFlux = 0;
+		double s = downstreamSource->getCrossSectionArea(irho, 0);
+		double d = downstreamSource->getDistance();
+		for (int ie = 0; ie < Nph; ++ie) {
+			double dE = currentE * (factor - 1.0);
+			localFlux += (1.0 / currentE) * sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, downstreamSource, irho, 0) * dE * d * d / s;
+			currentE = currentE * factor;
+		}
+		profileChandra[irho] = localFlux;
+	}
+#pragma omp parallel for private(irho) shared(Ephmin, Ephmax, upstreamSource, downstreamNx, upstreamNx, sumEvaluator, Nph, profileXMM, lock)
+	for (irho = 0; irho < upstreamNx; ++irho) {
+		omp_set_lock(&lock);
+		printf("evaluating profile irho = %d\n", irho);
+		printLog("evaluating profile irho = %d\n", irho);
+		omp_unset_lock(&lock);
+		double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+		double currentE = Ephmin;
+		double localFlux = 0;
+		double s = upstreamSource->getCrossSectionArea(irho, 0);
+		double d = upstreamSource->getDistance();
+		for (int ie = 0; ie < Nph; ++ie) {
+			double dE = currentE * (factor - 1.0);
+			localFlux += (1.0 / currentE) * sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, upstreamSource, irho, 0) * dE * d * d / s;
+			currentE = currentE * factor;
+		}
+		profileChandra[downstreamNx + irho] = localFlux;
+	}
+
+	FILE* chandraFile = fopen("./output/chandraprofile.dat", "w");
+	for (int i = 0; i < downstreamNx; ++i) {
+		fprintf(chandraFile, "%g %g\n", downstreamXgrid[i], profileChandra[i]);
+	}
+	for (int i = 0; i < upstreamNx; ++i) {
+		fprintf(chandraFile, "%g %g\n", upstreamXgrid[i], profileChandra[downstreamNx + i]);
+	}
+	fclose(chandraFile);
 }

@@ -9,6 +9,8 @@ from plot_V4641_EFE_long import plot_V4641_EFE_long
 from plot_V4641_EFE_long2 import plot_V4641_EFE_long2
 from plot_V4641_EFE_long3 import plot_V4641_EFE_long3
 from plot_V4641_EFE_long5 import plot_V4641_EFE_long5
+from plot_V4641_profile import plot_V4641_profile
+from plot_V4641_profile5 import plot_V4641_profile5
 from plot_W50_EFE import plot_W50_EFE
 from plot_W50_EFE_higenergy import plot_W50_EFE_highenergy
 from plot_W50_EFE_higenergy2 import plot_W50_EFE_highenergy2
@@ -103,7 +105,7 @@ if __name__ == '__main__':
     #plot_radiation_EFE("../W50synchrotron.dat", "W50synchrotron")
     #plot_radiation_EFE("../W50synchandcompt.dat", "W50synchandcompt")
     factor =(1.7/1.5)**2*2*1E-2
-    factor2 = 1E-3
+    factor2 = 8E-3
     factorW50 = 8E-3
     #plot_W50_EFE("../output/W50synchandcompt.dat", "W50synchandcompt", factorW50)
     #plot_W50_EFE_highenergy("../output/W50synchandcompt.dat", "W50сompton", factorW50)
@@ -119,12 +121,13 @@ if __name__ == '__main__':
     #plot_V4641_EFE_highenergy3("../output/V4641synchandcompt.dat","../output/V4641thickcompton.dat","../output/V4641thickcompton2.dat", "V4641compton", factor)
     #plot_V4641_EFE_highenergy3("../output/V4641synchandcompt3000.dat","../output/V4641synchandcompt300.dat","../output/V4641synchandcompt0.dat", "V4641compton3", factor)
     plot_V4641_EFE_highenergy("../output/V4641synchandcompt.dat", "V4641compton", factor)
-    #plot_V4641_EFE_highenergy5("../output/V4641synchandcompt0.dat", "../output/V4641synchandcompt200.dat","../output/V4641synchandcompt500.dat","../output/V4641synchandcompt1000.dat","../output/V4641synchandcompt3000.dat", "V4641compton5", factor)
+    plot_V4641_EFE_highenergy5("../output/V4641synchandcompt0.dat", "../output/V4641synchandcompt200.dat","../output/V4641synchandcompt500.dat","../output/V4641synchandcompt1000.dat","../output/V4641synchandcompt3000.dat", "V4641compton5", factor)
     plot_V4641_EFE_long("../output/V4641synchandcompt.dat", "V4641long", factor)
-    #plot_V4641_EFE_long2("../output/V4641synchandcompt.dat", "../output/V4641wind.dat", "V4641long2", factor, factor2)
+    plot_V4641_EFE_long2("../output/V4641synchandcompt.dat", "../output/V4641wind.dat", "V4641long2", factor, factor2)
     #plot_V4641_EFE_long3("../output/V4641synchandcompt300.dat", "../output/V4641synchandcompt3000.dat","../output/V4641synchandcompt0.dat", "V4641long3", factor)
-    #plot_V4641_EFE_long5("../output/V4641synchandcompt0.dat", "../output/V4641synchandcompt200.dat", "../output/V4641synchandcompt500.dat", "../output/V4641synchandcompt1000.dat", "../output/V4641synchandcompt3000.dat", "V4641long5", factor)
-
+    plot_V4641_EFE_long5("../output/V4641synchandcompt0.dat", "../output/V4641synchandcompt200.dat", "../output/V4641synchandcompt500.dat", "../output/V4641synchandcompt1000.dat", "../output/V4641synchandcompt3000.dat", "V4641long5", factor)
+    plot_V4641_profile("", "V4641profile")
+    plot_V4641_profile5("../output/chandraprofile0.dat", "../output/chandraprofile200.dat", "../output/chandraprofile500.dat", "../output/chandraprofile1000.dat", "../output/chandraprofile3000.dat", "V4641profile5")
     #plot_radiation_EFE("../W50synchandcompt2.dat", "W50synchandcompt2")
     #plot_radiation_EFE("../output/W50highenergy.dat", "W50highenergy", 1E12, 1E16)
     #plot_radiation_EFE("../output/W50synchandcompt.dat", "W50kev", 1000, 200000, 2E-12, 2E-10)

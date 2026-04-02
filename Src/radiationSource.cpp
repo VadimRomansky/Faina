@@ -5172,7 +5172,8 @@ void RectangularSourceWithSynchAndComptCutoffFromRightFieldDecay::readFieldDecay
 	fclose(xfile);
 
 	for (int i = 0; i < my_Nt; ++i) {
-		my_timeDecay[i] *= 3.14E7;
+		//todo 1.5!!
+		my_timeDecay[i] *= 3.14E7/1.5;
 	}
 
 	for (int i = 1; i < my_Nt; ++i) {
