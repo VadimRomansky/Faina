@@ -574,9 +574,9 @@ void evaluateV4641comptonAndSynchrotronWind()
 	//const char* BfileNameT = "./examples_data/V4641/TerminationWind/Beff.dat";
 
 
-	const char* fileNameT = "./examples_data/V4641/TerminationWind/electrons.dat";
-	const char* protonsFileNameT = "./examples_data/V4641/TerminationWind/protons.dat";
-	const char* xfileNameT = "./examples_data/V4641/TerminationWind/x_grid.dat";
+	const char* fileNameT = "./examples_data/V4641/TerminationWind2/electrons.dat";
+	const char* protonsFileNameT = "./examples_data/V4641/TerminationWind2/protons.dat";
+	const char* xfileNameT = "./examples_data/V4641/TerminationWind2/x_grid.dat";
 	
 
 	int NxF = 0;
@@ -989,7 +989,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 
 
 
-	double B0 = 1E-8;
+	double B0 = 1E-6;
 
 	//RadiationSourceInCylindrical* downstreamSource = new SimpleFlatSource(upstreamElectrons, downstreamB, pi / 2, 0, concentration, size, size, distance);
 	PhotonPlankDistribution* photons = PhotonPlankDistribution::getCMBradiation();
@@ -1007,9 +1007,9 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	int Nz = 1;
 	int Ny = 1;
 
-	double L0 = 0.1E18;
-	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 10.0);
-	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 10.0);
+	double L0 =2.0E18;
+	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 20.0);
+	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 20.0);
 
 
 	for (int i = 0; i < downstreamNx; ++i) {

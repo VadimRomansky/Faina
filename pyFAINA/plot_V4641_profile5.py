@@ -119,11 +119,11 @@ def plot_V4641_profile5(filename1, filename2, filename3, filename4, filename5, n
 
    # ax1.plot(xmmprofile[0], xmmprofile[1], 'r', linewidth=4)
     #plt.plot(lhaaso[0], lhaaso[1],'b', linewidth=4)
-    ax1.plot(modelxmm[0]/3E18, modelxmm[1], 'r', linewidth = 2, label = '0 years')
-    ax1.plot(modelxmm2[0]/3E18, modelxmm2[1], 'g', linewidth = 2, label = '200 years')
-    ax1.plot(modelxmm3[0]/3E18, modelxmm3[1], 'b', linewidth = 2, label = '500 years')
-    ax1.plot(modelxmm4[0]/3E18, modelxmm4[1], 'orange', linewidth = 2, label = '1000 years')
-    ax1.plot(modelxmm5[0]/3E18, modelxmm5[1], 'salmon', linewidth = 2, label = '3000 years')
+    ax1.plot(modelxmm[0]/3E18, modelxmm[1], 'r', linewidth = 2, label = 'L0 = 1E17')
+    ax1.plot(modelxmm2[0]/3E18, modelxmm2[1], 'g', linewidth = 2, label = 'L0 = 3E18')
+    ax1.plot(modelxmm3[0]/3E18, modelxmm3[1], 'b', linewidth = 2, label = 'L0 = 5E18')
+    ax1.plot(modelxmm4[0]/3E18, modelxmm4[1], 'orange', linewidth = 2, label = 'L0 = 1E18')
+    ax1.plot(modelxmm5[0]/3E18, modelxmm5[1], 'salmon', linewidth = 2, label = 'L0 = 2E18')
 
 
     ax1.legend(fontsize = "10")
