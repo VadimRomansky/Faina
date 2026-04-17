@@ -36,12 +36,22 @@ def plot_V4641_EFE_long(filename1, name, factor = 1.0):
 
     erositaEnergy = 0
     for i in range(N1):
-        if((radiation1[0,i] > 500) and (radiation1[0,i] < 8000)):
+        if((radiation1[0,i] > 500) and (radiation1[0,i] < 6000)):
             erositaEnergy = erositaEnergy + radiation1[1,i]*(radiation1[0,i] - radiation1[0,i-1])/radiation1[0,i]
 
     erositaFlux = erositaEnergy
     erositaEnergy = erositaEnergy*(4*3.14*(5500*3E18)**2)
-    print('flux 0.5-8 kev = ', erositaFlux)
+    print('flux 0.5-6 kev = ', erositaFlux)
+
+    integralEnergy = 0
+    for i in range(N1):
+        if ((radiation1[0, i] > 17000) and (radiation1[0, i] < 60000)):
+            integralEnergy = integralEnergy + radiation1[1, i] * (radiation1[0, i] - radiation1[0, i - 1]) / radiation1[
+                0, i]
+
+    integralFlux = integralEnergy
+    integralEnergy = integralEnergy * (4 * 3.14 * (5500 * 3E18) ** 2)
+    print('flux 17-60 kev = ', integralFlux)
 
     lhaasoFile = open("../examples_data/V4641/LHAASO.dat",'r')
     lhaasoLines = lhaasoFile.readlines()
@@ -128,11 +138,21 @@ def plot_V4641_EFE_long(filename1, name, factor = 1.0):
         xrism[3, i] = xrism[1, i] - float(s[3])
         xrismLimits[i] = False
 
-    erosita = np.zeros([2,1])
+    erosita = np.zeros([4,1])
     erosita[0,0] = 4000
     erosita[1,0] = 2E-12
+    erosita[2,0] = 3800
+    erosita[3,0] = 6000
     erositalimits = np.zeros([1])
     erositalimits[0] = True
+
+    integral = np.zeros([6,1])
+    integral[0,0] = 40000
+    integral[1,0] = 6.4E-12
+    integral[2,0] = 23000
+    integral[3,0] = 20000
+    integral[4,0] = 0.5E-12
+    integral[5,0] = 0.5E-12
 
 
     plt.rcParams.update({'font.size': 15})
@@ -181,9 +201,12 @@ def plot_V4641_EFE_long(filename1, name, factor = 1.0):
     #plt.errorbar(xrism[0, :], xrism[1, :], yerr=[xrism[3, :], xrism[2, :]], marker='s',
     #             markerfacecolor='c', markeredgecolor='c', markersize=3.5, uplims=xrismLimits,
     #             ecolor='c', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="XRISM")
-    plt.errorbar(erosita[0, :], erosita[1, :] , marker='s',
+    plt.errorbar(erosita[0, :], erosita[1, :], xerr=[erosita[2, :], erosita[3, :]] , marker='s',
                  markerfacecolor='c', markeredgecolor='c', markersize=3.5, uplims=erositalimits,
                  ecolor='c', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="e-ROSITA")
+    plt.errorbar(integral[0, :], integral[1, :], xerr=[integral[2, :], integral[3, :]], yerr=[integral[4, :], integral[5, :]], marker='s', markerfacecolor='magenta',
+                 markeredgecolor='magenta', markersize=3.5, ecolor='magenta', elinewidth=1.5, linewidth=0,
+                 capsize=2.5, capthick=1.5, label='INTEGRAL')
     plt.errorbar(hess[0, :], hess[1, :], yerr=[hess[3, :], hess[2, :]], marker='s', markerfacecolor='b',
                  markeredgecolor='b', markersize=3.5, uplims=hessLimits, ecolor='b', elinewidth=1.5, linewidth=0,
                  capsize=2.5, capthick=1.5, label='HESS')

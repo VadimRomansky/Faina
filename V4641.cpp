@@ -989,7 +989,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 
 
 
-	double B0 = 1E-6;
+	double B0 = 2.0E-6;
 
 	//RadiationSourceInCylindrical* downstreamSource = new SimpleFlatSource(upstreamElectrons, downstreamB, pi / 2, 0, concentration, size, size, distance);
 	PhotonPlankDistribution* photons = PhotonPlankDistribution::getCMBradiation();
@@ -1007,9 +1007,9 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	int Nz = 1;
 	int Ny = 1;
 
-	double L0 =2.0E18;
-	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 20.0);
-	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 20.0);
+	double L0 =0.1E18;
+	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 50.0);
+	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 50.0);
 
 
 	for (int i = 0; i < downstreamNx; ++i) {
@@ -1017,7 +1017,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	}
 
 
-	double minField = 1.0E-6;
+	double minField = B0;
 	double sinField = 0.0 * minField;
 
 
