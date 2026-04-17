@@ -989,7 +989,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 
 
 
-	double B0 = 2.0E-6;
+	double B0 = 1E-6;
 
 	//RadiationSourceInCylindrical* downstreamSource = new SimpleFlatSource(upstreamElectrons, downstreamB, pi / 2, 0, concentration, size, size, distance);
 	PhotonPlankDistribution* photons = PhotonPlankDistribution::getCMBradiation();
@@ -1007,9 +1007,9 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	int Nz = 1;
 	int Ny = 1;
 
-	double L0 =0.1E18;
-	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 50.0);
-	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 50.0);
+	double L0 =0.3E18;
+	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 20.0);
+	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 20.0);
 
 
 	for (int i = 0; i < downstreamNx; ++i) {
@@ -1150,15 +1150,19 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 		//omp_unset_lock(&my_lock);
 		//double flux1 = sumEvaluator->evaluateFluxFromSource(currentE, downstreamSource);
 		double flux1 = 0;
+		double fluxRosita = 0;
 		int j;
-//#pragma omp parallel for private(j) shared(currentE, downstreamSource, downstreamXgrid, downstreamNx) reduction(+:flux1)
-//		for (j = 0; j < downstreamNx; ++j) {
-//			double flux = sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, downstreamSource, j, 0);
-//			flux1 += flux;
-//		}
-		flux1 = sumEvaluator->evaluateFluxFromSource(currentE, downstreamSource);
+#pragma omp parallel for private(j) shared(currentE, downstreamSource, downstreamXgrid, downstreamNx) reduction(+:flux1)
+		for (j = 0; j < downstreamNx; ++j) {
+			double flux = sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, downstreamSource, j, 0);
+			flux1 += flux;
+			if (downstreamXgrid[j] > -1E19) {
+				fluxRosita += flux;
+			}
+		}
+		//flux1 = sumEvaluator->evaluateFluxFromSource(currentE, downstreamSource);
 
-		fprintf(outFile, "%g %g %g %g %g\n", currentE / 1.6E-12, currentE * flux1, 0, 0, 0);
+		fprintf(outFile, "%g %g %g %g %g\n", currentE / 1.6E-12, currentE * flux1, currentE*fluxRosita, 0, 0);
 		currentE = currentE * factor;
 	}
 	fclose(outFile);
