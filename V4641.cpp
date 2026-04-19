@@ -956,7 +956,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	}
 
 	double downstreamVelocity = 16.3E8;
-	double timeSource = 5000 * 3.14E7;
+	double timeSource = 2000 * 3.14E7;
 	//double downstreamSize = 1E20;
 	double downstreamSize = downstreamVelocity * timeSource;
 	double upstreamSize = 1.6E20;
@@ -1008,8 +1008,8 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	int Ny = 1;
 
 	double L0 =0.3E18;
-	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 20.0);
-	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 20.0);
+	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 10.0);
+	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 10.0);
 
 
 	for (int i = 0; i < downstreamNx; ++i) {

@@ -3,36 +3,40 @@ from matplotlib import animation
 from pylab import *
 import numpy as np
 
-def plot_V4641_EFE_long(filename1, name, factor = 1.0):
+def plot_V4641_EFE_highenergy_sum(filename1, filename2, name, factor = 1.0):
 
     radiationFile1 = open(filename1,'r')
     lines1 = radiationFile1.readlines()
     N1 = len(lines1)
 
-    radiation1 = np.zeros([3,N1])
-    #radiation5 = np.zeros([2, N1])
+    radiation1 = np.zeros([2,N1])
     for i in range(N1):
         s = lines1[i].split()
         radiation1[0,i] = float(s[0])
         radiation1[1,i] = factor*float(s[1])
-        radiation1[2,i] = factor*float(s[2])
 
 
-    erositaEnergy = 0
+    radiationFile2 = open(filename2,'r')
+    lines2 = radiationFile2.readlines()
+    N2 = len(lines2)
+
+    radiation2 = np.zeros([2,N2])
+    for i in range(N2):
+        s = lines2[i].split()
+        radiation2[0,i] = float(s[0])
+        radiation2[1,i] = factor*float(s[1])
+
+    radiationSum = np.zeros([2, N2])
     for i in range(N1):
-        if((radiation1[0,i] > 500) and (radiation1[0,i] < 6000)):
-            erositaEnergy = erositaEnergy + radiation1[2,i]*(radiation1[0,i] - radiation1[0,i-1])/radiation1[0,i]
+        radiationSum[0,i] = radiation1[0,i]
+        radiationSum[1,i] = radiation1[1,i] + radiation2[1,i]
 
-    erositaFlux = erositaEnergy
-    print('flux 0.5-6 kev = ', erositaFlux)
-
-    integralEnergy = 0
-    for i in range(N1):
-        if((radiation1[0,i] > 17000) and (radiation1[0,i] < 60000)):
-            integralEnergy = integralEnergy + radiation1[1,i]*(radiation1[0,i] - radiation1[0,i-1])/radiation1[0,i]
-
-    integralFlux = integralEnergy
-    print('flux 17-60 kev = ', integralFlux)
+    #for i in range(int(0.9*N1),N1):
+    #    radiation1[1,i] = 0.5*(radiation1[1,i-1] + radiation1[1,i])
+    #for i in range(int(0.9*N1),N1):
+    #    radiation1[1,i] = 0.5*(radiation1[1,i-1] + radiation1[1,i])
+    #for i in range(int(0.8*N1),N1):
+    #    radiation1[1,i] = 0.5*(radiation1[1,i-1] + radiation1[1,i])
 
     lhaasoFile = open("../examples_data/V4641/LHAASO.dat",'r')
     lhaasoLines = lhaasoFile.readlines()
@@ -119,21 +123,6 @@ def plot_V4641_EFE_long(filename1, name, factor = 1.0):
         xrism[3, i] = xrism[1, i] - float(s[3])
         xrismLimits[i] = False
 
-    erosita = np.zeros([4,1])
-    erosita[0,0] = 4000
-    erosita[1,0] = 2E-12
-    erosita[2,0] = 3800
-    erosita[3,0] = 6000
-    erositalimits = np.zeros([1])
-    erositalimits[0] = True
-
-    integral = np.zeros([6,1])
-    integral[0,0] = 40000
-    integral[1,0] = 6.4E-12
-    integral[2,0] = 23000
-    integral[3,0] = 20000
-    integral[4,0] = 0.5E-12
-    integral[5,0] = 0.5E-12
 
 
     plt.rcParams.update({'font.size': 15})
@@ -155,48 +144,40 @@ def plot_V4641_EFE_long(filename1, name, factor = 1.0):
     ax.set_yscale("log")
     ax.set_xscale("log")
     #ax.set_xlim([100, 1E15])
-    #ax.set_xlim([5E10, 1E15])
+    ax.set_xlim([5E10, 1E16])
     #ax.set_xlim([1E3, 5E4])
-    ax.set_ylim([1E-16, 4E-11])
+    ax.set_ylim([2E-14, 5E-13])
     ax.tick_params(axis='x', size=5, width=1)
     ax.tick_params(axis='y', size=5, width=1)
     ax.minorticks_on()
     #plt.xticks([1E9, 2E9, 3E9, 4E9, 5E9, 6E9, 7E9, 8E9, 9E9, 1E10, 2E10, 3E10, 4E10, 5E10, 6E10, 7E10, 8E10, 9E10, 1E11,2E11, 3E11, 4E11,5E11, 6E11, 7E11, 8E11, 9E11,1E12,2E12, 3E12, 4E12,5E12, 6E12, 7E12, 8E12, 9E12,1E13,2E13, 3E13, 4E13,5E13,6E13,7E13,8E13,9E13,1E14,2E14,3E14,4E14,5E14,6E14,7E14,8E14,9E14,1E15])
-    #plt.xticks(
-    #    [5E10, 6E10, 7E10, 8E10, 9E10, 1E11, 2E11,
-   #      3E11, 4E11, 5E11, 6E11, 7E11, 8E11, 9E11, 1E12, 2E12, 3E12, 4E12, 5E12, 6E12, 7E12, 8E12, 9E12, 1E13, 2E13,
-   #      3E13, 4E13, 5E13, 6E13, 7E13, 8E13, 9E13, 1E14, 2E14, 3E14, 4E14, 5E14, 6E14, 7E14, 8E14, 9E14, 1E15])
+    plt.xticks(
+        [5E10, 6E10, 7E10, 8E10, 9E10, 1E11, 2E11,
+         3E11, 4E11, 5E11, 6E11, 7E11, 8E11, 9E11, 1E12, 2E12, 3E12, 4E12, 5E12, 6E12, 7E12, 8E12, 9E12, 1E13, 2E13,
+         3E13, 4E13, 5E13, 6E13, 7E13, 8E13, 9E13, 1E14, 2E14, 3E14, 4E14, 5E14, 6E14, 7E14, 8E14, 9E14, 1E15, 2E15, 3E15, 4E15, 5E15, 6E15, 7E15, 8E15, 9E15, 1E16])
     #plt.xticks([1E3, 2E3, 3E3, 4E3, 5E3, 6E3, 7E3, 8E3, 9E3, 1E4, 2E4, 3E4, 4E4, 5E4])
-    #plt.yticks([2E-16, 3E-16, 4E-16, 5E-16, 6E-16, 7E-16, 8E-16, 9E-16, 1E-15, 2E-15, 3E-15, 4E-15, 5E-15, 6E-15, 7E-15, 8E-15, 9E-15, 1E-14, 2E-14, 3E-14, 4E-14, 5E-14, 6E-14, 7E-14, 8E-14, 9E-14, 1E-13, 2E-13, 3E-13, 4E-13, 5E-13, 6E-13, 7E-13, 8E-13, 9E-13, 1E-12, 2E-12, 3E-12, 4E-12, 5E-12])
+    plt.yticks([2E-14, 3E-14, 4E-14, 5E-14, 6E-14, 7E-14, 8E-14, 9E-14, 1E-13, 2E-13, 3E-13, 4E-13, 5E-13, 6E-13, 7E-13, 8E-13, 9E-13, 1E-12, 2E-12, 3E-12, 4E-12, 5E-12, 6E-12, 7E-12, 8E-12, 9E-12, 1E-11, 2E-11, 3E-11, 4E-11, 5E-11])
 
-    plt.plot(radiation1[0], radiation1[1], 'r', linewidth=2, label = 'full')
-    plt.plot(radiation1[0], radiation1[2], 'pink', linewidth=2, label = 'in 10\'')
-    #plt.plot(radiation2[0], radiation2[1], 'orange', linewidth=2, label = 'thick from front')
-    #plt.plot(radiation3[0], radiation3[1], 'salmon', linewidth=2, label='thick from downstream')
-    #plt.plot(radiation3[0], hessmodel[1], 'salmon', linewidth=2, label='HESS model')
-    #plt.plot(radiation3[0], lhaasomodel[1], 'c', linewidth=2, label = 'LHAASO model')
+    plt.plot(radiation1[0], radiation1[1], 'blue', linewidth=2, label = 'nothern jet')
+    plt.plot(radiation2[0], radiation2[1], 'red', linewidth=2, label = 'southern jet')
+    plt.plot(radiationSum[0], radiationSum[1], 'magenta', linewidth=2, label = 'sum')
+
     #plt.plot(radiationPion[0], radiationPion[1], 'orange', linewidth = 2, label = 'pion')
 
-    plt.errorbar(meerkat[0, :], meerkat[1, :], yerr=[meerkat[3, :], meerkat[2, :]], marker='s',
-                 markerfacecolor='green', markeredgecolor='green', markersize=3.5, uplims=meerkatLimits,
-                 ecolor='green', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="MeerKAT")
+    #plt.errorbar(meerkat[0, :], meerkat[1, :], yerr=[meerkat[3, :], meerkat[2, :]], marker='s',
+    #             markerfacecolor='purple', markeredgecolor='purple', markersize=3.5, uplims=meerkatLimits,
+    #             ecolor='purple', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="MeerKAT")
     #plt.errorbar(xrism[0, :], xrism[1, :], yerr=[xrism[3, :], xrism[2, :]], marker='s',
-    #             markerfacecolor='c', markeredgecolor='c', markersize=3.5, uplims=xrismLimits,
-    #             ecolor='c', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="XRISM")
-    plt.errorbar(erosita[0, :], erosita[1, :], xerr=[erosita[2, :], erosita[3, :]] , marker='s',
-                 markerfacecolor='c', markeredgecolor='c', markersize=3.5, uplims=erositalimits,
-                 ecolor='c', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="e-ROSITA")
-    plt.errorbar(integral[0, :], integral[1, :], xerr=[integral[2, :], integral[3, :]], yerr=[integral[4, :], integral[5, :]], marker='s', markerfacecolor='magenta',
-                 markeredgecolor='magenta', markersize=3.5, ecolor='magenta', elinewidth=1.5, linewidth=0,
-                 capsize=2.5, capthick=1.5, label='INTEGRAL')
-    plt.errorbar(hess[0, :], hess[1, :], yerr=[hess[3, :], hess[2, :]], marker='s', markerfacecolor='b',
-                 markeredgecolor='b', markersize=3.5, uplims=hessLimits, ecolor='b', elinewidth=1.5, linewidth=0,
+    #             markerfacecolor='purple', markeredgecolor='purple', markersize=3.5, uplims=xrismLimits,
+    #             ecolor='purple', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="XRISM")
+    plt.errorbar(hess[0, :], hess[1, :], yerr=[hess[3, :], hess[2, :]], marker='s', markerfacecolor='brown',
+                 markeredgecolor='brown', markersize=3.5, uplims=hessLimits, ecolor='brown', elinewidth=1.5, linewidth=0,
                  capsize=2.5, capthick=1.5, label='HESS')
     plt.errorbar(hawc[0, :], hawc[1, :], yerr=[hawc[3, :], hawc[2, :]], marker='s', markerfacecolor='purple',
                  markeredgecolor='purple', markersize=3.5, uplims=hawcLimits, ecolor='purple', elinewidth=1.5, linewidth=0,
                  capsize=2.5, capthick=1.5, label='HAWC')
-    plt.errorbar(lhaaso[0, :], lhaaso[1, :], yerr = [lhaaso[3, :], lhaaso[2, :]],marker='s',markerfacecolor='magenta',markeredgecolor='magenta', markersize = 3.5, uplims = lhaasoLimits, ecolor='magenta', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label = 'LHAASO')
-    ax.legend(fontsize = "10", loc = 'upper left')
+    plt.errorbar(lhaaso[0, :], lhaaso[1, :], yerr = [lhaaso[3, :], lhaaso[2, :]],marker='s',markerfacecolor='orange',markeredgecolor='orange', markersize = 3.5, uplims = lhaasoLimits, ecolor='orange', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label = 'LHAASO')
+    ax.legend(fontsize = "10", loc = 'lower left')
     #plt.plot(radiation[0], radiation[2], 'b', linewidth=4)
     #plt.errorbar(cssx1, cssy1, cssError1, ecolor = 'b', elinewidth = 4, linewidth=0, capsize = 5, capthick = 4)
     #ax.legend([r'BremsstrahlungThermalEvaluator', r'BremsstrahlungEbaluator'], fontsize="20")
