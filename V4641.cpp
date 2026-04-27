@@ -559,7 +559,7 @@ void evaluateV4641comptonAndSynchrotronWind()
 	double sizeForward = 2E19;
 	double sizeTermination = 2E19;
 
-	double rForward = 8E19;
+	double rForward = 6E19;
 	double rTermination = 4E19;
 
 	double B0 = 4E-6;
@@ -567,14 +567,14 @@ void evaluateV4641comptonAndSynchrotronWind()
 	//const char* BfileNameF = "./examples_data/V4641/ForwardWind/Beff.dat";
 
 
-	const char* fileNameF = "./examples_data/V4641/ForwardWind/electrons.dat";
+	const char* fileNameF = "./examples_data/V4641/ForwardWind/electrons2.dat";
 	const char* protonsFileNameF = "./examples_data/V4641/ForwardWind/protons.dat";
 	const char* xfileNameF = "./examples_data/V4641/ForwardWind/x_grid.dat";
 
 	//const char* BfileNameT = "./examples_data/V4641/TerminationWind/Beff.dat";
 
 
-	const char* fileNameT = "./examples_data/V4641/TerminationWind2/electrons.dat";
+	const char* fileNameT = "./examples_data/V4641/TerminationWind2/electrons2.dat";
 	const char* protonsFileNameT = "./examples_data/V4641/TerminationWind2/protons.dat";
 	const char* xfileNameT = "./examples_data/V4641/TerminationWind2/x_grid.dat";
 	
@@ -658,7 +658,7 @@ void evaluateV4641comptonAndSynchrotronWind()
 	double* downstreamB1T = new double[downstreamNxT];
 	for (int i = 0; i < downstreamNxT; ++i) {
 		downstreamXgridT[downstreamNxT - i - 1] = xgrid1T[i + zeroIndex];
-		downstreamB1T[downstreamNxT - 1 - i] = B0;
+		downstreamB1T[downstreamNxT - 1 - i] = 1.5E-5;
 	}
 
 	for (int i = 0; i < downstreamNxF; ++i) {
@@ -741,7 +741,7 @@ void evaluateV4641comptonAndSynchrotronWind()
 	double electronToProtonCorrectionT = frontProtonsT->evaluateDistributionInRange(200, leftEnergyT,rightEnergyT);
 
 	double concentration0F = 4 * 2E-3*electronToProtonCorrectionF;
-	double concentration0T = 2E-3 * electronToProtonCorrectionT;
+	double concentration0T = 12*2E-3 * electronToProtonCorrectionT;
 
 
 
@@ -998,8 +998,8 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	double photonIRenergyDensity = photonIRconcentration * photonsIR->getMeanEnergy();
 	double photonConcentration = photons->getConcentration();
 	double photonEnergyDensity = photonConcentration * photons->getMeanEnergy();
-	PhotonMultiPlankDistribution* photonsTotal = new PhotonMultiPlankDistribution(2.725, 1, 30, 0.8 / 10000);
-	//PhotonMultiPlankDistribution* photonsTotal = PhotonMultiPlankDistribution::getGalacticField();
+	//PhotonMultiPlankDistribution* photonsTotal = new PhotonMultiPlankDistribution(2.725, 1, 30, 0.8 / 10000);
+    PhotonMultiPlankDistribution* photonsTotal = PhotonMultiPlankDistribution::getGalacticField();
 
 	double photonTotalConcentration = photonsTotal->getConcentration();
 	double photonTotalEnergyDensity = photonTotalConcentration * photonsTotal->getMeanEnergy();
@@ -1008,8 +1008,8 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	int Ny = 1;
 
 	double L0 =0.3E18;
-	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 10.0);
-	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 10.0);
+	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 20.0);
+	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 20.0);
 
 
 	for (int i = 0; i < downstreamNx; ++i) {
@@ -1123,7 +1123,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	Ne = 100;
 	int Nmu = 100;
 	int Nphi = 4;
-	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 200, 0.1 * kBoltzman * 2.75, 30 * kBoltzman * 20, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 30 * kBoltzman * 1000, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
 	//RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 200, 0.1 * kBoltzman * 2.75, 30 * kBoltzman * 20, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
 
 	//comptonEvaluator->writeEFEFromSourceToFile("W50compton.dat", downstreamSource, 1.6E-10, 1.6E3, 2000);
