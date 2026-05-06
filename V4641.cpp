@@ -567,16 +567,16 @@ void evaluateV4641comptonAndSynchrotronWind()
 	//const char* BfileNameF = "./examples_data/V4641/ForwardWind/Beff.dat";
 
 
-	const char* fileNameF = "./examples_data/V4641/ForwardWind/electrons2.dat";
-	const char* protonsFileNameF = "./examples_data/V4641/ForwardWind/protons.dat";
-	const char* xfileNameF = "./examples_data/V4641/ForwardWind/x_grid.dat";
+	const char* fileNameF = "./examples_data/V4641/ForwardWind3/electrons.dat";
+	const char* protonsFileNameF = "./examples_data/V4641/ForwardWind3/protons.dat";
+	const char* xfileNameF = "./examples_data/V4641/ForwardWind3/x_grid.dat";
 
 	//const char* BfileNameT = "./examples_data/V4641/TerminationWind/Beff.dat";
 
 
-	const char* fileNameT = "./examples_data/V4641/TerminationWind2/electrons2.dat";
-	const char* protonsFileNameT = "./examples_data/V4641/TerminationWind2/protons.dat";
-	const char* xfileNameT = "./examples_data/V4641/TerminationWind2/x_grid.dat";
+	const char* fileNameT = "./examples_data/V4641/TerminationWind3/electrons.dat";
+	const char* protonsFileNameT = "./examples_data/V4641/TerminationWind3/protons.dat";
+	const char* xfileNameT = "./examples_data/V4641/TerminationWind3/x_grid.dat";
 	
 
 	int NxF = 0;
