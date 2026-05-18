@@ -874,12 +874,12 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	//double size = 0.5 * fabs(headMaxX);
 	double size = 1.5E19;
 
-	const char* xfileName = "./examples_data/V4641/B10FEB8v03/x_grid.dat";
-	const char* BfileName = "./examples_data/V4641/B10FEB8v03/Beff.dat";
+	const char* xfileName = "./examples_data/V4641/B8FEB4v08/x_grid.dat";
+	const char* BfileName = "./examples_data/V4641/B8FEB4v08/Beff.dat";
 
 
-	const char* fileName = "./examples_data/V4641/B10FEB8v03/electrons.dat";
-	const char* protonsFileName = "./examples_data/V4641/B10FEB8v03/protons.dat";
+	const char* fileName = "./examples_data/V4641/B8FEB4v08/electrons.dat";
+	const char* protonsFileName = "./examples_data/V4641/B8FEB4v08/protons.dat";
 
 
 	Nx = 0;
@@ -955,7 +955,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 		}
 	}
 
-	double downstreamVelocity = 16.3E8;
+	double downstreamVelocity = 0.25*0.8*3E10;
 	double timeSource = 2000 * 3.14E7;
 	//double downstreamSize = 1E20;
 	double downstreamSize = downstreamVelocity * timeSource;
@@ -1007,7 +1007,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	int Nz = 1;
 	int Ny = 1;
 
-	double L0 =0.3E18;
+	double L0 =1.0E18;
 	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 20.0);
 	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 20.0);
 
@@ -1123,7 +1123,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	Ne = 100;
 	int Nmu = 100;
 	int Nphi = 4;
-	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 2000, 0.1 * kBoltzman * 2.75, 30 * kBoltzman * 1000, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
+	RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 200, 0.1 * kBoltzman * 2.75, 30 * kBoltzman * 20, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
 	//RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 200, 0.1 * kBoltzman * 2.75, 30 * kBoltzman * 20, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
 
 	//comptonEvaluator->writeEFEFromSourceToFile("W50compton.dat", downstreamSource, 1.6E-10, 1.6E3, 2000);

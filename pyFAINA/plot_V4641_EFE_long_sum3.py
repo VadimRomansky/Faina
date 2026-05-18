@@ -193,8 +193,9 @@ def plot_V4641_EFE_long_sum3(filename1, filename2, filename3, name, factor1 = 1.
     #plt.xticks([1E3, 2E3, 3E3, 4E3, 5E3, 6E3, 7E3, 8E3, 9E3, 1E4, 2E4, 3E4, 4E4, 5E4])
     #plt.yticks([2E-16, 3E-16, 4E-16, 5E-16, 6E-16, 7E-16, 8E-16, 9E-16, 1E-15, 2E-15, 3E-15, 4E-15, 5E-15, 6E-15, 7E-15, 8E-15, 9E-15, 1E-14, 2E-14, 3E-14, 4E-14, 5E-14, 6E-14, 7E-14, 8E-14, 9E-14, 1E-13, 2E-13, 3E-13, 4E-13, 5E-13, 6E-13, 7E-13, 8E-13, 9E-13, 1E-12, 2E-12, 3E-12, 4E-12, 5E-12])
 
-    plt.plot(radiation1[0], radiation1[1], 'blue', linewidth=2, label = 'nothern jet')
-    plt.plot(radiation2[0], radiation2[1], 'red', linewidth=2, label = 'southern jet')
+
+    plt.plot(radiation2[0], radiation2[1], 'red', linewidth=2, label = 'jet A')
+    plt.plot(radiation1[0], radiation1[1], 'blue', linewidth=2, label='jet B')
     plt.plot(radiation3[0], radiation3[1], 'cyan', linewidth=2, label = 'wind')
     plt.plot(radiationSum[0], radiationSum[1], 'magenta', linewidth=2, label = 'sum')
     #plt.plot(radiation2[0], radiation2[1], 'orange', linewidth=2, label = 'thick from front')

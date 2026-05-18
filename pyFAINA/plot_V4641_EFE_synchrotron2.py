@@ -3,7 +3,7 @@ from matplotlib import animation
 from pylab import *
 import numpy as np
 
-def plot_V4641_EFE_synchrotron(filename1, name, factor = 1.0):
+def plot_V4641_EFE_synchrotron2(filename1, filename2, name, factor = 1.0):
 
     radiationFile1 = open(filename1,'r')
     lines1 = radiationFile1.readlines()
@@ -17,6 +17,22 @@ def plot_V4641_EFE_synchrotron(filename1, name, factor = 1.0):
         radiation1[1,i] = factor*float(s[1])
         radiation1[2,i] = factor*float(s[2])
 
+    radiationFile2 = open(filename2, 'r')
+    lines2 = radiationFile2.readlines()
+    N2 = len(lines2)
+
+    radiation2 = np.zeros([3,N2])
+    #radiation5 = np.zeros([2, N1])
+    for i in range(N2):
+        s = lines2[i].split()
+        radiation2[0,i] = float(s[0])
+        radiation2[1,i] = factor*float(s[1])
+        radiation2[2,i] = factor*float(s[2])
+
+    radiation3 = np.zeros([2,N1])
+    for i in range(N1):
+        radiation3[0,i] = radiation1[0,i]
+        radiation3[1,i] = radiation1[1,i] + radiation2[1,i]
 
     erositaEnergy = 0
     for i in range(N1):
@@ -128,7 +144,7 @@ def plot_V4641_EFE_synchrotron(filename1, name, factor = 1.0):
     Ne = 10
     E1 = np.linspace(500, 6000, Ne)
     F1 = np.zeros([Ne])
-    B1 = 4.0E-12
+    B1 = 2.5E-12
     A1= 0.5*B1/(np.sqrt(6000* 1.6E-12) - np.sqrt(500* 1.6E-12))
 
     for i in range(Ne):
@@ -183,8 +199,8 @@ def plot_V4641_EFE_synchrotron(filename1, name, factor = 1.0):
     #plt.xticks([1E3, 2E3, 3E3, 4E3, 5E3, 6E3, 7E3, 8E3, 9E3, 1E4, 2E4, 3E4, 4E4, 5E4])
     #plt.yticks([2E-16, 3E-16, 4E-16, 5E-16, 6E-16, 7E-16, 8E-16, 9E-16, 1E-15, 2E-15, 3E-15, 4E-15, 5E-15, 6E-15, 7E-15, 8E-15, 9E-15, 1E-14, 2E-14, 3E-14, 4E-14, 5E-14, 6E-14, 7E-14, 8E-14, 9E-14, 1E-13, 2E-13, 3E-13, 4E-13, 5E-13, 6E-13, 7E-13, 8E-13, 9E-13, 1E-12, 2E-12, 3E-12, 4E-12, 5E-12])
 
-    plt.plot(radiation1[0], radiation1[1], 'r', linewidth=2, label = 'model')
-    #plt.plot(radiation1[0], 0.95*radiation1[2], 'magenta', linewidth=2, label = 'in 10\'')
+    plt.plot(radiation3[0], radiation3[1], 'r', linewidth=2, label = 'full')
+    plt.plot(radiation1[0], 0.95*radiation1[2], 'magenta', linewidth=2, label = 'in 10\'')
     plt.plot(E1, F1, 'green', linewidth=2, label = 'eROSITA', linestyle = 'dashed')
     plt.plot(E2, F2, 'blue', linewidth=2, label='INTEGRAL', linestyle = 'dashed')
     #plt.plot(radiation3[0], hessmodel[1], 'salmon', linewidth=2, label='HESS model')

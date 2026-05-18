@@ -3,7 +3,7 @@ from matplotlib import animation
 from pylab import *
 import numpy as np
 
-def plot_V4641_EFE_synchrotron(filename1, name, factor = 1.0):
+def plot_V4641_EFE_long_sum6(filename1, filename2, filename3,filename4, filename5, filename6, name, factor1 = 1.0, factor2 = 1.0, factor3 = 1.0, factor4 = 1.0):
 
     radiationFile1 = open(filename1,'r')
     lines1 = radiationFile1.readlines()
@@ -14,9 +14,68 @@ def plot_V4641_EFE_synchrotron(filename1, name, factor = 1.0):
     for i in range(N1):
         s = lines1[i].split()
         radiation1[0,i] = float(s[0])
-        radiation1[1,i] = factor*float(s[1])
-        radiation1[2,i] = factor*float(s[2])
+        radiation1[1,i] = factor1*float(s[1])
+        radiation1[2,i] = factor1*float(s[2])
 
+    radiationFile2 = open(filename2,'r')
+    lines2 = radiationFile2.readlines()
+    N2 = len(lines2)
+
+    radiation2 = np.zeros([2,N2])
+    for i in range(N2):
+        s = lines2[i].split()
+        radiation2[0,i] = float(s[0])
+        radiation2[1,i] = factor2*float(s[1])
+
+    radiationFile3 = open(filename3,'r')
+    lines3 = radiationFile3.readlines()
+    N3 = len(lines3)
+
+    radiation3 = np.zeros([2,N3])
+    for i in range(N3):
+        s = lines3[i].split()
+        radiation3[0,i] = float(s[0])
+        radiation3[1,i] = factor3*float(s[1])
+
+    radiationSum = np.zeros([2, N2])
+    for i in range(N1):
+        radiationSum[0,i] = radiation1[0,i]
+        radiationSum[1,i] = radiation1[1,i] + radiation2[1,i] + radiation3[1,i]
+
+    radiationFile4 = open(filename4,'r')
+    lines4 = radiationFile4.readlines()
+    N4 = len(lines4)
+
+    radiation4 = np.zeros([2,N4])
+    for i in range(N4):
+        s = lines4[i].split()
+        radiation4[0,i] = float(s[0])
+        radiation4[1,i] = factor4*float(s[1])
+
+    radiationFile5 = open(filename5,'r')
+    lines5 = radiationFile5.readlines()
+    N5 = len(lines5)
+
+    radiation5 = np.zeros([2,N5])
+    for i in range(N5):
+        s = lines5[i].split()
+        radiation5[0,i] = float(s[0])
+        radiation5[1,i] = factor4*float(s[1])
+
+    radiationFile6 = open(filename6,'r')
+    lines6 = radiationFile6.readlines()
+    N6 = len(lines6)
+
+    radiation6 = np.zeros([2,N6])
+    for i in range(N6):
+        s = lines6[i].split()
+        radiation6[0,i] = float(s[0])
+        radiation6[1,i] = factor3*float(s[1])
+
+    radiationSum2 = np.zeros([2, N2])
+    for i in range(N1):
+        radiationSum2[0,i] = radiation1[0,i]
+        radiationSum2[1,i] = radiation4[1,i] + radiation5[1,i] + radiation6[1,i]
 
     erositaEnergy = 0
     for i in range(N1):
@@ -119,35 +178,21 @@ def plot_V4641_EFE_synchrotron(filename1, name, factor = 1.0):
         xrism[3, i] = xrism[1, i] - float(s[3])
         xrismLimits[i] = False
 
-    erosita = np.zeros([2,1])
+    erosita = np.zeros([4,1])
     erosita[0,0] = 4000
     erosita[1,0] = 2E-12
+    erosita[2,0] = 3800
+    erosita[3,0] = 6000
     erositalimits = np.zeros([1])
     erositalimits[0] = True
 
-    Ne = 10
-    E1 = np.linspace(500, 6000, Ne)
-    F1 = np.zeros([Ne])
-    B1 = 4.0E-12
-    A1= 0.5*B1/(np.sqrt(6000* 1.6E-12) - np.sqrt(500* 1.6E-12))
-
-    for i in range(Ne):
-        currentE = E1[i] * 1.6E-12
-        F1[i] = A1 * np.sqrt(currentE)
-
-    E2 = np.linspace(17000, 60000, Ne)
-    F2 = np.zeros([Ne])
-    B2 = 6.4E-12
-    A2= 0.5*B2/(np.sqrt(60000* 1.6E-12) - np.sqrt(17000* 1.6E-12))
-
-    for i in range(Ne):
-        currentE = E2[i] * 1.6E-12
-        F2[i] = A2 * np.sqrt(currentE)
-
-    flux = 0
-    for i in range(Ne-1):
-        flux = flux + F2[i+1]*(E2[i+1] - E2[i])/E2[i+1]
-    print('flux 17-60 kev 2 = ', flux)
+    integral = np.zeros([6,1])
+    integral[0,0] = 40000
+    integral[1,0] = 6.4E-12
+    integral[2,0] = 23000
+    integral[3,0] = 20000
+    integral[4,0] = 0.5E-12
+    integral[5,0] = 0.5E-12
 
 
     plt.rcParams.update({'font.size': 15})
@@ -170,8 +215,8 @@ def plot_V4641_EFE_synchrotron(filename1, name, factor = 1.0):
     ax.set_xscale("log")
     #ax.set_xlim([100, 1E15])
     #ax.set_xlim([5E10, 1E15])
-    ax.set_xlim([1E2, 1E7])
-    ax.set_ylim([1E-13, 4E-11])
+    #ax.set_xlim([1E3, 5E4])
+    ax.set_ylim([1E-16, 4E-11])
     ax.tick_params(axis='x', size=5, width=1)
     ax.tick_params(axis='y', size=5, width=1)
     ax.minorticks_on()
@@ -183,30 +228,37 @@ def plot_V4641_EFE_synchrotron(filename1, name, factor = 1.0):
     #plt.xticks([1E3, 2E3, 3E3, 4E3, 5E3, 6E3, 7E3, 8E3, 9E3, 1E4, 2E4, 3E4, 4E4, 5E4])
     #plt.yticks([2E-16, 3E-16, 4E-16, 5E-16, 6E-16, 7E-16, 8E-16, 9E-16, 1E-15, 2E-15, 3E-15, 4E-15, 5E-15, 6E-15, 7E-15, 8E-15, 9E-15, 1E-14, 2E-14, 3E-14, 4E-14, 5E-14, 6E-14, 7E-14, 8E-14, 9E-14, 1E-13, 2E-13, 3E-13, 4E-13, 5E-13, 6E-13, 7E-13, 8E-13, 9E-13, 1E-12, 2E-12, 3E-12, 4E-12, 5E-12])
 
-    plt.plot(radiation1[0], radiation1[1], 'r', linewidth=2, label = 'model')
-    #plt.plot(radiation1[0], 0.95*radiation1[2], 'magenta', linewidth=2, label = 'in 10\'')
-    plt.plot(E1, F1, 'green', linewidth=2, label = 'eROSITA', linestyle = 'dashed')
-    plt.plot(E2, F2, 'blue', linewidth=2, label='INTEGRAL', linestyle = 'dashed')
+
+    plt.plot(radiation2[0], radiation2[1], 'red', linewidth=2, label = 'jet A')
+    plt.plot(radiation1[0], radiation1[1], 'blue', linewidth=2, label='jet B')
+    plt.plot(radiation3[0], radiation3[1], 'cyan', linewidth=2, label = 'wind')
+    plt.plot(radiationSum[0], radiationSum[1], 'magenta', linewidth=2, label = 'sum')
+    plt.plot(radiationSum2[0], radiationSum2[1], 'magenta', linewidth=2, linestyle = 'dashed', label = 'sum v=0.8c')
+    #plt.plot(radiation2[0], radiation2[1], 'orange', linewidth=2, label = 'thick from front')
+    #plt.plot(radiation3[0], radiation3[1], 'salmon', linewidth=2, label='thick from downstream')
     #plt.plot(radiation3[0], hessmodel[1], 'salmon', linewidth=2, label='HESS model')
     #plt.plot(radiation3[0], lhaasomodel[1], 'c', linewidth=2, label = 'LHAASO model')
     #plt.plot(radiationPion[0], radiationPion[1], 'orange', linewidth = 2, label = 'pion')
 
-    #plt.errorbar(meerkat[0, :], meerkat[1, :], yerr=[meerkat[3, :], meerkat[2, :]], marker='s',
-    #             markerfacecolor='green', markeredgecolor='green', markersize=3.5, uplims=meerkatLimits,
-    #             ecolor='green', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="MeerKAT")
+    plt.errorbar(meerkat[0, :], meerkat[1, :], yerr=[meerkat[3, :], meerkat[2, :]], marker='s',
+                 markerfacecolor='green', markeredgecolor='green', markersize=3.5, uplims=meerkatLimits,
+                 ecolor='green', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="MeerKAT")
     #plt.errorbar(xrism[0, :], xrism[1, :], yerr=[xrism[3, :], xrism[2, :]], marker='s',
     #             markerfacecolor='c', markeredgecolor='c', markersize=3.5, uplims=xrismLimits,
     #             ecolor='c', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="XRISM")
-    #plt.errorbar(erosita[0, :], erosita[1, :] , marker='s',
+    #plt.errorbar(erosita[0, :], erosita[1, :], xerr=[erosita[2, :], erosita[3, :]] , marker='s',
     #             markerfacecolor='c', markeredgecolor='c', markersize=3.5, uplims=erositalimits,
     #             ecolor='c', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label="e-ROSITA")
-    #plt.errorbar(hess[0, :], hess[1, :], yerr=[hess[3, :], hess[2, :]], marker='s', markerfacecolor='b',
-    #             markeredgecolor='b', markersize=3.5, uplims=hessLimits, ecolor='b', elinewidth=1.5, linewidth=0,
-    #             capsize=2.5, capthick=1.5, label='HESS')
-    #plt.errorbar(hawc[0, :], hawc[1, :], yerr=[hawc[3, :], hawc[2, :]], marker='s', markerfacecolor='purple',
-    #             markeredgecolor='purple', markersize=3.5, uplims=hawcLimits, ecolor='purple', elinewidth=1.5, linewidth=0,
-    #             capsize=2.5, capthick=1.5, label='HAWC')
-    #plt.errorbar(lhaaso[0, :], lhaaso[1, :], yerr = [lhaaso[3, :], lhaaso[2, :]],marker='s',markerfacecolor='magenta',markeredgecolor='magenta', markersize = 3.5, uplims = lhaasoLimits, ecolor='magenta', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label = 'LHAASO')
+    #plt.errorbar(integral[0, :], integral[1, :], xerr=[integral[2, :], integral[3, :]], yerr=[integral[4, :], integral[5, :]], marker='s', markerfacecolor='magenta',
+    #             markeredgecolor='magenta', markersize=3.5, ecolor='magenta', elinewidth=1.5, linewidth=0,
+    #             capsize=2.5, capthick=1.5, label='INTEGRAL')
+    plt.errorbar(hess[0, :], hess[1, :], yerr=[hess[3, :], hess[2, :]], marker='s', markerfacecolor='brown',
+                 markeredgecolor='brown', markersize=3.5, uplims=hessLimits, ecolor='brown', elinewidth=1.5, linewidth=0,
+                 capsize=2.5, capthick=1.5, label='HESS')
+    plt.errorbar(hawc[0, :], hawc[1, :], yerr=[hawc[3, :], hawc[2, :]], marker='s', markerfacecolor='purple',
+                 markeredgecolor='purple', markersize=3.5, uplims=hawcLimits, ecolor='purple', elinewidth=1.5, linewidth=0,
+                 capsize=2.5, capthick=1.5, label='HAWC')
+    plt.errorbar(lhaaso[0, :], lhaaso[1, :], yerr = [lhaaso[3, :], lhaaso[2, :]],marker='s',markerfacecolor='orange',markeredgecolor='orange', markersize = 3.5, uplims = lhaasoLimits, ecolor='orange', elinewidth=1.5, linewidth=0, capsize=2.5, capthick=1.5, label = 'LHAASO')
     ax.legend(fontsize = "10", loc = 'upper left')
     #plt.plot(radiation[0], radiation[2], 'b', linewidth=4)
     #plt.errorbar(cssx1, cssy1, cssError1, ecolor = 'b', elinewidth = 4, linewidth=0, capsize = 5, capthick = 4)
