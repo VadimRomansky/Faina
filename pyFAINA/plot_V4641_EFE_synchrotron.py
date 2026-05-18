@@ -126,14 +126,16 @@ def plot_V4641_EFE_synchrotron(filename1, name, factor = 1.0):
     erositalimits[0] = True
 
     Ne = 10
-    E1 = np.linspace(500, 6000, Ne)
+    E1 = np.linspace(2000, 6000, Ne)
     F1 = np.zeros([Ne])
-    B1 = 4.0E-12
-    A1= 0.5*B1/(np.sqrt(6000* 1.6E-12) - np.sqrt(500* 1.6E-12))
+    B1 = 2.6E-12
+    #A1= 0.5*B1/(np.sqrt(6000* 1.6E-12) - np.sqrt(500* 1.6E-12))
+    A1 = B1/np.log(6000/2000)
 
     for i in range(Ne):
         currentE = E1[i] * 1.6E-12
-        F1[i] = A1 * np.sqrt(currentE)
+        #F1[i] = A1 * np.sqrt(currentE)
+        F1[i] = A1
 
     E2 = np.linspace(17000, 60000, Ne)
     F2 = np.zeros([Ne])
