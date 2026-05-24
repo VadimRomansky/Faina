@@ -128,7 +128,7 @@ def plot_V4641_EFE_synchrotron(filename1, name, factor = 1.0):
     Ne = 10
     E1 = np.linspace(2000, 6000, Ne)
     F1 = np.zeros([Ne])
-    B1 = 2.6E-12
+    B1 = 3.7E-12
     #A1= 0.5*B1/(np.sqrt(6000* 1.6E-12) - np.sqrt(500* 1.6E-12))
     A1 = B1/np.log(6000/2000)
 

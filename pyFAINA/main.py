@@ -115,9 +115,9 @@ if __name__ == '__main__':
     factorW50 = 8E-3
     factor08 = (1.7/1.5)**2*2*0.8E-3
     #plot_W50_EFE("../output/W50synchandcompt.dat", "W50synchandcompt", factorW50)
-    #plot_W50_EFE_highenergy("../output/W50synchandcompt.dat", "W50сompton", factorW50)
-    #plot_W50_EFE_highenergy2("../output/W50synchandcompt.dat","../output/W50thickcompton.dat","W50compton2", factor)
-    #plot_W50_EFE_synchrotron("../output/W50synchandcompt.dat", "W50synch", factorW50)
+    plot_W50_EFE_highenergy("../output/W50synchandcompt.dat", "W50сompton", factorW50)
+    plot_W50_EFE_highenergy2("../output/W50synchandcompt.dat","../output/W50thickcompton.dat","W50compton2", factor)
+    plot_W50_EFE_synchrotron("../output/W50synchandcompt.dat", "W50synch", factorW50)
     #plot_W50_EFE_highenergy3("../output/W50synchandcompt.dat","../output/W50thickcompton.dat","../output/W50thickcompton2.dat", "W50compton3", factorW50)
     # plot_W50_pions("../W50pion.dat")
     #plot_W50_profile("", "W50profile")

@@ -2540,7 +2540,12 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 			break;
 		}
 	}
-	double downstreamSize = 1E20;
+
+	double downstreamVelocity = 10.3E8;
+	double timeSource = 30000 * 3.14E7;
+	//double downstreamSize = 1E20;
+	double downstreamSize = downstreamVelocity * timeSource;
+	//double downstreamSize = 1E20;
 	double upstreamSize = 1.6E20;
 	int maxIndex = Nx - 1;
 	for (int i = 0; i < Nx; ++i) {
@@ -2585,7 +2590,11 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 			break;
 		}
 	}
-	double downstreamSizeBrinkmann = 2E20;
+	double downstreamVelocityBrinkmann = 0.093E10;
+	//double timeSource = 30000 * 3.14E7;
+	//double downstreamSize = 1E20;
+	double downstreamSizeBrinkmann = downstreamVelocity * timeSource;
+	//double downstreamSizeBrinkmann = 2E20;
 	int maxIndexBrinkmann = NxBrinkmann - 1;
 	for (int i = 0; i < NxBrinkmann; ++i) {
 		if (xgrid1Brinkmann[i] >= downstreamSizeBrinkmann) {
@@ -2942,8 +2951,8 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 
 	//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
 	//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.15 * 0.26 * speed_of_light, photonTotalEnergyDensity);
-	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 10.3E8, 10.3E8, photonEnergyDensity);
-	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSourceBrinkmann = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNxBrinkmann, downstreamXgridBrinkmann, Ny, Nz, frontElectronsBrinkmann, downstreamBBrinkmann, downstreamBthetaBrinkmann, downstreamBphiBrinkmann, downstreamConcentrationArrayBrinkmann, 0, sizeBrinkmann, 0, pi * sizeBrinkmann, distance, 0.093E10, 0.093E10, photonEnergyDensity);
+	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNx, downstreamXgrid, Ny, Nz, frontElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, downstreamVelocity, downstreamVelocity, photonEnergyDensity);
+	RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSourceBrinkmann = new RectangularSourceWithSynchAndComptCutoffFromRight(downstreamNxBrinkmann, downstreamXgridBrinkmann, Ny, Nz, frontElectronsBrinkmann, downstreamBBrinkmann, downstreamBthetaBrinkmann, downstreamBphiBrinkmann, downstreamConcentrationArrayBrinkmann, 0, sizeBrinkmann, 0, pi * sizeBrinkmann, distance, downstreamVelocityBrinkmann, downstreamVelocityBrinkmann, photonEnergyDensity);
 	//RectangularSourceInhomogenousDistribution* downstreamSource = new RectangularSourceInhomogenousDistribution(downstreamNx, downstreamXgrid, Ny, Nz, downstreamElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
 	RadiationSource* upstreamSource = new RectangularSourceInhomogenousDistribution(upstreamNx, upstreamXgrid, Ny, Nz, upstreamElectrons, upstreamB, upstreamBtheta, upstreamBphi, upstreamConcentrationArray, 0, size, 0, pi * size, distance);
 	//RectangularSource* downstreamSource = new RectangularSource(1, Ny, Nz, upstreamElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, downstreamXgrid[0], downstreamXgrid[Nx - 1], 0, size, 0, pi * size, distance);
