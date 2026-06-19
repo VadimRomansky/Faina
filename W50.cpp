@@ -2542,7 +2542,7 @@ void evaluateW50comptonAndSynchrotronAdvectionfunctionWithBrinkmann() {
 	}
 
 	double downstreamVelocity = 10.3E8;
-	double timeSource = 30000 * 3.14E7;
+	double timeSource = 5000 * 3.14E7;
 	//double downstreamSize = 1E20;
 	double downstreamSize = downstreamVelocity * timeSource;
 	//double downstreamSize = 1E20;
