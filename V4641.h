@@ -10,3 +10,5 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB();
 void evaluateV4641comptonAndSynchrotronWind();
 
 void evaluateV4641comptonAndSynchrotronAdvectionfunctionWithUpstream();
+
+void evaluateV4641comptonAndSynchrotronMCwithoutupstream();
