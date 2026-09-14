@@ -110,7 +110,7 @@ if __name__ == '__main__':
     #plot_radiation_EFE("../W50compton.dat", "W50compton")
     #plot_radiation_EFE("../W50synchrotron.dat", "W50synchrotron")
     #plot_radiation_EFE("../W50synchandcompt.dat", "W50synchandcompt")
-    factor =(1.7/1.5)**2*2*1E-2
+    factor =(1.7/1.5)**2*2*1E-3
     factor2 = 1E-3
     factorW50 = 8E-3
     factor08 = (1.7/1.5)**2*2*0.8E-3

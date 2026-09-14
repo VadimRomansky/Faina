@@ -1008,8 +1008,8 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	int Ny = 1;
 
 	double L0 =1.0E18;
-	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 20.0);
-	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 20.0);
+	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 10.0);
+	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 10.0);
 
 
 	for (int i = 0; i < downstreamNx; ++i) {
@@ -1025,7 +1025,8 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	int minFieldIndex = 0;
 	for (int i = 1; i < downstreamNx; ++i) {
 		if (sqrt(Bpar[downstreamNx - i - 1] * Bpar[downstreamNx - i - 1] + 2 * Bper[downstreamNx - i - 1] * Bper[downstreamNx - i - 1]) < minField) {
-			minFieldIndex = downstreamNx - i - 1;
+			//minFieldIndex = downstreamNx - i - 1;
+			minFieldIndex = downstreamNx - i;
 			break;
 		}
 	}
