@@ -1584,3 +1584,332 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionWithUpstream()
 	}
 	fclose(chandraFile);
 }
+
+void evaluateV4641comptonAndSynchrotronMCwithoutupstream()
+{
+	    double distance = (20200 / 3.26) * parsec;
+		const char* distributionFileName = "./examples_data/V4641/B20FEB8v03full/electrons.dat";
+		const char* xfileName = "./examples_data/V4641/B20FEB8v03full/x_grid.dat";
+		const char* pfileName = "./examples_data/V4641/B20FEB8v03full/p_grid.dat";
+		const char* fileName = "./examples_data/V4641/B20FEB8v03full/electrons.dat";
+		const char* protonsFileName = "./examples_data/V4641/B10FEB8v03/protons.dat";
+		const char* BfileName = "./examples_data/V4641/B20FEB8v03full/Beff.dat";
+
+		double* energy;
+		double* xgrid1;
+		double* concentration1;
+		double** distributions1;
+
+		double* downstreamXgrid;
+		double* upstreamXgrid;
+
+		int Nenergy;
+		int Nx;
+		int downstreamNx;
+
+		MassiveParticleDistributionFactory::readInhomogenousTabulatedIsotropicDistributionFromMonteCarlo(massElectron, xfileName, pfileName, distributionFileName, xgrid1, energy, distributions1, concentration1, Nenergy, Nx);
+
+		int zeroIndex = 0;
+		for (int i = 0; i < Nx; ++i) {
+			if (xgrid1[i] >= 0) {
+				zeroIndex = i;
+				break;
+			}
+		}
+
+		Nx = Nx - zeroIndex;
+		downstreamNx = Nx;
+
+		double* xgrid = new double[Nx];
+		double* concentration = new double[Nx];
+		double** distributions = new double* [Nx];
+		for (int i = 0; i < Nx; ++i) {
+			xgrid[i] = xgrid1[i + zeroIndex];
+			concentration[Nx - i - 1] = concentration1[i + zeroIndex];
+			distributions[Nx - i - 1] = distributions1[i + zeroIndex];
+		}
+		delete[] xgrid1;
+		delete[] concentration1;
+		delete[] distributions1;
+
+
+		double secondToRadian = pi / (180 * 3600);
+
+		double size = 1.5E19;
+
+		MassiveParticleTabulatedIsotropicDistribution* frontElectrons;
+		double concentration2;
+		//MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massElectron, fileName, frontElectrons, concentration2);
+		frontElectrons = new MassiveParticleTabulatedIsotropicDistribution(massElectron, energy, distributions[downstreamNx-1], Nenergy, DistributionInputType::ENERGY_FE);
+		//frontElectrons = new MassiveParticleTabulatedIsotropicDistribution(new MassiveParticlePowerLawDistribution(massElectron, 2.0, me_c2), me_c2, 1600, 1000);
+		MassiveParticleTabulatedIsotropicDistribution* frontProtons;
+		double concentration3;
+		MassiveParticleDistributionFactory::readTabulatedIsotropicDistributionFromMonteCarlo(massProton, protonsFileName, frontProtons, concentration3);
+		int Ne = frontElectrons->getN();
+		double* electronDistributionArray = frontElectrons->getDistributionArray();
+		double* electronEnergy = frontElectrons->getEnergyArray();
+
+		int leftBound = 0;
+		double leftEnergy;
+		for (int i = 0; i < Ne; ++i) {
+			if (electronDistributionArray[i] > 0) {
+				leftBound = i;
+				leftEnergy = electronEnergy[i] - me_c2 + massProton * speed_of_light2;
+				break;
+			}
+		}
+		int rightBound = Ne - 1;
+		double rightEnergy;
+		for (int i = Ne - 1; i >= 0; --i) {
+			if (electronDistributionArray[i] > 0) {
+				rightBound = i;
+				rightEnergy = electronEnergy[i - 1] - me_c2 + massProton * speed_of_light2;
+				break;
+			}
+		}
+
+		double electronToProtonCorrection = frontProtons->evaluateDistributionInRange(200, leftEnergy, rightEnergy);
+
+
+
+		double downstreamVelocity = 16.3E8;
+		double timeSource = 5000 * 3.14E7;
+		//double downstreamSize = 1E20;
+		double downstreamSize = downstreamVelocity * timeSource;
+		//double upstreamSize = 1.6E20;
+		int maxIndex = downstreamNx -1;
+		for (int i = 0; i < downstreamNx; ++i) {
+			if (xgrid[i] >= downstreamSize) {
+				maxIndex = i;
+				break;
+			}
+		}
+		//maxIndex = Nx - 1;
+		//int minIndex = 0;
+		//for (int i = 0; i < Nx; ++i) {
+		//	if (xgrid1[i] >= -upstreamSize) {
+		//		minIndex = i;
+		//		break;
+		//	}
+		//}
+		//minIndex = 0;
+
+		downstreamNx = maxIndex + 1;
+		//int upstreamNx = zeroIndex - minIndex;
+
+		downstreamXgrid = new double[downstreamNx];
+		for (int i = 0; i < downstreamNx; ++i) {
+			downstreamXgrid[downstreamNx - i - 1] = xgrid[i + zeroIndex];
+		}
+
+		//RadiationSourceInCylindrical* downstreamSource = new SimpleFlatSource(upstreamElectrons, downstreamB, pi / 2, 0, concentration, size, size, distance);
+		PhotonPlankDistribution* photons = PhotonPlankDistribution::getCMBradiation();
+		PhotonPlankDistribution* photonsIR = new PhotonPlankDistribution(140, 0.8 / 1800000);
+		double photonIRconcentration = photonsIR->getConcentration();
+		double photonIRenergyDensity = photonIRconcentration * photonsIR->getMeanEnergy();
+		double photonConcentration = photons->getConcentration();
+		double photonEnergyDensity = photonConcentration * photons->getMeanEnergy();
+		PhotonMultiPlankDistribution* photonsTotal = new PhotonMultiPlankDistribution(2.725, 1.0, 140, 0.8 / 1800000);
+		//PhotonMultiPlankDistribution* photonsTotal = PhotonMultiPlankDistribution::getGalacticField();
+
+		double photonTotalConcentration = photonsTotal->getConcentration();
+		double photonTotalEnergyDensity = photonTotalConcentration * photonsTotal->getMeanEnergy();
+
+		int Nz = 1;
+		int Ny = 1;
+
+		double L0 = 0.3E18;
+		double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 20.0);
+		double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 20.0);
+
+
+		for (int i = 0; i < downstreamNx; ++i) {
+			downstreamXgrid[i] = -downstreamXgrid[i];
+		}
+
+
+		double minField = 1.0E-6;
+		double sinField = 0.0 * minField;
+
+
+
+		int minFieldIndex = 0;
+		for (int i = 1; i < downstreamNx; ++i) {
+			if (sqrt(Bpar[downstreamNx - i - 1] * Bpar[downstreamNx - i - 1] + 2 * Bper[downstreamNx - i - 1] * Bper[downstreamNx - i - 1]) < minField) {
+				minFieldIndex = downstreamNx - i;
+				break;
+			}
+		}
+		for (int i = 0; i < minFieldIndex; ++i) {
+			Bpar[i] = Bpar[minFieldIndex];
+			Bper[i] = Bper[minFieldIndex];
+		}
+
+		double* downstreamB1 = new double[downstreamNx];
+		double*** downstreamB = new double** [downstreamNx];
+		double*** downstreamBtheta = new double** [downstreamNx];
+		double*** downstreamBphi = new double** [downstreamNx];
+		double*** downstreamConcentrationArray = new double** [downstreamNx];
+		for (int i = 0; i < downstreamNx; ++i) {
+			downstreamB[i] = new double* [Nz];
+			downstreamBtheta[i] = new double* [Nz];
+			downstreamBphi[i] = new double* [Nz];
+			downstreamConcentrationArray[i] = new double* [Nz];
+			for (int j = 0; j < Nz; ++j) {
+				downstreamB[i][j] = new double[Ny];
+				downstreamBtheta[i][j] = new double[Ny];
+				downstreamBphi[i][j] = new double[Ny];
+				downstreamConcentrationArray[i][j] = new double[Ny];
+				for (int k = 0; k < Ny; ++k) {
+					downstreamB[i][j][k] = sqrt(Bpar[i] * Bpar[i] + 2 * Bper[i] * Bper[i]);
+					downstreamB1[i] = downstreamB[i][j][k];
+					//downstreamB[i][j][k] = 2E-5;
+					//par - x, per - y and z
+					downstreamBtheta[i][j][k] = atan2(sqrt(Bpar[i] * Bpar[i] + Bper[i] * Bper[i]), Bper[i]);
+					//downstreamBtheta[i][j][k] = pi / 2;
+					downstreamBphi[i][j][k] = atan2(Bpar[i], Bper[i]);
+					downstreamConcentrationArray[i][j][k] = concentration3 * electronToProtonCorrection;
+				}
+			}
+		}
+
+
+		MassiveParticleDistribution**** electrons = new MassiveParticleDistribution * **[downstreamNx];
+		for (int i = 0; i < downstreamNx; ++i) {
+			electrons[i] = new MassiveParticleDistribution * *[Nz];
+			for (int j = 0; j < Nz; ++j) {
+				electrons[i][j] = new MassiveParticleDistribution * [Ny];
+				for (int k = 0; k < Ny; ++k) {
+					electrons[i][j][k] = new MassiveParticleTabulatedIsotropicDistribution(massElectron, energy, distributions[i], Nenergy, DistributionInputType::ENERGY_FE);
+					//electrons2[i][j][k] = new MassiveParticlePowerLawCutoffDistribution(massElectron, 2.0, me_c2, 1.0, 1E15 * 1.6E-12);
+				}
+			}
+		}
+
+		FILE* Bfile = fopen("./output/Bturb.dat", "w");
+
+		for (int i = 0; i < downstreamNx; ++i) {
+			fprintf(Bfile, "%g %g %g\n", xgrid[i], Bpar[i], Bper[i]);
+		}
+
+		fclose(Bfile);
+
+
+		//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
+		//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(Nx, downstreamXgrid, Ny, Nz, upstreamElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.25 * 0.2 * speed_of_light, photonTotalEnergyDensity);
+		RectangularSourceInhomogenousDistribution* downstreamSource = new RectangularSourceInhomogenousDistribution(downstreamNx, xgrid, Ny, Nz, electrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
+		//RectangularSource* source2 = new RectangularSource(Nrho, Ny, Nz, upstreamElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, size, 0, pi * size, distance);
+		MassiveParticleIsotropicDistribution* distributionRight = dynamic_cast<MassiveParticleIsotropicDistribution*>(downstreamSource->getParticleDistribution(downstreamNx - 1, 0, 0));
+		distributionRight->writeDistribution("./output/distributionRight.dat", 200, me_c2, 1E10 * me_c2);
+		MassiveParticleIsotropicDistribution* distributionMiddle = dynamic_cast<MassiveParticleIsotropicDistribution*>(downstreamSource->getParticleDistribution(downstreamNx - 2, 0, 0));
+		distributionMiddle->writeDistribution("./output/distributionMiddle.dat", 200, me_c2, 1E10 * me_c2);
+		MassiveParticleIsotropicDistribution* distributionLeft = dynamic_cast<MassiveParticleIsotropicDistribution*>(downstreamSource->getParticleDistribution(downstreamNx / 2, 0, 0));
+		distributionLeft->writeDistribution("./output/distributionLeft.dat", 200, me_c2, 1E10 * me_c2);
+
+		FILE* outXfile = fopen("./output/x_grid.dat", "w");
+		for (int i = 0; i < downstreamNx; ++i) {
+			fprintf(outXfile, "%g\n", downstreamXgrid[i]);
+		}
+		fclose(outXfile);
+
+		double pmin = 0.1 * massProton / massElectron;
+		double pmax = 5E6 * massProton / massElectron;
+		int Np = 100;
+		double factorp = pow(pmax / pmin, 1.0 / (Np - 1.0));
+		FILE* outPfile = fopen("./output/p_grid.dat", "w");
+		double p = pmin;
+		for (int i = 0; i < Np; ++i) {
+			fprintf(outPfile, "%g\n", p * massElectron / massProton);
+			p = p * factorp;
+		}
+		fclose(outPfile);
+
+		FILE* outDistributionFile = fopen("./output/pdf.dat", "w");
+		for (int i = 0; i < downstreamNx; ++i) {
+			p = pmin;
+			MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(downstreamSource->getParticleDistribution(downstreamNx - i - 1, 0, 0));
+			for (int j = 0; j < Np; ++j) {
+				double E = sqrt(p * p * me_c2 * me_c2 + me_c2 * me_c2);
+				double F = distribution->distributionNormalized(E);
+				F = (F * p * p * p * me_c2 * me_c2 / E) * massElectron / massProton;
+				fprintf(outDistributionFile, "%g\n", F);
+				p = p * factorp;
+			}
+		}
+		fclose(outDistributionFile);
+
+
+		Ne = 100;
+		int Nmu = 100;
+		int Nphi = 4;
+		RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 200, 0.1 * kBoltzman * 2.75, 30 * kBoltzman * 20, photonsTotal, photonTotalConcentration, ComptonSolverType::ISOTROPIC_JONES);
+		//RadiationEvaluator* comptonEvaluator = new InverseComptonEvaluator(Ne, Nmu, Nphi, me_c2 * 500, 1E10 * me_c2, 200, 0.1 * kBoltzman * 2.75, 30 * kBoltzman * 20, photons, photonConcentration, ComptonSolverType::ISOTROPIC_JONES);
+
+		//comptonEvaluator->writeEFEFromSourceToFile("W50compton.dat", downstreamSource, 1.6E-10, 1.6E3, 2000);
+
+		RadiationEvaluator* synchrotronEvaluator = new SynchrotronEvaluator(Ne, me_c2 * 500, 1E10 * me_c2, false);
+
+		//synchrotronEvaluator->writeEFEFromSourceToFile("W50synchrotron.dat", downstreamSource, 1.6E-18, 1.6E-5, 2000);
+
+		RadiationSumEvaluator* sumEvaluator = new RadiationSumEvaluator(Ne, me_c2 * 500, 1E10 * me_c2, comptonEvaluator, synchrotronEvaluator, false);
+
+		//sumEvaluator->writeEFEFromSourceToFile("./output/W50synchandcompt.dat", downstreamSource, 1.6E-12, 1.6E4, 1000);
+
+
+		double Ephmin = 1.6E-18;
+		double Ephmax = 1.6E4;
+		int Nph = 400;
+		double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+		double currentE = Ephmin;
+		FILE* outFile = fopen("./output/V4641synchandcompt.dat", "w");
+		for (int i = 0; i < Nph; ++i) {
+			//omp_set_lock(&my_lock);
+			printf("writeEFEFromSourceToFile iph = %d\n", i);
+			printLog("writeEFEFromSourceToFile iph = %d\n", i);
+			//omp_unset_lock(&my_lock);
+			//double flux1 = sumEvaluator->evaluateFluxFromSource(currentE, downstreamSource);
+			double flux1 = sumEvaluator->evaluateFluxFromSource(currentE, downstreamSource);
+			double flux2 = 0;
+			double fluxHead = 0;
+			double fluxCone = 0;
+
+			fprintf(outFile, "%g %g %g %g\n", currentE / 1.6E-12, currentE * (flux1 + flux2), currentE * fluxHead, currentE * fluxCone);
+			currentE = currentE * factor;
+		}
+		fclose(outFile);
+
+
+		double* profileChandra = new double[downstreamNx];
+		int irho;
+
+		Ephmin = 0.1 * 1000 * 1.6E-12;
+		Ephmax = 10 * 1000 * 1.6E-12;
+		Nph = 20;
+		omp_lock_t lock;
+		omp_init_lock(&lock);
+#pragma omp parallel for private(irho) shared(Ephmin, Ephmax, source, downstreamNx, sumEvaluator, Nph, profileXMM, lock)
+		for (irho = 0; irho < downstreamNx; ++irho) {
+			omp_set_lock(&lock);
+			printf("evaluating profile irho = %d\n", irho);
+			printLog("evaluating profile irho = %d\n", irho);
+			omp_unset_lock(&lock);
+			double factor = pow(Ephmax / Ephmin, 1.0 / (Nph - 1));
+			double currentE = Ephmin;
+			double localFlux = 0;
+			double s = downstreamSource->getCrossSectionArea(irho, 0);
+			double d = downstreamSource->getDistance();
+			for (int ie = 0; ie < Nph; ++ie) {
+				double dE = currentE * (factor - 1.0);
+				localFlux += (1.0 / currentE) * sumEvaluator->evaluateFluxFromSourceAtPoint(currentE, downstreamSource, irho, 0) * dE * d * d / s;
+				currentE = currentE * factor;
+			}
+			profileChandra[irho] = localFlux;
+		}
+
+
+		FILE* chandraFile = fopen("./output/chandraprofile.dat", "w");
+		for (int i = 0; i < downstreamNx; ++i) {
+			fprintf(chandraFile, "%g %g\n", downstreamXgrid[i], profileChandra[i]);
+		}
+		fclose(chandraFile);
+}
