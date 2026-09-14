@@ -874,12 +874,12 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	//double size = 0.5 * fabs(headMaxX);
 	double size = 1.5E19;
 
-	const char* xfileName = "./examples_data/V4641/B8FEB4v08/x_grid.dat";
-	const char* BfileName = "./examples_data/V4641/B8FEB4v08/Beff.dat";
+	const char* xfileName = "./examples_data/V4641/B10FEB8v03full/x_grid.dat";
+	const char* BfileName = "./examples_data/V4641/B10FEB8v03full/Beff.dat";
 
 
-	const char* fileName = "./examples_data/V4641/B8FEB4v08/electrons.dat";
-	const char* protonsFileName = "./examples_data/V4641/B8FEB4v08/protons.dat";
+	const char* fileName = "./examples_data/V4641/B10FEB8v03full/protons.dat";
+	const char* protonsFileName = "./examples_data/V4641/B10FEB8v03full/protons.dat";
 
 
 	Nx = 0;
@@ -1007,7 +1007,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	int Nz = 1;
 	int Ny = 1;
 
-	double L0 =1.0E18;
+	double L0 =0.3E18;
 	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 10.0);
 	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 10.0);
 
@@ -1098,6 +1098,38 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 		fprintf(concentrationFile, "%g %g\n", downstreamXgrid[i], downstreamConcentrationArray[i][0][0]);
 	}
 	fclose(concentrationFile);
+
+	FILE* outXfile = fopen("./output/x_grid.dat", "w");
+	for (int i = 0; i < downstreamNx; ++i) {
+		fprintf(outXfile, "%g\n", downstreamXgrid[i]);
+	}
+	fclose(outXfile);
+
+	double pmin = 0.1 * massProton / massElectron;
+	double pmax = 5E6 * massProton / massElectron;
+	int Np = 100;
+	double factorp = pow(pmax / pmin, 1.0 / (Np - 1.0));
+	FILE* outPfile = fopen("./output/p_grid.dat", "w");
+	double p = pmin;
+	for (int i = 0; i < Np; ++i) {
+		fprintf(outPfile, "%g\n", p * massElectron / massProton);
+		p = p * factorp;
+	}
+	fclose(outPfile);
+
+	FILE* outDistributionFile = fopen("./output/pdf.dat", "w");
+	for (int i = 0; i < downstreamNx; ++i) {
+		p = pmin;
+		MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(downstreamSource->getParticleDistribution(downstreamNx - i - 1, 0, 0));
+		for (int j = 0; j < Np; ++j) {
+			double E = sqrt(p * p * me_c2 * me_c2 + me_c2 * me_c2);
+			double F = distribution->distributionNormalized(E);
+			F = (F * p * p * p * me_c2 * me_c2 / E) * massElectron / massProton;
+			fprintf(outDistributionFile, "%g\n", F);
+			p = p * factorp;
+		}
+	}
+	fclose(outDistributionFile);
 
 	for (int i = 0; i < downstreamNx; ++i) {
 		for (int j = 0; j < Nz; ++j) {
@@ -1588,12 +1620,12 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionWithUpstream()
 void evaluateV4641comptonAndSynchrotronMCwithoutupstream()
 {
 	    double distance = (20200 / 3.26) * parsec;
-		const char* distributionFileName = "./examples_data/V4641/B20FEB8v03full/electrons.dat";
-		const char* xfileName = "./examples_data/V4641/B20FEB8v03full/x_grid.dat";
-		const char* pfileName = "./examples_data/V4641/B20FEB8v03full/p_grid.dat";
-		const char* fileName = "./examples_data/V4641/B20FEB8v03full/electrons.dat";
+		const char* distributionFileName = "./examples_data/V4641/B10FEB8v03full/electrons.dat";
+		const char* xfileName = "./examples_data/V4641/B10FEB8v03full/x_grid.dat";
+		const char* pfileName = "./examples_data/V4641/B10FEB8v03full/p_grid.dat";
+		const char* fileName = "./examples_data/V4641/B10FEB8v03full/electrons.dat";
 		const char* protonsFileName = "./examples_data/V4641/B10FEB8v03/protons.dat";
-		const char* BfileName = "./examples_data/V4641/B20FEB8v03full/Beff.dat";
+		const char* BfileName = "./examples_data/V4641/B10FEB8v03full/Beff.dat";
 
 		double* energy;
 		double* xgrid1;
@@ -1719,8 +1751,8 @@ void evaluateV4641comptonAndSynchrotronMCwithoutupstream()
 		int Ny = 1;
 
 		double L0 = 0.3E18;
-		double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 20.0);
-		double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 20.0);
+		double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 10.0);
+		double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 10.0);
 
 
 		for (int i = 0; i < downstreamNx; ++i) {
