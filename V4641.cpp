@@ -1069,7 +1069,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 		}
 	}
 
-	FILE* BoutputFile = fopen("./output/Bturb.dat", "w");
+	FILE* BoutputFile = fopen("./output/Bturb_AD.dat", "w");
 
 	for (int i = 0; i < downstreamNx; ++i) {
 		//fprintf(Bfile, "%g %g %g\n", -downstreamXgrid[i]/L0 + 1.5, Bpar[i], Bper[i]);
@@ -1099,7 +1099,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	}
 	fclose(concentrationFile);
 
-	FILE* outXfile = fopen("./output/x_grid.dat", "w");
+	FILE* outXfile = fopen("./output/x_grid_AD.dat", "w");
 	for (int i = 0; i < downstreamNx; ++i) {
 		fprintf(outXfile, "%g\n", downstreamXgrid[i]);
 	}
@@ -1109,7 +1109,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	double pmax = 5E6 * massProton / massElectron;
 	int Np = 100;
 	double factorp = pow(pmax / pmin, 1.0 / (Np - 1.0));
-	FILE* outPfile = fopen("./output/p_grid.dat", "w");
+	FILE* outPfile = fopen("./output/p_grid_AD.dat", "w");
 	double p = pmin;
 	for (int i = 0; i < Np; ++i) {
 		fprintf(outPfile, "%g\n", p * massElectron / massProton);
@@ -1117,7 +1117,7 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	}
 	fclose(outPfile);
 
-	FILE* outDistributionFile = fopen("./output/pdf.dat", "w");
+	FILE* outDistributionFile = fopen("./output/pdf_AD.dat", "w");
 	for (int i = 0; i < downstreamNx; ++i) {
 		p = pmin;
 		MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(downstreamSource->getParticleDistribution(downstreamNx - i - 1, 0, 0));
@@ -1731,7 +1731,7 @@ void evaluateV4641comptonAndSynchrotronMCwithoutupstream()
 
 		downstreamXgrid = new double[downstreamNx];
 		for (int i = 0; i < downstreamNx; ++i) {
-			downstreamXgrid[downstreamNx - i - 1] = xgrid[i + zeroIndex];
+			downstreamXgrid[downstreamNx - i - 1] = xgrid[i];
 		}
 
 		//RadiationSourceInCylindrical* downstreamSource = new SimpleFlatSource(upstreamElectrons, downstreamB, pi / 2, 0, concentration, size, size, distance);
@@ -1818,10 +1818,10 @@ void evaluateV4641comptonAndSynchrotronMCwithoutupstream()
 			}
 		}
 
-		FILE* Bfile = fopen("./output/Bturb.dat", "w");
+		FILE* Bfile = fopen("./output/Bturb_MC.dat", "w");
 
 		for (int i = 0; i < downstreamNx; ++i) {
-			fprintf(Bfile, "%g %g %g\n", xgrid[i], Bpar[i], Bper[i]);
+			fprintf(Bfile, "%g %g %g\n", downstreamXgrid[i], Bpar[i], Bper[i]);
 		}
 
 		fclose(Bfile);
@@ -1829,7 +1829,7 @@ void evaluateV4641comptonAndSynchrotronMCwithoutupstream()
 
 		//TabulatedDiskSourceWithSynchAndComptCutoff* downstreamSource = new TabulatedDiskSourceWithSynchAndComptCutoff(Nrho, Nz, 1, upstreamElectrons, B0, pi / 2, 0, concentration, size, size, distance, 0.25 * 0.1 * speed_of_light, photonEnergyDensity);
 		//RectangularSourceWithSynchAndComptCutoffFromRight* downstreamSource = new RectangularSourceWithSynchAndComptCutoffFromRight(Nx, downstreamXgrid, Ny, Nz, upstreamElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance, 0.25 * 0.2 * speed_of_light, photonTotalEnergyDensity);
-		RectangularSourceInhomogenousDistribution* downstreamSource = new RectangularSourceInhomogenousDistribution(downstreamNx, xgrid, Ny, Nz, electrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
+		RectangularSourceInhomogenousDistribution* downstreamSource = new RectangularSourceInhomogenousDistribution(downstreamNx, downstreamXgrid, Ny, Nz, electrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, pi * size, distance);
 		//RectangularSource* source2 = new RectangularSource(Nrho, Ny, Nz, upstreamElectrons, downstreamB, downstreamBtheta, downstreamBphi, downstreamConcentrationArray, 0, size, 0, size, 0, pi * size, distance);
 		MassiveParticleIsotropicDistribution* distributionRight = dynamic_cast<MassiveParticleIsotropicDistribution*>(downstreamSource->getParticleDistribution(downstreamNx - 1, 0, 0));
 		distributionRight->writeDistribution("./output/distributionRight.dat", 200, me_c2, 1E10 * me_c2);
@@ -1838,7 +1838,7 @@ void evaluateV4641comptonAndSynchrotronMCwithoutupstream()
 		MassiveParticleIsotropicDistribution* distributionLeft = dynamic_cast<MassiveParticleIsotropicDistribution*>(downstreamSource->getParticleDistribution(downstreamNx / 2, 0, 0));
 		distributionLeft->writeDistribution("./output/distributionLeft.dat", 200, me_c2, 1E10 * me_c2);
 
-		FILE* outXfile = fopen("./output/x_grid.dat", "w");
+		FILE* outXfile = fopen("./output/x_grid_MC.dat", "w");
 		for (int i = 0; i < downstreamNx; ++i) {
 			fprintf(outXfile, "%g\n", downstreamXgrid[i]);
 		}
@@ -1848,7 +1848,7 @@ void evaluateV4641comptonAndSynchrotronMCwithoutupstream()
 		double pmax = 5E6 * massProton / massElectron;
 		int Np = 100;
 		double factorp = pow(pmax / pmin, 1.0 / (Np - 1.0));
-		FILE* outPfile = fopen("./output/p_grid.dat", "w");
+		FILE* outPfile = fopen("./output/p_grid_MC.dat", "w");
 		double p = pmin;
 		for (int i = 0; i < Np; ++i) {
 			fprintf(outPfile, "%g\n", p * massElectron / massProton);
@@ -1856,7 +1856,7 @@ void evaluateV4641comptonAndSynchrotronMCwithoutupstream()
 		}
 		fclose(outPfile);
 
-		FILE* outDistributionFile = fopen("./output/pdf.dat", "w");
+		FILE* outDistributionFile = fopen("./output/pdf_MC.dat", "w");
 		for (int i = 0; i < downstreamNx; ++i) {
 			p = pmin;
 			MassiveParticleIsotropicDistribution* distribution = dynamic_cast<MassiveParticleIsotropicDistribution*>(downstreamSource->getParticleDistribution(downstreamNx - i - 1, 0, 0));

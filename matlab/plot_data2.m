@@ -35,11 +35,11 @@ mc2 = (9.1*10^-28) * (3*10^10)^2;
 plot(p(1:Np),data(1:Np),'Color','red');
 plot(p(1:Np),data1(1:Np),'--','Color','red');
 
-%plot(p(1:Np),data(50*Np + 1:50*Np + Np),'Color','green');
-%plot(p(1:Np),data1(50*Np + 1:50*Np + Np),'--','Color','green');
+plot(p(1:Np),data(130*Np + 1:130*Np + Np),'Color','green');
+plot(p(1:Np),data1(130*Np + 1:130*Np + Np),'--','Color','green');
 
-plot(p(1:Np),data(160*Np + 1:160*Np + Np),'Color','blue');
-plot(p(1:Np),data1(160*Np + 1:160*Np + Np),'--','Color','blue');
+plot(p(1:Np),data(152*Np + 1:152*Np + Np),'Color','blue');
+plot(p(1:Np),data1(152*Np + 1:152*Np + Np),'--','Color','blue');
 
 %loglog(data(1:N,1),data(1:N,2),'red','LineWidth',2,'Marker','+');
 %loglog(data1(1:N,1),data1(1:N,2),'blue','LineWidth',2,'Marker','+');

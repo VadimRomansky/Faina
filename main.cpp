@@ -1708,7 +1708,7 @@ int main() {
 	//evaluateV4641comptonAndSynchrotronAdvectionfunction();
 	//evaluateV4641comptonThickRegime();
     evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB();
-	//evaluateV4641comptonAndSynchrotronMCwithoutupstream();
+	evaluateV4641comptonAndSynchrotronMCwithoutupstream();
 	//evaluateV4641comptonAndSynchrotronWind();
 	//evaluateV4641comptonAndSynchrotronAdvectionfunctionWithUpstream();
 
