@@ -874,12 +874,12 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	//double size = 0.5 * fabs(headMaxX);
 	double size = 1.5E19;
 
-	const char* xfileName = "./examples_data/V4641/B10FEB8v03full/x_grid.dat";
-	const char* BfileName = "./examples_data/V4641/B10FEB8v03full/Beff.dat";
+	const char* xfileName = "./examples_data/V4641/B20FEB8v03full/x_grid.dat";
+	const char* BfileName = "./examples_data/V4641/B20FEB8v03full/Beff.dat";
 
 
-	const char* fileName = "./examples_data/V4641/B10FEB8v03full/protons.dat";
-	const char* protonsFileName = "./examples_data/V4641/B10FEB8v03full/protons.dat";
+	const char* fileName = "./examples_data/V4641/B20FEB8v03full/protons.dat";
+	const char* protonsFileName = "./examples_data/V4641/B20FEB8v03full/protons.dat";
 
 
 	Nx = 0;
@@ -1008,8 +1008,8 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionChangingB() {
 	int Ny = 1;
 
 	double L0 =0.3E18;
-	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 10.0);
-	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 10.0);
+	double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 20.0);
+	double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 20.0);
 
 
 	for (int i = 0; i < downstreamNx; ++i) {
@@ -1620,12 +1620,12 @@ void evaluateV4641comptonAndSynchrotronAdvectionfunctionWithUpstream()
 void evaluateV4641comptonAndSynchrotronMCwithoutupstream()
 {
 	    double distance = (20200 / 3.26) * parsec;
-		const char* distributionFileName = "./examples_data/V4641/B10FEB8v03full/electrons.dat";
-		const char* xfileName = "./examples_data/V4641/B10FEB8v03full/x_grid.dat";
-		const char* pfileName = "./examples_data/V4641/B10FEB8v03full/p_grid.dat";
-		const char* fileName = "./examples_data/V4641/B10FEB8v03full/electrons.dat";
+		const char* distributionFileName = "./examples_data/V4641/B20FEB8v03full/electrons.dat";
+		const char* xfileName = "./examples_data/V4641/B20FEB8v03full/x_grid.dat";
+		const char* pfileName = "./examples_data/V4641/B20FEB8v03full/p_grid.dat";
+		const char* fileName = "./examples_data/V4641/B20FEB8v03full/electrons.dat";
 		const char* protonsFileName = "./examples_data/V4641/B10FEB8v03/protons.dat";
-		const char* BfileName = "./examples_data/V4641/B10FEB8v03full/Beff.dat";
+		const char* BfileName = "./examples_data/V4641/B20FEB8v03full/Beff.dat";
 
 		double* energy;
 		double* xgrid1;
@@ -1751,8 +1751,8 @@ void evaluateV4641comptonAndSynchrotronMCwithoutupstream()
 		int Ny = 1;
 
 		double L0 = 0.3E18;
-		double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 10.0);
-		double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 10.0);
+		double* Bpar = getUvarovBpar2(downstreamNx, downstreamXgrid, L0, 20.0);
+		double* Bper = getUvarovBper2(downstreamNx, downstreamXgrid, L0, 20.0);
 
 
 		for (int i = 0; i < downstreamNx; ++i) {

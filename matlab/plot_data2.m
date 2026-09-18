@@ -6,7 +6,7 @@ data1 = importdata('../output/pdf_MC.dat');
 %data = importdata('../anisotropicCompton.dat');
 %data = importdata('../differentialFlux.dat');
 %data = importdata('../outputSynch3.dat');
-p = importdata('../output/p_grid.dat');
+p = importdata('../output/p_grid_AD.dat');
 
 N = size(data,1);
 Np = size(p,1);
@@ -35,11 +35,14 @@ mc2 = (9.1*10^-28) * (3*10^10)^2;
 plot(p(1:Np),data(1:Np),'Color','red');
 plot(p(1:Np),data1(1:Np),'--','Color','red');
 
-plot(p(1:Np),data(130*Np + 1:130*Np + Np),'Color','green');
-plot(p(1:Np),data1(130*Np + 1:130*Np + Np),'--','Color','green');
+plot(p(1:Np),data(120*Np + 1:120*Np + Np),'Color','green');
+plot(p(1:Np),data1(120*Np + 1:120*Np + Np),'--','Color','green');
 
 plot(p(1:Np),data(152*Np + 1:152*Np + Np),'Color','blue');
 plot(p(1:Np),data1(152*Np + 1:152*Np + Np),'--','Color','blue');
+
+plot(p(1:Np),data(182*Np + 1:182*Np + Np),'Color','magenta');
+plot(p(1:Np),data1(182*Np + 1:182*Np + Np),'--','Color','magenta');
 
 %loglog(data(1:N,1),data(1:N,2),'red','LineWidth',2,'Marker','+');
 %loglog(data1(1:N,1),data1(1:N,2),'blue','LineWidth',2,'Marker','+');
