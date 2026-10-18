@@ -58,9 +58,15 @@ end;
 %MC_F2 = importdata('../examples_data/pdf_sf_gamma1.5/GLE_pdf_sf_B0_00003.dat');
 
 %MC_F3 = importdata('../examples_data/pdf_sf_gamma1.5/GLE_pdf_sf_B0_000003.dat');
-MC_F = importdata('../examples_data/pdf_sf_gamma0.3/protonsB10.dat');
-MC_F2 = importdata('../examples_data/pdf_sf_gamma0.3/protonsB11.dat');
-MC_F3 = importdata('../examples_data/pdf_sf_gamma0.3/protonsB11.dat');
+
+%MC_F = importdata('../examples_data/pdf_sf_gamma0.3/protonsB10.dat');
+%MC_F2 = importdata('../examples_data/pdf_sf_gamma0.3/protonsB11.dat');
+%MC_F3 = importdata('../examples_data/pdf_sf_gamma0.3/protonsB11.dat');
+
+MC_F = importdata('../examples_data/gamma0.3_MC/GLE_pdf_sf.dat');
+MC_F2 = importdata('../examples_data/gamma0.3_MC/GLE_pdf_sf.dat');
+MC_F3 = importdata('../examples_data/gamma0.3_MC/GLE_pdf_sf.dat');
+
 N2 = size(MC_F,1);
 
 
